@@ -55,6 +55,11 @@ jobs:
         node-version: '20'
         cache: 'npm'
 
+    - name: Instalar dependencias na VPS
+      run: |
+        echo "Instalando Node.js, npm e Docker na VPS..."
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "apt-get update -y && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs && apt-get install -y docker.io && systemctl start docker && systemctl enable docker && node --version && npm --version && docker --version"
+
     - name: Transferir codigo
       run: |
         echo "Transferindo codigo..."
@@ -65,22 +70,12 @@ jobs:
     - name: Build Backend
       run: |
         echo "Building Backend..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "cd ${{ env.APP_DIR }}/backend && npm ci --production && echo 'FROM node:20-alpine
-        WORKDIR /app
-        RUN apk add --no-cache sqlite
-        COPY package*.json ./
-        RUN npm ci --production
-        COPY . .
-        EXPOSE 3000
-        CMD [\"npm\", \"start\"]' > Dockerfile && docker build -t digiurban-backend:latest . && docker run -d --name ${{ env.BACKEND_CONTAINER }} -p ${{ env.BACKEND_PORT }}:3000 --restart unless-stopped -e NODE_ENV=production digiurban-backend:latest"
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "cd ${{ env.APP_DIR }}/backend && node --version && npm --version && npm ci --production && echo 'FROM node:20-alpine' > Dockerfile && echo 'WORKDIR /app' >> Dockerfile && echo 'RUN apk add --no-cache sqlite' >> Dockerfile && echo 'COPY package*.json ./' >> Dockerfile && echo 'RUN npm ci --production' >> Dockerfile && echo 'COPY . .' >> Dockerfile && echo 'EXPOSE 3000' >> Dockerfile && echo 'CMD [\"npm\", \"start\"]' >> Dockerfile && docker build -t digiurban-backend:latest . && docker run -d --name ${{ env.BACKEND_CONTAINER }} -p ${{ env.BACKEND_PORT }}:3000 --restart unless-stopped -e NODE_ENV=production digiurban-backend:latest"
 
     - name: Build Frontend
       run: |
         echo "Building Frontend..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "cd ${{ env.APP_DIR }}/frontend && npm ci && VITE_API_URL=http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }} npm run build && echo 'FROM nginx:alpine
-        COPY dist/ /usr/share/nginx/html/
-        EXPOSE 80
-        CMD [\"nginx\", \"-g\", \"daemon off;\"]' > Dockerfile && docker build -t digiurban-frontend:latest . && docker run -d --name ${{ env.FRONTEND_CONTAINER }} -p ${{ env.FRONTEND_PORT }}:80 --restart unless-stopped digiurban-frontend:latest"
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "cd ${{ env.APP_DIR }}/frontend && node --version && npm --version && npm ci && VITE_API_URL=http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }} npm run build && echo 'FROM nginx:alpine' > Dockerfile && echo 'COPY dist/ /usr/share/nginx/html/' >> Dockerfile && echo 'EXPOSE 80' >> Dockerfile && echo 'CMD [\"nginx\", \"-g\", \"daemon off;\"]' >> Dockerfile && docker build -t digiurban-frontend:latest . && docker run -d --name ${{ env.FRONTEND_CONTAINER }} -p ${{ env.FRONTEND_PORT }}:80 --restart unless-stopped digiurban-frontend:latest"
 
     - name: Verificacao Final
       run: |
