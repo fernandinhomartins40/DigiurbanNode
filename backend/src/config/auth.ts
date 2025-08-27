@@ -1,0 +1,297 @@
+// ====================================================================
+// 🔐 AUTH CONFIG - DIGIURBAN AUTH SYSTEM
+// ====================================================================
+// Configurações centralizadas de autenticação e JWT
+// Segurança, timeouts e constantes do sistema
+// ====================================================================
+
+// ====================================================================
+// CONFIGURAÇÕES DE JWT
+// ====================================================================
+
+export const AUTH_CONFIG = {
+  // Segredos e chaves
+  JWT_SECRET: process.env.JWT_SECRET || 'digiurban-super-secret-key-change-in-production',
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'digiurban-refresh-secret-key',
+  
+  // Expiração de tokens
+  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '24h',
+  REFRESH_TOKEN_EXPIRES_IN: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
+  ACTIVATION_TOKEN_EXPIRES_IN: process.env.ACTIVATION_TOKEN_EXPIRES_IN || '24h',
+  PASSWORD_RESET_TOKEN_EXPIRES_IN: process.env.PASSWORD_RESET_TOKEN_EXPIRES_IN || '1h',
+  
+  // Configurações de senha
+  PASSWORD_MIN_LENGTH: parseInt(process.env.PASSWORD_MIN_LENGTH || '8'),
+  PASSWORD_REQUIRE_UPPERCASE: process.env.PASSWORD_REQUIRE_UPPERCASE === 'true',
+  PASSWORD_REQUIRE_LOWERCASE: process.env.PASSWORD_REQUIRE_LOWERCASE === 'true',
+  PASSWORD_REQUIRE_NUMBERS: process.env.PASSWORD_REQUIRE_NUMBERS === 'true',
+  PASSWORD_REQUIRE_SPECIAL: process.env.PASSWORD_REQUIRE_SPECIAL === 'true',
+  
+  // Controle de tentativas de login
+  MAX_LOGIN_ATTEMPTS: parseInt(process.env.MAX_LOGIN_ATTEMPTS || '5'),
+  LOCKOUT_DURATION: parseInt(process.env.LOCKOUT_DURATION || '900000'), // 15 minutos em ms
+  
+  // Sessões
+  SESSION_TIMEOUT: parseInt(process.env.SESSION_TIMEOUT || '86400000'), // 24 horas em ms
+  CONCURRENT_SESSIONS_LIMIT: parseInt(process.env.CONCURRENT_SESSIONS_LIMIT || '3'),
+  
+  // Rate limiting
+  RATE_LIMIT_WINDOW: parseInt(process.env.RATE_LIMIT_WINDOW || '900000'), // 15 minutos
+  RATE_LIMIT_MAX_ATTEMPTS: parseInt(process.env.RATE_LIMIT_MAX_ATTEMPTS || '10'),
+  
+  // Outros
+  BCRYPT_ROUNDS: parseInt(process.env.BCRYPT_ROUNDS || '12'),
+  TOKEN_CLEANUP_INTERVAL: parseInt(process.env.TOKEN_CLEANUP_INTERVAL || '3600000'), // 1 hora
+} as const;
+
+// ====================================================================
+// CONFIGURAÇÕES DE COOKIES
+// ====================================================================
+
+export const COOKIE_CONFIG = {
+  REFRESH_TOKEN_COOKIE: 'refresh_token',
+  SESSION_COOKIE: 'session_id',
+  
+  OPTIONS: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    maxAge: parseInt(AUTH_CONFIG.SESSION_TIMEOUT),
+    path: '/'
+  }
+} as const;
+
+// ====================================================================
+// HEADERS DE SEGURANÇA
+// ====================================================================
+
+export const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'Content-Security-Policy': "default-src 'self'",
+  'Referrer-Policy': 'strict-origin-when-cross-origin'
+} as const;
+
+// ====================================================================
+// CONFIGURAÇÕES DE CORS
+// ====================================================================
+
+export const CORS_CONFIG = {
+  origin: process.env.CORS_ORIGIN?.split(',') || [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://localhost:8082'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['X-Total-Count', 'X-Page-Count']
+} as const;
+
+// ====================================================================
+// CONFIGURAÇÕES DE RATE LIMITING
+// ====================================================================
+
+export const RATE_LIMITS = {
+  // Geral
+  GENERAL: {
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 100, // 100 requests por IP
+    message: 'Muitas requisições deste IP, tente novamente em 15 minutos'
+  },
+  
+  // Login
+  LOGIN: {
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 5, // 5 tentativas de login por IP
+    skipSuccessfulRequests: true,
+    message: 'Muitas tentativas de login, tente novamente em 15 minutos'
+  },
+  
+  // Registro
+  REGISTER: {
+    windowMs: 60 * 60 * 1000, // 1 hora
+    max: 3, // 3 registros por IP por hora
+    message: 'Muitos registros deste IP, tente novamente em 1 hora'
+  },
+  
+  // Reset de senha
+  PASSWORD_RESET: {
+    windowMs: 60 * 60 * 1000, // 1 hora
+    max: 3, // 3 tentativas por IP por hora
+    message: 'Muitas tentativas de reset de senha, tente novamente em 1 hora'
+  },
+  
+  // API
+  API: {
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 200, // 200 requests por IP para APIs
+    message: 'Muitas requisições de API, tente novamente em 15 minutos'
+  }
+} as const;
+
+// ====================================================================
+// CONFIGURAÇÕES DE VALIDAÇÃO
+// ====================================================================
+
+export const VALIDATION_CONFIG = {
+  EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  CNPJ_REGEX: /^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/,
+  PHONE_REGEX: /^\(\d{2}\)\s?\d{4,5}-?\d{4}$/,
+  
+  NAME_MIN_LENGTH: 2,
+  NAME_MAX_LENGTH: 100,
+  EMAIL_MAX_LENGTH: 255,
+  
+  // Estados brasileiros
+  VALID_STATES: [
+    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 
+    'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 
+    'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+  ]
+} as const;
+
+// ====================================================================
+// MENSAGENS DE ERRO PADRÃO
+// ====================================================================
+
+export const ERROR_MESSAGES = {
+  // Autenticação
+  INVALID_CREDENTIALS: 'Email ou senha incorretos',
+  USER_NOT_FOUND: 'Usuário não encontrado',
+  USER_INACTIVE: 'Usuário inativo ou bloqueado',
+  USER_LOCKED: 'Usuário temporariamente bloqueado devido a tentativas excessivas',
+  ACCOUNT_NOT_VERIFIED: 'Conta não verificada. Verifique seu email',
+  
+  // Token
+  TOKEN_MISSING: 'Token de acesso não fornecido',
+  TOKEN_INVALID: 'Token de acesso inválido',
+  TOKEN_EXPIRED: 'Token de acesso expirado',
+  REFRESH_TOKEN_INVALID: 'Token de atualização inválido',
+  
+  // Permissões
+  INSUFFICIENT_PERMISSIONS: 'Permissões insuficientes para esta ação',
+  ACCESS_DENIED: 'Acesso negado',
+  
+  // Validação
+  INVALID_EMAIL: 'Email inválido',
+  WEAK_PASSWORD: 'Senha não atende aos critérios de segurança',
+  PASSWORDS_DONT_MATCH: 'Senhas não coincidem',
+  INVALID_CNPJ: 'CNPJ inválido',
+  INVALID_PHONE: 'Telefone inválido',
+  
+  // Recursos
+  EMAIL_ALREADY_EXISTS: 'Email já está em uso',
+  CNPJ_ALREADY_EXISTS: 'CNPJ já está em uso',
+  TENANT_NOT_FOUND: 'Tenant não encontrado',
+  
+  // Sistema
+  INTERNAL_ERROR: 'Erro interno do servidor',
+  MAINTENANCE_MODE: 'Sistema em manutenção',
+  FEATURE_DISABLED: 'Funcionalidade temporariamente desabilitada'
+} as const;
+
+// ====================================================================
+// MENSAGENS DE SUCESSO
+// ====================================================================
+
+export const SUCCESS_MESSAGES = {
+  LOGIN_SUCCESS: 'Login realizado com sucesso',
+  LOGOUT_SUCCESS: 'Logout realizado com sucesso',
+  REGISTER_SUCCESS: 'Cadastro realizado com sucesso. Verifique seu email',
+  EMAIL_VERIFIED: 'Email verificado com sucesso',
+  PASSWORD_UPDATED: 'Senha atualizada com sucesso',
+  PASSWORD_RESET_SENT: 'Instruções de reset de senha enviadas por email',
+  PROFILE_UPDATED: 'Perfil atualizado com sucesso',
+  TENANT_CREATED: 'Tenant criado com sucesso',
+  TENANT_UPDATED: 'Tenant atualizado com sucesso'
+} as const;
+
+// ====================================================================
+// CONFIGURAÇÕES DE LOG
+// ====================================================================
+
+export const LOG_CONFIG = {
+  LEVEL: process.env.LOG_LEVEL || 'info',
+  
+  // Ações que devem ser logadas
+  ACTIONS_TO_LOG: [
+    'login',
+    'logout', 
+    'register',
+    'password_change',
+    'password_reset',
+    'email_verification',
+    'permission_granted',
+    'permission_revoked',
+    'user_created',
+    'user_updated',
+    'user_deleted',
+    'tenant_created',
+    'tenant_updated',
+    'tenant_deleted'
+  ],
+  
+  // Campos sensíveis que não devem ser logados
+  SENSITIVE_FIELDS: [
+    'password',
+    'password_hash',
+    'token',
+    'refresh_token',
+    'authorization'
+  ]
+} as const;
+
+// ====================================================================
+// UTILITÁRIOS DE CONFIGURAÇÃO
+// ====================================================================
+
+export const isProduction = (): boolean => {
+  return process.env.NODE_ENV === 'production';
+};
+
+export const isDevelopment = (): boolean => {
+  return process.env.NODE_ENV === 'development';
+};
+
+export const isTest = (): boolean => {
+  return process.env.NODE_ENV === 'test';
+};
+
+// Validar configurações essenciais
+export const validateConfig = (): void => {
+  const requiredEnvVars = [
+    'JWT_SECRET',
+    'JWT_REFRESH_SECRET'
+  ];
+  
+  const missing = requiredEnvVars.filter(
+    envVar => !process.env[envVar] || process.env[envVar] === AUTH_CONFIG.JWT_SECRET
+  );
+  
+  if (missing.length > 0 && isProduction()) {
+    throw new Error(`Variáveis de ambiente obrigatórias em produção: ${missing.join(', ')}`);
+  }
+  
+  if (isProduction() && (
+    AUTH_CONFIG.JWT_SECRET === 'digiurban-super-secret-key-change-in-production' ||
+    AUTH_CONFIG.JWT_REFRESH_SECRET === 'digiurban-refresh-secret-key'
+  )) {
+    console.warn('⚠️ AVISO: Usando chaves padrão em produção! Altere JWT_SECRET e JWT_REFRESH_SECRET');
+  }
+};
+
+// Exibir configurações (sem segredos)
+export const logConfig = (): void => {
+  console.log('📋 Configurações de autenticação carregadas:');
+  console.log(`   • JWT expira em: ${AUTH_CONFIG.JWT_EXPIRES_IN}`);
+  console.log(`   • Refresh token expira em: ${AUTH_CONFIG.REFRESH_TOKEN_EXPIRES_IN}`);
+  console.log(`   • Máximo de tentativas de login: ${AUTH_CONFIG.MAX_LOGIN_ATTEMPTS}`);
+  console.log(`   • Duração do bloqueio: ${AUTH_CONFIG.LOCKOUT_DURATION / 1000 / 60} minutos`);
+  console.log(`   • Timeout da sessão: ${AUTH_CONFIG.SESSION_TIMEOUT / 1000 / 60 / 60} horas`);
+  console.log(`   • Ambiente: ${process.env.NODE_ENV || 'development'}`);
+};
+
+export default AUTH_CONFIG;
