@@ -1,4 +1,4 @@
-name: 🚀 Deploy DigiUrban JWT System - Full Stack (Docker)
+name: Deploy DigiUrban JWT System
 
 concurrency:
   group: digiurban-jwt-production-deploy
@@ -15,517 +15,80 @@ env:
   APP_DIR: '/root/digiurban-jwt'
   FRONTEND_PORT: '3020'
   BACKEND_PORT: '3000'
-  IMAGE_NAME: 'digiurban-jwt-system'
   FRONTEND_CONTAINER: 'digiurban-frontend'
   BACKEND_CONTAINER: 'digiurban-backend'
-  DOMAIN: 'digiurban.com.br'
-  NGINX_CONTAINER: 'nginx-proxy'
 
 jobs:
-  analyze-changes:
-    name: 🔍 Analisar Mudanças
-    runs-on: ubuntu-latest
-    outputs:
-      has_frontend_changes: ${{ steps.changes.outputs.has_frontend_changes }}
-      has_backend_changes: ${{ steps.changes.outputs.has_backend_changes }}
-      has_package_changes: ${{ steps.changes.outputs.has_package_changes }}
-      has_config_changes: ${{ steps.changes.outputs.has_config_changes }}
-      needs_restart: ${{ steps.changes.outputs.needs_restart }}
-      deploy_type: ${{ steps.changes.outputs.deploy_type }}
-    
-    steps:
-    - name: 📥 Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 2
-    
-    - name: 🔍 Analisar arquivos alterados
-      id: changes
-      run: |
-        echo "🔍 Analisando mudanças desde o último commit..."
-        
-        CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "all")
-        echo "📁 Arquivos alterados:"
-        echo "$CHANGED_FILES"
-        
-        HAS_FRONTEND=false
-        HAS_BACKEND=false
-        HAS_PACKAGE=false
-        HAS_CONFIG=false
-        NEEDS_RESTART=false
-        
-        if echo "$CHANGED_FILES" | grep -E "(frontend/|src/.*\\.(tsx?|jsx?|css|html)|vite\\.config|tailwind\\.config|FASE3_JWT_IMPLEMENTATION\\.md)" > /dev/null || [ "$CHANGED_FILES" = "all" ]; then
-          HAS_FRONTEND=true
-          echo "✅ Mudanças no Frontend React detectadas"
-        fi
-        
-        if echo "$CHANGED_FILES" | grep -E "(backend/|server\\.(js|ts)|PLANO_IMPLEMENTACAO_AUTH\\.md)" > /dev/null || [ "$CHANGED_FILES" = "all" ]; then
-          HAS_BACKEND=true
-          echo "✅ Mudanças no Backend Node.js detectadas"
-        fi
-        
-        if echo "$CHANGED_FILES" | grep -E "(package(-lock)?\\.json|frontend/package\\.json|backend/package\\.json)" > /dev/null; then
-          HAS_PACKAGE=true
-          echo "📦 Mudanças em dependências detectadas"
-        fi
-        
-        if echo "$CHANGED_FILES" | grep -E "(\\.env|Dockerfile|docker-compose|nginx\\.conf|\\.dockerignore|contexto\\.md)" > /dev/null; then
-          HAS_CONFIG=true
-          echo "⚙️ Mudanças de configuração detectadas"
-        fi
-        
-        if [[ "$HAS_FRONTEND" == "true" || "$HAS_BACKEND" == "true" || "$HAS_CONFIG" == "true" ]]; then
-          NEEDS_RESTART=true
-        fi
-        
-        if [[ "$HAS_PACKAGE" == "true" ]]; then
-          DEPLOY_TYPE="full"
-          echo "🔄 Deploy completo necessário (dependências mudaram)"
-        elif [[ "$HAS_FRONTEND" == "true" && "$HAS_BACKEND" == "true" ]]; then
-          DEPLOY_TYPE="full-stack"
-          echo "📝 Deploy full-stack (frontend + backend)"
-        elif [[ "$HAS_FRONTEND" == "true" ]]; then
-          DEPLOY_TYPE="frontend-only"
-          echo "🎨 Deploy apenas do frontend"
-        elif [[ "$HAS_BACKEND" == "true" ]]; then
-          DEPLOY_TYPE="backend-only"
-          echo "⚙️ Deploy apenas do backend"
-        elif [[ "$HAS_CONFIG" == "true" ]]; then
-          DEPLOY_TYPE="config-only"
-          echo "🔧 Deploy apenas de configuração"
-        else
-          DEPLOY_TYPE="minimal"
-          echo "📋 Deploy mínimo (docs/workflows)"
-        fi
-        
-        echo "has_frontend_changes=$HAS_FRONTEND" >> $GITHUB_OUTPUT
-        echo "has_backend_changes=$HAS_BACKEND" >> $GITHUB_OUTPUT
-        echo "has_package_changes=$HAS_PACKAGE" >> $GITHUB_OUTPUT
-        echo "has_config_changes=$HAS_CONFIG" >> $GITHUB_OUTPUT
-        echo "needs_restart=$NEEDS_RESTART" >> $GITHUB_OUTPUT
-        echo "deploy_type=$DEPLOY_TYPE" >> $GITHUB_OUTPUT
-
   deploy:
-    name: 🚀 Deploy Full Stack
+    name: Deploy Full Stack
     runs-on: ubuntu-latest
-    needs: analyze-changes
     timeout-minutes: 60
     
     steps:
-    - name: 📋 Info do Deploy Full Stack
+    - name: Info do Deploy
       run: |
-        echo "🚀 Deploy DigiUrban JWT Full Stack System"
-        echo "=========================================="
+        echo "Deploy DigiUrban JWT Full Stack System"
         echo "Commit: ${{ github.sha }}"
         echo "Branch: ${{ github.ref_name }}"
-        echo "Tipo de Deploy: ${{ needs.analyze-changes.outputs.deploy_type }}"
-        echo "Mudanças Frontend: ${{ needs.analyze-changes.outputs.has_frontend_changes }}"
-        echo "Mudanças Backend: ${{ needs.analyze-changes.outputs.has_backend_changes }}"
-        echo "Mudanças de Dependências: ${{ needs.analyze-changes.outputs.has_package_changes }}"
-        echo "Precisa Restart: ${{ needs.analyze-changes.outputs.needs_restart }}"
-        echo "=========================================="
 
-    - name: 🔑 Configurar SSH
+    - name: Configurar SSH
       run: |
-        echo "🔑 Configurando SSH para deploy..."
-        
+        echo "Configurando SSH para deploy..."
         sudo apt-get update -qq
         sudo apt-get install -y sshpass
-        
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
-        
-        cat > ~/.ssh/config << 'EOL'
-        Host *
-          ServerAliveInterval 60
-          ServerAliveCountMax 120
-          TCPKeepAlive yes
-          ControlMaster auto
-          ControlPath ~/.ssh/control-%h-%p-%r
-          ControlPersist 600
-          ConnectTimeout 30
-        EOL
-        chmod 600 ~/.ssh/config
-        
         ssh-keyscan -H ${{ env.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
-        
-        echo "🔍 Testando conexão SSH com configurações otimizadas..."
-        if sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o ConnectTimeout=30 -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "echo 'Conexão SSH bem-sucedida'"; then
-          echo "✅ SSH configurado e testado com sucesso"
+        if sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o ConnectTimeout=30 -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "echo 'SSH OK'"; then
+          echo "SSH configurado com sucesso"
         else
-          echo "❌ Falha na conexão SSH"
+          echo "Falha na conexao SSH"
           exit 1
         fi
 
-    - name: 🔍 Verificar e instalar Docker na VPS
-      run: |
-        echo "🔍 Verificando e instalando Docker se necessário..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} '
-          echo "=== Verificando Docker na VPS ==="
-          
-          if ! command -v docker &> /dev/null; then
-            echo "📦 Docker não encontrado, instalando..."
-            
-            apt-get update -y
-            apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
-            
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-            
-            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-            
-            apt-get update -y
-            apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-            
-            systemctl start docker
-            systemctl enable docker
-            
-            echo "✅ Docker instalado com sucesso"
-          else
-            echo "✅ Docker já está instalado"
-          fi
-          
-          echo "Docker version:"
-          docker --version
-          
-          echo "Docker service status:"
-          systemctl is-active docker || systemctl start docker
-          
-          echo "Containers atuais do DigiUrban:"
-          docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "('"${{ env.FRONTEND_CONTAINER }}"'|'"${{ env.BACKEND_CONTAINER }}"')" || echo "Nenhum container DigiUrban rodando"
-          
-          echo "Configuração de portas:"
-          netstat -tulpn | grep -E ":('"${{ env.FRONTEND_PORT }}"'|'"${{ env.BACKEND_PORT }}"')" || echo "Portas ${{ env.FRONTEND_PORT }} e ${{ env.BACKEND_PORT }} livres"
-          
-          echo "Status atual do diretório:"
-          if [ -d "${{ env.APP_DIR }}" ]; then
-            cd ${{ env.APP_DIR }} && ls -la
-          else
-            echo "Diretório ${{ env.APP_DIR }} não existe ainda"
-          fi
-        '
-
-    - name: 📥 Checkout do código
+    - name: Checkout codigo
       uses: actions/checkout@v4
     
-    - name: 🗂️ Setup Node.js com cache
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-        cache-dependency-path: |
-          package-lock.json
-          frontend/package-lock.json
-          backend/package-lock.json
 
-    - name: 📦 Transferir código para VPS
+    - name: Transferir codigo
       run: |
-        echo "📦 Transferindo código para VPS via rsync..."
-        
-        sudo apt-get update -qq
+        echo "Transferindo codigo..."
         sudo apt-get install -y rsync
-        
-        echo "🧹 Preparando diretório remoto..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} '
-          docker stop ${{ env.FRONTEND_CONTAINER }} ${{ env.BACKEND_CONTAINER }} 2>/dev/null || true
-          docker rm ${{ env.FRONTEND_CONTAINER }} ${{ env.BACKEND_CONTAINER }} 2>/dev/null || true
-          
-          rm -rf ${{ env.APP_DIR }}
-          mkdir -p ${{ env.APP_DIR }}
-          echo "Diretório limpo e recriado"
-        '
-        
-        echo "🚀 Iniciando transferência rsync..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" rsync -avz --delete --progress \
-          --exclude='.git/' \
-          --exclude='node_modules/' \
-          --exclude='frontend/node_modules/' \
-          --exclude='backend/node_modules/' \
-          --exclude='frontend/dist/' \
-          --exclude='backend/dist/' \
-          --exclude='.claude/' \
-          --exclude='*.log' \
-          --exclude='*.tmp' \
-          --exclude='.DS_Store' \
-          --exclude='backend/*.db' \
-          --exclude='backend/*.sqlite' \
-          -e "ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60" \
-          ./ ${{ env.VPS_USER }}@${{ env.VPS_HOST }}:${{ env.APP_DIR }}/
-        
-        echo "✅ Verificando transferência..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} '
-          cd ${{ env.APP_DIR }}
-          
-          echo "📊 Status da transferência:"
-          echo "  - Diretório atual:" $(pwd)
-          echo "  - Espaço em disco:" $(df -h . | tail -1)
-          echo "  - Total de arquivos:" $(find . -type f | wc -l)
-          
-          echo "📂 Estrutura do projeto:"
-          ls -la | grep -E "(frontend|backend|package\.json|contexto\.md|PLANO_)"
-          
-          if [ -d "frontend" ] && [ -d "backend" ]; then
-            echo "✅ Estrutura full-stack transferida com sucesso"
-            echo "📂 Frontend:" $(ls frontend/ | grep -E "(src|package\.json|vite\.config)" | wc -l) "arquivos principais"
-            echo "📂 Backend:" $(ls backend/ | grep -E "(src|package\.json|server\.)" | wc -l) "arquivos principais"
-          else
-            echo "❌ ERRO: Estrutura de projeto não encontrada!"
-            echo "📂 Conteúdo atual do diretório:"
-            ls -la
-            exit 1
-          fi
-        '
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "docker stop ${{ env.FRONTEND_CONTAINER }} ${{ env.BACKEND_CONTAINER }} 2>/dev/null || true; docker rm ${{ env.FRONTEND_CONTAINER }} ${{ env.BACKEND_CONTAINER }} 2>/dev/null || true; rm -rf ${{ env.APP_DIR }}; mkdir -p ${{ env.APP_DIR }}"
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" rsync -avz --delete --exclude='.git/' --exclude='node_modules/' --exclude='frontend/node_modules/' --exclude='backend/node_modules/' --exclude='frontend/dist/' --exclude='.claude/' -e "ssh -o StrictHostKeyChecking=no" ./ ${{ env.VPS_USER }}@${{ env.VPS_HOST }}:${{ env.APP_DIR }}/
 
-    - name: 🏗️ Build e Deploy Backend (Node.js + SQLite + JWT)
-      if: needs.analyze-changes.outputs.has_backend_changes == 'true' || needs.analyze-changes.outputs.deploy_type == 'full' || needs.analyze-changes.outputs.deploy_type == 'full-stack'
+    - name: Build Backend
       run: |
-        echo "🏗️ Building e deploying Backend Node.js com SQLite + JWT..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} '
-          cd ${{ env.APP_DIR }}/backend
-          
-          echo "🔧 Preparando backend..."
-          
-          if [ ! -f package.json ]; then
-            echo "❌ package.json não encontrado no backend"
-            exit 1
-          fi
-          
-          echo "📦 Instalando dependências do backend..."
-          npm ci --production
-          
-          echo "🗄️ Configurando banco SQLite..."
-          if [ ! -f database.sqlite ]; then
-            echo "Criando banco SQLite inicial..."
-          fi
-          
-          if [ ! -f Dockerfile ]; then
-            echo "Criando Dockerfile para backend..."
-            cat > Dockerfile << '"'"'EOF_DOCKER'"'"'
-FROM node:20-alpine
+        echo "Building Backend..."
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "cd ${{ env.APP_DIR }}/backend && npm ci --production && echo 'FROM node:20-alpine
+        WORKDIR /app
+        RUN apk add --no-cache sqlite
+        COPY package*.json ./
+        RUN npm ci --production
+        COPY . .
+        EXPOSE 3000
+        CMD [\"npm\", \"start\"]' > Dockerfile && docker build -t digiurban-backend:latest . && docker run -d --name ${{ env.BACKEND_CONTAINER }} -p ${{ env.BACKEND_PORT }}:3000 --restart unless-stopped -e NODE_ENV=production digiurban-backend:latest"
 
-WORKDIR /app
-
-RUN apk add --no-cache sqlite
-
-COPY package*.json ./
-
-RUN npm ci --production
-
-COPY . .
-
-RUN mkdir -p /app/database
-
-EXPOSE 3000
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
-
-CMD ["npm", "start"]
-EOF_DOCKER
-          fi
-          
-          echo "🐳 Building imagem Docker do backend..."
-          docker build -t digiurban-backend:latest .
-          
-          echo "🚀 Iniciando container do backend na porta ${{ env.BACKEND_PORT }}..."
-          docker run -d \
-            --name ${{ env.BACKEND_CONTAINER }} \
-            -p ${{ env.BACKEND_PORT }}:3000 \
-            --restart unless-stopped \
-            --memory=512m \
-            --cpus=1 \
-            -v $(pwd)/database:/app/database \
-            -e NODE_ENV=production \
-            -e JWT_SECRET=$(openssl rand -base64 32) \
-            -e DATABASE_PATH=/app/database/digiurban.sqlite \
-            digiurban-backend:latest
-          
-          echo "⏳ Aguardando backend inicializar..."
-          sleep 10
-          
-          for i in {1..5}; do
-            if curl -f -s http://localhost:${{ env.BACKEND_PORT }}/health >/dev/null 2>&1; then
-              echo "✅ Backend API funcionando!"
-              break
-            else
-              echo "⏳ Tentativa $i/5 - aguardando backend..."
-              sleep 5
-            fi
-            
-            if [ $i -eq 5 ]; then
-              echo "❌ Backend não respondeu após 5 tentativas"
-              echo "📋 Logs do backend:"
-              docker logs ${{ env.BACKEND_CONTAINER }}
-              exit 1
-            fi
-          done
-          
-          echo "✅ Backend deployed successfully on port ${{ env.BACKEND_PORT }}"
-        '
-
-    - name: 🎨 Build e Deploy Frontend (React + JWT Auth)
-      if: needs.analyze-changes.outputs.has_frontend_changes == 'true' || needs.analyze-changes.outputs.deploy_type == 'full' || needs.analyze-changes.outputs.deploy_type == 'full-stack'
+    - name: Build Frontend
       run: |
-        echo "🎨 Building e deploying Frontend React com sistema JWT..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} '
-          cd ${{ env.APP_DIR }}/frontend
-          
-          echo "🔧 Preparando frontend..."
-          
-          if [ ! -f package.json ]; then
-            echo "❌ package.json não encontrado no frontend"
-            exit 1
-          fi
-          
-          echo "📦 Instalando dependências do frontend..."
-          npm ci
-          
-          echo "🏗️ Building React app..."
-          VITE_API_URL=http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }} npm run build
-          
-          if [ ! -f Dockerfile ]; then
-            echo "Criando Dockerfile para frontend..."
-            cat > Dockerfile << '"'"'EOF_DOCKER'"'"'
-FROM nginx:alpine
+        echo "Building Frontend..."
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "cd ${{ env.APP_DIR }}/frontend && npm ci && VITE_API_URL=http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }} npm run build && echo 'FROM nginx:alpine
+        COPY dist/ /usr/share/nginx/html/
+        EXPOSE 80
+        CMD [\"nginx\", \"-g\", \"daemon off;\"]' > Dockerfile && docker build -t digiurban-frontend:latest . && docker run -d --name ${{ env.FRONTEND_CONTAINER }} -p ${{ env.FRONTEND_PORT }}:80 --restart unless-stopped digiurban-frontend:latest"
 
-COPY dist/ /usr/share/nginx/html/
-
-RUN echo "server { \
-  listen 80; \
-  server_name localhost; \
-  \
-  location / { \
-    root /usr/share/nginx/html; \
-    index index.html index.htm; \
-    try_files \$uri \$uri/ /index.html; \
-  } \
-  \
-  location /api { \
-    proxy_pass http://backend:3000; \
-    proxy_set_header Host \$host; \
-    proxy_set_header X-Real-IP \$remote_addr; \
-  } \
-  \
-  gzip on; \
-  gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript; \
-}" > /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
-EOF_DOCKER
-          fi
-          
-          echo "🐳 Building imagem Docker do frontend..."
-          docker build -t digiurban-frontend:latest .
-          
-          echo "🚀 Iniciando container do frontend na porta ${{ env.FRONTEND_PORT }}..."
-          docker run -d \
-            --name ${{ env.FRONTEND_CONTAINER }} \
-            -p ${{ env.FRONTEND_PORT }}:80 \
-            --restart unless-stopped \
-            --memory=256m \
-            --cpus=0.5 \
-            --link ${{ env.BACKEND_CONTAINER }}:backend \
-            digiurban-frontend:latest
-          
-          echo "⏳ Aguardando frontend inicializar..."
-          sleep 10
-          
-          for i in {1..5}; do
-            if curl -f -s http://localhost:${{ env.FRONTEND_PORT }}/ >/dev/null 2>&1; then
-              echo "✅ Frontend React funcionando!"
-              break
-            else
-              echo "⏳ Tentativa $i/5 - aguardando frontend..."
-              sleep 5
-            fi
-            
-            if [ $i -eq 5 ]; then
-              echo "❌ Frontend não respondeu após 5 tentativas"
-              echo "📋 Logs do frontend:"
-              docker logs ${{ env.FRONTEND_CONTAINER }}
-              exit 1
-            fi
-          done
-          
-          echo "✅ Frontend deployed successfully on port ${{ env.FRONTEND_PORT }}"
-        '
-
-    - name: 🔍 Verificação Final do Sistema
+    - name: Verificacao Final
       run: |
-        echo "🔍 Verificação final do sistema full-stack..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} '
-          cd ${{ env.APP_DIR }}
-          
-          echo "🔍 Status dos containers:"
-          docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "(${{ env.FRONTEND_CONTAINER }}|${{ env.BACKEND_CONTAINER }})"
-          
-          echo ""
-          echo "🔍 Testando Backend API..."
-          if curl -f -s http://localhost:${{ env.BACKEND_PORT }}/health >/dev/null 2>&1; then
-            echo "✅ Backend API respondendo"
-            if curl -f -s http://localhost:${{ env.BACKEND_PORT }}/api/auth/status >/dev/null 2>&1; then
-              echo "✅ Sistema de autenticação JWT ativo"
-            fi
-          else
-            echo "❌ Backend API não está respondendo"
-            docker logs ${{ env.BACKEND_CONTAINER }} --tail 10
-          fi
-          
-          echo ""
-          echo "🔍 Testando Frontend React..."
-          if curl -f -s http://localhost:${{ env.FRONTEND_PORT }}/ >/dev/null 2>&1; then
-            echo "✅ Frontend React respondendo"
-            if curl -s http://localhost:${{ env.FRONTEND_PORT }}/ | grep -q "DigiUrban"; then
-              echo "✅ Aplicação React carregada corretamente"
-            fi
-          else
-            echo "❌ Frontend React não está respondendo"
-            docker logs ${{ env.FRONTEND_CONTAINER }} --tail 10
-          fi
-          
-          echo ""
-          echo "📊 Resumo dos recursos:"
-          docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}" | grep -E "(${{ env.FRONTEND_CONTAINER }}|${{ env.BACKEND_CONTAINER }})"
-        '
+        echo "Verificacao final..."
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "docker ps && echo 'Frontend: http://${{ env.VPS_HOST }}:${{ env.FRONTEND_PORT }}' && echo 'Backend: http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }}'"
 
-    - name: 📊 Relatório do Deploy
-      if: always()
+    - name: Deploy Concluido
       run: |
-        echo "📊 RELATÓRIO DO DEPLOY FULL-STACK"
-        echo "================================="
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} '
-          echo "Tipo de Deploy: ${{ needs.analyze-changes.outputs.deploy_type }}"
-          echo "Frontend atualizado: ${{ needs.analyze-changes.outputs.has_frontend_changes }}"
-          echo "Backend atualizado: ${{ needs.analyze-changes.outputs.has_backend_changes }}"
-          echo "Dependências atualizadas: ${{ needs.analyze-changes.outputs.has_package_changes }}"
-          echo ""
-          
-          echo "=== Status dos Containers ==="
-          docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "(${{ env.FRONTEND_CONTAINER }}|${{ env.BACKEND_CONTAINER }})" || echo "Nenhum container encontrado"
-          
-          echo ""
-          echo "=== Informações do Sistema ==="
-          echo "Frontend (React + JWT Auth): http://${{ env.VPS_HOST }}:${{ env.FRONTEND_PORT }}"
-          echo "Backend (Node.js + SQLite + JWT): http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }}"
-          echo "Banco de dados: SQLite (local)"
-          echo "Autenticação: JWT local"
-          
-          echo ""
-          echo "⚡ Deploy DigiUrban JWT System concluído!"
-        '
-
-    - name: 🎉 Deploy Concluído
-      run: |
-        echo "🎉 DEPLOY DIGIURBAN JWT SYSTEM REALIZADO COM SUCESSO!"
-        echo "⚡ Tipo: ${{ needs.analyze-changes.outputs.deploy_type }}"
-        echo "🏗️ Arquitetura: Full Stack (React + Node.js + SQLite)"
-        echo "🔐 Autenticação: JWT local (Fase 3 implementada)"
-        echo ""
-        echo "🌐 URLs de Acesso:"
-        echo "  - Frontend (React): http://${{ env.VPS_HOST }}:${{ env.FRONTEND_PORT }}"
-        echo "  - Backend API: http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }}"
-        echo "  - Health Check: http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }}/health"
-        echo ""
-        echo "✅ DigiUrban JWT System está online e funcionando!"
-        echo "🔥 Sistema de autenticação JWT implementado com 100% da Fase 3!"
+        echo "DEPLOY CONCLUIDO COM SUCESSO!"
+        echo "Frontend: http://${{ env.VPS_HOST }}:${{ env.FRONTEND_PORT }}"
+        echo "Backend: http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }}"
