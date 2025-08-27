@@ -58,13 +58,60 @@ jobs:
     - name: Instalar dependencias na VPS
       run: |
         echo "Instalando Node.js, npm e Docker na VPS..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "apt-get update -y && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs && apt-get install -y docker.io && systemctl start docker && systemctl enable docker && node --version && npm --version && docker --version"
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+        echo '=== Atualizando sistema ==='
+        apt-get update -y
+        
+        echo '=== Instalando Node.js 20.x ==='
+        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        apt-get install -y nodejs
+        
+        echo '=== Removendo Docker conflitante ==='
+        apt-get remove -y docker docker-engine docker.io containerd runc containerd.io 2>/dev/null || true
+        apt-get autoremove -y
+        
+        echo '=== Instalando Docker via repositório oficial ==='
+        apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo \"deb [arch=\$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \$(lsb_release -cs) stable\" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+        apt-get update -y
+        apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        
+        echo '=== Configurando Docker ==='
+        systemctl start docker
+        systemctl enable docker
+        usermod -aG docker root
+        
+        echo '=== Verificando versões ==='
+        node --version
+        npm --version
+        docker --version
+        docker ps || echo 'Docker service starting...'
+        "
+
+    - name: Limpar containers antigos
+      run: |
+        echo "Limpando containers antigos..."
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+        echo '=== Parando containers existentes ==='
+        docker stop ${{ env.FRONTEND_CONTAINER }} ${{ env.BACKEND_CONTAINER }} 2>/dev/null || true
+        docker rm ${{ env.FRONTEND_CONTAINER }} ${{ env.BACKEND_CONTAINER }} 2>/dev/null || true
+        
+        echo '=== Limpando imagens antigas ==='
+        docker rmi digiurban-frontend:latest digiurban-backend:latest 2>/dev/null || true
+        
+        echo '=== Limpeza de sistema Docker ==='
+        docker system prune -f || true
+        
+        echo '=== Preparando diretorio ==='
+        rm -rf ${{ env.APP_DIR }}
+        mkdir -p ${{ env.APP_DIR }}
+        "
 
     - name: Transferir codigo
       run: |
         echo "Transferindo codigo..."
         sudo apt-get install -y rsync
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "docker stop ${{ env.FRONTEND_CONTAINER }} ${{ env.BACKEND_CONTAINER }} 2>/dev/null || true; docker rm ${{ env.FRONTEND_CONTAINER }} ${{ env.BACKEND_CONTAINER }} 2>/dev/null || true; rm -rf ${{ env.APP_DIR }}; mkdir -p ${{ env.APP_DIR }}"
         sshpass -p "${{ secrets.VPS_PASSWORD }}" rsync -avz --delete --exclude='.git/' --exclude='node_modules/' --exclude='frontend/node_modules/' --exclude='backend/node_modules/' --exclude='frontend/dist/' --exclude='.claude/' -e "ssh -o StrictHostKeyChecking=no" ./ ${{ env.VPS_USER }}@${{ env.VPS_HOST }}:${{ env.APP_DIR }}/
 
     - name: Build Backend
