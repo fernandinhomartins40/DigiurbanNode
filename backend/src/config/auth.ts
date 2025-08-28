@@ -129,40 +129,40 @@ export const CORS_CONFIG = {
 // ====================================================================
 
 export const RATE_LIMITS = {
-  // Geral
+  // Geral - AUMENTADO PARA DESENVOLVIMENTO
   GENERAL: {
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // 100 requests por IP
-    message: 'Muitas requisições deste IP, tente novamente em 15 minutos'
+    windowMs: 1 * 60 * 1000, // 1 minuto (era 15 minutos)
+    max: 1000, // 1000 requests por IP (era 100)
+    message: 'Muitas requisições deste IP, tente novamente em 1 minuto'
   },
   
-  // Login
+  // Login - AUMENTADO PARA DESENVOLVIMENTO
   LOGIN: {
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 5, // 5 tentativas de login por IP
+    windowMs: 5 * 60 * 1000, // 5 minutos (era 15 minutos)
+    max: 50, // 50 tentativas de login por IP (era 5)
     skipSuccessfulRequests: true,
-    message: 'Muitas tentativas de login, tente novamente em 15 minutos'
+    message: 'Muitas tentativas de login, tente novamente em 5 minutos'
   },
   
-  // Registro (🚨 TEMPORÁRIO PARA TESTES - AUMENTAR DEPOIS)
+  // Registro - AUMENTADO CONSIDERAVELMENTE PARA DESENVOLVIMENTO
   REGISTER: {
-    windowMs: 5 * 60 * 1000, // 5 minutos (era 1 hora)
-    max: 10, // 10 registros por IP (eram 3)
-    message: 'Muitos registros deste IP, tente novamente em 5 minutos'
+    windowMs: 1 * 60 * 1000, // 1 minuto (era 5 minutos)
+    max: 100, // 100 registros por IP (era 10)
+    message: 'Muitos registros deste IP, tente novamente em 1 minuto'
   },
   
-  // Reset de senha
+  // Reset de senha - AUMENTADO PARA DESENVOLVIMENTO
   PASSWORD_RESET: {
-    windowMs: 60 * 60 * 1000, // 1 hora
-    max: 3, // 3 tentativas por IP por hora
-    message: 'Muitas tentativas de reset de senha, tente novamente em 1 hora'
+    windowMs: 5 * 60 * 1000, // 5 minutos (era 1 hora)
+    max: 50, // 50 tentativas por IP (era 3)
+    message: 'Muitas tentativas de reset de senha, tente novamente em 5 minutos'
   },
   
-  // API
+  // API - AUMENTADO CONSIDERAVELMENTE PARA DESENVOLVIMENTO
   API: {
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 200, // 200 requests por IP para APIs
-    message: 'Muitas requisições de API, tente novamente em 15 minutos'
+    windowMs: 1 * 60 * 1000, // 1 minuto (era 15 minutos)
+    max: 2000, // 2000 requests por IP para APIs (era 200)
+    message: 'Muitas requisições de API, tente novamente em 1 minuto'
   }
 } as const;
 

@@ -30,40 +30,40 @@ interface AttackPattern {
 // ====================================================================
 
 const RATE_LIMIT_CONFIGS = {
-  // Rate limit geral para API
+  // Rate limit geral para API - AUMENTADO PARA DESENVOLVIMENTO
   GENERAL: {
-    points: 100,           // 100 requests
+    points: 2000,          // 2000 requests (era 100)
     duration: 60,          // por minuto
-    blockDuration: 300     // bloqueio de 5 minutos
+    blockDuration: 30      // bloqueio de 30 segundos (era 5 minutos)
   } as RateLimitConfig,
 
-  // Rate limit específico para login (aumentado para testes)
+  // Rate limit específico para login - AUMENTADO PARA DESENVOLVIMENTO
   LOGIN: {
-    points: 50,            // 50 tentativas
+    points: 200,           // 200 tentativas (era 50)
     duration: 300,         // em 5 minutos
-    blockDuration: 60,     // bloqueio de 1 minuto
+    blockDuration: 30,     // bloqueio de 30 segundos (era 1 minuto)
     execEvenly: true
   } as RateLimitConfig,
 
-  // Rate limit para registro
+  // Rate limit para registro - AUMENTADO CONSIDERAVELMENTE PARA DESENVOLVIMENTO
   REGISTER: {
-    points: 3,             // 3 registros
-    duration: 3600,        // por hora
-    blockDuration: 3600    // bloqueio de 1 hora
+    points: 100,           // 100 registros (era 3)
+    duration: 300,         // em 5 minutos (era 1 hora)
+    blockDuration: 60      // bloqueio de 1 minuto (era 1 hora)
   } as RateLimitConfig,
 
-  // Rate limit para refresh token
+  // Rate limit para refresh token - AUMENTADO PARA DESENVOLVIMENTO
   REFRESH: {
-    points: 10,            // 10 refreshes
-    duration: 600,         // em 10 minutos
-    blockDuration: 1800    // bloqueio de 30 minutos
+    points: 100,           // 100 refreshes (era 10)
+    duration: 300,         // em 5 minutos (era 10 minutos)
+    blockDuration: 60      // bloqueio de 1 minuto (era 30 minutos)
   } as RateLimitConfig,
 
-  // Rate limit rigoroso para operações críticas
+  // Rate limit rigoroso para operações críticas - RELAXADO PARA DESENVOLVIMENTO
   CRITICAL: {
-    points: 2,             // 2 tentativas
-    duration: 3600,        // por hora
-    blockDuration: 7200    // bloqueio de 2 horas
+    points: 50,            // 50 tentativas (era 2)
+    duration: 600,         // em 10 minutos (era 1 hora)
+    blockDuration: 300     // bloqueio de 5 minutos (era 2 horas)
   } as RateLimitConfig
 } as const;
 
