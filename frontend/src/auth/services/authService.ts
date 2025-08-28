@@ -18,6 +18,10 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3021/api';
 
+// Debug: verificar URL da API
+console.log('🔗 [AUTH-SERVICE] API_BASE_URL:', API_BASE_URL);
+console.log('🔗 [AUTH-SERVICE] VITE_API_URL:', import.meta.env.VITE_API_URL);
+
 // ====================================================================
 // CLASSE PRINCIPAL DO SERVIÇO
 // ====================================================================
