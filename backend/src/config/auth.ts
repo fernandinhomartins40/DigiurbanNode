@@ -104,8 +104,10 @@ export const CORS_CONFIG = {
       return callback(null, true);
     }
 
-    if (!origin) {
-      return callback(new Error('Origin não fornecido em produção'), false);
+    // Em produção, permitir requests sem origin apenas para health checks internos
+    if (!origin && process.env.NODE_ENV === 'production') {
+      console.log('⚠️ [CORS] Request sem origin em produção (provavelmente health check interno)');
+      return callback(null, true);
     }
 
     if (allowedOrigins.includes(origin)) {

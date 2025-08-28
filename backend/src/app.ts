@@ -53,6 +53,24 @@ app.use((req, res, next) => {
   next();
 });
 
+// ====================================================================
+// ROTA DE HEALTH CHECK (ANTES DO CORS) 
+// ====================================================================
+
+// Rota de saúde (sem CORS, rate limit ou outros middlewares)
+app.get('/api/health', (_req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// ====================================================================
+// MIDDLEWARES PRINCIPAIS
+// ====================================================================
+
 app.use(cors(CORS_CONFIG));
 
 app.use(compression());
@@ -90,15 +108,7 @@ app.use(sanitizeAll);
 // ROTAS DA API
 // ====================================================================
 
-// Rota de saúde (sem rate limit específico)
-app.get('/api/health', (_req, res) => {
-  res.json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    version: '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
+// Outras rotas da API virão aqui
 
 // Rotas de autenticação
 app.use('/api/auth', authRoutes);
