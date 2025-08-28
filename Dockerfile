@@ -48,7 +48,7 @@ RUN mkdir -p backend data logs && \
 # Instalar dependências do backend em produção
 COPY --from=backend-build /app/backend/package*.json ./backend/
 WORKDIR /app/backend
-RUN npm install --only=production
+RUN npm ci --omit=dev
 WORKDIR /app
 
 # Copiar backend compilado com permissões corretas
