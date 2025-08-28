@@ -20,6 +20,7 @@ services:
       - JWT_REFRESH_SECRET=xqitCihoXFOcQg1M5ZDREqC66sBVIHbapxFCG7zS8U8nnsc1NuyX0BpPkMDz6o2pK+vE7TbEdiCH4TKr4lBnlw==
       - COOKIE_SECRET=+4nAMw2izSgWUJf+H0VXDccqbPAdZXfkW+2CgBdX3Io=
       - DATABASE_PATH=/app/data/digiurban.db
+      - CORS_ORIGIN=http://72.60.10.112:3020,https://72.60.10.112:3020
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     volumes:
