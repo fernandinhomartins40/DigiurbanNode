@@ -1,4 +1,4 @@
-name: Deploy DigiUrban Unified System
+name: 🚀 Deploy DigiUrban Unified System
 
 concurrency:
   group: digiurban-unified-production-deploy
@@ -18,164 +18,419 @@ env:
 
 jobs:
   deploy:
-    name: Deploy Unified Container
+    name: 🎯 Deploy Unified Container
     runs-on: ubuntu-latest
     timeout-minutes: 60
     
     steps:
-    - name: Info do Deploy
+    - name: 📋 Informações do Deploy
       run: |
-        echo "Deploy DigiUrban Unified System"
-        echo "Commit: ${{ github.sha }}"
-        echo "Branch: ${{ github.ref_name }}"
+        echo "=============================================="
+        echo "🚀 INICIANDO DEPLOY DIGIURBAN UNIFIED SYSTEM"
+        echo "=============================================="
+        echo "📦 Commit: ${{ github.sha }}"
+        echo "🌿 Branch: ${{ github.ref_name }}"
+        echo "👤 Actor: ${{ github.actor }}"
+        echo "⏰ Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+        echo "🎯 Target: ${{ env.VPS_HOST }}:${{ env.APP_PORT }}"
+        echo "=============================================="
+        
+        # Variável para tracking do tempo
+        echo "DEPLOY_START_TIME=$(date +%s)" >> $GITHUB_ENV
 
-    - name: Configurar SSH
+    - name: 🔧 Configurar SSH e Ferramentas
       run: |
-        echo "Configurando SSH para deploy..."
+        echo "🔧 Configurando SSH e ferramentas necessárias..."
         sudo apt-get update -qq
-        sudo apt-get install -y sshpass
+        sudo apt-get install -y sshpass rsync curl jq
+        
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
         ssh-keyscan -H ${{ env.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
-        if sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o ConnectTimeout=30 -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "echo 'SSH OK'"; then
-          echo "SSH configurado com sucesso"
+        
+        echo "🔐 Testando conexão SSH..."
+        if sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o ConnectTimeout=30 -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "echo '✅ SSH funcionando'"; then
+          echo "✅ SSH configurado com sucesso"
         else
-          echo "Falha na conexao SSH"
+          echo "❌ Falha na conexão SSH"
           exit 1
         fi
 
-    - name: Checkout codigo
+    - name: 📥 Checkout do Código
       uses: actions/checkout@v4
-    
-    - name: Setup Node.js
+      with:
+        fetch-depth: 0
+
+    - name: 🟢 Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
 
-    - name: Instalar dependencias na VPS
+    - name: 📊 Análise Pre-Deploy
       run: |
-        echo "Instalando Node.js, npm e Docker na VPS..."
+        echo "📊 Analisando estrutura do projeto..."
+        echo "=================================="
+        
+        echo "📁 Estrutura raiz:"
+        ls -la
+        
+        echo ""
+        echo "📁 Backend:"
+        if [ -d "backend" ]; then
+          ls -la backend/
+          if [ -f "backend/package.json" ]; then
+            echo "✅ package.json encontrado"
+            echo "📦 Dependências principais:"
+            cat backend/package.json | jq -r '.dependencies | keys | .[]' | head -5
+          fi
+        else
+          echo "❌ Diretório backend não encontrado"
+        fi
+        
+        echo ""
+        echo "📁 Frontend:"
+        if [ -d "frontend" ]; then
+          ls -la frontend/
+          if [ -f "frontend/package.json" ]; then
+            echo "✅ package.json encontrado"
+            echo "📦 Dependências principais:"
+            cat frontend/package.json | jq -r '.dependencies | keys | .[]' | head -5
+          fi
+        else
+          echo "❌ Diretório frontend não encontrado"
+        fi
+        
+        echo ""
+        echo "🐳 Docker:"
+        ls -la Dockerfile* docker-compose* 2>/dev/null || echo "⚠️ Arquivos Docker não encontrados"
+
+    - name: 🏗️ Build Local do Backend
+      run: |
+        echo "🏗️ Iniciando build local do backend..."
+        echo "======================================"
+        
+        if [ ! -d "backend" ]; then
+          echo "❌ Diretório backend não encontrado"
+          exit 1
+        fi
+        
+        cd backend
+        
+        echo "📦 Instalando dependências do backend..."
+        if npm ci --only=production; then
+          echo "✅ Dependências instaladas com sucesso"
+        else
+          echo "❌ Falha ao instalar dependências"
+          exit 1
+        fi
+        
+        echo "🔨 Compilando TypeScript..."
+        if npm run build; then
+          echo "✅ Build do backend concluído com sucesso"
+          echo "📊 Analisando build:"
+          ls -la dist/
+          echo "📈 Tamanho do build: $(du -sh dist/)"
+          echo "📝 Arquivos gerados: $(find dist/ -type f | wc -l)"
+        else
+          echo "❌ Falha no build do backend"
+          exit 1
+        fi
+
+    - name: ⚛️ Build Local do Frontend  
+      run: |
+        echo "⚛️ Iniciando build local do frontend..."
+        echo "======================================"
+        
+        if [ ! -d "frontend" ]; then
+          echo "❌ Diretório frontend não encontrado"
+          exit 1
+        fi
+        
+        cd frontend
+        
+        echo "📦 Instalando dependências do frontend..."
+        if npm ci; then
+          echo "✅ Dependências instaladas com sucesso"
+        else
+          echo "❌ Falha ao instalar dependências"
+          exit 1
+        fi
+        
+        echo "🔨 Compilando React/Vite..."
+        if npm run build; then
+          echo "✅ Build do frontend concluído com sucesso"
+          echo "📊 Analisando build:"
+          ls -la dist/
+          echo "📈 Tamanho do build: $(du -sh dist/)"
+          echo "📝 Arquivos gerados: $(find dist/ -type f | wc -l)"
+          
+          # Verificar se arquivos essenciais foram gerados
+          if [ -f "dist/index.html" ]; then
+            echo "✅ index.html encontrado"
+          else
+            echo "❌ index.html não encontrado"
+            exit 1
+          fi
+        else
+          echo "❌ Falha no build do frontend"
+          exit 1
+        fi
+
+    - name: 🧹 Preparar VPS
+      run: |
+        echo "🧹 Preparando ambiente na VPS..."
+        echo "================================"
+        
         sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-        echo '=== Atualizando sistema ==='
-        apt-get update -y
+        echo '🔄 Atualizando sistema...'
+        apt-get update -y > /dev/null 2>&1
         
-        echo '=== Instalando Node.js 20.x ==='
-        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-        apt-get install -y nodejs
+        echo '🟢 Instalando Node.js 20.x...'
+        curl -fsSL https://deb.nodesource.com/setup_20.x | bash - > /dev/null 2>&1
+        apt-get install -y nodejs > /dev/null 2>&1
         
-        echo '=== Removendo Docker conflitante ==='
+        echo '🐳 Configurando Docker...'
         apt-get remove -y docker docker-engine docker.io containerd runc containerd.io 2>/dev/null || true
-        apt-get autoremove -y
+        apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release > /dev/null 2>&1
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg 2>/dev/null
+        echo \"deb [arch=\$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \$(lsb_release -cs) stable\" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+        apt-get update -y > /dev/null 2>&1
+        apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin > /dev/null 2>&1
         
-        echo '=== Instalando Docker via repositório oficial ==='
-        apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-        echo \\\"deb [arch=\\$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \\$(lsb_release -cs) stable\\\" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-        apt-get update -y
-        apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-        
-        echo '=== Configurando Docker ==='
         systemctl start docker
         systemctl enable docker
-        usermod -aG docker root
         
-        echo '=== Verificando versões ==='
+        echo '✅ Versões instaladas:'
         node --version
         npm --version
         docker --version
-        docker ps || echo 'Docker service starting...'
         "
 
-    - name: Limpar containers antigos
+    - name: 🧹 Limpeza de Containers Antigos
       run: |
-        echo "Limpando containers antigos..."
+        echo "🧹 Removendo containers e imagens antigas..."
+        echo "============================================"
+        
         sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-        echo '=== Parando container existente ==='
-        docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null || true
-        docker rm ${{ env.CONTAINER_NAME }} 2>/dev/null || true
+        echo '🛑 Parando containers existentes...'
+        docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null && echo '✅ Container parado' || echo 'ℹ️  Nenhum container rodando'
+        docker rm ${{ env.CONTAINER_NAME }} 2>/dev/null && echo '✅ Container removido' || echo 'ℹ️  Nenhum container para remover'
         
-        echo '=== Limpando imagens antigas ==='
-        docker rmi digiurban-unified:latest 2>/dev/null || true
+        echo '🗑️  Removendo imagens antigas...'
+        docker rmi digiurban-unified:latest 2>/dev/null && echo '✅ Imagem removida' || echo 'ℹ️  Nenhuma imagem para remover'
         
-        echo '=== Limpeza de sistema Docker ==='
-        docker system prune -f || true
+        echo '🧽 Limpeza de sistema Docker...'
+        docker system prune -f > /dev/null 2>&1 && echo '✅ Sistema limpo'
         
-        echo '=== Preparando diretorio ==='
+        echo '📁 Preparando diretório...'
         rm -rf ${{ env.APP_DIR }}
         mkdir -p ${{ env.APP_DIR }}
+        echo '✅ Diretório preparado'
         "
 
-    - name: Transferir codigo
+    - name: 📤 Transferir Código para VPS
       run: |
-        echo "Transferindo codigo..."
-        sudo apt-get install -y rsync
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" rsync -avz --delete --exclude='.git/' --exclude='node_modules/' --exclude='frontend/node_modules/' --exclude='backend/node_modules/' --exclude='frontend/dist/' --exclude='.claude/' -e "ssh -o StrictHostKeyChecking=no" ./ ${{ env.VPS_USER }}@${{ env.VPS_HOST }}:${{ env.APP_DIR }}/
+        echo "📤 Transferindo código para VPS..."
+        echo "=================================="
+        
+        echo "📊 Analisando arquivos a transferir..."
+        echo "Tamanho total: $(du -sh . | cut -f1)"
+        
+        echo "🚀 Iniciando transferência..."
+        if sshpass -p "${{ secrets.VPS_PASSWORD }}" rsync -avz --progress --delete \
+          --exclude='.git/' \
+          --exclude='node_modules/' \
+          --exclude='frontend/node_modules/' \
+          --exclude='backend/node_modules/' \
+          --exclude='.claude/' \
+          -e "ssh -o StrictHostKeyChecking=no" \
+          ./ ${{ env.VPS_USER }}@${{ env.VPS_HOST }}:${{ env.APP_DIR }}/; then
+          echo "✅ Código transferido com sucesso"
+        else
+          echo "❌ Falha na transferência"
+          exit 1
+        fi
 
-    - name: Build e Deploy Container Unificado
+    - name: 🐳 Build e Deploy Container
       run: |
-        echo "Building container unificado..."
+        echo "🐳 Construindo e deployando container..."
+        echo "======================================="
+        
         sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
         cd ${{ env.APP_DIR }}
         
-        echo '=== Verificando estrutura do projeto ==='
+        echo '📋 Verificando estrutura transferida...'
         ls -la
         
-        echo '=== Verificando arquivos necessários ==='
-        ls -la Dockerfile docker-compose.yml nginx-unified.conf start-services.sh
+        echo '🔍 Verificando arquivos Docker...'
+        ls -la Dockerfile docker-compose.yml nginx-unified.conf start-services.sh 2>/dev/null || echo '⚠️ Alguns arquivos Docker podem estar ausentes'
         
-        echo '=== Verificando estrutura backend/frontend ==='
-        ls -la backend/ frontend/ 2>/dev/null || echo 'Estrutura monorepo detectada'
+        echo '✅ Tornando scripts executáveis...'
+        chmod +x start-services.sh 2>/dev/null || echo 'ℹ️  Script não encontrado'
         
-        echo '=== Tornando script executável ==='
-        chmod +x start-services.sh
+        echo '🏗️ Construindo container (isso pode levar alguns minutos)...'
+        if docker-compose build --no-cache; then
+          echo '✅ Container construído com sucesso'
+        else
+          echo '❌ Falha na construção do container'
+          exit 1
+        fi
         
-        echo '=== Executando migrações de banco ==='
-        cd backend && npm install --production && cd ..
+        echo '🚀 Iniciando container...'
+        if docker-compose up -d; then
+          echo '✅ Container iniciado'
+        else
+          echo '❌ Falha ao iniciar container'
+          exit 1
+        fi
         
-        echo '=== Building com docker-compose ==='
-        docker-compose build --no-cache
-        
-        echo '=== Iniciando container unificado ==='
-        docker-compose up -d
-        
-        echo '=== Verificando status do container ==='
+        echo '📊 Status dos containers:'
         docker-compose ps
-        
-        echo '=== Aguardando inicialização (90s) ==='
-        sleep 90
-        
-        echo '=== Testando health check backend ==='
-        curl -f http://localhost:3020/api/health || echo 'Backend health check aguardando...'
-        
-        echo '=== Testando aplicação frontend ==='
-        curl -f http://localhost:3020/ || echo 'Frontend aguardando...'
-        sleep 30
-        
-        echo '=== Testando novamente ==='
-        curl -f http://localhost:3020/api/health || echo 'Health check falhou'
-        curl -f http://localhost:3020/ || echo 'Frontend falhou'
-        
-        echo '=== Verificando logs completos ==='
-        docker-compose logs --tail=100
-        
-        echo '=== Status final dos containers ==='
-        docker ps
-        
-        echo 'Deploy do sistema DigiUrban concluído!'
         "
 
-    - name: Verificacao Final
+    - name: 🏥 Health Checks Inteligentes
       run: |
-        echo "Verificacao final..."
+        echo "🏥 Executando health checks inteligentes..."
+        echo "=========================================="
+        
+        # Função para health check com retry
+        health_check() {
+          local url=$1
+          local name=$2
+          local max_attempts=20
+          local delay=15
+          
+          echo "🔍 Verificando $name..."
+          
+          for attempt in $(seq 1 $max_attempts); do
+            local total_wait=$((attempt * delay))
+            echo "⏳ Tentativa $attempt/$max_attempts (${total_wait}s total) - $name"
+            
+            local response=$(curl -s -o /dev/null -w "%{http_code}|%{time_total}" "$url" 2>/dev/null || echo "000|0")
+            local http_code=$(echo $response | cut -d'|' -f1)
+            local time_total=$(echo $response | cut -d'|' -f2)
+            
+            case $http_code in
+              200)
+                echo "✅ $name: Respondendo corretamente (${time_total}s)"
+                return 0
+                ;;
+              000)
+                echo "⏳ $name: Serviço ainda não responde..."
+                ;;
+              *)
+                echo "⚠️  $name: HTTP $http_code (aguardando...)"
+                ;;
+            esac
+            
+            if [ $attempt -lt $max_attempts ]; then
+              sleep $delay
+            fi
+          done
+          
+          echo "❌ $name: Falhou após ${max_attempts} tentativas (${total_wait}s total)"
+          return 1
+        }
+        
+        echo ""
+        echo "🏥 Aguardando inicialização completa (60s)..."
+        sleep 60
+        
+        # Health check do backend
+        if health_check "http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/api/health" "Backend API"; then
+          echo "✅ Backend está funcionando!"
+        else
+          echo "❌ Backend não está respondendo"
+          BACKEND_FAILED=1
+        fi
+        
+        echo ""
+        
+        # Health check do frontend
+        if health_check "http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/" "Frontend"; then
+          echo "✅ Frontend está funcionando!"
+        else
+          echo "❌ Frontend não está respondendo"
+          FRONTEND_FAILED=1
+        fi
+        
+        # Verificar logs se houver falha
+        if [ "${BACKEND_FAILED}" = "1" ] || [ "${FRONTEND_FAILED}" = "1" ]; then
+          echo ""
+          echo "🔍 Coletando logs para diagnóstico..."
+          echo "===================================="
+          
+          sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+          cd ${{ env.APP_DIR }}
+          echo '📋 Status dos containers:'
+          docker-compose ps
+          echo ''
+          echo '📝 Logs recentes (últimas 50 linhas):'
+          docker-compose logs --tail=50
+          "
+          
+          exit 1
+        fi
+
+    - name: ✅ Verificação Final e Resumo
+      if: success()
+      run: |
+        DEPLOY_END_TIME=$(date +%s)
+        DEPLOY_DURATION=$((DEPLOY_END_TIME - DEPLOY_START_TIME))
+        DURATION_FORMATTED=$(printf '%02d:%02d:%02d' $((DEPLOY_DURATION/3600)) $((DEPLOY_DURATION%3600/60)) $((DEPLOY_DURATION%60)))
+        
+        echo "🎉 DEPLOY CONCLUÍDO COM SUCESSO!"
+        echo "================================"
+        echo "⏱️  Tempo total: $DURATION_FORMATTED"
+        echo "🌐 Aplicação: http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}"
+        echo "🏥 Health Check: http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/api/health"
+        echo "📊 Status: ONLINE ✅"
+        echo ""
+        
+        # Verificação final dos serviços
         sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-        docker ps
-        echo 'Aplicação: http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}'
-        echo 'Health Check: http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/health'
+        cd ${{ env.APP_DIR }}
+        echo '📊 Status final dos containers:'
+        docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+        echo ''
+        echo '💾 Uso de recursos:'
+        docker stats --no-stream --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}'
         "
+        
+        echo ""
+        echo "🎊🎊🎊 DEPLOY FINALIZADO COM SUCESSO! 🎊🎊🎊"
 
-    - name: Deploy Concluido
+    - name: ❌ Deploy Failed - Diagnóstico
+      if: failure()
       run: |
-        echo "DEPLOY CONCLUIDO COM SUCESSO!"
-        echo "Aplicação: http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}"
-        echo "Health Check: http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/health"
+        DEPLOY_END_TIME=$(date +%s)
+        DEPLOY_DURATION=$((DEPLOY_END_TIME - DEPLOY_START_TIME))
+        DURATION_FORMATTED=$(printf '%02d:%02d:%02d' $((DEPLOY_DURATION/3600)) $((DEPLOY_DURATION%3600/60)) $((DEPLOY_DURATION%60)))
+        
+        echo "❌ DEPLOY FALHOU!"
+        echo "=================="
+        echo "⏱️  Tempo até falha: $DURATION_FORMATTED"
+        echo "📊 Status: FAILED ❌"
+        echo ""
+        echo "🔍 Coletando informações de diagnóstico..."
+        
+        # Coletar logs detalhados
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+        echo '📋 Containers em execução:'
+        docker ps -a
+        echo ''
+        echo '📝 Logs completos do sistema:'
+        cd ${{ env.APP_DIR }} 2>/dev/null && docker-compose logs --tail=100 || echo 'Não foi possível acessar logs do docker-compose'
+        echo ''
+        echo '💾 Uso de disco:'
+        df -h
+        echo ''
+        echo '🧠 Uso de memória:'
+        free -h
+        " 2>/dev/null || echo "Não foi possível conectar à VPS para diagnóstico"
+        
+        echo ""
+        echo "💥💥💥 DEPLOY FALHOU - VERIFIQUE OS LOGS ACIMA 💥💥💥"
+        
+        exit 1

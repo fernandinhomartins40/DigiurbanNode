@@ -1,0 +1,46 @@
+# ====================================================================
+# 🔔 NOTIFICATION HELPER - GITHUB ACTIONS
+# ====================================================================
+# Template para adicionar notificações ao workflow se necessário
+# ====================================================================
+
+# Para usar, adicione ao final do workflow principal:
+
+# - name: 🔔 Notificação de Sucesso
+#   if: success()
+#   uses: sarisia/actions-status-discord@v1
+#   with:
+#     webhook: ${{ secrets.DISCORD_WEBHOOK }}
+#     title: "✅ Deploy DigiUrban - SUCESSO"
+#     description: |
+#       🎉 Deploy concluído com sucesso!
+#       🌐 **URL**: http://72.60.10.112:3020
+#       ⏱️ **Duração**: ${{ env.DEPLOY_DURATION }}
+#       📦 **Commit**: ${{ github.sha }}
+#       👤 **Por**: ${{ github.actor }}
+#     color: 0x00ff00
+#     username: "DigiUrban Deploy Bot"
+
+# - name: 🔔 Notificação de Falha  
+#   if: failure()
+#   uses: sarisia/actions-status-discord@v1
+#   with:
+#     webhook: ${{ secrets.DISCORD_WEBHOOK }}
+#     title: "❌ Deploy DigiUrban - FALHOU"
+#     description: |
+#       💥 Deploy falhou!
+#       📦 **Commit**: ${{ github.sha }}
+#       👤 **Por**: ${{ github.actor }}
+#       🔍 **Verifique os logs**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+#     color: 0xff0000
+#     username: "DigiUrban Deploy Bot"
+
+# Para Slack, use:
+# - name: 🔔 Slack Notification
+#   uses: 8398a7/action-slack@v3
+#   with:
+#     status: ${{ job.status }}
+#     webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+#     text: |
+#       Deploy DigiUrban ${{ job.status }}!
+#       URL: http://72.60.10.112:3020
