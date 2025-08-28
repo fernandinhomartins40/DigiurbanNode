@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/auth'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,7 +11,9 @@ import { toast } from 'sonner'
 
 export default function CidadaoLogin() {
   const navigate = useNavigate()
-  const { login: signIn } = useAuth()
+  const [searchParams] = useSearchParams()
+  const redirectTo = searchParams.get('from') || '/cidadao/dashboard'
+  const { login: signIn, isAuthenticated, profile, logout } = useAuth()
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -19,6 +21,27 @@ export default function CidadaoLogin() {
     password: ''
   })
   const [error, setError] = useState('')
+
+  // ✅ Redirecionamento automático quando autenticado como cidadão
+  useEffect(() => {
+    if (isAuthenticated && profile && !loading) {
+      console.log('🔄 [CIDADAO] Usuário autenticado detectado:', { role: profile.role, email: profile.email })
+      
+      if (profile.role === 'citizen') {
+        console.log('✅ [CIDADAO] Cidadão confirmado, redirecionando...')
+        toast.success('Login realizado com sucesso!')
+        
+        setTimeout(() => {
+          navigate(redirectTo, { replace: true })
+        }, 1000)
+      } else {
+        console.log('🚫 [CIDADAO] Access denied for role:', profile.role)
+        toast.error('Acesso negado. Este portal é exclusivo para cidadãos.')
+        setError('Acesso negado. Este portal é exclusivo para cidadãos.')
+        logout()
+      }
+    }
+  }, [isAuthenticated, profile, loading, redirectTo, navigate, logout])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -42,28 +65,16 @@ export default function CidadaoLogin() {
     setError('')
 
     try {
-      console.log('🔐 Login do cidadão...')
+      console.log('🔐 [CIDADAO] Login do cidadão iniciado...')
       
-      const response = await signIn({ email: formData.email, password: formData.password })
+      // O useAuth.login retorna um resultado mas o useEffect detectará a mudança de estado
+      // O redirecionamento será feito pelo useEffect quando isAuthenticated for true
+      await signIn({
+        email: formData.email.toLowerCase().trim(),
+        password: formData.password
+      })
       
-      if (response.success && response.user) {
-        // Verificar se é cidadão
-        if (response.user.userType !== 'citizen') {
-          throw new Error('Acesso negado. Este portal é exclusivo para cidadãos.')
-        }
-        
-        toast.success('Login realizado com sucesso!')
-        console.log('✅ Login do cidadão realizado com sucesso')
-        
-        // Redirecionamento direto
-        if (response.redirectPath) {
-          navigate(response.redirectPath)
-        } else {
-          navigate('/cidadao/dashboard')
-        }
-      } else {
-        throw new Error(response.error?.message || 'Dados de autenticação inválidos')
-      }
+      console.log('✅ [CIDADAO] Login concluído - aguardando redirecionamento automático')
     } catch (error: Error | unknown) {
       console.error('❌ Erro no login do cidadão:', error)
       let errorMessage = 'Erro ao fazer login. Verifique suas credenciais.'
@@ -74,6 +85,8 @@ export default function CidadaoLogin() {
         errorMessage = 'Email ainda não confirmado. Verifique sua caixa de entrada.'
       } else if (error.message.includes('Perfil de cidadão não encontrado')) {
         errorMessage = 'Conta não encontrada. Faça seu cadastro primeiro.'
+      } else if (error.message.includes('exclusivo para cidadãos')) {
+        errorMessage = 'Acesso negado. Este portal é exclusivo para cidadãos.'
       } else if (error.message) {
         errorMessage = error.message
       }

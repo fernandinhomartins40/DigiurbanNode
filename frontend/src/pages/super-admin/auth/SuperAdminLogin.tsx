@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/auth'
 import { Button } from "@/components/ui/button"
@@ -22,6 +22,27 @@ export default function SuperAdminLogin() {
     password: ''
   })
   const [error, setError] = useState('')
+
+  // ✅ Redirecionamento automático quando autenticado como super admin
+  useEffect(() => {
+    if (isAuthenticated && profile && !loading) {
+      console.log('🔄 [SUPER-ADMIN] Usuário autenticado detectado:', { role: profile.role, email: profile.email })
+      
+      if (profile.role === 'super_admin' || isSuperAdmin()) {
+        console.log('✅ [SUPER-ADMIN] Super Admin confirmado, redirecionando...')
+        toast.success('🎆 Login de Super Administrador realizado com sucesso!')
+        
+        setTimeout(() => {
+          navigate(redirectTo, { replace: true })
+        }, 1000)
+      } else {
+        console.log('🚫 [SUPER-ADMIN] Access denied for role:', profile.role)
+        toast.error('Acesso negado. Este portal é exclusivo para Super Administradores.')
+        setError('Acesso negado. Este portal é exclusivo para Super Administradores.')
+        logout() // Fazer logout se não for super admin
+      }
+    }
+  }, [isAuthenticated, profile, loading, redirectTo, navigate, isSuperAdmin, logout])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -47,42 +68,14 @@ export default function SuperAdminLogin() {
     try {
       console.log('🔐 [SUPER-ADMIN] Login Super Administrador iniciado...')
       
-      // Fazer login usando o sistema JWT unificado
-      const loginResult = await login({
+      // O useAuth.login retorna um resultado mas o useEffect detectará a mudança de estado
+      // O redirecionamento será feito pelo useEffect quando isAuthenticated for true
+      await login({
         email: formData.email.toLowerCase().trim(),
         password: formData.password
       })
       
-      console.log('📊 [SUPER-ADMIN] Login result:', { success: !!loginResult })
-      
-      console.log('✅ Login AUTH2 realizado, verificando perfil...')
-      
-      // Aguardar um pouco para o estado ser atualizado
-      await new Promise(resolve => setTimeout(resolve, 300))
-      
-      // Verificar se o login foi bem-sucedido e se o usuário é super admin
-      if (isAuthenticated && profile) {
-        console.log('👤 [SUPER-ADMIN] Profile loaded:', { role: profile.role, email: profile.email })
-        
-        if (profile.role === 'super_admin' || isSuperAdmin()) {
-          console.log('✅ [SUPER-ADMIN] Super Admin confirmado, redirecionando...')
-          toast.success('🎆 Login de Super Administrador realizado com sucesso!')
-          
-          // Redirecionar após pequeno delay
-          setTimeout(() => {
-            navigate(redirectTo, { replace: true })
-          }, 1000)
-          return
-        } else {
-          console.log('🚫 [SUPER-ADMIN] Access denied for role:', profile.role)
-          toast.error('Acesso negado. Este portal é exclusivo para Super Administradores.')
-          setError('Acesso negado. Este portal é exclusivo para Super Administradores.')
-          await logout() // Fazer logout se não for super admin
-        }
-      } else {
-        console.error('❌ [SUPER-ADMIN] Login failed - profile not loaded')
-        setError('Erro ao carregar perfil do usuário ou login falhou. Tente novamente.')
-      }
+      console.log('✅ [SUPER-ADMIN] Login concluído - aguardando redirecionamento automático')
     } catch (error: Error | unknown) {
       console.error('❌ Erro no login Super Admin:', error)
       let errorMessage = 'Erro ao fazer login. Verifique suas credenciais de Super Administrador.'

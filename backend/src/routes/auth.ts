@@ -310,20 +310,30 @@ authRoutes.post('/logout-all',
 
 /**
  * GET /auth/profile
- * Obter perfil do usuário autenticado
+ * Obter perfil completo do usuário autenticado
  */
 authRoutes.get('/profile',
   authMiddleware,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      // Usuário já está disponível via middleware
-      const user = req.user!;
+      const userId = req.user!.id;
+
+      // Buscar perfil completo com informações do tenant
+      const userProfile = await UserModel.getProfile(userId);
+      
+      if (!userProfile) {
+        res.status(404).json({
+          success: false,
+          error: 'Perfil não encontrado'
+        });
+        return;
+      }
 
       res.json({
         success: true,
         message: 'Perfil obtido com sucesso',
         data: {
-          user
+          user: userProfile
         }
       });
 

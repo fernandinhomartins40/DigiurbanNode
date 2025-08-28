@@ -158,15 +158,47 @@ export class UserModel {
   // ================================================================
   
   static async getProfile(id: string): Promise<UserProfile | null> {
-    const sql = 'SELECT * FROM user_profiles WHERE id = ?';
-    const profile = await queryOne(sql, [id]) as UserProfile;
-    return profile || null;
+    const sql = `
+      SELECT 
+        u.*,
+        t.nome as tenant_name,
+        t.cidade as tenant_cidade,
+        t.estado as tenant_estado,
+        t.plano as tenant_plano,
+        t.status as tenant_status
+      FROM users u
+      LEFT JOIN tenants t ON u.tenant_id = t.id
+      WHERE u.id = ?
+    `;
+    const user = await queryOne(sql, [id]) as any;
+    
+    if (!user) return null;
+    
+    // Remove password_hash e retorna UserProfile
+    const { password_hash, ...profile } = user;
+    return profile as UserProfile;
   }
   
   static async getProfileByEmail(email: string): Promise<UserProfile | null> {
-    const sql = 'SELECT * FROM user_profiles WHERE email = ?';
-    const profile = await queryOne(sql, [email.toLowerCase()]) as UserProfile;
-    return profile || null;
+    const sql = `
+      SELECT 
+        u.*,
+        t.nome as tenant_name,
+        t.cidade as tenant_cidade,
+        t.estado as tenant_estado,
+        t.plano as tenant_plano,
+        t.status as tenant_status
+      FROM users u
+      LEFT JOIN tenants t ON u.tenant_id = t.id
+      WHERE u.email = ?
+    `;
+    const user = await queryOne(sql, [email.toLowerCase()]) as any;
+    
+    if (!user) return null;
+    
+    // Remove password_hash e retorna UserProfile
+    const { password_hash, ...profile } = user;
+    return profile as UserProfile;
   }
   
   // ================================================================
