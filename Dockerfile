@@ -12,7 +12,7 @@ COPY backend/package*.json ./
 RUN npm install
 COPY backend/ ./
 RUN rm -f src/database/seedRunner.ts src/database/seeds/001_initial_data.ts
-RUN npx tsc --noEmitOnError false || true
+RUN npm run build
 
 # ====================================================================
 
