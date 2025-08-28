@@ -12,7 +12,7 @@ services:
     container_name: digiurban-unified
     restart: unless-stopped
     ports:
-      - "3020:8080" # Nginx rodando na porta não-privilegiada 8080
+      - "3020:3020" # Nginx rodando na porta 3020
     environment:
       - NODE_ENV=production
       - PORT=3021
@@ -24,7 +24,7 @@ services:
     depends_on:
       - redis
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3020/health"]
       interval: 30s
       timeout: 10s
       retries: 3

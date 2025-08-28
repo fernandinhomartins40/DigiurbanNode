@@ -118,7 +118,7 @@ jobs:
         cd backend
         
         echo "📦 Instalando dependências do backend..."
-        if npm ci --only=production; then
+        if npm ci; then
           echo "✅ Dependências instaladas com sucesso"
         else
           echo "❌ Falha ao instalar dependências"

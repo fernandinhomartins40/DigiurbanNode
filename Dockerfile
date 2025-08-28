@@ -9,7 +9,7 @@ FROM node:20-alpine AS backend-build
 # Build do Backend
 WORKDIR /app/backend
 COPY backend/package*.json ./
-RUN npm install
+RUN npm ci
 COPY backend/ ./
 RUN rm -f src/database/seedRunner.ts src/database/seeds/001_initial_data.ts src/database/seed.ts
 RUN npm run build
@@ -27,7 +27,7 @@ RUN npm run build
 
 # ====================================================================
 
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Instalar nginx e PM2
 RUN apk add --no-cache nginx
@@ -45,9 +45,11 @@ RUN mkdir -p backend data logs && \
     chown -R digiurban:digiurban /var/lib/nginx && \
     chown -R digiurban:digiurban /run/nginx
 
-# Copiar dependências do backend já instaladas
+# Instalar apenas dependências de produção do backend
 COPY --from=backend-build /app/backend/package*.json ./backend/
-COPY --from=backend-build /app/backend/node_modules ./backend/node_modules
+WORKDIR /app/backend
+RUN npm ci --omit=dev
+WORKDIR /app
 
 # Copiar backend compilado com permissões corretas
 COPY --from=backend-build --chown=digiurban:digiurban /app/backend/dist ./backend/dist
@@ -65,7 +67,7 @@ RUN chmod +x start-services.sh
 USER digiurban
 
 # Expor apenas a porta do nginx
-EXPOSE 80
+EXPOSE 3020
 
 # Script de inicialização
 CMD ["./start-services.sh"]

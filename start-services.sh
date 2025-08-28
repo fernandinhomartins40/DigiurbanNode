@@ -47,21 +47,21 @@ fi
 
 # Iniciar Nginx com configuração não-root
 echo "🌐 Iniciando Nginx..."
-nginx -c /etc/nginx/nginx.conf -g 'daemon off;' &
+nginx -g 'daemon off;' &
 
 # Aguardar nginx inicializar
 sleep 2
 
 # Verificar se nginx está rodando
 echo "🔍 Verificando Nginx..."
-if ! curl -f http://localhost:8080/health >/dev/null 2>&1; then
+if ! curl -f http://localhost:3020/health >/dev/null 2>&1; then
   echo "❌ Nginx não iniciou corretamente"
   cat /tmp/error.log
   exit 1
 fi
 
 echo "✅ Nginx iniciado com sucesso"
-echo "🎉 Sistema DigiUrban rodando em http://localhost:8080"
+echo "🎉 Sistema DigiUrban rodando em http://localhost:3020"
 
 # Manter container rodando e mostrar logs
 echo "📊 Monitorando logs..."
