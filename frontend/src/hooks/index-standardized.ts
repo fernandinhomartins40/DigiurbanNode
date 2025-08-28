@@ -274,7 +274,7 @@ export function useHookWithFallback<T>(
   standardizedHook: () => T,
   legacyHook: () => T
 ): T {
-  const environment = process.env.NODE_ENV as 'development' | 'staging' | 'production'
+  const environment = import.meta.env.NODE_ENV as 'development' | 'staging' | 'production'
   
   if (shouldUseStandardizedHook(secretaria, environment)) {
     console.log(`🎯 Usando hook padronizado para ${secretaria}`)

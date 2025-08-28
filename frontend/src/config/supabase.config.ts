@@ -266,9 +266,9 @@ export function debugSupabaseConfig() {
     environment: {
       viteEnv: typeof import.meta !== 'undefined' ? import.meta.env : null,
       processEnv: typeof process !== 'undefined' ? {
-        NODE_ENV: process.env.NODE_ENV,
-        VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL,
-        NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL
+        NODE_ENV: import.meta.env.NODE_ENV,
+        VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+        NEXT_PUBLIC_SUPABASE_URL: import.meta.env.NEXT_PUBLIC_SUPABASE_URL
       } : null
     }
   }

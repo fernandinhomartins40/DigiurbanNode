@@ -16,7 +16,7 @@ import type {
 // CONFIGURAÇÃO DA API
 // ====================================================================
 
-const API_BASE_URL = process.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 // ====================================================================
 // CLASSE PRINCIPAL DO SERVIÇO
@@ -93,7 +93,7 @@ export class AuthService {
       } : null;
 
       const duration = Date.now() - startTime;
-      console.log(`✅ [JWT-AUTH] Login completo em ${duration}ms`);
+      console.log(`✅ [JWT-AUTH] Login completo em ${duration}ms para role: ${user.role}`);
 
       return {
         success: true,

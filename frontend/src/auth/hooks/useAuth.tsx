@@ -113,7 +113,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * Login - Sistema JWT
    */
-  const login = useCallback(async (credentials: LoginCredentials): Promise<void> => {
+  const login = useCallback(async (credentials: LoginCredentials): Promise<{ success: boolean; role?: UserRole }> => {
     const startTime = Date.now();
     
     try {
@@ -148,6 +148,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       logPerformance('Login completo', startTime);
+      
+      return { success: true, role: profile.role };
 
     } catch (error: Error | unknown) {
       console.error('❌ [JWT-AUTH] Erro no login:', error);
@@ -156,6 +158,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error: (error instanceof Error ? error.message : String(error)) || 'Erro durante o login'
       });
       logPerformance('Login falhou', startTime);
+      
+      return { success: false };
     }
   }, [updateState, logPerformance]);
 

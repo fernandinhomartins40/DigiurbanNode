@@ -58,7 +58,7 @@ export const PERFORMANCE_CONFIG = {
   CACHE_CLEANUP_INTERVAL: 10 * 60 * 1000, // 10 minutos
   
   // Logging
-  ENABLE_PERFORMANCE_LOGS: process.env.NODE_ENV === 'development',
+  ENABLE_PERFORMANCE_LOGS: import.meta.env.NODE_ENV === 'development',
   LOG_SLOW_OPERATIONS: true,
   SLOW_OPERATION_THRESHOLD: 1000 // 1 segundo
 };
@@ -84,18 +84,18 @@ export const AUTH_ERRORS = {
 
 export const DEV_CONFIG = {
   // Logs detalhados apenas em desenvolvimento
-  ENABLE_DEBUG_LOGS: process.env.NODE_ENV === 'development',
+  ENABLE_DEBUG_LOGS: import.meta.env.NODE_ENV === 'development',
   
   // Cache menor em desenvolvimento
-  CACHE_TIMEOUT: process.env.NODE_ENV === 'development' 
+  CACHE_TIMEOUT: import.meta.env.NODE_ENV === 'development' 
     ? 1 * 60 * 1000 // 1 minuto
     : AUTH2_CONFIG.cacheTimeout,
     
   // Bypass de algumas validações em desenvolvimento
-  BYPASS_EMAIL_CONFIRMATION: process.env.NODE_ENV === 'development',
+  BYPASS_EMAIL_CONFIRMATION: import.meta.env.NODE_ENV === 'development',
   
   // Dados de teste
-  TEST_CREDENTIALS: process.env.NODE_ENV === 'development' ? {
+  TEST_CREDENTIALS: import.meta.env.NODE_ENV === 'development' ? {
     email: 'admin@digiurban.com',
     password: 'admin123'
   } : null
@@ -110,7 +110,7 @@ export const ConfigUtils = {
    * Verificar se está em produção
    */
   isProduction: (): boolean => {
-    return process.env.NODE_ENV === 'production';
+    return import.meta.env.NODE_ENV === 'production';
   },
 
   /**
@@ -140,11 +140,11 @@ export const ConfigUtils = {
   validateConfig: (): { valid: boolean; errors: string[] } => {
     const errors: string[] = [];
 
-    if (!process.env.REACT_APP_SUPABASE_URL) {
+    if (!import.meta.env.REACT_APP_SUPABASE_URL) {
       errors.push('REACT_APP_SUPABASE_URL não configurada');
     }
 
-    if (!process.env.REACT_APP_SUPABASE_ANON_KEY) {
+    if (!import.meta.env.REACT_APP_SUPABASE_ANON_KEY) {
       errors.push('REACT_APP_SUPABASE_ANON_KEY não configurada');
     }
 

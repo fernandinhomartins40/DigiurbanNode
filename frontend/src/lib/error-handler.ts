@@ -247,14 +247,14 @@ export class ErrorHandler {
     }
 
     // Em desenvolvimento, mostrar no console
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.NODE_ENV === 'development') {
       console.group(`🚨 CRUD Error: ${error.operation} ${error.entity}`)
       console.error('Error Details:', logEntry)
       console.groupEnd()
     }
 
     // Em produção, enviar para serviço de monitoramento
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.NODE_ENV === 'production') {
       // TODO: Integrar com serviço de logging (Sentry, LogRocket, etc.)
       this.sendToMonitoringService(logEntry)
     }

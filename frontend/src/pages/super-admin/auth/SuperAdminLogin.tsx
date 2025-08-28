@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, LogIn, ArrowLeft, Shield, Crown } from 'lucide-react'
 import { toast } from 'sonner'
-import { supabase } from "@/lib/supabase"
+// Supabase removido - usando sistema JWT unificado
 
 export default function SuperAdminLogin() {
   const navigate = useNavigate()
@@ -45,13 +45,15 @@ export default function SuperAdminLogin() {
     setError('')
 
     try {
-      console.log('🔐 Login Super Administrador AUTH2...')
+      console.log('🔐 [SUPER-ADMIN] Login Super Administrador iniciado...')
       
-      // Fazer login usando o sistema AUTH2
-      await login({
-        email: formData.email,
+      // Fazer login usando o sistema JWT unificado
+      const loginResult = await login({
+        email: formData.email.toLowerCase().trim(),
         password: formData.password
       })
+      
+      console.log('📊 [SUPER-ADMIN] Login result:', { success: !!loginResult })
       
       console.log('✅ Login AUTH2 realizado, verificando perfil...')
       
@@ -60,18 +62,26 @@ export default function SuperAdminLogin() {
       
       // Verificar se o login foi bem-sucedido e se o usuário é super admin
       if (isAuthenticated && profile) {
+        console.log('👤 [SUPER-ADMIN] Profile loaded:', { role: profile.role, email: profile.email })
+        
         if (profile.role === 'super_admin' || isSuperAdmin()) {
-          toast.success('Login de Super Administrador realizado com sucesso!')
-          console.log('✅ Super Admin confirmado, redirecionando...')
-          navigate(redirectTo)
+          console.log('✅ [SUPER-ADMIN] Super Admin confirmado, redirecionando...')
+          toast.success('🎆 Login de Super Administrador realizado com sucesso!')
+          
+          // Redirecionar após pequeno delay
+          setTimeout(() => {
+            navigate(redirectTo, { replace: true })
+          }, 1000)
           return
         } else {
+          console.log('🚫 [SUPER-ADMIN] Access denied for role:', profile.role)
           toast.error('Acesso negado. Este portal é exclusivo para Super Administradores.')
           setError('Acesso negado. Este portal é exclusivo para Super Administradores.')
           await logout() // Fazer logout se não for super admin
         }
       } else {
-        setError('Erro ao carregar perfil do usuário. Tente novamente.')
+        console.error('❌ [SUPER-ADMIN] Login failed - profile not loaded')
+        setError('Erro ao carregar perfil do usuário ou login falhou. Tente novamente.')
       }
     } catch (error: Error | unknown) {
       console.error('❌ Erro no login Super Admin:', error)

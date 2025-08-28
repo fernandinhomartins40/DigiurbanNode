@@ -122,7 +122,7 @@ export const AUTH2_INFO = {
 // INICIALIZAÇÃO AUTOMÁTICA EM DEV
 // ====================================================================
 
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+if (typeof window !== 'undefined' && import.meta.env.NODE_ENV === 'development') {
   console.log(`🚀 AUTH2 v${AUTH2_VERSION} carregado`);
   console.log('📊 Features:', AUTH2_INFO.features);
   

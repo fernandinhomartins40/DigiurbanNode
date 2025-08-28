@@ -292,7 +292,7 @@ export const AuthDebug = {
 // EXPOSIÇÃO GLOBAL PARA DEBUGGING (APENAS DEV)
 // ====================================================================
 
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+if (typeof window !== 'undefined' && import.meta.env.NODE_ENV === 'development') {
   (window as any).AUTH2_DEBUG = {
     metrics: AuthMetrics,
     debug: AuthDebug,

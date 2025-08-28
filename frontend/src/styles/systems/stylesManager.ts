@@ -282,7 +282,7 @@ export const preloadCriticalStyles = async () => {
  * Middleware para desenvolvimento - mostra informações do sistema ativo
  */
 export const devStylesInfo = () => {
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.NODE_ENV === 'development') {
     const currentSystem = document.body.getAttribute('data-system') as SystemType;
     if (currentSystem && STYLE_SYSTEMS[currentSystem]) {
       const config = STYLE_SYSTEMS[currentSystem];
