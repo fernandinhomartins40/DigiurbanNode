@@ -58,6 +58,7 @@ COPY --from=backend-build --chown=digiurban:digiurban /app/backend/dist ./backen
 COPY --from=frontend-build --chown=digiurban:digiurban /app/frontend/dist ./frontend
 
 # Copiar configurações
+COPY --chown=digiurban:digiurban nginx.conf /etc/nginx/nginx.conf
 COPY --chown=digiurban:digiurban nginx-unified.conf /etc/nginx/conf.d/default.conf
 COPY --chown=digiurban:digiurban pm2.json ./
 COPY --chown=digiurban:digiurban start-services.sh ./
