@@ -9,7 +9,7 @@ FROM node:20-alpine AS backend-build
 # Build do Backend
 WORKDIR /app/backend
 COPY backend/package*.json ./
-RUN npm ci
+RUN npm install
 COPY backend/ ./
 RUN rm -f src/database/seedRunner.ts src/database/seeds/001_initial_data.ts src/database/seed.ts
 RUN npm run build
@@ -48,7 +48,7 @@ RUN mkdir -p backend data logs && \
 # Instalar apenas dependências de produção do backend
 COPY --from=backend-build /app/backend/package*.json ./backend/
 WORKDIR /app/backend
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 WORKDIR /app
 
 # Copiar backend compilado com permissões corretas
