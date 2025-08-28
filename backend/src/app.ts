@@ -21,7 +21,7 @@ import activityRoutes from './routes/activities.js';
 import registrationRoutes from './routes/registration.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3021;
 
 // ====================================================================
 // MIDDLEWARE DE SEGURANÇA
