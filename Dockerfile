@@ -29,8 +29,8 @@ RUN npm run build
 
 FROM node:20-alpine AS production
 
-# Instalar nginx e PM2
-RUN apk add --no-cache nginx
+# Instalar nginx, PM2 e curl
+RUN apk add --no-cache nginx curl
 RUN npm install -g pm2
 
 # Criar usuário não-privilegiado
