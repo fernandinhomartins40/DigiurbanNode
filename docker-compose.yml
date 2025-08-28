@@ -1,0 +1,62 @@
+# ====================================================================
+# 🐳 DOCKER COMPOSE - DIGIURBAN SYSTEM
+# ====================================================================
+# Isolamento completo com portas 3021 (backend) e 3022 (frontend)
+# ====================================================================
+
+version: '3.8'
+
+services:
+  # ================================================================
+  # BACKEND - API NODE.JS + SQLITE
+  # ================================================================
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: digiurban-backend
+    restart: unless-stopped
+    ports:
+      - "3021:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    volumes:
+      - backend_data:/app/data
+    networks:
+      - digiurban-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ================================================================  
+  # FRONTEND - REACT + NGINX
+  # ================================================================
+  frontend:
+    build:
+      context: ./frontend  
+      dockerfile: Dockerfile
+    container_name: digiurban-frontend
+    restart: unless-stopped
+    ports:
+      - "3022:80"
+    depends_on:
+      - backend
+    networks:
+      - digiurban-network
+
+# ================================================================
+# VOLUMES PERSISTENTES
+# ================================================================
+volumes:
+  backend_data:
+    driver: local
+
+# ================================================================
+# NETWORK ISOLADA
+# ================================================================
+networks:
+  digiurban-network:
+    driver: bridge
