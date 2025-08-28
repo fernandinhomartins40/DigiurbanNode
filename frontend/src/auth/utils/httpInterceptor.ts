@@ -32,7 +32,7 @@ export class HTTPInterceptor {
       return;
     }
 
-    HTTPInterceptor.originalFetch = window.fetch;
+    HTTPInterceptor.originalFetch = window.fetch.bind(window);
     window.fetch = HTTPInterceptor.interceptedFetch;
     
     console.log('✅ [HTTPInterceptor] Interceptor instalado');
