@@ -1,11 +1,11 @@
 // ====================================================================
-// 📦 CONEXÃO SQLite3 OTIMIZADA - DIGIURBAN SYSTEM
+// 📦 CONEXÃO BETTER-SQLITE3 OTIMIZADA - DIGIURBAN SYSTEM
 // ====================================================================
 // Configuração otimizada do banco SQLite3 com WAL mode, cache otimizado
 // Performance, segurança e confiabilidade garantidas
 // ====================================================================
 
-import sqlite3 from 'sqlite3';
+import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
@@ -22,202 +22,132 @@ if (!fs.existsSync(DB_DIR)) {
   fs.mkdirSync(DB_DIR, { recursive: true });
 }
 
-// Configurações de performance
-const SQLITE_CONFIG = {
-  CACHE_SIZE: process.env.SQLITE_CACHE_SIZE ? parseInt(process.env.SQLITE_CACHE_SIZE) : 10000, // páginas
-  BUSY_TIMEOUT: process.env.SQLITE_BUSY_TIMEOUT ? parseInt(process.env.SQLITE_BUSY_TIMEOUT) : 30000, // 30s
-  MMAP_SIZE: process.env.SQLITE_MMAP_SIZE ? parseInt(process.env.SQLITE_MMAP_SIZE) : 268435456, // 256MB
-};
-
 // ====================================================================
 // INSTÂNCIA DO BANCO
 // ====================================================================
 
-let db: sqlite3.Database;
+let db: Database.Database;
 
-export const initializeDatabase = (): Promise<sqlite3.Database> => {
-  return new Promise((resolve, reject) => {
-    if (db) {
-      resolve(db);
-      return;
-    }
+export const initializeDatabase = (): Database.Database => {
+  if (db) {
+    return db;
+  }
 
-    try {
-      console.log('🔄 Inicializando banco SQLite3...');
-      console.log('📍 Caminho do banco:', DB_PATH);
+  try {
+    console.log('🔄 Inicializando banco SQLite3...');
+    console.log('📍 Caminho do banco:', DB_PATH);
 
-      db = new sqlite3.Database(DB_PATH, (err) => {
-        if (err) {
-          console.error('❌ Erro ao conectar com banco:', err);
-          reject(err);
-          return;
-        }
+    db = new Database(DB_PATH);
 
-        // Configurações de performance e segurança otimizadas
-        db.serialize(() => {
-          db.run('PRAGMA journal_mode = WAL'); // Write-Ahead Logging para melhor concorrência
-          db.run('PRAGMA synchronous = NORMAL'); // Balance entre performance e segurança
-          db.run(`PRAGMA cache_size = ${SQLITE_CONFIG.CACHE_SIZE}`); // Cache otimizado
-          db.run('PRAGMA temp_store = MEMORY'); // Tabelas temporárias em memória
-          db.run('PRAGMA foreign_keys = ON'); // Habilitar foreign keys
-          db.run(`PRAGMA busy_timeout = ${SQLITE_CONFIG.BUSY_TIMEOUT}`); // Timeout para locks
-          db.run(`PRAGMA mmap_size = ${SQLITE_CONFIG.MMAP_SIZE}`); // Memory-mapped I/O
-          db.run('PRAGMA optimize'); // Otimizações automáticas
-        });
+    // Configurações de performance e segurança otimizadas
+    db.exec('PRAGMA journal_mode = WAL'); // Write-Ahead Logging para melhor concorrência
+    db.exec('PRAGMA synchronous = NORMAL'); // Balance entre performance e segurança
+    db.exec('PRAGMA cache_size = 10000'); // Cache otimizado
+    db.exec('PRAGMA temp_store = MEMORY'); // Tabelas temporárias em memória
+    db.exec('PRAGMA foreign_keys = ON'); // Habilitar foreign keys
+    db.exec('PRAGMA busy_timeout = 30000'); // Timeout para locks
+    db.exec('PRAGMA mmap_size = 268435456'); // Memory-mapped I/O - 256MB
+    db.exec('PRAGMA optimize'); // Otimizações automáticas
 
-        // Log de inicialização estruturado
-        StructuredLogger.info('SQLite database initialized', {
-          action: 'database_init',
-          resource: 'database',
-          metadata: {
-            path: DB_PATH,
-            cache_size: SQLITE_CONFIG.CACHE_SIZE,
-            mmap_size: SQLITE_CONFIG.MMAP_SIZE,
-            mode: 'WAL'
-          }
-        });
+    // Log de inicialização estruturado
+    StructuredLogger.info('SQLite database initialized', {
+      action: 'database_init',
+      resource: 'database',
+      metadata: {
+        path: DB_PATH,
+        cache_size: 10000,
+        mmap_size: 268435456,
+        mode: 'WAL'
+      }
+    });
 
-        console.log('✅ Banco SQLite3 inicializado com sucesso');
-        resolve(db);
-      });
+    console.log('✅ Banco SQLite3 inicializado com sucesso');
+    return db;
 
-    } catch (error) {
-      StructuredLogger.error('Database initialization failed', error, {
-        action: 'database_init',
-        resource: 'database',
-        errorType: 'connection_error',
-        metadata: { path: DB_PATH }
-      });
-      reject(new Error(`Falha na inicialização do banco: ${error instanceof Error ? error.message : String(error)}`));
-    }
-  });
+  } catch (error) {
+    StructuredLogger.error('Database initialization failed', error, {
+      action: 'database_init',
+      resource: 'database',
+      errorType: 'connection_error',
+      metadata: { path: DB_PATH }
+    });
+    throw new Error(`Falha na inicialização do banco: ${error instanceof Error ? error.message : String(error)}`);
+  }
 };
 
 // ====================================================================
 // FUNÇÕES DE CONEXÃO
 // ====================================================================
 
-export const getDatabase = async (): Promise<sqlite3.Database> => {
+export const getDatabase = (): Database.Database => {
   if (!db) {
-    return await initializeDatabase();
+    return initializeDatabase();
   }
   return db;
 };
 
-export const closeDatabase = (): Promise<void> => {
-  return new Promise((resolve) => {
-    if (db) {
-      db.close((err) => {
-        if (err) {
-          console.error('❌ Erro ao fechar banco:', err);
-        } else {
-          console.log('✅ Conexão com banco fechada');
-        }
-        resolve();
-      });
-    } else {
-      resolve();
+export const closeDatabase = (): void => {
+  if (db) {
+    try {
+      db.close();
+      console.log('✅ Conexão com banco fechada');
+    } catch (error) {
+      console.error('❌ Erro ao fechar banco:', error);
     }
-  });
+  }
 };
 
 // ====================================================================
 // FUNÇÕES DE QUERY SEGURAS
 // ====================================================================
 
-export const query = (sql: string, params: any[] = []): Promise<any[]> => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const database = await getDatabase();
-      database.all(sql, params, (err, rows) => {
-        if (err) {
-          console.error('❌ Erro na query:', sql, params, err);
-          reject(err);
-        } else {
-          resolve(rows);
-        }
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+export const query = (sql: string, params: any[] = []): any[] => {
+  try {
+    const database = getDatabase();
+    return database.prepare(sql).all(...params);
+  } catch (error) {
+    console.error('❌ Erro na query:', sql, params, error);
+    throw error;
+  }
 };
 
-export const queryOne = (sql: string, params: any[] = []): Promise<any> => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const database = await getDatabase();
-      database.get(sql, params, (err, row) => {
-        if (err) {
-          console.error('❌ Erro na query (single):', sql, params, err);
-          reject(err);
-        } else {
-          resolve(row);
-        }
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+export const queryOne = (sql: string, params: any[] = []): any => {
+  try {
+    const database = getDatabase();
+    return database.prepare(sql).get(...params);
+  } catch (error) {
+    console.error('❌ Erro na query (single):', sql, params, error);
+    throw error;
+  }
 };
 
-export const execute = (sql: string, params: any[] = []): Promise<sqlite3.RunResult> => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const database = await getDatabase();
-      database.run(sql, params, function(err) {
-        if (err) {
-          console.error('❌ Erro na execução:', sql, params, err);
-          reject(err);
-        } else {
-          resolve(this);
-        }
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+export const execute = (sql: string, params: any[] = []): Database.RunResult => {
+  try {
+    const database = getDatabase();
+    return database.prepare(sql).run(...params);
+  } catch (error) {
+    console.error('❌ Erro na execução:', sql, params, error);
+    throw error;
+  }
 };
 
 // ====================================================================
 // UTILITÁRIOS DE TRANSAÇÃO
 // ====================================================================
 
-export const transaction = async <T>(fn: (db: sqlite3.Database) => Promise<T>): Promise<T> => {
-  const database = await getDatabase();
-  
-  return new Promise((resolve, reject) => {
-    database.serialize(async () => {
-      database.run('BEGIN TRANSACTION');
-      
-      try {
-        const result = await fn(database);
-        database.run('COMMIT', (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(result);
-          }
-        });
-      } catch (error) {
-        database.run('ROLLBACK', (rollbackErr) => {
-          if (rollbackErr) {
-            console.error('❌ Erro no rollback:', rollbackErr);
-          }
-          reject(error);
-        });
-      }
-    });
-  });
+export const transaction = <T>(fn: (db: Database.Database) => T): T => {
+  const database = getDatabase();
+  const transactionFn = database.transaction(fn);
+  return transactionFn(database);
 };
 
 // ====================================================================
 // HEALTH CHECK
 // ====================================================================
 
-export const healthCheck = async (): Promise<boolean> => {
+export const healthCheck = (): boolean => {
   try {
-    const result = await queryOne('SELECT 1 as health');
+    const result = queryOne('SELECT 1 as health');
     return result && result.health === 1;
   } catch (error) {
     console.error('❌ Health check falhou:', error);
@@ -229,23 +159,25 @@ export const healthCheck = async (): Promise<boolean> => {
 // BACKUP UTILITIES
 // ====================================================================
 
-export const createBackup = async (backupPath: string): Promise<void> => {
+export const createBackup = (backupPath: string): void => {
   try {
-    // Usar cópia de arquivo simples pois sqlite3 node não suporta backup()
-    const sourcePath = DB_PATH;
+    const database = getDatabase();
     
-    if (fs.existsSync(sourcePath)) {
-      // Criar diretório se não existir
-      const backupDir = path.dirname(backupPath);
-      if (!fs.existsSync(backupDir)) {
-        fs.mkdirSync(backupDir, { recursive: true });
-      }
-      
-      fs.copyFileSync(sourcePath, backupPath);
-      console.log('✅ Backup criado:', backupPath);
-    } else {
-      throw new Error(`Arquivo de banco não encontrado: ${sourcePath}`);
+    // Criar diretório se não existir
+    const backupDir = path.dirname(backupPath);
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir, { recursive: true });
     }
+    
+    // Better-sqlite3 suporta backup nativo
+    const backup = database.backup(backupPath);
+    backup.then(() => {
+      console.log('✅ Backup criado:', backupPath);
+    }).catch((error) => {
+      console.error('❌ Erro ao criar backup:', error);
+      throw error;
+    });
+
   } catch (error) {
     console.error('❌ Erro ao criar backup:', error);
     throw error;
@@ -262,12 +194,12 @@ process.on('exit', () => {
 });
 
 process.on('SIGINT', async () => {
-  await closeDatabase();
+  closeDatabase();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  await closeDatabase();
+  closeDatabase();
   process.exit(0);
 });
 

@@ -1,3 +1,4 @@
+import { body, query, param, validationResult, ValidationChain } from '../utils/validators.js';
 // ====================================================================
 // ⚙️ ROTAS DE SISTEMA - DIGIURBAN JWT SYSTEM
 // ====================================================================
@@ -8,9 +9,7 @@ import { Router, Request, Response } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import { validators, handleValidationErrors, sanitizeAll } from '../middleware/validation.js';
 import { generalRateLimit } from '../middleware/rateLimiter.js';
-// import { ActivityModel } from '../models/Activity.js';
-import expressValidator from 'express-validator';
-const { body, param, query } = expressValidator;
+import { ActivityModel } from '../models/Activity.js';
 
 export const systemRoutes = Router();
 
@@ -126,13 +125,10 @@ systemRoutes.get('/activity-logs',
         : req.user!.tenant_id;
 
       const activities = await ActivityModel.getActivities({
-        tenant_id: effectiveTenantId,
-        user_id: user_id as string,
-        categoria: categoria as string,
+        tenantId: effectiveTenantId,
+        userId: user_id as string,
         limit: parseInt(limit as string),
-        offset: parseInt(offset as string),
-        start_date: start_date as string,
-        end_date: end_date as string
+        page: parseInt(offset as string)
       });
 
       res.json({
@@ -249,10 +245,10 @@ systemRoutes.post('/diagnostics',
       // Log do diagnóstico
       await ActivityModel.createActivity({
         user_id: req.user!.id,
-        acao: 'Diagnóstico executado',
-        detalhes: 'Diagnóstico completo do sistema executado',
-        categoria: 'system_diagnostics',
-        metadata: diagnostics
+        action: 'Diagnóstico executado',
+        details: 'Diagnóstico completo do sistema executado',
+        resource: 'system_diagnostics',
+        tenant_id: req.user!.tenant_id
       });
 
       res.json({
@@ -291,13 +287,10 @@ systemRoutes.delete('/activity-logs/cleanup',
       // Log da limpeza
       await ActivityModel.createActivity({
         user_id: req.user!.id,
-        acao: 'Limpeza de logs executada',
-        detalhes: `${deletedCount} logs removidos (mais de ${days_old} dias)`,
-        categoria: 'system_maintenance',
-        metadata: {
-          days_old: parseInt(days_old as string),
-          deleted_count: deletedCount
-        }
+        action: 'Limpeza de logs executada',
+        details: `${deletedCount} logs removidos (mais de ${days_old} dias)`,
+        resource: 'system_maintenance',
+        tenant_id: req.user!.tenant_id
       });
 
       res.json({

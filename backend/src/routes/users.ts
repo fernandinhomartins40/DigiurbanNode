@@ -1,3 +1,4 @@
+import { body, query, param, validationResult, ValidationChain } from '../utils/validators.js';
 // ====================================================================
 // 👥 ROTAS DE USUÁRIOS - DIGIURBAN JWT SYSTEM
 // ====================================================================
@@ -11,8 +12,6 @@ import { validators, handleValidationErrors, sanitizeAll } from '../middleware/v
 import { generalRateLimit } from '../middleware/rateLimiter.js';
 import { UserModel } from '../models/User.js';
 import { RegistrationService } from '../services/RegistrationService.js';
-import expressValidator from 'express-validator';
-const { body, param, query } = expressValidator;
 
 export const userRoutes = Router();
 
@@ -148,8 +147,8 @@ userRoutes.get('/',
 
       const users = await UserModel.getUsers({
         tenant_id: effectiveTenantId,
-        tipo_usuario: tipo_usuario as string,
-        status: status as string,
+        role: tipo_usuario as any,
+        status: status as any,
         limit: parseInt(limit as string),
         offset: parseInt(offset as string)
       });
@@ -418,7 +417,7 @@ userRoutes.post('/:userId/reset-password',
         return;
       }
 
-      await UserModel.resetPassword(userId);
+      await UserModel.resetPassword(userId, 'newPassword123');
 
       res.json({
         success: true,

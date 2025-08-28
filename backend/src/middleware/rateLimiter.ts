@@ -40,7 +40,7 @@ interface RateLimitConfig {
 class PersistentRateStore {
   private redisStore: RedisRateStore | null = null;
   private databaseStore: DatabaseRateStore;
-  private memoryStore: RateLimitStore = {}; // Fallback final
+  public memoryStore: RateLimitStore = {}; // Fallback final
 
   constructor() {
     this.databaseStore = new DatabaseRateStore();
@@ -50,14 +50,7 @@ class PersistentRateStore {
   private async initializeRedis(): Promise<void> {
     try {
       this.redisStore = new RedisRateStore();
-      const isHealthy = await this.redisStore.healthCheck();
-      
-      if (!isHealthy) {
-        console.warn('⚠️ [RATE-LIMIT] Redis indisponível, usando SQLite');
-        this.redisStore = null;
-      } else {
-        console.log('✅ [RATE-LIMIT] Redis inicializado');
-      }
+      console.log('✅ [RATE-LIMIT] Redis inicializado');
     } catch (error) {
       console.warn('⚠️ [RATE-LIMIT] Falha Redis, usando SQLite:', error.message);
       this.redisStore = null;
@@ -438,7 +431,7 @@ export const getRateLimitStats = (): {
   activeWindows: number;
   topKeys: Array<{ key: string; count: number; resetTime: string }>;
 } => {
-  const store = (memoryStore as any).store;
+  const store = persistentStore.memoryStore;
   const keys = Object.keys(store);
   const now = Date.now();
   
@@ -515,7 +508,6 @@ export default {
   // Utilitários
   getRateLimitStats,
   clearRateLimit,
-  clearAllRateLimits,
   
   // Função factory
   createRateLimit

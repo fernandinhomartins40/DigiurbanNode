@@ -6,7 +6,7 @@
 // ====================================================================
 
 import { Request, Response, NextFunction } from 'express';
-import { body, query, param, validationResult, ValidationChain } from 'express-validator';
+import { body, query, param, validationResult, ValidationChain, hasValidationErrors, getValidationErrors } from '../utils/validators.js';
 import { VALIDATION_CONFIG, AUTH_CONFIG } from '../config/auth.js';
 
 // ====================================================================
@@ -16,7 +16,7 @@ import { VALIDATION_CONFIG, AUTH_CONFIG } from '../config/auth.js';
 /**
  * Remove caracteres potencialmente perigosos
  */
-const sanitizeInput = (value: string): string => {
+const sanitizeInput = (value: any): any => {
   if (typeof value !== 'string') return value;
   
   return value
@@ -30,7 +30,7 @@ const sanitizeInput = (value: string): string => {
 /**
  * Sanitiza emails
  */
-const sanitizeEmail = (email: string): string => {
+const sanitizeEmail = (email: any): any => {
   if (typeof email !== 'string') return email;
   return email.toLowerCase().trim();
 };
@@ -38,7 +38,7 @@ const sanitizeEmail = (email: string): string => {
 /**
  * Sanitiza nomes (permite acentos e caracteres especiais brasileiros)
  */
-const sanitizeName = (name: string): string => {
+const sanitizeName = (name: any): any => {
   if (typeof name !== 'string') return name;
   
   return name
@@ -314,7 +314,7 @@ export const handleValidationErrors = (
   const errors = validationResult(req);
   
   if (!errors.isEmpty()) {
-    const errorMessages = errors.array().map(error => ({
+    const errorMessages = errors.array().map((error: any) => ({
       field: error.type === 'field' ? error.path : 'general',
       message: error.msg
     }));

@@ -131,10 +131,7 @@ export class StructuredLogger {
     error?: boolean;
   }) {
     const dbEntry = {
-      ...this.createBaseEntry('info', `DATABASE: ${operation}`, {
-        ...context,
-        query: context.query ? LogSanitizer.sanitizeString(context.query) : undefined
-      }),
+      ...this.createBaseEntry('info', `DATABASE: ${operation}`, context),
       type: 'database',
       category: 'persistence'
     };
@@ -159,11 +156,7 @@ export class StructuredLogger {
     newValue?: any;
   }) {
     const businessEntry = {
-      ...this.createBaseEntry('info', `BUSINESS: ${event}`, {
-        ...context,
-        oldValue: context.oldValue ? LogSanitizer.sanitize(context.oldValue) : undefined,
-        newValue: context.newValue ? LogSanitizer.sanitize(context.newValue) : undefined
-      }),
+      ...this.createBaseEntry('info', `BUSINESS: ${event}`, context),
       type: 'business',
       category: 'workflow'
     };

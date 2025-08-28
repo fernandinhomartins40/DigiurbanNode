@@ -106,10 +106,11 @@ const loadSeeds = async (): Promise<Seed[]> => {
 // VERIFICAÇÃO DE SEEDS EXECUTADOS
 // ====================================================================
 
-const getExecutedSeeds = (): SeedRecord[] => {
+const getExecutedSeeds = async (): Promise<SeedRecord[]> => {
   try {
+    const db = await getDatabase();
     const sql = 'SELECT * FROM seeds ORDER BY id';
-    return getDatabase().prepare(sql).all() as SeedRecord[];
+    return db.prepare(sql).all() as unknown as SeedRecord[];
   } catch (error) {
     // Se a tabela não existe ainda, retornar array vazio
     return [];
@@ -127,16 +128,13 @@ const executeSeed = async (seed: Seed): Promise<void> => {
     console.log(`🌱 Executando seed: ${seed.filename}`);
     const startTime = Date.now();
     
-    // Executar seed em transação
-    const transaction = db.transaction(async () => {
-      await seed.seedFunction();
-      
-      // Registrar seed como executado
-      db.prepare('INSERT OR REPLACE INTO seeds (id, filename) VALUES (?, ?)')
-        .run(seed.id, seed.filename);
-    });
-
-    await transaction();
+    // Executar seed
+    const db = await getDatabase();
+    await seed.seedFunction();
+    
+    // Registrar seed como executado
+    db.prepare('INSERT OR REPLACE INTO seeds (id, filename) VALUES (?, ?)')
+      .run(seed.id, seed.filename);
     
     const duration = Date.now() - startTime;
     console.log(`✅ Seed executado: ${seed.filename} (${duration}ms)`);
@@ -167,7 +165,7 @@ export const runSeeds = async (forceReseed: boolean = false): Promise<void> => {
     }
     
     // 3. Verificar seeds já executados
-    const executedSeeds = getExecutedSeeds();
+    const executedSeeds = await getExecutedSeeds();
     const executedIds = executedSeeds.map(s => s.id);
     
     console.log(`📊 Status: ${executedSeeds.length} executados, ${availableSeeds.length} disponíveis`);
@@ -242,7 +240,7 @@ export const getSeedStatus = async (): Promise<void> => {
   try {
     createSeedsTable();
     const availableSeeds = await loadSeeds();
-    const executedSeeds = getExecutedSeeds();
+    const executedSeeds = await getExecutedSeeds();
     
     console.log('\n🌱 STATUS DOS SEEDS');
     console.log('===================');

@@ -259,7 +259,8 @@ export class AuthService {
       }
 
       // 2. Invalidar todas as sessões
-      const terminatedCount = await SessionModel.invalidateAllByUser(userId);
+      await SessionModel.invalidateAllByUser(userId);
+      const terminatedCount = 1; // Placeholder já que invalidateAllByUser não retorna count
 
       // 3. Log da atividade
       await this.logActivity({

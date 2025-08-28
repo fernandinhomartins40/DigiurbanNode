@@ -122,8 +122,7 @@ export class UserModel {
       if (existingUser) {
         StructuredLogger.business('User creation failed - email exists', {
           action: 'user_create',
-          entityType: 'user',
-          tenantId: userData.tenant_id,
+            tenantId: userData.tenant_id,
           metadata: { email: userData.email.substring(0, 3) + '***' }
         });
         throw new Error('Email já está em uso');
@@ -158,8 +157,6 @@ export class UserModel {
       const duration = Date.now() - startTime;
       StructuredLogger.business('User created successfully', {
         action: 'user_create',
-        entityType: 'user',
-        entityId: id,
         tenantId: userData.tenant_id,
         operation: 'create',
         metadata: { role: userData.role || 'user', status: userData.status || 'pendente' }
@@ -167,7 +164,6 @@ export class UserModel {
       
       StructuredLogger.performance('User creation', {
         action: 'user_create',
-        entityType: 'user',
         duration,
         threshold: 1000
       });
@@ -176,7 +172,6 @@ export class UserModel {
     } catch (error) {
       StructuredLogger.error('User creation failed', error, {
         action: 'user_create',
-        entityType: 'user',
         tenantId: userData.tenant_id,
         errorType: 'database_error'
       });
@@ -196,8 +191,6 @@ export class UserModel {
     } catch (error) {
       StructuredLogger.error('Error finding user by ID', error, {
         action: 'user_find_by_id',
-        entityType: 'user',
-        entityId: id,
         errorType: 'database_error'
       });
       throw error;
@@ -212,7 +205,6 @@ export class UserModel {
     } catch (error) {
       StructuredLogger.error('Error finding user by email', error, {
         action: 'user_find_by_email',
-        entityType: 'user',
         metadata: { email: email.substring(0, 3) + '***' },
         errorType: 'database_error'
       });

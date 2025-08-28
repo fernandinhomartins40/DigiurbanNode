@@ -3,7 +3,6 @@ import { Request, Response, NextFunction } from 'express';
 
 // Configurar coletor padrão
 client.collectDefaultMetrics({
-  timeout: 5000,
   gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5], // Buckets para GC duration
   prefix: 'digiurban_',
 });

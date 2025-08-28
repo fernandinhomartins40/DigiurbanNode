@@ -26,7 +26,7 @@ router.get('/metrics/json', async (req, res) => {
       name: metric.name,
       help: metric.help,
       type: metric.type,
-      values: metric.values
+      values: (metric as any).values || []
     }));
     
     res.json({

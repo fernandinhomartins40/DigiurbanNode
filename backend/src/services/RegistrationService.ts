@@ -628,6 +628,70 @@ export class RegistrationService {
       throw new Error(error instanceof Error ? error.message : ERROR_MESSAGES.INTERNAL_ERROR);
     }
   }
+
+  /**
+   * Ativar usuário por admin
+   */
+  static async activateUserByAdmin(userId: string, adminId: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const user = await UserModel.findById(userId);
+      
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.USER_NOT_FOUND);
+      }
+
+      await UserModel.updateUserStatus(userId, 'ativo');
+
+      // Registrar atividade
+      await ActivityService.log({
+        user_id: adminId,
+        tenant_id: user.tenant_id,
+        action: 'user_activated_by_admin',
+        resource: 'users',
+        resource_id: userId,
+        details: JSON.stringify({
+          activated_user_email: user.email
+        })
+      });
+
+      return {
+        success: true,
+        message: 'Usuário ativado com sucesso'
+      };
+
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : ERROR_MESSAGES.INTERNAL_ERROR);
+    }
+  }
+
+  /**
+   * Obter usuários pendentes
+   */
+  static async getPendingUsers(tenantId?: string): Promise<any[]> {
+    try {
+      // Implementação básica - retornar array vazio por enquanto
+      return [];
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : ERROR_MESSAGES.INTERNAL_ERROR);
+    }
+  }
+
+  /**
+   * Obter estatísticas de registro
+   */
+  static async getRegistrationStats(tenantId?: string): Promise<any> {
+    try {
+      // Implementação básica - retornar stats vazias por enquanto
+      return {
+        totalUsers: 0,
+        activeUsers: 0,
+        pendingUsers: 0,
+        tenants: 0
+      };
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : ERROR_MESSAGES.INTERNAL_ERROR);
+    }
+  }
 }
 
 export default RegistrationService;

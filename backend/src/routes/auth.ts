@@ -1,3 +1,4 @@
+import { body, query, param, validationResult, ValidationChain } from '../utils/validators.js';
 // ====================================================================
 // 🔐 ROTAS DE AUTENTICAÇÃO - DIGIURBAN AUTH SYSTEM
 // ====================================================================
@@ -8,12 +9,11 @@
 import { Router, Request, Response } from 'express';
 import { AuthService } from '../services/AuthService.js';
 import { RegistrationService } from '../services/RegistrationService.js';
+import { UserModel } from '../models/User.js';
 // import { ActivityService } from '../services/ActivityService.js';
 import { loginRateLimit, generalRateLimit, registerRateLimit } from '../middleware/rateLimiter.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { validators, handleValidationErrors, sanitizeAll } from '../middleware/validation.js';
-import expressValidator from 'express-validator';
-const { body, validationResult } = expressValidator;
 
 export const authRoutes = Router();
 

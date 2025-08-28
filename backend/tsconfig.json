@@ -2,15 +2,13 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
+    "allowJs": true,
+    "checkJs": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
-    "jsx": "preserve",
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": false,
     "outDir": "./dist",
     "rootDir": "./src",
     "esModuleInterop": true,
@@ -20,11 +18,15 @@
     "declaration": false,
     "declarationMap": false,
     "sourceMap": false,
+    "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,
     "strictFunctionTypes": false,
     "noImplicitReturns": false,
-    "noImplicitThis": false
+    "noImplicitThis": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": false
   },
   "include": [
     "src/**/*"

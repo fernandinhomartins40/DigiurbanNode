@@ -68,7 +68,8 @@ export class InitialAdminSeed {
         if (!existingTenant) {
           const tenant = await TenantModel?.create?.({
             nome: process.env.INITIAL_ADMIN_TENANT_NAME || 'Administração Central',
-            codigo: tenantCode,
+            cidade: 'São Paulo',
+            estado: 'SP',
             cnpj: process.env.INITIAL_ADMIN_TENANT_CNPJ || '00.000.000/0001-00',
             status: 'ativo'
           });
@@ -85,11 +86,10 @@ export class InitialAdminSeed {
       const admin = await UserModel.create({
         nome_completo: process.env.INITIAL_ADMIN_NAME || 'Super Administrador',
         email: adminEmail,
-        password_hash: passwordHash,
+        password: passwordHash,
         role: 'super_admin',
         status: 'ativo',
         tenant_id: tenantId,
-        email_verified: true
       });
 
       // Log de sucesso (sem dados sensíveis)

@@ -1,3 +1,4 @@
+import { body, query, param, validationResult, ValidationChain } from '../utils/validators.js';
 // ====================================================================
 // 🛡️ ROTAS DE PERMISSÕES - DIGIURBAN AUTH SYSTEM
 // ====================================================================
@@ -10,8 +11,6 @@ import { PermissionService } from '../services/PermissionService.js';
 // import { ActivityService } from '../services/ActivityService.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { generalRateLimit } from '../middleware/rateLimiter.js';
-import expressValidator from 'express-validator';
-const { body, param, validationResult } = expressValidator;
 
 const router = Router();
 

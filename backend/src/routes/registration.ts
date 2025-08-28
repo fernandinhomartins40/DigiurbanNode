@@ -1,3 +1,4 @@
+import { body, query, param, validationResult, ValidationChain } from '../utils/validators.js';
 // ====================================================================
 // 📝 ROTAS DE REGISTRO - DIGIURBAN AUTH SYSTEM
 // ====================================================================
@@ -10,8 +11,6 @@ import { RegistrationService } from '../services/RegistrationService.js';
 import { PermissionService } from '../services/PermissionService.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { registerRateLimit, generalRateLimit, strictRateLimit } from '../middleware/rateLimiter.js';
-import expressValidator from 'express-validator';
-const { body, param, validationResult } = expressValidator;
 
 const router = Router();
 
@@ -204,9 +203,8 @@ router.post('/activate',
 
       const { token } = req.body;
 
-      const result = await RegistrationService.activateAccount(token, {
-        ipAddress: req.ip,
-        userAgent: req.get('User-Agent')
+      const result = await RegistrationService.activateAccount({
+        token
       });
 
       res.json({
@@ -352,18 +350,11 @@ router.post('/activate-user/:userId',
 
       const { userId } = req.params;
 
-      const result = await RegistrationService.activateUserByAdmin(userId, {
-        activatedBy: req.user!.id,
-        ipAddress: req.ip,
-        userAgent: req.get('User-Agent')
-      });
+      const result = await RegistrationService.activateUserByAdmin(userId, req.user!.id);
 
       res.json({
         success: true,
-        message: result.message,
-        data: {
-          user: result.user
-        }
+        message: result.message
       });
 
     } catch (error) {

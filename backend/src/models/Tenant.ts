@@ -547,8 +547,8 @@ export class TenantModel {
     return existing !== null;
   }
   
-  static async generateUniqueTenantCode(): Promise<string> {
-    return this.generateUniqueCode();
+  static async generateUniqueTenantCode(nome: string = 'DEFAULT'): Promise<string> {
+    return this.generateUniqueCode(nome);
   }
   
   static async createTenant(data: CreateTenantData): Promise<Tenant> {

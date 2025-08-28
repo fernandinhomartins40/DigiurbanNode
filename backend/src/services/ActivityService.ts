@@ -103,7 +103,7 @@ export class ActivityService {
       // Buscar o log criado
       const createdLog = await queryOne(`
         SELECT * FROM activity_logs WHERE id = ?
-      `, [result.lastID]) as ActivityLog;
+      `, [result.lastInsertRowid]) as ActivityLog;
 
       return createdLog;
 
