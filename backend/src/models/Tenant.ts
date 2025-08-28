@@ -5,7 +5,7 @@
 // Gerenciamento multi-tenant com isolamento de dados
 // ====================================================================
 
-import { getDatabase, query, queryOne, execute } from '../database/connection.js';
+import { query, queryOne, execute } from '../database/connection.js';
 import { v4 as uuidv4 } from 'uuid';
 
 // ====================================================================
@@ -134,7 +134,7 @@ export class TenantModel {
       tenantData.responsavel_telefone || null
     ];
     
-    execute(sql, params);
+    await execute(sql, params);
     
     const tenant = await this.findById(id);
     if (!tenant) {
@@ -150,20 +150,20 @@ export class TenantModel {
   
   static async findById(id: string): Promise<Tenant | null> {
     const sql = 'SELECT * FROM tenants WHERE id = ?';
-    const tenant = queryOne(sql, [id]) as Tenant;
+    const tenant = await queryOne(sql, [id]) as Tenant;
     return tenant || null;
   }
   
   static async findByCode(tenantCode: string): Promise<Tenant | null> {
     const sql = 'SELECT * FROM tenants WHERE tenant_code = ?';
-    const tenant = queryOne(sql, [tenantCode]) as Tenant;
+    const tenant = await queryOne(sql, [tenantCode]) as Tenant;
     return tenant || null;
   }
   
   static async findByCNPJ(cnpj: string): Promise<Tenant | null> {
     const cleanedCNPJ = this.cleanCNPJ(cnpj);
     const sql = 'SELECT * FROM tenants WHERE cnpj = ?';
-    const tenant = queryOne(sql, [cleanedCNPJ]) as Tenant;
+    const tenant = await queryOne(sql, [cleanedCNPJ]) as Tenant;
     return tenant || null;
   }
   
@@ -177,7 +177,7 @@ export class TenantModel {
     }
     
     sql += ' ORDER BY nome';
-    return query(sql, params) as Tenant[];
+    return await query(sql, params) as Tenant[];
   }
   
   // ================================================================
@@ -262,7 +262,7 @@ export class TenantModel {
     params.push(id);
     
     const sql = `UPDATE tenants SET ${updateFields.join(', ')} WHERE id = ?`;
-    execute(sql, params);
+    await execute(sql, params);
     
     const updatedTenant = await this.findById(id);
     if (!updatedTenant) {
@@ -278,12 +278,12 @@ export class TenantModel {
   
   static async softDelete(id: string): Promise<void> {
     const sql = 'UPDATE tenants SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-    execute(sql, ['suspenso', id]);
+    await execute(sql, ['suspenso', id]);
   }
   
   static async hardDelete(id: string): Promise<void> {
     const sql = 'DELETE FROM tenants WHERE id = ?';
-    execute(sql, [id]);
+    await execute(sql, [id]);
   }
   
   // ================================================================
@@ -327,7 +327,7 @@ export class TenantModel {
       }
     }
     
-    return query(sql, params) as Tenant[];
+    return await query(sql, params) as Tenant[];
   }
   
   static async count(filters: {
@@ -353,7 +353,7 @@ export class TenantModel {
       params.push(filters.estado);
     }
     
-    const result = queryOne(sql, params) as { count: number };
+    const result = await queryOne(sql, params) as { count: number };
     return result.count;
   }
   
@@ -514,7 +514,7 @@ export class TenantModel {
   
   static async getUserCount(tenantId: string): Promise<number> {
     const sql = 'SELECT COUNT(*) as count FROM users WHERE tenant_id = ? AND status != ?';
-    const result = queryOne(sql, [tenantId, 'inativo']) as { count: number };
+    const result = await queryOne(sql, [tenantId, 'inativo']) as { count: number };
     return result.count;
   }
   

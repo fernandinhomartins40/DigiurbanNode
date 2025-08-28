@@ -69,7 +69,7 @@ export class JWTUtils {
       expiresIn: AUTH_CONFIG.JWT_EXPIRES_IN,
       issuer: 'digiurban-auth',
       audience: 'digiurban-api'
-    });
+    } as jwt.SignOptions);
   }
   
   /**
@@ -85,7 +85,7 @@ export class JWTUtils {
       expiresIn: AUTH_CONFIG.REFRESH_TOKEN_EXPIRES_IN,
       issuer: 'digiurban-auth',
       audience: 'digiurban-refresh'
-    });
+    } as jwt.SignOptions);
   }
   
   /**
@@ -230,7 +230,7 @@ export class JWTUtils {
       expiresIn: AUTH_CONFIG.ACTIVATION_TOKEN_EXPIRES_IN,
       issuer: 'digiurban-auth',
       audience: 'digiurban-activation'
-    });
+    } as jwt.SignOptions);
   }
   
   /**
@@ -246,7 +246,7 @@ export class JWTUtils {
       expiresIn: AUTH_CONFIG.PASSWORD_RESET_TOKEN_EXPIRES_IN,
       issuer: 'digiurban-auth',
       audience: 'digiurban-password-reset'
-    });
+    } as jwt.SignOptions);
   }
   
   /**
@@ -414,7 +414,7 @@ export class JWTUtils {
       expiresIn: '1d',
       issuer: 'digiurban-auth',
       audience: 'digiurban-api'
-    });
+    } as jwt.SignOptions);
   }
   
   /**

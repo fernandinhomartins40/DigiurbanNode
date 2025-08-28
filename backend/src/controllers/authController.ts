@@ -69,11 +69,11 @@ class AuthController {
     }
   }
 
-  async refreshToken(req: Request, res: Response) {
+  async refreshToken(_req: Request, res: Response) {
     res.json({ message: 'Refresh token - implementar' });
   }
 
-  async logout(req: Request, res: Response) {
+  async logout(_req: Request, res: Response) {
     res.json({ message: 'Logout realizado com sucesso' });
   }
 }

@@ -5,7 +5,7 @@
 // Segurança e rastreamento de sessões ativas
 // ====================================================================
 
-import { getDatabase, query, queryOne, execute } from '../database/connection.js';
+import { query, queryOne, execute } from '../database/connection.js';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 
@@ -73,7 +73,7 @@ export class SessionModel {
       sessionData.expires_at
     ];
     
-    execute(sql, params);
+    await execute(sql, params);
     
     const session = await this.findById(id);
     if (!session) {
@@ -89,7 +89,7 @@ export class SessionModel {
   
   static async findById(id: string): Promise<Session | null> {
     const sql = 'SELECT * FROM user_sessions WHERE id = ?';
-    const session = queryOne(sql, [id]) as Session;
+    const session = await queryOne(sql, [id]) as Session;
     return session || null;
   }
   
@@ -99,7 +99,7 @@ export class SessionModel {
       SELECT * FROM user_sessions 
       WHERE token_hash = ? AND is_active = TRUE AND expires_at > datetime('now')
     `;
-    const session = queryOne(sql, [tokenHash]) as Session;
+    const session = await queryOne(sql, [tokenHash]) as Session;
     return session || null;
   }
   
@@ -109,7 +109,7 @@ export class SessionModel {
       WHERE user_id = ? 
       ORDER BY created_at DESC
     `;
-    return query(sql, [userId]) as Session[];
+    return await query(sql, [userId]) as Session[];
   }
   
   static async getActiveSessions(userId: string): Promise<Session[]> {
@@ -118,7 +118,7 @@ export class SessionModel {
       WHERE user_id = ? AND is_active = TRUE AND expires_at > datetime('now')
       ORDER BY created_at DESC
     `;
-    return query(sql, [userId]) as Session[];
+    return await query(sql, [userId]) as Session[];
   }
   
   // ================================================================
@@ -156,18 +156,18 @@ export class SessionModel {
   
   static async invalidate(sessionId: string): Promise<void> {
     const sql = 'UPDATE user_sessions SET is_active = FALSE WHERE id = ?';
-    execute(sql, [sessionId]);
+    await execute(sql, [sessionId]);
   }
   
   static async invalidateByToken(token: string): Promise<void> {
     const tokenHash = this.hashToken(token);
     const sql = 'UPDATE user_sessions SET is_active = FALSE WHERE token_hash = ?';
-    execute(sql, [tokenHash]);
+    await execute(sql, [tokenHash]);
   }
   
   static async invalidateAllUserSessions(userId: string): Promise<void> {
     const sql = 'UPDATE user_sessions SET is_active = FALSE WHERE user_id = ?';
-    execute(sql, [userId]);
+    await execute(sql, [userId]);
   }
   
   static async invalidateOtherUserSessions(userId: string, currentSessionId: string): Promise<void> {
@@ -176,7 +176,7 @@ export class SessionModel {
       SET is_active = FALSE 
       WHERE user_id = ? AND id != ?
     `;
-    execute(sql, [userId, currentSessionId]);
+    await execute(sql, [userId, currentSessionId]);
   }
   
   // ================================================================
@@ -189,7 +189,7 @@ export class SessionModel {
       SET is_active = FALSE 
       WHERE expires_at <= datetime('now') AND is_active = TRUE
     `;
-    const result = execute(sql);
+    const result = await execute(sql);
     
     console.log(`🧹 ${result.changes} sessões expiradas limpas`);
     return result.changes;
@@ -200,7 +200,7 @@ export class SessionModel {
       DELETE FROM user_sessions 
       WHERE created_at <= datetime('now', '-${daysOld} days')
     `;
-    const result = execute(sql);
+    const result = await execute(sql);
     
     console.log(`🗑️ ${result.changes} sessões antigas removidas`);
     return result.changes;
@@ -217,25 +217,25 @@ export class SessionModel {
     byUser: { user_id: string; count: number }[];
   }> {
     // Total de sessões
-    const totalResult = queryOne('SELECT COUNT(*) as count FROM user_sessions') as { count: number };
+    const totalResult = await queryOne('SELECT COUNT(*) as count FROM user_sessions') as { count: number };
     const total = totalResult.count;
     
     // Sessões ativas
-    const activeResult = queryOne(`
+    const activeResult = await queryOne(`
       SELECT COUNT(*) as count FROM user_sessions 
       WHERE is_active = TRUE AND expires_at > datetime('now')
     `) as { count: number };
     const active = activeResult.count;
     
     // Sessões expiradas
-    const expiredResult = queryOne(`
+    const expiredResult = await queryOne(`
       SELECT COUNT(*) as count FROM user_sessions 
       WHERE expires_at <= datetime('now') OR is_active = FALSE
     `) as { count: number };
     const expired = expiredResult.count;
     
     // Por usuário (top 10)
-    const byUser = query(`
+    const byUser = await query(`
       SELECT user_id, COUNT(*) as count
       FROM user_sessions 
       WHERE is_active = TRUE AND expires_at > datetime('now')
@@ -265,7 +265,7 @@ export class SessionModel {
       LIMIT ?
     `;
     
-    return query(sql, [limit]) as SessionWithUser[];
+    return await query(sql, [limit]) as SessionWithUser[];
   }
   
   static async getUserSessionsWithDetails(userId: string): Promise<SessionWithUser[]> {
@@ -281,7 +281,7 @@ export class SessionModel {
       ORDER BY s.created_at DESC
     `;
     
-    return query(sql, [userId]) as SessionWithUser[];
+    return await query(sql, [userId]) as SessionWithUser[];
   }
   
   // ================================================================
@@ -308,7 +308,7 @@ export class SessionModel {
       ORDER BY session_count DESC
     `;
     
-    return query(sql) as {
+    return await query(sql) as {
       user_id: string;
       session_count: number;
       user_name: string;
@@ -326,7 +326,7 @@ export class SessionModel {
       SET created_at = datetime('now')
       WHERE id = ?
     `;
-    execute(sql, [sessionId]);
+    await execute(sql, [sessionId]);
   }
   
   static async extendSession(sessionId: string, newExpiresAt: string): Promise<void> {

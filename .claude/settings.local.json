@@ -71,7 +71,8 @@
       "Bash(git restore:*)",
       "Bash(git init:*)",
       "Bash(git remote add:*)",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(sqlite3:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

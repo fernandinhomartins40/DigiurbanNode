@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { userService } from '../services/userService.js';
 import { AuthRequest } from '../types/auth.js';
 
@@ -43,7 +43,7 @@ class UserController {
     }
   }
 
-  async listUsers(req: AuthRequest, res: Response) {
+  async listUsers(_req: AuthRequest, res: Response) {
     try {
       const users = await userService.findAll();
       res.json(users);

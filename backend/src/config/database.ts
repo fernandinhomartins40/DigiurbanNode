@@ -1,17 +1,10 @@
-import Database from 'better-sqlite3';
+import { getDatabase } from '../database/connection.js';
 import { logger } from './logger.js';
-import path from 'path';
 
-const dbPath = path.join(process.cwd(), 'database', 'digiurban.db');
+// Usar a conexão padrão do sistema
+export const db = getDatabase();
 
-export const db = new Database(dbPath, {
-  verbose: (message) => logger.debug(message)
-});
-
-db.pragma('journal_mode = WAL');
-db.pragma('synchronous = NORMAL');
-db.pragma('cache_size = -64000');
-db.pragma('foreign_keys = ON');
-db.pragma('temp_store = MEMORY');
+// Configurações de performance serão aplicadas na connection.ts
+logger.info('Database configuration loaded');
 
 export default db;

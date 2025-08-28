@@ -5,7 +5,7 @@
 // Hierarquia: guest → user → coordinator → manager → admin → super_admin
 // ====================================================================
 
-import { getDatabase, query, queryOne, execute } from '../database/connection.js';
+import { query, queryOne, execute } from '../database/connection.js';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 

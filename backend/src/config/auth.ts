@@ -56,7 +56,7 @@ export const COOKIE_CONFIG = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict' as const,
-    maxAge: parseInt(AUTH_CONFIG.SESSION_TIMEOUT),
+    maxAge: AUTH_CONFIG.SESSION_TIMEOUT,
     path: '/'
   }
 } as const;

@@ -203,22 +203,21 @@ export const healthCheck = async (): Promise<boolean> => {
 
 export const createBackup = async (backupPath: string): Promise<void> => {
   try {
-    const database = await getDatabase();
+    // Usar cópia de arquivo simples pois sqlite3 node não suporta backup()
+    const sourcePath = DB_PATH;
     
-    return new Promise((resolve, reject) => {
-      const backup = new sqlite3.Database(backupPath);
+    if (fs.existsSync(sourcePath)) {
+      // Criar diretório se não existir
+      const backupDir = path.dirname(backupPath);
+      if (!fs.existsSync(backupDir)) {
+        fs.mkdirSync(backupDir, { recursive: true });
+      }
       
-      database.backup(backup, (err) => {
-        backup.close();
-        if (err) {
-          console.error('❌ Erro ao criar backup:', err);
-          reject(err);
-        } else {
-          console.log('✅ Backup criado:', backupPath);
-          resolve();
-        }
-      });
-    });
+      fs.copyFileSync(sourcePath, backupPath);
+      console.log('✅ Backup criado:', backupPath);
+    } else {
+      throw new Error(`Arquivo de banco não encontrado: ${sourcePath}`);
+    }
   } catch (error) {
     console.error('❌ Erro ao criar backup:', error);
     throw error;

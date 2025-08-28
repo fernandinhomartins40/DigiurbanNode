@@ -75,7 +75,7 @@ app.use(express.urlencoded({
 // ====================================================================
 
 // Rota de saúde (sem rate limit específico)
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),

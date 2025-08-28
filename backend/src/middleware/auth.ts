@@ -10,7 +10,7 @@ import { JWTUtils, JWTPayload } from '../utils/jwt.js';
 import { UserModel, User, UserRole } from '../models/User.js';
 import { SessionModel } from '../models/Session.js';
 import { PermissionModel } from '../models/Permission.js';
-import { AUTH_CONFIG, ERROR_MESSAGES } from '../config/auth.js';
+import { ERROR_MESSAGES } from '../config/auth.js';
 
 // ====================================================================
 // EXTENSÃO DOS TIPOS EXPRESS
@@ -387,6 +387,7 @@ export const requireManagement = requireAnyRole(['manager', 'admin', 'super_admi
  * @deprecated Use authenticateJWT instead
  */
 export const authenticateToken = authenticateJWT;
+export const authMiddleware = authenticateJWT;
 
 export default {
   authenticateJWT,
