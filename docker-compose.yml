@@ -12,8 +12,7 @@ services:
     container_name: digiurban-unified
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "3020:80"
     environment:
       - NODE_ENV=production
       - PORT=3021

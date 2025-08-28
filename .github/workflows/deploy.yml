@@ -13,8 +13,7 @@ env:
   VPS_HOST: '72.60.10.112'
   VPS_USER: 'root'
   APP_DIR: '/root/digiurban-unified'
-  APP_PORT: '80'
-  HTTPS_PORT: '443'
+  APP_PORT: '3020'
   CONTAINER_NAME: 'digiurban-unified'
 
 jobs:
@@ -141,9 +140,9 @@ jobs:
         sleep 60
         
         echo '=== Testando health check ==='
-        curl -f http://localhost/health || echo 'Health check aguardando...'
+        curl -f http://localhost:3020/health || echo 'Health check aguardando...'
         sleep 30
-        curl -f http://localhost/health || echo 'Health check falhou'
+        curl -f http://localhost:3020/health || echo 'Health check falhou'
         
         echo '=== Verificando logs ==='
         docker-compose logs --tail=50
@@ -157,11 +156,11 @@ jobs:
         sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
         docker ps
         echo 'Aplicação: http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}'
-        echo 'Health Check: http://${{ env.VPS_HOST }}/health'
+        echo 'Health Check: http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/health'
         "
 
     - name: Deploy Concluido
       run: |
         echo "DEPLOY CONCLUIDO COM SUCESSO!"
-        echo "Aplicação: http://${{ env.VPS_HOST }}"
-        echo "Health Check: http://${{ env.VPS_HOST }}/health"
+        echo "Aplicação: http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}"
+        echo "Health Check: http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/health"
