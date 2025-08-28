@@ -17,16 +17,16 @@ services:
     container_name: digiurban-backend
     restart: unless-stopped
     ports:
-      - "3021:3000"
+      - "3021:3021"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=3021
     volumes:
       - backend_data:/app/data
     networks:
       - digiurban-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3021/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -41,7 +41,7 @@ services:
     container_name: digiurban-frontend
     restart: unless-stopped
     ports:
-      - "3022:80"
+      - "3020:80"
     depends_on:
       - backend
     networks:
