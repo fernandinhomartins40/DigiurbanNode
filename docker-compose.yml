@@ -17,6 +17,7 @@ services:
       - NODE_ENV=production
       - PORT=3021
       - JWT_SECRET=jMFw2+lTay2CtFAlBy1//ieCMk6sUT2ws0jYWMOe72XcHGr0v/DqJTRU8+gSRxgYxzwPTV6uTJEG0D5Omqq/YA==
+      - JWT_REFRESH_SECRET=xqitCihoXFOcQg1M5ZDREqC66sBVIHbapxFCG7zS8U8nnsc1NuyX0BpPkMDz6o2pK+vE7TbEdiCH4TKr4lBnlw==
       - COOKIE_SECRET=+4nAMw2izSgWUJf+H0VXDccqbPAdZXfkW+2CgBdX3Io=
       - DATABASE_PATH=/app/data/digiurban.db
       - REDIS_HOST=redis
