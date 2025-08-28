@@ -5,7 +5,7 @@
 
 import { useProtocolsUnified } from './useProtocolsUnified'
 import { useState, useEffect } from 'react'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth"
 import { toast } from 'react-hot-toast'
 import type {
   Protocolo,

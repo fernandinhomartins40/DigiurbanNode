@@ -11,7 +11,8 @@ import { validators, handleValidationErrors, sanitizeAll } from '../middleware/v
 import { generalRateLimit } from '../middleware/rateLimiter.js';
 import { TenantModel } from '../models/Tenant.js';
 import { UserModel } from '../models/User.js';
-import { body, param, query } from 'express-validator';
+import expressValidator from 'express-validator';
+const { body, param, query } = expressValidator;
 
 export const tenantRoutes = Router();
 

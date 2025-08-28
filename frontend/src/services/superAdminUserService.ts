@@ -1,5 +1,5 @@
 import { APIClient } from "@/auth/utils/httpInterceptor";
-import { supabaseAdmin, createUserAdmin, createUserProfileAdmin, logSystemActivity, logEmail } from "@/auth/utils/httpInterceptorAdmin";
+import { createUserAdmin, createUserProfileAdmin, logSystemActivity, logEmail } from "@/auth/utils/httpInterceptorAdmin";
 import { toast } from 'react-hot-toast';
 
 // ====================================================================

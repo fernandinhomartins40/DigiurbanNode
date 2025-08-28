@@ -17,7 +17,7 @@ import {
   Paperclip, Clock, AlertCircle, CheckCircle, Eye,
   Reply, Forward, Star, Filter, Users, MessageSquare
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { APIClient } from "@/auth";
 import { useAuth, UserProfile } from "@/auth";
 import { toast } from "react-hot-toast";
 

@@ -404,7 +404,7 @@ export class ActivityService {
    * Verificar se uma ação deve ser logada
    */
   private static shouldLogAction(action: string): boolean {
-    return LOG_CONFIG.ACTIONS_TO_LOG.includes(action) || action.includes('_failed') || action.includes('_error');
+    return (LOG_CONFIG.ACTIONS_TO_LOG as unknown as string[]).includes(action) || action.includes('_failed') || action.includes('_error');
   }
 
   /**

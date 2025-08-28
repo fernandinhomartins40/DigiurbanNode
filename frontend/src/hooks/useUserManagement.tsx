@@ -3,7 +3,7 @@
 // =====================================================
 
 import { useState, useEffect } from 'react'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth"
 import { toast } from 'react-hot-toast'
 import { UserProfile, UserRole as UserType } from '@/auth'
 

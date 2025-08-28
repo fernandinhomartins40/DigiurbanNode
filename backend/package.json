@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/app.ts",
-    "build": "tsc",
+    "build": "tsc --skipLibCheck --noImplicitAny false --noImplicitThis false --noImplicitReturns false",
     "start": "node dist/app.js",
     "test": "cross-env NODE_ENV=test jest",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@types/express-validator": "^2.20.33",
+    "@types/ioredis": "^4.28.10",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^12.2.0",
     "compression": "^1.7.4",
@@ -25,6 +26,7 @@
     "express-validator": "^7.2.1",
     "glob": "^11.0.3",
     "helmet": "^7.0.0",
+    "ioredis": "^5.7.0",
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",

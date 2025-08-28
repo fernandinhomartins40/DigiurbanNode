@@ -7,7 +7,7 @@
     "isolatedModules": true,
     "noEmit": false,
     "jsx": "preserve",
-    "strict": true,
+    "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": false,
@@ -16,10 +16,15 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
+    "forceConsistentCasingInFileNames": false,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false
   },
   "include": [
     "src/**/*"

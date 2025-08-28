@@ -30,8 +30,10 @@ interface RateLimitRecord {
 
 export class DatabaseRateStore implements RateLimitStore {
   private initialized: boolean = false;
+  private db: any;
 
   constructor() {
+    this.db = getDatabase();
     this.initialize();
   }
 
@@ -45,7 +47,7 @@ export class DatabaseRateStore implements RateLimitStore {
 
     try {
       // Tabela otimizada com sliding window
-      await this.pool.executeStatement(`
+      await this.db.executeStatement(`
         CREATE TABLE IF NOT EXISTS rate_limits (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           key TEXT NOT NULL UNIQUE,
@@ -59,26 +61,26 @@ export class DatabaseRateStore implements RateLimitStore {
       `);
 
       // Índices otimizados para performance
-      await this.pool.executeStatement(`
+      await this.db.executeStatement(`
         CREATE INDEX IF NOT EXISTS idx_rate_limits_key 
         ON rate_limits(key)
       `);
 
-      await this.pool.executeStatement(`
+      await this.db.executeStatement(`
         CREATE INDEX IF NOT EXISTS idx_rate_limits_window_start 
         ON rate_limits(window_start)
       `);
 
-      await this.pool.executeStatement(`
+      await this.db.executeStatement(`
         CREATE INDEX IF NOT EXISTS idx_rate_limits_updated_at 
         ON rate_limits(updated_at)
       `);
 
       this.initialized = true;
-      SafeLogger.info('DatabaseRateStore otimizado inicializado');
+      StructuredLogger.info('DatabaseRateStore otimizado inicializado');
 
     } catch (error) {
-      SafeLogger.error('Erro ao inicializar DatabaseRateStore', error);
+      StructuredLogger.error('Erro ao inicializar DatabaseRateStore', error);
       throw error;
     }
   }
@@ -93,7 +95,7 @@ export class DatabaseRateStore implements RateLimitStore {
     const windowStart = now - windowMs;
 
     try {
-      return await this.pool.executeTransaction((db) => {
+      return await this.db.executeTransaction((db: any) => {
         // Buscar registro existente
         const existing = db
           .prepare('SELECT * FROM rate_limits WHERE key = ?')
@@ -150,7 +152,9 @@ export class DatabaseRateStore implements RateLimitStore {
       });
 
     } catch (error) {
-      SafeLogger.error('Erro ao incrementar rate limit', error, { key, windowMs, maxHits });
+      StructuredLogger.error('Erro ao incrementar rate limit', error as Error, {
+        metadata: { key, windowMs, maxHits }
+      });
       
       // Fallback seguro em caso de erro
       return {
@@ -169,18 +173,22 @@ export class DatabaseRateStore implements RateLimitStore {
     await this.initialize();
 
     try {
-      const result = await this.pool.executeStatement(
+      const result = await this.db.executeStatement(
         'DELETE FROM rate_limits WHERE key = ?',
         [key]
       );
 
-      SafeLogger.debug('Rate limit resetado', { 
-        key: this.sanitizeKey(key), 
-        affected: result.changes 
+      StructuredLogger.debug('Rate limit resetado', {
+        metadata: {
+          key: this.sanitizeKey(key),
+          affected: result.changes
+        }
       });
 
     } catch (error) {
-      SafeLogger.error('Erro ao resetar rate limit', error, { key: this.sanitizeKey(key) });
+      StructuredLogger.error('Erro ao resetar rate limit', error as Error, {
+        metadata: { key: this.sanitizeKey(key) }
+      });
     }
   }
 
@@ -197,20 +205,22 @@ export class DatabaseRateStore implements RateLimitStore {
       const maxAge = 24 * 60 * 60 * 1000;
       const cutoff = now - maxAge;
 
-      const result = await this.pool.executeStatement(
+      const result = await this.db.executeStatement(
         'DELETE FROM rate_limits WHERE updated_at < ?',
         [cutoff]
       );
 
       if (result.changes > 0) {
-        SafeLogger.debug('Limpeza de rate limits concluída', {
-          removidos: result.changes,
-          cutoff: new Date(cutoff).toISOString()
+        StructuredLogger.debug('Limpeza de rate limits concluída', {
+          metadata: {
+            removidos: result.changes,
+            cutoff: new Date(cutoff).toISOString()
+          }
         });
       }
 
     } catch (error) {
-      SafeLogger.error('Erro durante limpeza de rate limits', error);
+      StructuredLogger.error('Erro durante limpeza de rate limits', error);
     }
   }
 
@@ -230,41 +240,41 @@ export class DatabaseRateStore implements RateLimitStore {
       const now = Date.now();
 
       // Total de chaves
-      const totalResult = await this.pool.executeQuery<{ count: number }>(
+      const totalResult = await this.db.executeQuery(
         'SELECT COUNT(*) as count FROM rate_limits'
-      );
+      ) as { count: number }[];
       const totalKeys = totalResult[0]?.count || 0;
 
       // Chaves ativas (não expiradas)
-      const activeResult = await this.pool.executeQuery<{ count: number }>(
+      const activeResult = await this.db.executeQuery(
         'SELECT COUNT(*) as count FROM rate_limits WHERE (window_start + window_ms) > ?',
         [now]
-      );
+      ) as { count: number }[];
       const activeKeys = activeResult[0]?.count || 0;
 
       // Top 10 chaves por hits
-      const topResult = await this.pool.executeQuery<{
+      const topResult = await this.db.executeQuery(
+        'SELECT key, hits, window_start, window_ms FROM rate_limits ORDER BY hits DESC LIMIT 10'
+      ) as {
         key: string;
         hits: number;
         window_start: number;
         window_ms: number;
-      }>(
-        'SELECT key, hits, window_start, window_ms FROM rate_limits ORDER BY hits DESC LIMIT 10'
-      );
+      }[];
 
-      const topKeys = topResult.map(record => ({
+      const topKeys = topResult.map((record: any) => ({
         key: this.sanitizeKey(record.key),
         hits: record.hits,
         remaining: Math.max(0, (record.window_start + record.window_ms) - now)
       }));
 
       // Registros mais antigo e mais novo
-      const oldestResult = await this.pool.executeQuery<{ created_at: number }>(
+      const oldestResult = await this.db.executeQuery(
         'SELECT created_at FROM rate_limits ORDER BY created_at ASC LIMIT 1'
-      );
-      const newestResult = await this.pool.executeQuery<{ created_at: number }>(
+      ) as { created_at: number }[];
+      const newestResult = await this.db.executeQuery(
         'SELECT created_at FROM rate_limits ORDER BY created_at DESC LIMIT 1'
-      );
+      ) as { created_at: number }[];
 
       const oldestRecord = oldestResult[0] ? 
         new Date(oldestResult[0].created_at).toISOString() : 'N/A';
@@ -280,7 +290,7 @@ export class DatabaseRateStore implements RateLimitStore {
       };
 
     } catch (error) {
-      SafeLogger.error('Erro ao obter estatísticas do DatabaseRateStore', error);
+      StructuredLogger.error('Erro ao obter estatísticas do DatabaseRateStore', error);
       return {
         totalKeys: 0,
         activeKeys: 0,
@@ -309,7 +319,7 @@ export class DatabaseRateStore implements RateLimitStore {
       return result.totalHits === 1 && result.isFirstInDuration;
 
     } catch (error) {
-      SafeLogger.error('Health check do DatabaseRateStore falhou', error);
+      StructuredLogger.error('Health check do DatabaseRateStore falhou', error);
       return false;
     }
   }
@@ -329,37 +339,41 @@ export class DatabaseRateStore implements RateLimitStore {
 
     try {
       // Verificar registros inconsistentes
-      const inconsistentRecords = await this.pool.executeQuery<{ count: number }>(
+      const inconsistentRecords = await this.db.executeQuery(
         'SELECT COUNT(*) as count FROM rate_limits WHERE hits < 0 OR window_ms <= 0 OR max_hits <= 0'
-      );
+      ) as { count: number }[];
 
       if (inconsistentRecords[0]?.count > 0) {
         errors.push(`${inconsistentRecords[0].count} registros com dados inválidos`);
         
         // Reparar removendo registros inválidos
-        const deleteResult = await this.pool.executeStatement(
+        const deleteResult = await this.db.executeStatement(
           'DELETE FROM rate_limits WHERE hits < 0 OR window_ms <= 0 OR max_hits <= 0'
         );
         
         if (deleteResult.changes > 0) {
           repaired = true;
-          SafeLogger.info('Registros inválidos removidos', { count: deleteResult.changes });
+          StructuredLogger.info('Registros inválidos removidos', {
+            metadata: { count: deleteResult.changes }
+          });
         }
       }
 
       const isValid = errors.length === 0;
 
       if (!isValid) {
-        SafeLogger.warn('Problemas de integridade detectados no DatabaseRateStore', { errors });
+        StructuredLogger.warn('Problemas de integridade detectados no DatabaseRateStore', {
+          metadata: { errors }
+        });
       }
 
       return { isValid, errors, repaired };
 
     } catch (error) {
-      SafeLogger.error('Erro ao verificar integridade do DatabaseRateStore', error);
+      StructuredLogger.error('Erro ao verificar integridade do DatabaseRateStore', error);
       return {
         isValid: false,
-        errors: [`Erro na verificação: ${error.message}`],
+        errors: [`Erro na verificação: ${(error as Error).message}`],
         repaired: false
       };
     }

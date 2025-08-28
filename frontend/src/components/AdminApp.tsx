@@ -176,8 +176,7 @@ import RegisterServer from "@/pages/auth/RegisterServer";
 import Unauthorized from "@/pages/Unauthorized";
 import NotFound from "@/pages/NotFound";
 
-// Diagnostic pages
-import SupabaseDiagnosticsPage from "@/pages/SupabaseDiagnostics";
+// Diagnostic pages removidas - migramos para SQLite3
 
 function AdminApp() {
   return (
@@ -355,7 +354,6 @@ function AdminApp() {
       <Route path="/seguranca-publica/vigilancia-integrada" element={<VigilanciaIntegrada />} />
 
       {/* Diagnóstico do Sistema */}
-      <Route path="/diagnostics/supabase" element={<SupabaseDiagnosticsPage />} />
       <Route path="/diagnostics/permissoes" element={<DiagnosticoPermissoes />} />
 
       {/* 404 */}

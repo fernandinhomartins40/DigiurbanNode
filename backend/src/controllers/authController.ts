@@ -94,7 +94,7 @@ class AuthController {
       const sessionId = crypto.randomUUID();
       const csrfToken = crypto.randomBytes(32).toString('hex');
 
-      const accessToken = jwt.sign(
+      const accessToken = (jwt as any).sign(
         { 
           userId: user.id, 
           email: user.email, 
@@ -111,7 +111,7 @@ class AuthController {
         }
       );
 
-      const refreshToken = jwt.sign(
+      const refreshToken = (jwt as any).sign(
         { 
           userId: user.id, 
           sessionId 
@@ -287,7 +287,7 @@ class AuthController {
 
       // Gerar novo access token mantendo sessionId
       const newCsrfToken = crypto.randomBytes(32).toString('hex');
-      const accessToken = jwt.sign(
+      const accessToken = (jwt as any).sign(
         { 
           userId: user.id, 
           email: user.email, 
@@ -296,7 +296,7 @@ class AuthController {
           sessionId: decoded.sessionId,
           csrf: newCsrfToken
         },
-        AUTH_CONFIG.JWT_SECRET,
+        AUTH_CONFIG.JWT_SECRET as any,
         { 
           expiresIn: AUTH_CONFIG.JWT_EXPIRES_IN,
           issuer: 'digiurban-auth',
@@ -328,7 +328,7 @@ class AuthController {
 
   async logout(req: Request, res: Response) {
     try {
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       
       // Log seguro
       if (isProduction()) {

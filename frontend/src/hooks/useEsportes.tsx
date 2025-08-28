@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from "@/lib/supabase";
+import { APIClient } from "@/auth";
 
 // 🏆 ESPORTES - HOOK COMPLETO COM 7 FUNCIONALIDADES
 

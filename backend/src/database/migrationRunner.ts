@@ -45,6 +45,7 @@ interface MigrationStatus {
 
 export class MigrationRunner {
   private migrationsPath: string;
+  private db: any;
 
   constructor() {
     
@@ -52,6 +53,7 @@ export class MigrationRunner {
     const currentFile = fileURLToPath(import.meta.url);
     const currentDir = path.dirname(currentFile);
     this.migrationsPath = path.join(currentDir, 'migrations');
+    this.db = getDatabase();
   }
 
   /**
@@ -59,7 +61,7 @@ export class MigrationRunner {
    */
   private async initializeMigrationTable(): Promise<void> {
     try {
-      await this.pool.executeStatement(`
+      await this.db.executeStatement(`
         CREATE TABLE IF NOT EXISTS schema_migrations (
           id INTEGER PRIMARY KEY,
           filename TEXT NOT NULL UNIQUE,
@@ -72,15 +74,15 @@ export class MigrationRunner {
       `);
 
       // Índice para performance
-      await this.pool.executeStatement(`
+      await this.db.executeStatement(`
         CREATE INDEX IF NOT EXISTS idx_schema_migrations_id 
         ON schema_migrations(id)
       `);
 
-      SafeLogger.info('Tabela de migrações inicializada');
+      StructuredLogger.info('Tabela de migrações inicializada');
 
     } catch (error) {
-      SafeLogger.error('Erro ao inicializar tabela de migrações', error);
+      StructuredLogger.error('Erro ao inicializar tabela de migrações', error);
       throw error;
     }
   }
@@ -100,7 +102,7 @@ export class MigrationRunner {
 
         const match = filename.match(/^(\d{3})_(.+)\.sql$/);
         if (!match) {
-          SafeLogger.warn(`Arquivo de migração inválido ignorado: ${filename}`);
+          StructuredLogger.warn(`Arquivo de migração inválido ignorado: ${filename}`);
           continue;
         }
 
@@ -122,14 +124,16 @@ export class MigrationRunner {
       // Ordenar por ID
       migrations.sort((a, b) => a.id - b.id);
 
-      SafeLogger.debug(`${migrations.length} migrações carregadas`, {
-        migrações: migrations.map(m => `${m.id}: ${m.description}`)
+      StructuredLogger.debug(`${migrations.length} migrações carregadas`, {
+        metadata: {
+          migracoes: migrations.map(m => `${m.id}: ${m.description}`)
+        }
       });
 
       return migrations;
 
     } catch (error) {
-      SafeLogger.error('Erro ao carregar migrações', error);
+      StructuredLogger.error('Erro ao carregar migrações', error);
       throw error;
     }
   }
@@ -149,13 +153,13 @@ export class MigrationRunner {
     await this.initializeMigrationTable();
 
     try {
-      const result = await this.pool.executeQuery<{ id: number }>(
+      const result = await this.db.executeQuery(
         'SELECT MAX(id) as id FROM schema_migrations'
-      );
+      ) as { id: number }[];
 
       return result[0]?.id || 0;
     } catch (error) {
-      SafeLogger.error('Erro ao obter versão atual', error);
+      StructuredLogger.error('Erro ao obter versão atual', error);
       return 0;
     }
   }
@@ -167,10 +171,10 @@ export class MigrationRunner {
     const startTime = performance.now();
 
     try {
-      SafeLogger.info(`Executando migração ${migration.id}: ${migration.description}`);
+      StructuredLogger.info(`Executando migração ${migration.id}: ${migration.description}`);
 
       // Executar em transação
-      await this.pool.executeTransaction((db) => {
+      await this.db.executeTransaction((db: any) => {
         // Executar comandos SQL da migração
         db.exec(migration.sql);
 
@@ -191,8 +195,10 @@ export class MigrationRunner {
 
       const duration = Math.round(performance.now() - startTime);
 
-      SafeLogger.info(`Migração ${migration.id} aplicada com sucesso`, {
-        duration: `${duration}ms`
+      StructuredLogger.info(`Migração ${migration.id} aplicada com sucesso`, {
+        metadata: {
+          duration: `${duration}ms`
+        }
       });
 
       return {
@@ -205,9 +211,11 @@ export class MigrationRunner {
     } catch (error) {
       const duration = Math.round(performance.now() - startTime);
       
-      SafeLogger.error(`Falha na migração ${migration.id}`, error, {
-        filename: migration.filename,
-        duration: `${duration}ms`
+      StructuredLogger.error(`Falha na migração ${migration.id}`, error as Error, {
+        metadata: {
+          filename: migration.filename,
+          duration: `${duration}ms`
+        }
       });
 
       return {
@@ -215,7 +223,7 @@ export class MigrationRunner {
         filename: migration.filename,
         success: false,
         duration,
-        error: error.message
+        error: (error as Error).message
       };
     }
   }
@@ -228,13 +236,13 @@ export class MigrationRunner {
     results: MigrationResult[];
     newVersion: number;
   }> {
-    SafeLogger.info('Iniciando processo de migração');
+    StructuredLogger.info('Iniciando processo de migração');
 
     try {
       const status = await this.getStatus();
       
       if (status.pendingMigrations.length === 0) {
-        SafeLogger.info('Nenhuma migração pendente');
+        StructuredLogger.info('Nenhuma migração pendente');
         return {
           success: true,
           results: [],
@@ -242,7 +250,7 @@ export class MigrationRunner {
         };
       }
 
-      SafeLogger.info(`${status.pendingMigrations.length} migrações pendentes encontradas`);
+      StructuredLogger.info(`${status.pendingMigrations.length} migrações pendentes encontradas`);
 
       const results: MigrationResult[] = [];
       let allSuccessful = true;
@@ -253,7 +261,7 @@ export class MigrationRunner {
 
         if (!result.success) {
           allSuccessful = false;
-          SafeLogger.error(`Migração falhou, interrompendo processo: ${migration.id}`);
+          StructuredLogger.error(`Migração falhou, interrompendo processo: ${migration.id}`);
           break;
         }
       }
@@ -261,13 +269,16 @@ export class MigrationRunner {
       const newVersion = await this.getCurrentVersion();
 
       if (allSuccessful) {
-        SafeLogger.audit('Processo de migração concluído com sucesso', {
-          versaoAnterior: status.currentVersion,
-          novaVersao: newVersion,
-          migracoes: results.length
+        StructuredLogger.audit('Processo de migração concluído com sucesso', {
+          success: true,
+          metadata: {
+            versaoAnterior: status.currentVersion,
+            novaVersao: newVersion,
+            migracoes: results.length
+          }
         });
       } else {
-        SafeLogger.error('Processo de migração falhou', {
+        StructuredLogger.error('Processo de migração falhou', {
           versaoAnterior: status.currentVersion,
           versaoAtual: newVersion,
           resultados: results
@@ -281,7 +292,7 @@ export class MigrationRunner {
       };
 
     } catch (error) {
-      SafeLogger.error('Erro crítico durante migração', error);
+      StructuredLogger.error('Erro crítico durante migração', error);
       throw error;
     }
   }
@@ -297,23 +308,28 @@ export class MigrationRunner {
     const pendingMigrations: Migration[] = [];
 
     try {
-      const appliedRecords = await this.pool.executeQuery<{
+      const appliedRecords = await this.db.executeQuery(
+        'SELECT id, filename, checksum FROM schema_migrations ORDER BY id'
+      ) as {
         id: number;
         filename: string;
         checksum: string;
-      }>('SELECT id, filename, checksum FROM schema_migrations ORDER BY id');
+      }[];
 
       for (const migration of allMigrations) {
-        const applied = appliedRecords.find(r => r.id === migration.id);
+        const applied = appliedRecords.find((r: any) => r.id === migration.id);
         
         if (applied) {
           // Verificar integridade
           if (applied.checksum !== migration.checksum) {
-            SafeLogger.security('Checksum de migração não confere!', {
-              migrationId: migration.id,
-              filename: migration.filename,
-              expected: migration.checksum,
-              actual: applied.checksum
+            StructuredLogger.security('Checksum de migração não confere!', {
+              severity: 'critical' as const,
+              metadata: {
+                migrationId: migration.id,
+                filename: migration.filename,
+                expected: migration.checksum,
+                actual: applied.checksum
+              }
             });
           }
           appliedMigrations.push(migration);
@@ -334,7 +350,7 @@ export class MigrationRunner {
       };
 
     } catch (error) {
-      SafeLogger.error('Erro ao obter status das migrações', error);
+      StructuredLogger.error('Erro ao obter status das migrações', error);
       throw error;
     }
   }
@@ -353,15 +369,15 @@ export class MigrationRunner {
   }> {
     try {
       const status = await this.getStatus();
-      const healthStatus = await this.pool.getHealthStatus();
+      const healthStatus = await this.db.getHealthStatus();
 
-      const lastMigrationRecord = await this.pool.executeQuery<{
+      const lastMigrationRecord = await this.db.executeQuery(
+        'SELECT filename, applied_at, execution_time FROM schema_migrations ORDER BY id DESC LIMIT 1'
+      ) as {
         filename: string;
         applied_at: number;
         execution_time: number;
-      }>(
-        'SELECT filename, applied_at, execution_time FROM schema_migrations ORDER BY id DESC LIMIT 1'
-      );
+      }[];
 
       const lastMigration = lastMigrationRecord[0];
 
@@ -386,7 +402,7 @@ export class MigrationRunner {
       };
 
     } catch (error) {
-      SafeLogger.error('Erro ao gerar relatório de migrações', error);
+      StructuredLogger.error('Erro ao gerar relatório de migrações', error);
       throw error;
     }
   }

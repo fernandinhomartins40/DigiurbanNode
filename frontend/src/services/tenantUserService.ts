@@ -1,5 +1,5 @@
 import { APIClient } from "@/auth/utils/httpInterceptor";
-import { supabaseAdmin, createUserProfileAdmin, logSystemActivity } from "@/auth/utils/httpInterceptorAdmin";
+import { createUserProfileAdmin, logSystemActivity } from "@/auth/utils/httpInterceptorAdmin";
 import { TenantService } from './tenantService';
 
 // ====================================================================

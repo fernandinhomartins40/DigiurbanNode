@@ -511,6 +511,54 @@ export class UserModel {
   }
   
   // ================================================================
+  // MÉTODOS ADICIONAIS REQUERIDOS
+  // ================================================================
+  
+  static async getUsers(options: UserListOptions = {}): Promise<{ users: User[], total: number }> {
+    const users = await this.list({
+      limit: options.limit,
+      offset: options.offset,
+      role: options.role,
+      status: options.status,
+      tenant_id: options.tenant_id
+    });
+    
+    const total = await this.count({
+      role: options.role,
+      status: options.status,
+      tenant_id: options.tenant_id
+    });
+    
+    return { users, total };
+  }
+  
+  static async updateUser(id: string, updates: UpdateUserData): Promise<User> {
+    return this.update(id, updates);
+  }
+  
+  static async updateUserStatus(id: string, status: UserStatus): Promise<User> {
+    return this.update(id, { status });
+  }
+  
+  static async deleteUser(id: string): Promise<void> {
+    await this.hardDelete(id);
+  }
+  
+  static async resetPassword(id: string, newPassword: string): Promise<void> {
+    await this.updatePassword(id, newPassword);
+  }
+  
+  static async createProfile(userData: CreateUserData): Promise<UserProfile | null> {
+    const user = await this.create(userData);
+    return this.getProfile(user.id);
+  }
+  
+  static async markOrphanUsers(tenantId: string): Promise<void> {
+    const sql = 'UPDATE users SET tenant_id = NULL, status = ? WHERE tenant_id = ?';
+    await execute(sql, ['inativo', tenantId]);
+  }
+
+  // ================================================================
   // MÉTODOS DE CONVENIÊNCIA
   // ================================================================
   

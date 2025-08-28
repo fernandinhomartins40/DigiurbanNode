@@ -10,7 +10,8 @@ import { PermissionService } from '../services/PermissionService.js';
 // import { ActivityService } from '../services/ActivityService.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { generalRateLimit } from '../middleware/rateLimiter.js';
-import { body, param, validationResult } from 'express-validator';
+import expressValidator from 'express-validator';
+const { body, param, validationResult } = expressValidator;
 
 const router = Router();
 

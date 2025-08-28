@@ -3,7 +3,11 @@
 // =====================================================
 
 import { APIClient } from '@/auth/utils/httpInterceptor'
-import { RealtimeChannel } from '@supabase/supabase-js'
+// WebSocket interface for real-time notifications
+interface RealtimeChannel {
+  subscribe: (callback?: Function) => void
+  unsubscribe: () => void
+}
 
 export interface NotificacaoRealTime {
   id: string

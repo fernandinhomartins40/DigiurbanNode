@@ -4,7 +4,7 @@
 # Container único com Frontend + Backend + Nginx Proxy
 # ====================================================================
 
-FROM node:18-alpine AS backend-build
+FROM node:20-alpine AS backend-build
 
 # Build do Backend
 WORKDIR /app/backend
@@ -16,7 +16,7 @@ RUN npx tsc --noEmitOnError false || true
 
 # ====================================================================
 
-FROM node:18-alpine AS frontend-build
+FROM node:20-alpine AS frontend-build
 
 # Build do Frontend
 WORKDIR /app/frontend

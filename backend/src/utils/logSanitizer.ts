@@ -172,8 +172,8 @@ export class LogSanitizer {
 
     // Remover propriedades undefined
     Object.keys(sanitized).forEach(key => {
-      if (sanitized[key] === undefined) {
-        delete sanitized[key];
+      if ((sanitized as any)[key] === undefined) {
+        delete (sanitized as any)[key];
       }
     });
 

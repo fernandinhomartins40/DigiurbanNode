@@ -33,7 +33,6 @@ export class RedisRateStore implements RateLimitStore {
       password: process.env.REDIS_PASSWORD,
       
       // Configurações de conexão
-      retryDelayOnFailover: 100,
       enableOfflineQueue: false,
       maxRetriesPerRequest: 3,
       
@@ -41,9 +40,8 @@ export class RedisRateStore implements RateLimitStore {
       connectTimeout: 10000,
       lazyConnect: true,
       
-      // Configurações de cluster (se necessário)
-      enableReadyCheck: true,
-      maxLoadBalanceRange: 3
+      // Configurações básicas
+      enableReadyCheck: true
     });
 
     this.setupEventHandlers();
@@ -64,7 +62,7 @@ export class RedisRateStore implements RateLimitStore {
       this.connected = false;
     });
 
-    this.redis.on('error', (error) => {
+    this.redis.on('error', (error: Error) => {
       logger.error('Redis rate store error', { error: error.message });
       this.connected = false;
     });
@@ -81,7 +79,7 @@ export class RedisRateStore implements RateLimitStore {
     try {
       await this.redis.connect();
     } catch (error) {
-      logger.error('Falha ao conectar ao Redis', { error: error.message });
+      logger.error('Falha ao conectar ao Redis', { error: (error as Error).message });
       throw error;
     }
   }
@@ -135,7 +133,7 @@ export class RedisRateStore implements RateLimitStore {
 
     } catch (error) {
       logger.error('Erro no Redis rate limiting', { 
-        error: error.message, 
+        error: (error as Error).message, 
         key: this.sanitizeKey(key)
       });
       throw error;
@@ -155,7 +153,7 @@ export class RedisRateStore implements RateLimitStore {
       logger.info('Rate limit reset', { key: this.sanitizeKey(key) });
     } catch (error) {
       logger.error('Erro ao resetar rate limit', { 
-        error: error.message, 
+        error: (error as Error).message, 
         key: this.sanitizeKey(key) 
       });
     }
@@ -194,7 +192,7 @@ export class RedisRateStore implements RateLimitStore {
         const ttlResults = await pipeline.exec();
         const expiredKeys: string[] = [];
 
-        ttlResults?.forEach((result, index) => {
+        ttlResults?.forEach((result: any, index: number) => {
           const ttl = result[1] as number;
           if (ttl <= 0) {
             expiredKeys.push(keysToCheck[index]);
@@ -209,7 +207,7 @@ export class RedisRateStore implements RateLimitStore {
       });
 
     } catch (error) {
-      logger.error('Erro na limpeza de rate limiting', { error: error.message });
+      logger.error('Erro na limpeza de rate limiting', { error: (error as Error).message });
     }
   }
 
@@ -247,7 +245,7 @@ export class RedisRateStore implements RateLimitStore {
         connections
       };
     } catch (error) {
-      logger.error('Erro ao obter stats Redis', { error: error.message });
+      logger.error('Erro ao obter stats Redis', { error: (error as Error).message });
       return { keys: 0, memory: '0B', connections: 0 };
     }
   }
@@ -260,7 +258,7 @@ export class RedisRateStore implements RateLimitStore {
       await this.redis.disconnect();
       console.log('✅ Redis desconectado');
     } catch (error) {
-      logger.error('Erro ao desconectar Redis', { error: error.message });
+      logger.error('Erro ao desconectar Redis', { error: (error as Error).message });
     }
   }
 

@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
+import { APIClient } from '@/auth';
 import { Download, Database, Shield, Code, Zap, HardDrive, Search, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 

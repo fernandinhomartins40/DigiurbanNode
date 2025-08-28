@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/auth';
-import { supabase } from "@/lib/supabase";
+import { APIClient } from '@/auth';
 import { 
   DollarSign, 
   TrendingUp, 
@@ -155,39 +155,11 @@ const SuperAdminDashboard: React.FC = () => {
       try {
         console.log('📊 Carregando métricas do dashboard super admin...');
         
-        // Chamar função principal de métricas
-        const { data: metricsData, error: metricsError } = await supabase
-          .rpc('get_saas_dashboard_metrics');
-        
-        if (metricsError) {
-          console.error('❌ Erro ao carregar métricas:', metricsError);
-          throw metricsError;
-        }
-
-        // Chamar função de alertas
-        const { data: alertsData, error: alertsError } = await supabase
-          .rpc('get_active_alerts');
-        
-        if (alertsError) {
-          console.error('❌ Erro ao carregar alertas:', alertsError);
-          throw alertsError;
-        }
-
-        // Chamar função de evolução de receita
-        const { data: revenueEvolutionData, error: revenueError } = await supabase
-          .rpc('get_revenue_evolution');
-        
-        if (revenueError) {
-          console.error('❌ Erro ao carregar evolução de receita:', revenueError);
-        }
-
-        // Chamar função de distribuição de planos
-        const { data: plansDistributionData, error: plansError } = await supabase
-          .rpc('get_plan_distribution');
-        
-        if (plansError) {
-          console.error('❌ Erro ao carregar distribuição de planos:', plansError);
-        }
+        // Carregar métricas do dashboard via nossa API
+        const metricsData = await APIClient.get('/admin/saas-metrics');
+        const alertsData = await APIClient.get('/admin/alerts');
+        const revenueEvolutionData = await APIClient.get('/admin/revenue-evolution');
+        const plansDistributionData = await APIClient.get('/admin/plan-distribution');
 
         // Combinar dados reais
         const realMetrics: SaaSMetrics = {

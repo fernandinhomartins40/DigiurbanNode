@@ -3,7 +3,11 @@
 // =====================================================
 
 import { APIClient } from '@/auth/utils/httpInterceptor'
-import { PostgrestError } from '@supabase/supabase-js'
+// Custom error interface for API operations
+interface APIError {
+  message: string
+  code?: string
+}
 import { ErrorHandler } from './error-handler'
 import { CacheUtils } from './cache-system'
 

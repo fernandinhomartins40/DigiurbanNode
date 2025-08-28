@@ -385,6 +385,21 @@ export class SessionModel {
     
     return interval;
   }
+  
+  static async invalidateAllByUser(userId: string): Promise<void> {
+    const sql = 'UPDATE sessions SET is_active = FALSE WHERE user_id = ?';
+    await execute(sql, [userId]);
+  }
+  
+  static async getActiveByUser(userId: string): Promise<Session[]> {
+    const sql = 'SELECT * FROM sessions WHERE user_id = ? AND is_active = TRUE AND expires_at > datetime("now") ORDER BY created_at DESC';
+    return await query(sql, [userId]) as Session[];
+  }
+  
+  static async invalidateById(id: string): Promise<void> {
+    const sql = 'UPDATE sessions SET is_active = FALSE WHERE id = ?';
+    await execute(sql, [id]);
+  }
 }
 
 export default SessionModel;

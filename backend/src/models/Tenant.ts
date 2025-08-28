@@ -537,6 +537,38 @@ export class TenantModel {
     const plan = TENANT_PLANS[tenant.plano];
     return plan.features.includes('all') || plan.features.includes(feature);
   }
+  
+  static async updateTenant(id: string, updates: UpdateTenantData): Promise<Tenant> {
+    return this.update(id, updates);
+  }
+  
+  static async checkCnpjExists(cnpj: string): Promise<boolean> {
+    const existing = await this.findByCNPJ(cnpj);
+    return existing !== null;
+  }
+  
+  static async generateUniqueTenantCode(): Promise<string> {
+    return this.generateUniqueCode();
+  }
+  
+  static async createTenant(data: CreateTenantData): Promise<Tenant> {
+    return this.create(data);
+  }
+  
+  static async getTenants(options: any = {}): Promise<{ tenants: Tenant[], total: number }> {
+    const tenants = await this.list(options);
+    const total = await this.count(options);
+    return { tenants, total };
+  }
+  
+  static async getTenantById(id: string): Promise<Tenant | null> {
+    return this.findById(id);
+  }
+  
+  static async checkCodeExists(code: string): Promise<boolean> {
+    const existing = await this.findByCode(code);
+    return existing !== null;
+  }
 }
 
 export default TenantModel;

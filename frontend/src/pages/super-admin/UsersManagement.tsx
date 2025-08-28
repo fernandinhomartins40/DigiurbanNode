@@ -67,8 +67,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { supabase } from "@/lib/supabase";
-import { supabaseAdmin, createUserAdmin, createUserProfileAdmin, logSystemActivity } from "@/lib/supabaseAdmin";
+import { APIClient } from "@/auth";
 import { toast } from "@/hooks/use-toast";
 
 // Interfaces

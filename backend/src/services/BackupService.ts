@@ -158,11 +158,11 @@ export class BackupService {
       const outputStream = fs.createWriteStream(outputPath);
       const gzip = zlib.createGzip({ level: this.config.compressionLevel });
       
-      await new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         inputStream
           .pipe(gzip)
           .pipe(outputStream)
-          .on('finish', resolve)
+          .on('finish', () => resolve())
           .on('error', reject);
       });
     }
@@ -389,11 +389,11 @@ export class BackupService {
       const outputStream = fs.createWriteStream(outputPath);
       const gunzip = zlib.createGunzip();
       
-      await new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         inputStream
           .pipe(gunzip)
           .pipe(outputStream)
-          .on('finish', resolve)
+          .on('finish', () => resolve())
           .on('error', reject);
       });
     }

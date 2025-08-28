@@ -16,7 +16,7 @@ import { useAuth } from '@/auth';
 import { useEffect, useState } from "react";
 import { User, Key, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { APIClient } from "@/auth";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import ProfileImageUpload from "@/components/ProfileImageUpload";
 

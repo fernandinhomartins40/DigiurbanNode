@@ -87,7 +87,10 @@
       "Bash(do echo \"Finalizando: $file\")",
       "Bash(if grep -q \"supabase\" frontend/package.json)",
       "Bash(else echo \"✅ Nenhuma dependência Supabase\")",
-      "Bash(openssl rand:*)"
+      "Bash(openssl rand:*)",
+      "Bash(do sed -i \"s/import { body, param, query } from ''express-validator'';/import expressValidator from ''express-validator'';\\nconst { body, param, query } = expressValidator;/g\" \"$file\")",
+      "Bash(timeout 10s npm start)",
+      "Bash(timeout 15s npm start)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

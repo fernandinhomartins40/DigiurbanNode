@@ -12,7 +12,8 @@ import { RegistrationService } from '../services/RegistrationService.js';
 import { loginRateLimit, generalRateLimit, registerRateLimit } from '../middleware/rateLimiter.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { validators, handleValidationErrors, sanitizeAll } from '../middleware/validation.js';
-import { body, validationResult } from 'express-validator';
+import expressValidator from 'express-validator';
+const { body, validationResult } = expressValidator;
 
 export const authRoutes = Router();
 

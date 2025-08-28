@@ -8,8 +8,9 @@ import { Router, Request, Response } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import { validators, handleValidationErrors, sanitizeAll } from '../middleware/validation.js';
 import { generalRateLimit } from '../middleware/rateLimiter.js';
-import { ActivityModel } from '../models/Activity.js';
-import { body, param, query } from 'express-validator';
+// import { ActivityModel } from '../models/Activity.js';
+import expressValidator from 'express-validator';
+const { body, param, query } = expressValidator;
 
 export const systemRoutes = Router();
 

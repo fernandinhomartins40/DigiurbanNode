@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from "@/lib/supabase";
+import { APIClient } from "@/auth";
 
 // 🏖️ TURISMO - HOOK COMPLETO COM 6 FUNCIONALIDADES
 
