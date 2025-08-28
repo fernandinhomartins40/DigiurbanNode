@@ -15,6 +15,7 @@ import { generalRateLimit } from './middleware/rateLimiter.js';
 import { logger } from './config/logger.js';
 import { sanitizeAll } from './middleware/validation.js';
 import { BackupService } from './services/BackupService.js';
+import { runMigrations } from './database/migrationRunner.js';
 import { CORS_CONFIG, SECURITY_HEADERS, validateConfig } from './config/auth.js';
 import { metricsMiddleware } from './monitoring/metrics.js';
 import { StructuredLogger } from './monitoring/structuredLogger.js';
@@ -167,6 +168,12 @@ const server = app.listen(PORT, async () => {
   
   // Inicializar serviços
   try {
+    // 1. Executar migrações do banco de dados primeiro
+    logger.info('🗄️  Executando migrações do banco de dados...');
+    await runMigrations();
+    logger.info('✅ Migrações executadas com sucesso');
+
+    // 2. Inicializar serviços
     await BackupService.initialize();
     
     // Iniciar backup automático em produção
