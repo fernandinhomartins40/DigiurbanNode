@@ -144,11 +144,11 @@ export const RATE_LIMITS = {
     message: 'Muitas tentativas de login, tente novamente em 15 minutos'
   },
   
-  // Registro
+  // Registro (🚨 TEMPORÁRIO PARA TESTES - AUMENTAR DEPOIS)
   REGISTER: {
-    windowMs: 60 * 60 * 1000, // 1 hora
-    max: 3, // 3 registros por IP por hora
-    message: 'Muitos registros deste IP, tente novamente em 1 hora'
+    windowMs: 5 * 60 * 1000, // 5 minutos (era 1 hora)
+    max: 10, // 10 registros por IP (eram 3)
+    message: 'Muitos registros deste IP, tente novamente em 5 minutos'
   },
   
   // Reset de senha
