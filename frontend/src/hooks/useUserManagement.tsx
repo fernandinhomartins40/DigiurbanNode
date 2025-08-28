@@ -3,9 +3,9 @@
 // =====================================================
 
 import { useState, useEffect } from 'react'
-import { APIClient } from "@/auth"
 import { toast } from 'react-hot-toast'
-import { UserProfile, UserRole as UserType } from '@/auth'
+import UserManagementService, { UserProfile, CreateUserData, ApiResponse } from '@/services/userManagementService'
+import { Secretaria } from '@/hooks/useSecretarias'
 
 export interface PermissionProfile {
   id: string
@@ -24,6 +24,11 @@ export interface UserActivity {
   user_profile?: {
     nome: string
   }
+}
+
+interface ExtendedUserProfile extends UserProfile {
+  secretaria?: Secretaria;
+  ativo?: boolean;
 }
 
 export const useUserManagement = () => {
@@ -63,121 +68,113 @@ export const useUserManagement = () => {
   // =====================================================
 
   const loadUsers = async () => {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select(`
-        *,
-        secretaria:secretarias(id, nome)
-      `)
-      .order('nome')
+    const result = await UserManagementService.getUsers({
+      limit: 1000,
+      offset: 0
+    });
 
-    if (error) throw error
-    setUsers(data || [])
+    if (!result.success) {
+      throw new Error(result.error || 'Erro ao carregar usuários');
+    }
+
+    setUsers(result.data || []);
   }
 
   const createUser = async (userData: {
     email: string
     nome: string
-    tipo_usuario: UserProfile['tipo_usuario']
+    tipo_usuario: string
+    tenant_id: string
     secretaria_id?: string
     password: string
   }) => {
     try {
-      // Criar usuário na auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      const createUserData: CreateUserData = {
         email: userData.email,
-        password: userData.password,
-        email_confirm: true
-      })
+        nome_completo: userData.nome,
+        tipo_usuario: userData.tipo_usuario,
+        tenant_id: userData.tenant_id,
+        senha: userData.password,
+        departamento: userData.secretaria_id
+      };
 
-      if (authError) throw authError
-
-      // Criar perfil
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .insert([{
-          id: authData.user.id,
-          email: userData.email,
-          nome: userData.nome,
-          tipo_usuario: userData.tipo_usuario,
-          secretaria_id: userData.secretaria_id || null,
-          ativo: true
-        }])
-
-      if (profileError) throw profileError
+      const result = await UserManagementService.createUser(createUserData);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Erro ao criar usuário');
+      }
 
       // Registrar atividade
-      await logActivity(authData.user.id, 'Criou usuário', `Criou o usuário '${userData.nome}'`)
+      await logActivity(result.data!.id, 'Criou usuário', `Criou o usuário '${userData.nome}'`);
       
-      await loadUsers()
-      toast.success('Usuário criado com sucesso!')
+      await loadUsers();
+      toast.success('Usuário criado com sucesso!');
       
-      return authData.user
+      return result.data;
 
     } catch (error) {
-      console.error('Erro ao criar usuário:', error)
-      toast.error('Erro ao criar usuário')
-      throw error
+      console.error('Erro ao criar usuário:', error);
+      toast.error('Erro ao criar usuário');
+      throw error;
     }
   }
 
-  const updateUser = async (userId: string, updates: Partial<UserProfile>) => {
+  const updateUser = async (userId: string, updates: Partial<CreateUserData>) => {
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .update(updates)
-        .eq('id', userId)
+      const result = await UserManagementService.updateUser(userId, updates);
 
-      if (error) throw error
+      if (!result.success) {
+        throw new Error(result.error || 'Erro ao atualizar usuário');
+      }
 
-      await logActivity(userId, 'Alterou usuário', `Alterou dados do usuário`)
-      await loadUsers()
-      toast.success('Usuário atualizado com sucesso!')
+      await logActivity(userId, 'Alterou usuário', `Alterou dados do usuário`);
+      await loadUsers();
+      toast.success('Usuário atualizado com sucesso!');
 
     } catch (error) {
-      console.error('Erro ao atualizar usuário:', error)
-      toast.error('Erro ao atualizar usuário')
-      throw error
+      console.error('Erro ao atualizar usuário:', error);
+      toast.error('Erro ao atualizar usuário');
+      throw error;
     }
   }
 
   const toggleUserStatus = async (userId: string, ativo: boolean) => {
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ ativo })
-        .eq('id', userId)
+      const status = ativo ? 'ativo' : 'inativo';
+      const result = await UserManagementService.updateUserStatus(userId, status);
 
-      if (error) throw error
+      if (!result.success) {
+        throw new Error(result.error || 'Erro ao alterar status');
+      }
 
       await logActivity(userId, ativo ? 'Ativou usuário' : 'Desativou usuário', 
-        `${ativo ? 'Ativou' : 'Desativou'} o usuário`)
+        `${ativo ? 'Ativou' : 'Desativou'} o usuário`);
       
-      await loadUsers()
-      toast.success(`Usuário ${ativo ? 'ativado' : 'desativado'} com sucesso!`)
+      await loadUsers();
+      toast.success(`Usuário ${ativo ? 'ativado' : 'desativado'} com sucesso!`);
 
     } catch (error) {
-      console.error('Erro ao alterar status:', error)
-      toast.error('Erro ao alterar status do usuário')
-      throw error
+      console.error('Erro ao alterar status:', error);
+      toast.error('Erro ao alterar status do usuário');
+      throw error;
     }
   }
 
-  const resetUserPassword = async (userId: string, newPassword: string) => {
+  const resetUserPassword = async (userId: string) => {
     try {
-      const { error } = await supabase.auth.admin.updateUserById(userId, {
-        password: newPassword
-      })
+      const result = await UserManagementService.resetUserPassword(userId);
 
-      if (error) throw error
+      if (!result.success) {
+        throw new Error(result.error || 'Erro ao resetar senha');
+      }
 
-      await logActivity(userId, 'Resetou senha', 'Resetou a senha do usuário')
-      toast.success('Senha resetada com sucesso!')
+      await logActivity(userId, 'Resetou senha', 'Resetou a senha do usuário');
+      toast.success('Senha resetada com sucesso!');
 
     } catch (error) {
-      console.error('Erro ao resetar senha:', error)
-      toast.error('Erro ao resetar senha')
-      throw error
+      console.error('Erro ao resetar senha:', error);
+      toast.error('Erro ao resetar senha');
+      throw error;
     }
   }
 
@@ -281,15 +278,11 @@ export const useUserManagement = () => {
       }
     ]
 
-    // Contar usuários por tipo
-    const { data: userCounts } = await supabase
-      .from('user_profiles')
-      .select('tipo_usuario')
-
-    const countsByType = userCounts?.reduce((acc, user) => {
+    // Contar usuários por tipo usando dados já carregados
+    const countsByType = users.reduce((acc, user) => {
       acc[user.tipo_usuario] = (acc[user.tipo_usuario] || 0) + 1
       return acc
-    }, {} as Record<string, number>) || {}
+    }, {} as Record<string, number>)
 
     const profilesWithCounts = tiposUsuario.map(profile => ({
       ...profile,
@@ -305,51 +298,43 @@ export const useUserManagement = () => {
   // =====================================================
 
   const loadActivities = async () => {
-    const { data, error } = await supabase
-      .from('user_activities')
-      .select(`
-        *,
-        user_profile:user_profiles(nome)
-      `)
-      .order('created_at', { ascending: false })
-      .limit(50)
-
-    if (error) {
-      // Se a tabela não existir, criar dados mock
+    try {
+      // Como não temos endpoint específico para atividades ainda, usar dados mock
       const mockActivities: UserActivity[] = [
         {
           id: '1',
           user_id: 'admin-user',
-          acao: 'Criou usuário',
-          detalhes: 'Criou novo usuário no sistema',
+          acao: 'Sistema iniciado',
+          detalhes: 'Sistema de gestão inicializado com sucesso',
           created_at: new Date().toISOString(),
-          user_profile: { nome: 'Administrador' }
+          user_profile: { nome: 'Sistema' }
         }
-      ]
-      setActivities(mockActivities)
-      return
+      ];
+      setActivities(mockActivities);
+    } catch (error) {
+      console.warn('Erro ao carregar atividades:', error);
+      setActivities([]);
     }
-
-    setActivities(data || [])
   }
 
   const logActivity = async (userId: string, acao: string, detalhes: string) => {
     try {
-      const { error } = await supabase
-        .from('user_activities')
-        .insert([{
-          user_id: userId,
-          acao,
-          detalhes
-        }])
-
-      if (error) {
-        console.warn('Tabela de atividades não encontrada:', error)
-        return
-      }
-
+      // Por enquanto, apenas log no console - API de atividades será implementada depois
+      console.log(`[USER ACTIVITY] ${userId}: ${acao} - ${detalhes}`);
+      
+      // Adicionar à lista local para feedback visual
+      const newActivity: UserActivity = {
+        id: Date.now().toString(),
+        user_id: userId,
+        acao,
+        detalhes,
+        created_at: new Date().toISOString(),
+        user_profile: { nome: users.find(u => u.id === userId)?.nome_completo || 'Usuário' }
+      };
+      
+      setActivities(prev => [newActivity, ...prev.slice(0, 49)]);
     } catch (error) {
-      console.warn('Erro ao registrar atividade:', error)
+      console.warn('Erro ao registrar atividade:', error);
     }
   }
 
@@ -359,17 +344,17 @@ export const useUserManagement = () => {
 
   const getUserStats = () => {
     const total = users.length
-    const active = users.filter(u => u.ativo).length
-    const inactive = users.filter(u => !u.ativo).length
+    const active = users.filter(u => u.status === 'ativo').length
+    const inactive = users.filter(u => u.status !== 'ativo').length
 
     const byType = users.reduce((acc, user) => {
       acc[user.tipo_usuario] = (acc[user.tipo_usuario] || 0) + 1
       return acc
     }, {} as Record<string, number>)
 
-    const bySecretaria = users.reduce((acc, user) => {
-      if (user.secretaria?.nome) {
-        acc[user.secretaria.nome] = (acc[user.secretaria.nome] || 0) + 1
+    const byDepartment = users.reduce((acc, user) => {
+      if (user.departamento) {
+        acc[user.departamento] = (acc[user.departamento] || 0) + 1
       }
       return acc
     }, {} as Record<string, number>)
@@ -379,7 +364,7 @@ export const useUserManagement = () => {
       active,
       inactive,
       byType,
-      bySecretaria
+      byDepartment
     }
   }
 
@@ -391,9 +376,9 @@ export const useUserManagement = () => {
     if (!query.trim()) return users
 
     return users.filter(user => 
-      user.nome.toLowerCase().includes(query.toLowerCase()) ||
+      user.nome_completo.toLowerCase().includes(query.toLowerCase()) ||
       user.email.toLowerCase().includes(query.toLowerCase()) ||
-      user.secretaria?.nome.toLowerCase().includes(query.toLowerCase())
+      user.departamento?.toLowerCase().includes(query.toLowerCase())
     )
   }
 
@@ -405,7 +390,7 @@ export const useUserManagement = () => {
   const filterUsersByStatus = (status: string) => {
     if (status === 'all') return users
     return users.filter(user => 
-      status === 'active' ? user.ativo : !user.ativo
+      status === 'active' ? user.status === 'ativo' : user.status !== 'ativo'
     )
   }
 

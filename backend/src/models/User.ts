@@ -574,6 +574,30 @@ export class UserModel {
   static isManager(user: User): boolean {
     return ['manager', 'admin', 'super_admin'].includes(user.role);
   }
+
+  /**
+   * Obter estatísticas básicas de usuários para métricas SaaS
+   */
+  static async getUserStats(): Promise<{
+    total: number;
+    active: number;
+    inactive: number;
+  }> {
+    try {
+      const stats = await query(`
+        SELECT 
+          COUNT(*) as total,
+          SUM(CASE WHEN status = 'ativo' THEN 1 ELSE 0 END) as active,
+          SUM(CASE WHEN status != 'ativo' THEN 1 ELSE 0 END) as inactive
+        FROM users
+      `) as [{ total: number; active: number; inactive: number }];
+
+      return stats[0] || { total: 0, active: 0, inactive: 0 };
+    } catch (error) {
+      StructuredLogger.error('Erro ao obter estatísticas de usuários', error as Error);
+      return { total: 0, active: 0, inactive: 0 };
+    }
+  }
 }
 
 export default UserModel;

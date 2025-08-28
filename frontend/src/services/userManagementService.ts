@@ -207,12 +207,19 @@ class UserManagementService {
     console.log(`🏢 [Tenants] Carregando lista de tenants`);
     
     try {
-      const data = await APIClient.get<Tenant[]>('/tenants');
+      const response = await APIClient.get<{
+        success: boolean;
+        data: {
+          tenants: Tenant[];
+          total: number;
+        };
+      }>('/tenants');
 
-      console.log(`✅ [Tenants] ${data.length} tenants carregadas`);
+      const tenants = response?.data?.tenants || [];
+      console.log(`✅ [Tenants] ${tenants.length} tenants carregadas`);
       return {
         success: true,
-        data
+        data: tenants
       };
       
     } catch (error: Error | unknown) {
@@ -248,12 +255,19 @@ class UserManagementService {
       const queryString = queryParams.toString();
       const endpoint = queryString ? `/users?${queryString}` : '/users';
       
-      const data = await APIClient.get<UserProfile[]>(endpoint);
+      const response = await APIClient.get<{
+        success: boolean;
+        data: {
+          users: UserProfile[];
+          total: number;
+        };
+      }>(endpoint);
 
-      console.log(`✅ [Users] ${data.length} usuários listados`);
+      const users = response?.data?.users || [];
+      console.log(`✅ [Users] ${users.length} usuários listados`);
       return {
         success: true,
-        data
+        data: users
       };
       
     } catch (error: Error | unknown) {

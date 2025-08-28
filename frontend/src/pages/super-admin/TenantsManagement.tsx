@@ -188,7 +188,10 @@ const TenantsManagement: React.FC = () => {
                tenant.status === 'trial' ? 'trial' as const :
                tenant.status === 'suspenso' ? 'suspenso' as const : 'inativo' as const,
         plano: tenant.plano.toUpperCase() as 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE',
-        data_criacao: tenant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+        data_criacao: tenant.created_at ? 
+          (typeof tenant.created_at === 'string' ? tenant.created_at.split('T')[0] : 
+           new Date(tenant.created_at).toISOString().split('T')[0]) : 
+          new Date().toISOString().split('T')[0],
         ultimo_acesso: new Date().toISOString(),
         usuarios_ativos: 0, // Será calculado posteriormente
         limite_usuarios: tenant.plano.toLowerCase() === 'enterprise' ? 500 : tenant.plano.toLowerCase() === 'professional' ? 150 : 50,

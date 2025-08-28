@@ -569,6 +569,30 @@ export class TenantModel {
     const existing = await this.findByCode(code);
     return existing !== null;
   }
+
+  /**
+   * Obter estatísticas básicas de tenants para métricas SaaS
+   */
+  static async getTenantStats(): Promise<{
+    total: number;
+    active: number;
+    inactive: number;
+  }> {
+    try {
+      const stats = await query(`
+        SELECT 
+          COUNT(*) as total,
+          SUM(CASE WHEN status = 'ativo' THEN 1 ELSE 0 END) as active,
+          SUM(CASE WHEN status != 'ativo' THEN 1 ELSE 0 END) as inactive
+        FROM tenants
+      `) as [{ total: number; active: number; inactive: number }];
+
+      return stats[0] || { total: 0, active: 0, inactive: 0 };
+    } catch (error) {
+      StructuredLogger.error('Erro ao obter estatísticas de tenants', error as Error);
+      return { total: 0, active: 0, inactive: 0 };
+    }
+  }
 }
 
 export default TenantModel;

@@ -30,6 +30,7 @@ import activityRoutes from './routes/activities.js';
 import registrationRoutes from './routes/registration.js';
 import metricsRoutes from './routes/metrics.js';
 import healthRoutes from './routes/health.js';
+import adminRoutes from './routes/admin.js';
 
 const app = express();
 const PORT = process.env.PORT || 3021;
@@ -131,6 +132,9 @@ app.use('/api/permissions', permissionRoutes);
 
 // Rotas de atividades/logs
 app.use('/api/activities', activityRoutes);
+
+// Rotas administrativas (super admin)
+app.use('/api', adminRoutes);
 
 // Rotas de métricas (Prometheus)
 app.use('/api', metricsRoutes);

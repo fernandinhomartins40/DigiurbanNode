@@ -249,10 +249,17 @@ export class TenantService {
     try {
       console.log('🔄 Buscando tenants via API JWT...');
       
-      const tenants = await APIClient.get<TenantPadrao[]>('/tenants');
+      const response = await APIClient.get<{
+        success: boolean;
+        data: {
+          tenants: TenantPadrao[];
+          total: number;
+        };
+      }>('/tenants');
       
-      console.log('✅ Tenants carregados:', tenants?.length || 0);
-      return tenants || [];
+      const tenants = response?.data?.tenants || [];
+      console.log('✅ Tenants carregados:', tenants.length);
+      return tenants;
     } catch (error) {
       console.error('❌ Erro ao listar tenants:', error);
       throw error;
