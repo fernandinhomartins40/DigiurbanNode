@@ -213,12 +213,18 @@ jobs:
         echo "============================================"
         
         sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-        echo '🛑 Parando containers existentes...'
-        docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null && echo '✅ Container parado' || echo 'ℹ️  Nenhum container rodando'
-        docker rm ${{ env.CONTAINER_NAME }} 2>/dev/null && echo '✅ Container removido' || echo 'ℹ️  Nenhum container para remover'
+        echo '🛑 Parando TODOS os containers DigiUrban...'
         
-        echo '🗑️  Removendo imagens antigas...'
-        docker rmi digiurban-unified:latest 2>/dev/null && echo '✅ Imagem removida' || echo 'ℹ️  Nenhuma imagem para remover'
+        # Parar containers da arquitetura antiga (se existirem)
+        docker stop digiurban-frontend digiurban-backend 2>/dev/null && echo '✅ Containers antigos parados' || echo 'ℹ️  Nenhum container antigo'
+        docker rm digiurban-frontend digiurban-backend 2>/dev/null && echo '✅ Containers antigos removidos' || echo 'ℹ️  Nenhum container antigo para remover'
+        
+        # Parar container unificado atual
+        docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null && echo '✅ Container unificado parado' || echo 'ℹ️  Nenhum container unificado rodando'
+        docker rm ${{ env.CONTAINER_NAME }} 2>/dev/null && echo '✅ Container unificado removido' || echo 'ℹ️  Nenhum container unificado para remover'
+        
+        echo '🗑️  Removendo TODAS as imagens DigiUrban...'
+        docker rmi digiurban-frontend:latest digiurban-backend:latest digiurban-unified:latest 2>/dev/null && echo '✅ Imagens antigas removidas' || echo 'ℹ️  Nenhuma imagem antiga para remover'
         
         echo '🧽 Limpeza de sistema Docker...'
         docker system prune -f > /dev/null 2>&1 && echo '✅ Sistema limpo'
