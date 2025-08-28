@@ -1,0 +1,21 @@
+{
+  "apps": [
+    {
+      "name": "digiurban-backend",
+      "script": "./backend/dist/index.js",
+      "instances": 1,
+      "exec_mode": "cluster",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": "3021"
+      },
+      "error_file": "./logs/backend-error.log",
+      "out_file": "./logs/backend-out.log",
+      "log_file": "./logs/backend-combined.log",
+      "time": true,
+      "restart_delay": 3000,
+      "max_restarts": 10,
+      "min_uptime": "10s"
+    }
+  ]
+}

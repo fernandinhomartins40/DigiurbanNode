@@ -1,7 +1,7 @@
-name: Deploy DigiUrban JWT System
+name: Deploy DigiUrban Unified System
 
 concurrency:
-  group: digiurban-jwt-production-deploy
+  group: digiurban-unified-production-deploy
   cancel-in-progress: true
 
 on:
@@ -12,22 +12,21 @@ on:
 env:
   VPS_HOST: '72.60.10.112'
   VPS_USER: 'root'
-  APP_DIR: '/root/digiurban-jwt'
-  FRONTEND_PORT: '3020'
-  BACKEND_PORT: '3000'
-  FRONTEND_CONTAINER: 'digiurban-frontend'
-  BACKEND_CONTAINER: 'digiurban-backend'
+  APP_DIR: '/root/digiurban-unified'
+  APP_PORT: '80'
+  HTTPS_PORT: '443'
+  CONTAINER_NAME: 'digiurban-unified'
 
 jobs:
   deploy:
-    name: Deploy Full Stack
+    name: Deploy Unified Container
     runs-on: ubuntu-latest
     timeout-minutes: 60
     
     steps:
     - name: Info do Deploy
       run: |
-        echo "Deploy DigiUrban JWT Full Stack System"
+        echo "Deploy DigiUrban Unified System"
         echo "Commit: ${{ github.sha }}"
         echo "Branch: ${{ github.ref_name }}"
 
@@ -73,7 +72,7 @@ jobs:
         echo '=== Instalando Docker via repositório oficial ==='
         apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-        echo \"deb [arch=\$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \$(lsb_release -cs) stable\" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+        echo \\\"deb [arch=\\$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \\$(lsb_release -cs) stable\\\" | tee /etc/apt/sources.list.d/docker.list > /dev/null
         apt-get update -y
         apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
         
@@ -93,12 +92,12 @@ jobs:
       run: |
         echo "Limpando containers antigos..."
         sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-        echo '=== Parando containers existentes ==='
-        docker stop ${{ env.FRONTEND_CONTAINER }} ${{ env.BACKEND_CONTAINER }} 2>/dev/null || true
-        docker rm ${{ env.FRONTEND_CONTAINER }} ${{ env.BACKEND_CONTAINER }} 2>/dev/null || true
+        echo '=== Parando container existente ==='
+        docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null || true
+        docker rm ${{ env.CONTAINER_NAME }} 2>/dev/null || true
         
         echo '=== Limpando imagens antigas ==='
-        docker rmi digiurban-frontend:latest digiurban-backend:latest 2>/dev/null || true
+        docker rmi digiurban-unified:latest 2>/dev/null || true
         
         echo '=== Limpeza de sistema Docker ==='
         docker system prune -f || true
@@ -114,23 +113,55 @@ jobs:
         sudo apt-get install -y rsync
         sshpass -p "${{ secrets.VPS_PASSWORD }}" rsync -avz --delete --exclude='.git/' --exclude='node_modules/' --exclude='frontend/node_modules/' --exclude='backend/node_modules/' --exclude='frontend/dist/' --exclude='.claude/' -e "ssh -o StrictHostKeyChecking=no" ./ ${{ env.VPS_USER }}@${{ env.VPS_HOST }}:${{ env.APP_DIR }}/
 
-    - name: Build Backend
+    - name: Build e Deploy Container Unificado
       run: |
-        echo "Building Backend..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "cd ${{ env.APP_DIR }}/backend && node --version && npm --version && echo '=== Verificando package.json ===' && ls -la package* && echo '=== Gerando package-lock.json se necessario ===' && npm install --package-lock-only && echo '=== Instalando dependencias localmente ===' && npm install --production && echo '=== Criando Dockerfile inteligente ===' && echo 'FROM node:20-alpine' > Dockerfile && echo 'WORKDIR /app' >> Dockerfile && echo 'RUN apk add --no-cache sqlite' >> Dockerfile && echo 'COPY package*.json ./' >> Dockerfile && echo 'RUN if [ -f package-lock.json ]; then npm ci --production; else npm install --production; fi' >> Dockerfile && echo 'COPY . .' >> Dockerfile && echo 'EXPOSE 3000' >> Dockerfile && echo 'CMD [\"npm\", \"start\"]' >> Dockerfile && echo '=== Building Docker image ===' && docker build -t digiurban-backend:latest . && echo '=== Starting container ===' && docker run -d --name ${{ env.BACKEND_CONTAINER }} -p ${{ env.BACKEND_PORT }}:3000 --restart unless-stopped -e NODE_ENV=production digiurban-backend:latest && echo 'Backend container started successfully'"
-
-    - name: Build Frontend
-      run: |
-        echo "Building Frontend..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "cd ${{ env.APP_DIR }}/frontend && node --version && npm --version && echo '=== Verificando package.json ===' && ls -la package* && echo '=== Instalando dependencias ===' && if [ -f package-lock.json ]; then npm ci; else npm install; fi && echo '=== Building React app ===' && VITE_API_URL=http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }} npm run build && echo '=== Criando Dockerfile ===' && echo 'FROM nginx:alpine' > Dockerfile && echo 'COPY dist/ /usr/share/nginx/html/' >> Dockerfile && echo 'EXPOSE 80' >> Dockerfile && echo 'CMD [\"nginx\", \"-g\", \"daemon off;\"]' >> Dockerfile && echo '=== Building Docker image ===' && docker build -t digiurban-frontend:latest . && echo '=== Starting container ===' && docker run -d --name ${{ env.FRONTEND_CONTAINER }} -p ${{ env.FRONTEND_PORT }}:80 --restart unless-stopped digiurban-frontend:latest && echo 'Frontend container started successfully'"
+        echo "Building container unificado..."
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+        cd ${{ env.APP_DIR }}
+        
+        echo '=== Verificando estrutura do projeto ==='
+        ls -la
+        
+        echo '=== Verificando Dockerfile e docker-compose.yml ==='
+        ls -la Dockerfile docker-compose.yml nginx-unified.conf pm2.json start-services.sh
+        
+        echo '=== Tornando script executável ==='
+        chmod +x start-services.sh
+        
+        echo '=== Building com docker-compose ==='
+        docker-compose build --no-cache
+        
+        echo '=== Iniciando container unificado ==='
+        docker-compose up -d
+        
+        echo '=== Verificando status do container ==='
+        docker-compose ps
+        
+        echo '=== Aguardando inicialização (60s) ==='
+        sleep 60
+        
+        echo '=== Testando health check ==='
+        curl -f http://localhost/health || echo 'Health check aguardando...'
+        sleep 30
+        curl -f http://localhost/health || echo 'Health check falhou'
+        
+        echo '=== Verificando logs ==='
+        docker-compose logs --tail=50
+        
+        echo 'Container unificado iniciado com sucesso!'
+        "
 
     - name: Verificacao Final
       run: |
         echo "Verificacao final..."
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "docker ps && echo 'Frontend: http://${{ env.VPS_HOST }}:${{ env.FRONTEND_PORT }}' && echo 'Backend: http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }}'"
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+        docker ps
+        echo 'Aplicação: http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}'
+        echo 'Health Check: http://${{ env.VPS_HOST }}/health'
+        "
 
     - name: Deploy Concluido
       run: |
         echo "DEPLOY CONCLUIDO COM SUCESSO!"
-        echo "Frontend: http://${{ env.VPS_HOST }}:${{ env.FRONTEND_PORT }}"
-        echo "Backend: http://${{ env.VPS_HOST }}:${{ env.BACKEND_PORT }}"
+        echo "Aplicação: http://${{ env.VPS_HOST }}"
+        echo "Health Check: http://${{ env.VPS_HOST }}/health"
