@@ -22,6 +22,9 @@ import SuperAdminLogin from "./pages/super-admin/auth/SuperAdminLogin"
 import CidadaoLogin from "./pages/cidadao/auth/CidadaoLogin"
 import Unauthorized from "./pages/Unauthorized"
 
+// 🚨 PROVISÓRIO: Componente de registro de super admin  
+import SuperAdminRegistration from "./components/auth/SuperAdminRegistration"
+
 // Protected Pages
 import Index from "./pages/Index"
 import Dashboard from "./pages/Dashboard"
@@ -81,6 +84,9 @@ const App = () => (
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/super-admin/login" element={<SuperAdminLogin />} />
               <Route path="/cidadao/login" element={<CidadaoLogin />} />
+              
+              {/* 🚨 PROVISÓRIO: Rota de registro de super admin - REMOVER APÓS USO! */}
+              <Route path="/super-admin-registration" element={<SuperAdminRegistration />} />
 
               {/* ========================================== */}
               {/* PROTECTED ADMIN ROUTES */}

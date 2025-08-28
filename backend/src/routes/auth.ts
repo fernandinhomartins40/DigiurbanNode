@@ -434,3 +434,86 @@ authRoutes.get('/stats',
     }
   }
 );
+
+// ====================================================================
+// 🚨 ROTA PROVISÓRIA DE REGISTRO DE SUPER ADMIN
+// ====================================================================
+// ATENÇÃO: Esta rota é PROVISÓRIA e deve ser REMOVIDA após
+// a criação do super admin inicial por segurança
+// ====================================================================
+
+/**
+ * POST /auth/super-admin-registration
+ * PROVISÓRIO: Registrar super admin inicial
+ * REMOVER APÓS USO!
+ */
+authRoutes.post('/super-admin-registration',
+  sanitizeAll,
+  registerRateLimit,
+  [
+    body('nome_completo')
+      .isLength({ min: 2 })
+      .withMessage('Nome completo é obrigatório'),
+    body('email')
+      .isEmail()
+      .normalizeEmail()
+      .withMessage('Email deve ter formato válido'),
+    body('password')
+      .isLength({ min: 8 })
+      .withMessage('Senha deve ter pelo menos 8 caracteres')
+  ],
+  handleValidationErrors,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      // VERIFICAR SE JÁ EXISTE SUPER ADMIN
+      const existingSuperAdmin = await UserModel.findByRole('super_admin');
+      
+      if (existingSuperAdmin && existingSuperAdmin.length > 0) {
+        res.status(400).json({
+          success: false,
+          error: 'Super Admin já existe no sistema! Esta rota está desabilitada.'
+        });
+        return;
+      }
+
+      console.log('🚨 AVISO: Criando Super Admin via rota provisória');
+
+      const registrationData = {
+        nome_completo: req.body.nome_completo,
+        email: req.body.email,
+        password: req.body.password,
+        role: 'super_admin',
+        status: 'ativo',
+        email_verified: true,
+        tenant_id: null, // Super admin não tem tenant específico
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
+      };
+
+      // Usar o RegistrationService para criar o usuário
+      const result = await RegistrationService.registerUser(registrationData);
+
+      console.log('✅ Super Admin criado com sucesso via rota provisória');
+      console.log('🚨 REMOVER ESTA ROTA IMEDIATAMENTE APÓS USO!');
+
+      res.status(201).json({
+        success: true,
+        message: 'Super Admin criado com sucesso! REMOVA ESTA ROTA IMEDIATAMENTE!',
+        data: {
+          id: result.user.id,
+          email: result.user.email,
+          nome_completo: result.user.nome_completo,
+          role: result.user.role
+        }
+      });
+
+    } catch (error) {
+      console.error('❌ Erro ao criar Super Admin provisório:', error);
+      
+      res.status(400).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Erro interno do servidor'
+      });
+    }
+  }
+);
