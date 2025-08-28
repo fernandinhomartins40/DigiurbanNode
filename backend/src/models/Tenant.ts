@@ -371,7 +371,7 @@ export class TenantModel {
     const total = await this.count();
     
     // Por status
-    const statusStats = query(`
+    const statusStats = await query(`
       SELECT status, COUNT(*) as count 
       FROM tenants 
       GROUP BY status
@@ -388,7 +388,7 @@ export class TenantModel {
     });
     
     // Por plano
-    const planoStats = query(`
+    const planoStats = await query(`
       SELECT plano, COUNT(*) as count 
       FROM tenants 
       GROUP BY plano
@@ -405,7 +405,7 @@ export class TenantModel {
     });
     
     // Por estado
-    const estadoStats = query(`
+    const estadoStats = await query(`
       SELECT estado, COUNT(*) as count 
       FROM tenants 
       GROUP BY estado 

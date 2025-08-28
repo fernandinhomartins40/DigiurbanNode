@@ -7,10 +7,10 @@
 
 import { Router, Request, Response } from 'express';
 import { PermissionService } from '../services/PermissionService.js';
-import { ActivityService } from '../services/ActivityService.js';
+// import { ActivityService } from '../services/ActivityService.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { generalRateLimit } from '../middleware/rateLimiter.js';
-import { body, param, query, validationResult } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
 
 const router = Router();
 

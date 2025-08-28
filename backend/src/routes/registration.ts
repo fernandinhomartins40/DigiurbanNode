@@ -248,7 +248,7 @@ router.post('/resend-activation',
 
       const { email } = req.body;
 
-      const result = await RegistrationService.resendActivationToken(email);
+      const result = await RegistrationService.resendActivationEmail(email);
 
       res.json({
         success: true,

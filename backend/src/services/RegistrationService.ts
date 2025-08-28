@@ -199,7 +199,7 @@ export class RegistrationService {
         // Criar tenant
         const tenant = await TenantModel.create({
           ...tenantData,
-          tenant_code: await TenantModel.generateUniqueCode(tenantData.nome)
+          // tenant_code: await TenantModel.generateUniqueCode(tenantData.nome)
         });
 
         // Criar administrador do tenant
@@ -470,7 +470,7 @@ export class RegistrationService {
     }
 
     // Estado
-    if (!tenantData.estado || !VALIDATION_CONFIG.VALID_STATES.includes(tenantData.estado.toUpperCase())) {
+    if (!tenantData.estado || !VALIDATION_CONFIG.VALID_STATES.includes(tenantData.estado.toUpperCase() as any)) {
       throw new Error('Estado deve ser uma sigla válida (ex: SP, RJ, MG)');
     }
 

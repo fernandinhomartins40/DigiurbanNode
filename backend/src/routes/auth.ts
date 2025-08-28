@@ -8,7 +8,7 @@
 import { Router, Request, Response } from 'express';
 import { AuthService } from '../services/AuthService.js';
 import { RegistrationService } from '../services/RegistrationService.js';
-import { ActivityService } from '../services/ActivityService.js';
+// import { ActivityService } from '../services/ActivityService.js';
 import { loginRateLimit, generalRateLimit, registerRateLimit } from '../middleware/rateLimiter.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { body, validationResult } from 'express-validator';

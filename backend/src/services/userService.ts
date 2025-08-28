@@ -1,30 +1,30 @@
-import db from '../config/database.js';
+import { query, queryOne, execute } from '../database/connection.js';
 import { User, CreateUserData } from '../types/auth.js';
 import { v4 as uuidv4 } from 'uuid';
 
 class UserService {
   async findById(id: string): Promise<User | null> {
-    const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
-    const user = stmt.get(id) as User | undefined;
-    return user || null;
+    const sql = 'SELECT * FROM users WHERE id = ?';
+    const user = await queryOne(sql, [id]) as User | null;
+    return user;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
-    const user = stmt.get(email) as User | undefined;
-    return user || null;
+    const sql = 'SELECT * FROM users WHERE email = ?';
+    const user = await queryOne(sql, [email]) as User | null;
+    return user;
   }
 
   async create(userData: CreateUserData): Promise<User> {
     const id = uuidv4();
     const now = new Date();
     
-    const stmt = db.prepare(`
+    const sql = `
       INSERT INTO users (id, email, password, name, role, createdAt, updatedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `);
+    `;
 
-    stmt.run(id, userData.email, userData.password, userData.name, userData.role, now, now);
+    await execute(sql, [id, userData.email, userData.password, userData.name, userData.role, now, now]);
 
     return {
       id,
@@ -44,25 +44,25 @@ class UserService {
     
     const setClause = fields.map(field => `${field} = ?`).join(', ');
     
-    const stmt = db.prepare(`
+    const sql = `
       UPDATE users SET ${setClause}, updatedAt = ? WHERE id = ?
-    `);
+    `;
 
-    stmt.run(...values, now, id);
+    await execute(sql, [...values, now, id]);
 
     const updatedUser = await this.findById(id);
     return updatedUser!;
   }
 
   async findAll(): Promise<User[]> {
-    const stmt = db.prepare('SELECT id, email, name, role, createdAt, updatedAt FROM users');
-    return stmt.all() as User[];
+    const sql = 'SELECT id, email, name, role, createdAt, updatedAt FROM users';
+    return await query(sql) as User[];
   }
 
   async delete(id: string): Promise<boolean> {
-    const stmt = db.prepare('DELETE FROM users WHERE id = ?');
-    const result = stmt.run(id);
-    return result.changes > 0;
+    const sql = 'DELETE FROM users WHERE id = ?';
+    const result = await execute(sql, [id]);
+    return (result as any).changes > 0;
   }
 }
 
