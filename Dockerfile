@@ -45,11 +45,9 @@ RUN mkdir -p backend data logs && \
     chown -R digiurban:digiurban /var/lib/nginx && \
     chown -R digiurban:digiurban /run/nginx
 
-# Instalar dependências do backend em produção
+# Copiar dependências do backend já instaladas
 COPY --from=backend-build /app/backend/package*.json ./backend/
-WORKDIR /app/backend
-RUN npm ci --omit=dev
-WORKDIR /app
+COPY --from=backend-build /app/backend/node_modules ./backend/node_modules
 
 # Copiar backend compilado com permissões corretas
 COPY --from=backend-build --chown=digiurban:digiurban /app/backend/dist ./backend/dist
