@@ -54,6 +54,9 @@ WORKDIR /app
 # Copiar backend compilado com permissões corretas
 COPY --from=backend-build --chown=digiurban:digiurban /app/backend/dist ./backend/dist
 
+# Copiar arquivos de migração SQL (necessários em runtime)
+COPY --from=backend-build --chown=digiurban:digiurban /app/backend/src/database/migrations ./backend/dist/database/migrations
+
 # Copiar frontend compilado com permissões corretas
 COPY --from=frontend-build --chown=digiurban:digiurban /app/frontend/dist ./frontend
 

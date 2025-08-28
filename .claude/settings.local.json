@@ -90,7 +90,9 @@
       "Bash(openssl rand:*)",
       "Bash(do sed -i \"s/import { body, param, query } from ''express-validator'';/import expressValidator from ''express-validator'';\\nconst { body, param, query } = expressValidator;/g\" \"$file\")",
       "Bash(timeout 10s npm start)",
-      "Bash(timeout 15s npm start)"
+      "Bash(timeout 15s npm start)",
+      "Bash(/dev/null)",
+      "Bash(do)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

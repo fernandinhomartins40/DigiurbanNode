@@ -61,7 +61,7 @@ export class MigrationRunner {
    */
   private async initializeMigrationTable(): Promise<void> {
     try {
-      await this.db.executeStatement(`
+      this.db.exec(`
         CREATE TABLE IF NOT EXISTS schema_migrations (
           id INTEGER PRIMARY KEY,
           filename TEXT NOT NULL UNIQUE,
@@ -74,7 +74,7 @@ export class MigrationRunner {
       `);
 
       // Índice para performance
-      await this.db.executeStatement(`
+      this.db.exec(`
         CREATE INDEX IF NOT EXISTS idx_schema_migrations_id 
         ON schema_migrations(id)
       `);
@@ -153,11 +153,10 @@ export class MigrationRunner {
     await this.initializeMigrationTable();
 
     try {
-      const result = await this.db.executeQuery(
-        'SELECT MAX(id) as id FROM schema_migrations'
-      ) as { id: number }[];
+      const stmt = this.db.prepare('SELECT MAX(id) as id FROM schema_migrations');
+      const result = stmt.get() as { id: number } | undefined;
 
-      return result[0]?.id || 0;
+      return result?.id || 0;
     } catch (error) {
       StructuredLogger.error('Erro ao obter versão atual', error);
       return 0;
@@ -174,16 +173,17 @@ export class MigrationRunner {
       StructuredLogger.info(`Executando migração ${migration.id}: ${migration.description}`);
 
       // Executar em transação
-      await this.db.executeTransaction((db: any) => {
+      const transaction = this.db.transaction(() => {
         // Executar comandos SQL da migração
-        db.exec(migration.sql);
+        this.db.exec(migration.sql);
 
         // Registrar migração aplicada
-        db.prepare(`
+        const stmt = this.db.prepare(`
           INSERT INTO schema_migrations (
             id, filename, description, checksum, applied_at, execution_time
           ) VALUES (?, ?, ?, ?, ?, ?)
-        `).run(
+        `);
+        stmt.run(
           migration.id,
           migration.filename,
           migration.description,
@@ -192,6 +192,8 @@ export class MigrationRunner {
           Math.round(performance.now() - startTime)
         );
       });
+      
+      transaction();
 
       const duration = Math.round(performance.now() - startTime);
 
@@ -308,9 +310,8 @@ export class MigrationRunner {
     const pendingMigrations: Migration[] = [];
 
     try {
-      const appliedRecords = await this.db.executeQuery(
-        'SELECT id, filename, checksum FROM schema_migrations ORDER BY id'
-      ) as {
+      const stmt = this.db.prepare('SELECT id, filename, checksum FROM schema_migrations ORDER BY id');
+      const appliedRecords = stmt.all() as {
         id: number;
         filename: string;
         checksum: string;
@@ -369,17 +370,13 @@ export class MigrationRunner {
   }> {
     try {
       const status = await this.getStatus();
-      const healthStatus = await this.db.getHealthStatus();
 
-      const lastMigrationRecord = await this.db.executeQuery(
-        'SELECT filename, applied_at, execution_time FROM schema_migrations ORDER BY id DESC LIMIT 1'
-      ) as {
+      const stmt = this.db.prepare('SELECT filename, applied_at, execution_time FROM schema_migrations ORDER BY id DESC LIMIT 1');
+      const lastMigration = stmt.get() as {
         filename: string;
         applied_at: number;
         execution_time: number;
-      }[];
-
-      const lastMigration = lastMigrationRecord[0];
+      } | undefined;
 
       return {
         currentVersion: status.currentVersion,
@@ -388,7 +385,7 @@ export class MigrationRunner {
         pendingMigrations: status.pendingMigrations.length,
         lastMigration: lastMigration ? 
           `${lastMigration.filename} (${new Date(lastMigration.applied_at).toISOString()})` : null,
-        databaseSize: healthStatus.details.stats.databaseSize,
+        databaseSize: null,
         details: [
           ...status.appliedMigrations.map(m => ({
             ...m,
