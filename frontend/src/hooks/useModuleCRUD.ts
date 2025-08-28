@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { toast } from '@/hooks/use-toast';
 
 /**
@@ -43,30 +43,30 @@ export function useModuleCRUD<T extends { id: string }>(
   } = useQuery({
     queryKey: [module, entity, options.filters, options.orderBy],
     queryFn: async () => {
-      let query = supabase.from(finalTableName).select('*');
+      const queryParams = new URLSearchParams();
       
       // Aplicar filtros
       if (options.filters) {
         Object.entries(options.filters).forEach(([key, value]) => {
           if (value !== undefined && value !== null && value !== '') {
-            query = query.eq(key, value);
+            queryParams.append(key, String(value));
           }
         });
       }
       
       // Aplicar ordenação
       if (options.orderBy) {
-        query = query.order(options.orderBy.column, { 
-          ascending: options.orderBy.ascending ?? false 
-        });
+        queryParams.append('sort_by', options.orderBy.column);
+        queryParams.append('sort_order', options.orderBy.ascending ? 'asc' : 'desc');
       } else {
-        query = query.order('created_at', { ascending: false });
+        queryParams.append('sort_by', 'created_at');
+        queryParams.append('sort_order', 'desc');
       }
       
-      const { data, error } = await query;
+      const endpoint = `/${finalTableName}?${queryParams.toString()}`;
+      const data = await APIClient.get<T[]>(endpoint);
       
-      if (error) throw error;
-      return data as T[];
+      return data || [];
     },
     retry: 2,
     staleTime: 5 * 60 * 1000, // 5 minutos
@@ -75,13 +75,7 @@ export function useModuleCRUD<T extends { id: string }>(
   // Mutation para criar
   const createMutation = useMutation({
     mutationFn: async (newData: Partial<T>) => {
-      const { data, error } = await supabase
-        .from(finalTableName)
-        .insert([newData])
-        .select()
-        .single();
-      
-      if (error) throw error;
+      const data = await APIClient.post<T>(`/${finalTableName}`, newData);
       return data;
     },
     onSuccess: (data) => {
@@ -103,14 +97,7 @@ export function useModuleCRUD<T extends { id: string }>(
   // Mutation para atualizar
   const updateMutation = useMutation({
     mutationFn: async ({ id, data: updateData }: { id: string; data: Partial<T> }) => {
-      const { data, error } = await supabase
-        .from(finalTableName)
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
+      const data = await APIClient.put<T>(`/${finalTableName}/${id}`, updateData);
       return data;
     },
     onSuccess: () => {
@@ -132,12 +119,7 @@ export function useModuleCRUD<T extends { id: string }>(
   // Mutation para deletar
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from(finalTableName)
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await APIClient.delete(`/${finalTableName}/${id}`);
       return id;
     },
     onSuccess: () => {
@@ -158,18 +140,13 @@ export function useModuleCRUD<T extends { id: string }>(
 
   // Função para buscar um item específico
   const fetchOne = async (id: string): Promise<T | null> => {
-    const { data, error } = await supabase
-      .from(finalTableName)
-      .select('*')
-      .eq('id', id)
-      .single();
-    
-    if (error) {
-      if (error.code === 'PGRST116') return null; // Not found
+    try {
+      const data = await APIClient.get<T>(`/${finalTableName}/${id}`);
+      return data;
+    } catch (error: any) {
+      if (error.status === 404) return null; // Not found
       throw error;
     }
-    
-    return data as T;
   };
 
   return {
@@ -209,18 +186,13 @@ export function useModuleItem<T>(
     queryFn: async () => {
       if (!id) return null;
       
-      const { data, error } = await supabase
-        .from(finalTableName)
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
+      try {
+        const data = await APIClient.get<T>(`/${finalTableName}/${id}`);
+        return data;
+      } catch (error: any) {
+        if (error.status === 404) return null; // Not found
         throw error;
       }
-      
-      return data as T;
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutos
@@ -239,19 +211,20 @@ export function useModuleStats(
   return useQuery({
     queryKey: [module, entity, 'stats', filters],
     queryFn: async () => {
-      let query = supabase.from(finalTableName).select('*', { count: 'exact', head: true });
+      const queryParams = new URLSearchParams();
+      queryParams.append('stats', 'true');
       
       // Aplicar filtros
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
-          query = query.eq(key, value);
+          queryParams.append(key, String(value));
         }
       });
       
-      const { count, error } = await query;
+      const endpoint = `/${finalTableName}/stats?${queryParams.toString()}`;
+      const data = await APIClient.get<{ total: number }>(endpoint);
       
-      if (error) throw error;
-      return { total: count || 0 };
+      return data || { total: 0 };
     },
     staleTime: 2 * 60 * 1000, // 2 minutos
   });

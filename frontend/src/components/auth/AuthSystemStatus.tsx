@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/auth';
 import { authRateLimiter } from "@/utils/rateLimiter";
-import { supabase } from "@/lib/supabase";
+import { APIClient } from '@/auth/utils/httpInterceptor';
 
 interface SystemCheck {
   id: string;

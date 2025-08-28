@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from "@/lib/supabase";
+import { APIClient } from "@/lib/APIClient";
 
 export interface SaaSMetrics {
   // Métricas de Receita
@@ -63,7 +63,7 @@ export function useSaaSMetrics() {
       setLoading(true);
 
       // 1. Buscar dados dos tenants
-      const { data: tenants, error: tenantsError } = await supabase
+      const { data: tenants, error: tenantsError } = await APIClient
         .from('tenants')
         .select(`
           *,
@@ -93,7 +93,7 @@ export function useSaaSMetrics() {
       currentMonth.setDate(1);
       currentMonth.setHours(0, 0, 0, 0);
 
-      const { data: newTenants, error: newTenantsError } = await supabase
+      const { data: newTenants, error: newTenantsError } = await APIClient
         .from('tenants')
         .select('*')
         .gte('created_at', currentMonth.toISOString());
@@ -159,7 +159,7 @@ export function useTenantMetrics(tenantId?: string) {
     try {
       setLoading(true);
 
-      let query = supabase
+      let query = APIClient
         .from('tenant_metricas_uso')
         .select(`
           *,
@@ -227,7 +227,7 @@ export function useRevenueMetrics(months: number = 12) {
       startDate.setMonth(startDate.getMonth() - months);
 
       // Query para buscar métricas mensais
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .rpc('get_monthly_revenue_metrics', {
           start_date: startDate.toISOString(),
           months_count: months
@@ -290,13 +290,13 @@ export function useChurnRate(tenantId?: string) {
       const lastMonth = new Date();
       lastMonth.setMonth(lastMonth.getMonth() - 1);
 
-      let cancelledQuery = supabase
+      let cancelledQuery = APIClient
         .from('tenants')
         .select('id')
         .eq('status', 'CANCELADO')
         .gte('updated_at', lastMonth.toISOString());
 
-      let activeQuery = supabase
+      let activeQuery = APIClient
         .from('tenants')
         .select('id')
         .eq('status', 'ATIVO');

@@ -5,18 +5,21 @@
 // Redução de 70% de complexidade vs sistema atual
 // ====================================================================
 
-import { User as SupabaseUser } from '@supabase/supabase-js';
-
 // ====================================================================
 // TIPOS BÁSICOS
 // ====================================================================
 
 export type UserRole = 'super_admin' | 'admin' | 'manager' | 'coordinator' | 'user' | 'guest';
 
-export interface AuthUser extends SupabaseUser {
-  // Campos essenciais apenas
+export interface AuthUser {
+  id: string;
+  email: string;
   role: UserRole;
   tenant_id: string | null;
+  name?: string;
+  avatar_url?: string;
+  created_at: string;
+  updated_at?: string;
 }
 
 export interface UserProfile {

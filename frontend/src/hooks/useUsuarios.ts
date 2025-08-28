@@ -4,7 +4,7 @@
 
 import { useState, useCallback } from 'react'
 import { toast } from 'react-hot-toast'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from '@/auth/utils/httpInterceptor'
 import { 
   GetEntityListParams, 
   EntityResponse, 
@@ -120,28 +120,14 @@ export function useUsuarios() {
       setLoading(true)
       setError(null)
 
-      let query = supabase
-        .from('user_profiles')
-        .select(`
-          *,
-          secretaria:secretarias(nome, sigla),
-          setor:setores(nome),
-          tenant:tenants(nome)
-        `)
-        .eq('id', id)
-        .single()
-
-      const { data, error } = await query
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          return {
-            data: null as any,
-            success: false,
-            message: 'Usuário não encontrado'
-          }
+      const data = await APIClient.get<UsuarioPadrao>(`/users/${id}`)
+      
+      if (!data) {
+        return {
+          data: null as any,
+          success: false,
+          message: 'Usuário não encontrado'
         }
-        throw error
       }
 
       return {
@@ -168,79 +154,49 @@ export function useUsuarios() {
       setLoading(true)
       setError(null)
 
-      let query = supabase
-        .from('user_profiles')
-        .select(`
-          *,
-          secretaria:secretarias(nome, sigla),
-          setor:setores(nome),
-          tenant:tenants(nome)
-        `, { count: 'exact' })
-
+      // Construir parâmetros de consulta
+      const queryParams = new URLSearchParams()
+      
       // Aplicar filtros
       if (params?.filters) {
         const { filters } = params
         
-        if (filters.search) {
-          query = query.or(`nome_completo.ilike.%${filters.search}%,email.ilike.%${filters.search}%,cpf.ilike.%${filters.search}%`)
-        }
-        
-        if (filters.email) {
-          query = query.ilike('email', `%${filters.email}%`)
-        }
-        
-        if (filters.nome_completo) {
-          query = query.ilike('nome_completo', `%${filters.nome_completo}%`)
-        }
-        
+        if (filters.search) queryParams.append('search', filters.search)
+        if (filters.email) queryParams.append('email', filters.email)
+        if (filters.nome_completo) queryParams.append('nome_completo', filters.nome_completo)
         if (filters.tipo_usuario) {
           if (Array.isArray(filters.tipo_usuario)) {
-            query = query.in('tipo_usuario', filters.tipo_usuario)
+            filters.tipo_usuario.forEach(tipo => queryParams.append('tipo_usuario', tipo))
           } else {
-            query = query.eq('tipo_usuario', filters.tipo_usuario)
+            queryParams.append('tipo_usuario', filters.tipo_usuario)
           }
         }
-        
-        if (filters.secretaria_id) {
-          query = query.eq('secretaria_id', filters.secretaria_id)
-        }
-        
-        if (filters.setor_id) {
-          query = query.eq('setor_id', filters.setor_id)
-        }
-        
-        if (filters.ativo !== undefined) {
-          query = query.eq('ativo', filters.ativo)
-        }
-        
-        if (filters.data_criacao_start) {
-          query = query.gte('created_at', filters.data_criacao_start)
-        }
-        
-        if (filters.data_criacao_end) {
-          query = query.lte('created_at', filters.data_criacao_end)
-        }
+        if (filters.secretaria_id) queryParams.append('secretaria_id', filters.secretaria_id)
+        if (filters.setor_id) queryParams.append('setor_id', filters.setor_id)
+        if (filters.ativo !== undefined) queryParams.append('ativo', filters.ativo.toString())
+        if (filters.data_criacao_start) queryParams.append('start_date', filters.data_criacao_start)
+        if (filters.data_criacao_end) queryParams.append('end_date', filters.data_criacao_end)
       }
 
       // Aplicar ordenação
       const sortField = params?.sort_by || 'created_at'
       const sortOrder = params?.sort_order || 'desc'
-      query = query.order(sortField, { ascending: sortOrder === 'asc' })
+      queryParams.append('sort_by', sortField)
+      queryParams.append('sort_order', sortOrder)
 
       // Aplicar paginação
       const pageSize = params?.limit || CRUD_CONSTANTS.DEFAULT_PAGE_SIZE
       const currentPage = params?.page || 1
       
-      if (pageSize <= CRUD_CONSTANTS.MAX_PAGE_SIZE) {
-        const offset = (currentPage - 1) * pageSize
-        query = query.range(offset, offset + pageSize - 1)
-      }
+      queryParams.append('limit', pageSize.toString())
+      queryParams.append('offset', ((currentPage - 1) * pageSize).toString())
 
-      const { data, error, count } = await query
-
-      if (error) throw error
-
-      const totalPages = Math.ceil((count || 0) / pageSize)
+      const endpoint = `/users?${queryParams.toString()}`
+      const response = await APIClient.get<{data: UsuarioPadrao[], total: number}>(endpoint)
+      
+      const data = response.data || []
+      const count = response.total || 0
+      const totalPages = Math.ceil(count / pageSize)
 
       return {
         data: data || [],
@@ -312,25 +268,8 @@ export function useUsuarios() {
         }
       }
 
-      // Verificar se email já existe
-      const { data: existingUser } = await supabase
-        .from('user_profiles')
-        .select('id')
-        .eq('email', data.email)
-        .single()
-
-      if (existingUser) {
-        return {
-          data: null as any,
-          success: false,
-          message: 'Email já está em uso por outro usuário'
-        }
-      }
-
-      // Usar o serviço hierárquico para criar usuário
-      const { HierarchicalUserService } = await import('../services/hierarchicalUserService')
-      
-      const result = await HierarchicalUserService.createUser({
+      // Criar usuário via API
+      const usuario = await APIClient.post<UsuarioPadrao>('/users', {
         email: data.email,
         nome_completo: data.nome_completo,
         tipo_usuario: data.tipo_usuario,
@@ -340,35 +279,15 @@ export function useUsuarios() {
         cpf: data.cpf,
         telefone: data.telefone,
         cargo: data.cargo,
-        enviar_email: data.enviar_email
+        senha: data.senha_temporaria || 'TempPassword123!'
       })
-
-      if (!result.success) {
-        return {
-          data: null as any,
-          success: false,
-          message: result.message
-        }
-      }
-
-      // Buscar usuário criado com relacionamentos
-      const { data: usuario } = await supabase
-        .from('user_profiles')
-        .select(`
-          *,
-          secretaria:secretarias(nome, sigla),
-          setor:setores(nome)
-        `)
-        .eq('id', result.user_id)
-        .single()
 
       return {
         data: usuario,
         success: true,
         message: 'Usuário criado com sucesso!',
         meta: {
-          created_at: usuario?.created_at,
-          senha_temporaria: result.senha_temporaria
+          created_at: usuario?.created_at
         }
       }
     } catch (err: Error | unknown) {
@@ -473,21 +392,10 @@ export function useUsuarios() {
         }
       }
 
-      const { data: usuario, error } = await supabase
-        .from('user_profiles')
-        .update({
-          ...data,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-        .select(`
-          *,
-          secretaria:secretarias(nome, sigla),
-          setor:setores(nome)
-        `)
-        .single()
-
-      if (error) throw error
+      const usuario = await APIClient.put<UsuarioPadrao>(`/users/${id}`, {
+        ...data,
+        updated_at: new Date().toISOString()
+      })
 
       toast.success('Usuário atualizado com sucesso!')
 
@@ -521,26 +429,8 @@ export function useUsuarios() {
       setLoading(true)
       setError(null)
 
-      // Verificar se usuário pode ser deletado
-      const { data: protocolos } = await supabase
-        .from('protocolos_completos')
-        .select('id')
-        .or(`solicitante_id.eq.${id},responsavel_id.eq.${id}`)
-        .limit(1)
-
-      if (protocolos && protocolos.length > 0) {
-        return {
-          success: false,
-          message: 'Não é possível deletar usuário que possui protocolos associados'
-        }
-      }
-
-      const { error } = await supabase
-        .from('user_profiles')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
+      // Deletar usuário via API (a API já verifica dependências)
+      await APIClient.delete(`/users/${id}`)
 
       toast.success('Usuário removido com sucesso!')
 
@@ -569,16 +459,9 @@ export function useUsuarios() {
       setLoading(true)
       setError(null)
 
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({
-          ativo: false,
-          deleted_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-
-      if (error) throw error
+      await APIClient.put(`/users/${id}/status`, {
+        status: 'inativo'
+      })
 
       toast.success('Usuário desativado com sucesso!')
 

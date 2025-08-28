@@ -2,8 +2,7 @@
 // MIDDLEWARE DE VERIFICAÇÃO DE PRIMEIRO LOGIN
 // =====================================================
 
-import { supabase } from "@/lib/supabase";
-import { User } from '@supabase/supabase-js';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 
 // =====================================================
 // INTERFACES
@@ -120,13 +119,13 @@ export class FirstLoginMiddleware {
    */
   static async isPasswordExpired(userId?: string): Promise<boolean> {
     try {
-      const targetUserId = userId || (await supabase.auth.getUser()).data.user?.id;
+      const targetUserId = userId || (await APIClient.get("/auth/me")).data.user?.id;
       
       if (!targetUserId) {
         return false;
       }
 
-      const { data, error } = await supabase.rpc('is_password_expired', {
+      const { data, error } = await APIClient.post("/rpc/'is_password_expired', {
         user_id: targetUserId
       });
 
@@ -148,13 +147,13 @@ export class FirstLoginMiddleware {
    */
   static async confirmPasswordChange(): Promise<boolean> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await APIClient.get("/auth/me");
       
       if (!user) {
         return false;
       }
 
-      const { data, error } = await supabase.rpc('confirm_password_change', {
+      const { data, error } = await APIClient.post("/rpc/'confirm_password_change', {
         user_id: user.id
       });
 
@@ -177,7 +176,7 @@ export class FirstLoginMiddleware {
    */
   static async updateLastLogin(): Promise<void> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await APIClient.get("/auth/me");
       
       if (!user) {
         return;

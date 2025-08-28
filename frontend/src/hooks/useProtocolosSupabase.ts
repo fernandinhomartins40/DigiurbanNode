@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { toast } from '@/hooks/use-toast';
 
 /**
@@ -49,23 +49,8 @@ export const useProtocolosSupabase = () => {
   } = useQuery({
     queryKey: ['protocolos'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('protocolos')
-        .select(`
-          *,
-          servicos_municipais (
-            nome,
-            categoria
-          ),
-          secretarias (
-            nome,
-            sigla
-          )
-        `)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as ProtocoloSupabase[];
+      const data = await APIClient.get<ProtocoloSupabase[]>('/protocolos?include=servicos_municipais,secretarias&sort_by=created_at&sort_order=desc');
+      return data || [];
     },
     retry: 2,
     staleTime: 5 * 60 * 1000,
@@ -74,13 +59,7 @@ export const useProtocolosSupabase = () => {
   // Mutation para criar protocolo
   const createMutation = useMutation({
     mutationFn: async (novoProtocolo: Partial<ProtocoloSupabase>) => {
-      const { data, error } = await supabase
-        .from('protocolos')
-        .insert([novoProtocolo])
-        .select()
-        .single();
-      
-      if (error) throw error;
+      const data = await APIClient.post<ProtocoloSupabase>('/protocolos', novoProtocolo);
       return data;
     },
     onSuccess: () => {
@@ -102,14 +81,7 @@ export const useProtocolosSupabase = () => {
   // Mutation para atualizar protocolo
   const updateMutation = useMutation({
     mutationFn: async ({ id, data: updateData }: { id: string; data: Partial<ProtocoloSupabase> }) => {
-      const { data, error } = await supabase
-        .from('protocolos')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
+      const data = await APIClient.put<ProtocoloSupabase>(`/protocolos/${id}`, updateData);
       return data;
     },
     onSuccess: () => {

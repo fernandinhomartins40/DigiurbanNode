@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { supabase } from "@/lib/supabase";
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { useAuth } from '@/auth'
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';

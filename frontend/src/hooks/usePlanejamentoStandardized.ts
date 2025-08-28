@@ -4,7 +4,7 @@
 // =====================================================
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { toast } from 'react-hot-toast'
 import type { 
   BaseEntity, 
@@ -247,7 +247,7 @@ export function usePlanejamentoStandardized() {
   const { data: projetosPlanejamento = [], isLoading: loadingProjetos } = useQuery({
     queryKey: ['planejamento', 'projetos'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_projetos')
         .select(`
           *,
@@ -264,7 +264,7 @@ export function usePlanejamentoStandardized() {
   const { data: licencasUrbanisticas = [], isLoading: loadingLicencas } = useQuery({
     queryKey: ['planejamento', 'licencas'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_licencas')
         .select(`
           *,
@@ -281,7 +281,7 @@ export function usePlanejamentoStandardized() {
   const { data: zoneamentoUrbano = [], isLoading: loadingZoneamento } = useQuery({
     queryKey: ['planejamento', 'zoneamento'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_zoneamento')
         .select('*')
         .eq('status', 'ativo')
@@ -296,7 +296,7 @@ export function usePlanejamentoStandardized() {
   const { data: fiscalizacoes = [], isLoading: loadingFiscalizacoes } = useQuery({
     queryKey: ['planejamento', 'fiscalizacoes'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_fiscalizacao')
         .select('*')
         .order('data_fiscalizacao', { ascending: false })
@@ -315,7 +315,7 @@ export function usePlanejamentoStandardized() {
       // Gerar número do processo
       const numeroProcesso = `PU-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`
       
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_projetos')
         .insert([{ ...dados, numero_processo: numeroProcesso }])
         .select()
@@ -340,7 +340,7 @@ export function usePlanejamentoStandardized() {
       status: ProjetoPlanejamento['status'], 
       parecer?: string 
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_projetos')
         .update({ status, parecer_tecnico: parecer })
         .eq('id', id)
@@ -369,7 +369,7 @@ export function usePlanejamentoStandardized() {
       // Gerar número da licença
       const numeroLicenca = `LU-${dados.tipo_licenca?.toUpperCase()}-${Date.now().toString().slice(-6)}`
       
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_licencas')
         .insert([{ ...dados, numero_licenca: numeroLicenca }])
         .select()
@@ -393,7 +393,7 @@ export function usePlanejamentoStandardized() {
       id: string, 
       condicoes?: string[] 
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_licencas')
         .update({ 
           status: 'aprovada',
@@ -423,7 +423,7 @@ export function usePlanejamentoStandardized() {
 
   const criarZonaMutation = useMutation({
     mutationFn: async (dados: Partial<ZoneamentoUrbano>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_zoneamento')
         .insert([dados])
         .select()
@@ -444,7 +444,7 @@ export function usePlanejamentoStandardized() {
 
   const atualizarZonaMutation = useMutation({
     mutationFn: async ({ id, dados }: { id: string, dados: Partial<ZoneamentoUrbano> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_zoneamento')
         .update({ ...dados, data_ultima_revisao: new Date().toISOString() })
         .eq('id', id)
@@ -470,7 +470,7 @@ export function usePlanejamentoStandardized() {
 
   const agendarFiscalizacaoMutation = useMutation({
     mutationFn: async (dados: Partial<FiscalizacaoUrbana>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_fiscalizacao')
         .insert([dados])
         .select()
@@ -501,7 +501,7 @@ export function usePlanejamentoStandardized() {
         status: FiscalizacaoUrbana['status']
       }
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('planejamento_fiscalizacao')
         .update(dados)
         .eq('id', id)

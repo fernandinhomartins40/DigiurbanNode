@@ -1,5 +1,5 @@
-import { supabase } from './supabase';
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { APIClient } from './APIClient';
+import { RealtimeChannel } from '@/auth/utils/httpInterceptor
 
 // =====================================================
 // TIPOS DE DADOS
@@ -45,7 +45,7 @@ export interface FiltrosNotificacao {
 export const notificacoesService = {
   // Criar nova notificação
   async criar(dados: CriarNotificacaoData): Promise<Notificacao> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('notificacoes')
       .insert({
         usuario_id: dados.usuario_id,
@@ -64,13 +64,13 @@ export const notificacoesService = {
 
   // Listar notificações do usuário atual
   async listar(filtros?: FiltrosNotificacao): Promise<Notificacao[]> {
-    const { data: user } = await supabase.auth.getUser();
+    const { data: user } = await APIClient.auth.getUser();
     
     if (!user.user) {
       throw new Error('Usuário não autenticado');
     }
 
-    let query = supabase
+    let query = APIClient
       .from('notificacoes')
       .select('*')
       .eq('usuario_id', user.user.id);
@@ -103,13 +103,13 @@ export const notificacoesService = {
 
   // Contar notificações não lidas
   async contarNaoLidas(): Promise<number> {
-    const { data: user } = await supabase.auth.getUser();
+    const { data: user } = await APIClient.auth.getUser();
     
     if (!user.user) {
       throw new Error('Usuário não autenticado');
     }
 
-    const { count, error } = await supabase
+    const { count, error } = await APIClient
       .from('notificacoes')
       .select('*', { count: 'exact', head: true })
       .eq('usuario_id', user.user.id)
@@ -121,7 +121,7 @@ export const notificacoesService = {
 
   // Marcar notificação como lida
   async marcarComoLida(id: string): Promise<Notificacao> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('notificacoes')
       .update({ 
         lida: true, 
@@ -137,7 +137,7 @@ export const notificacoesService = {
 
   // Marcar várias notificações como lidas
   async marcarVariasComoLidas(ids: string[]): Promise<void> {
-    const { error } = await supabase
+    const { error } = await APIClient
       .from('notificacoes')
       .update({ 
         lida: true, 
@@ -150,13 +150,13 @@ export const notificacoesService = {
 
   // Marcar todas as notificações como lidas
   async marcarTodasComoLidas(): Promise<void> {
-    const { data: user } = await supabase.auth.getUser();
+    const { data: user } = await APIClient.auth.getUser();
     
     if (!user.user) {
       throw new Error('Usuário não autenticado');
     }
 
-    const { error } = await supabase
+    const { error } = await APIClient
       .from('notificacoes')
       .update({ 
         lida: true, 
@@ -170,7 +170,7 @@ export const notificacoesService = {
 
   // Deletar notificação
   async deletar(id: string): Promise<void> {
-    const { error } = await supabase
+    const { error } = await APIClient
       .from('notificacoes')
       .delete()
       .eq('id', id);
@@ -180,7 +180,7 @@ export const notificacoesService = {
 
   // Deletar várias notificações
   async deletarVarias(ids: string[]): Promise<void> {
-    const { error } = await supabase
+    const { error } = await APIClient
       .from('notificacoes')
       .delete()
       .in('id', ids);
@@ -190,13 +190,13 @@ export const notificacoesService = {
 
   // Deletar todas as notificações lidas
   async deletarTodasLidas(): Promise<void> {
-    const { data: user } = await supabase.auth.getUser();
+    const { data: user } = await APIClient.auth.getUser();
     
     if (!user.user) {
       throw new Error('Usuário não autenticado');
     }
 
-    const { error } = await supabase
+    const { error } = await APIClient
       .from('notificacoes')
       .delete()
       .eq('usuario_id', user.user.id)
@@ -210,7 +210,7 @@ export const notificacoesService = {
     userId: string, 
     callback: (notificacao: Notificacao) => void
   ): RealtimeChannel {
-    return supabase
+    return APIClient
       .channel('user-notifications')
       .on(
         'postgres_changes',
@@ -232,7 +232,7 @@ export const notificacoesService = {
     userId: string,
     callback: (notificacao: Notificacao) => void
   ): RealtimeChannel {
-    return supabase
+    return APIClient
       .channel('user-notification-updates')
       .on(
         'postgres_changes',
@@ -302,7 +302,7 @@ export const notificacoesUtils = {
     protocoloId: string
   ): Promise<void> {
     // Buscar usuários da secretaria
-    const { data: usuarios } = await supabase
+    const { data: usuarios } = await APIClient
       .from('user_profiles')
       .select('id')
       .eq('secretaria_id', secretariaId)
@@ -320,7 +320,7 @@ export const notificacoesUtils = {
       referencia_id: protocoloId
     }));
 
-    const { error } = await supabase
+    const { error } = await APIClient
       .from('notificacoes')
       .insert(notificacoes);
 

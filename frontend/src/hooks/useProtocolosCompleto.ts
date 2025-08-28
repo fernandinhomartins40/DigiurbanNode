@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { toast } from '@/hooks/use-toast';
 
 /**
@@ -45,7 +45,7 @@ export interface ProtocoloCompleto {
 export const useProtocolosCompleto = () => {
   const queryClient = useQueryClient();
 
-  // Query para buscar protocolos via view (se existir) ou tabela direta
+  // Query para buscar protocolos via API JWT
   const {
     data: protocolos,
     isLoading,
@@ -54,39 +54,8 @@ export const useProtocolosCompleto = () => {
   } = useQuery({
     queryKey: ['protocolos_completos'],
     queryFn: async () => {
-      // Tentar usar a view primeiro, se falhar usar a tabela direta
-      try {
-        const { data, error } = await supabase
-          .from('protocolos_completos')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        return data as ProtocoloCompleto[];
-      } catch (viewError) {
-        // Fallback para tabela direta com joins manuais
-        const { data, error } = await supabase
-          .from('protocolos')
-          .select(`
-            *,
-            servicos_municipais (
-              nome
-            ),
-            secretarias (
-              nome,
-              sigla
-            )
-          `)
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        return data?.map(p => ({
-          ...p,
-          servico_nome: p.servicos_municipais?.nome,
-          secretaria_nome: p.secretarias?.nome,
-          secretaria_sigla: p.secretarias?.sigla,
-        })) as ProtocoloCompleto[];
-      }
+      const data = await APIClient.get<ProtocoloCompleto[]>('/protocolos/completos?sort_by=created_at&sort_order=desc');
+      return data || [];
     },
     retry: 2,
     staleTime: 5 * 60 * 1000,
@@ -95,21 +64,15 @@ export const useProtocolosCompleto = () => {
   // Mutation para criar protocolo
   const createMutation = useMutation({
     mutationFn: async (novoProtocolo: Partial<ProtocoloCompleto>) => {
-      const { data, error } = await supabase
-        .from('protocolos')
-        .insert([{
-          assunto: novoProtocolo.assunto,
-          descricao: novoProtocolo.descricao,
-          servico_id: novoProtocolo.servico_id,
-          secretaria_id: novoProtocolo.secretaria_id,
-          solicitante_id: novoProtocolo.solicitante_id,
-          status: novoProtocolo.status || 'aberto',
-          prioridade: novoProtocolo.prioridade || 'normal',
-        }])
-        .select()
-        .single();
-      
-      if (error) throw error;
+      const data = await APIClient.post<ProtocoloCompleto>('/protocolos', {
+        assunto: novoProtocolo.assunto,
+        descricao: novoProtocolo.descricao,
+        servico_id: novoProtocolo.servico_id,
+        secretaria_id: novoProtocolo.secretaria_id,
+        solicitante_id: novoProtocolo.solicitante_id,
+        status: novoProtocolo.status || 'aberto',
+        prioridade: novoProtocolo.prioridade || 'normal',
+      });
       return data;
     },
     onSuccess: () => {
@@ -136,14 +99,7 @@ export const useProtocolosCompleto = () => {
       if (observacoes) updateData.observacoes = observacoes;
       if (status === 'finalizado') updateData.data_finalizacao = new Date().toISOString();
       
-      const { data, error } = await supabase
-        .from('protocolos')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
+      const data = await APIClient.put<ProtocoloCompleto>(`/protocolos/${id}`, updateData);
       return data;
     },
     onSuccess: () => {
@@ -164,29 +120,13 @@ export const useProtocolosCompleto = () => {
 
   // Função para buscar protocolo por número
   const buscarPorNumero = async (numeroProtocolo: string): Promise<ProtocoloCompleto | null> => {
-    const { data, error } = await supabase
-      .from('protocolos')
-      .select(`
-        *,
-        servicos_municipais (
-          nome,
-          categoria
-        ),
-        secretarias (
-          nome,
-          sigla
-        )
-      `)
-      .eq('numero_protocolo', numeroProtocolo)
-      .maybeSingle();
-    
-    if (error) throw error;
-    return data ? {
-      ...data,
-      servico_nome: data.servicos_municipais?.nome,
-      secretaria_nome: data.secretarias?.nome,
-      secretaria_sigla: data.secretarias?.sigla,
-    } as ProtocoloCompleto : null;
+    try {
+      const data = await APIClient.get<ProtocoloCompleto>(`/protocolos/numero/${numeroProtocolo}`);
+      return data;
+    } catch (error: any) {
+      if (error.status === 404) return null;
+      throw error;
+    }
   };
 
   return {

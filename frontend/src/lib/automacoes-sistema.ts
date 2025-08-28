@@ -3,7 +3,7 @@
 // Automações finais que revolucionam a gestão municipal
 // ====================================================================
 
-import { supabase } from './supabase';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 
 // Types para automações
 interface AutomacaoConfig {

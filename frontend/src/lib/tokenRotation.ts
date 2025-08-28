@@ -3,7 +3,7 @@
 // ====================================================================
 
 import React from 'react';
-import { supabase } from './supabase';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 
 interface TokenRotationConfig {
   intervalMinutes: number;
@@ -160,7 +160,7 @@ class TokenRotationManager {
     try {
       console.log(`🔄 Iniciando rotação de token (tentativa ${retryCount + 1})`);
 
-      const { data, error } = await supabase.auth.refreshSession();
+      const data = await supabase.auth.refreshSession();
 
       if (error) {
         throw error;

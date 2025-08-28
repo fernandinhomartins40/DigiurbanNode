@@ -8,6 +8,7 @@
 import { query, queryOne, execute } from '../database/connection.js';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import { StructuredLogger } from '../monitoring/structuredLogger.js';
 
 // ====================================================================
 // INTERFACES E TIPOS
@@ -60,6 +61,27 @@ export interface UserProfile extends Omit<User, 'password_hash'> {
   tenant_status?: string;
 }
 
+export interface UserListOptions {
+  limit?: number;
+  offset?: number;
+  status?: UserStatus;
+  role?: UserRole;
+  tenant_id?: string;
+  search?: string;
+  sortBy?: 'created_at' | 'nome_completo' | 'ultimo_login';
+  sortOrder?: 'ASC' | 'DESC';
+}
+
+export interface UserStats {
+  total: number;
+  active: number;
+  inactive: number;
+  pending: number;
+  blocked: number;
+  byRole: Record<UserRole, number>;
+  recentLogins: number;
+}
+
 // ====================================================================
 // HIERARQUIA DE USUÁRIOS
 // ====================================================================
@@ -87,17 +109,25 @@ export class UserModel {
   // ================================================================
   
   static async create(userData: CreateUserData): Promise<User> {
+    const startTime = Date.now();
     const id = uuidv4();
     const hashedPassword = await bcrypt.hash(userData.password, 12);
     
-    // Validar dados
-    this.validateUserData(userData);
-    
-    // Verificar se email já existe
-    const existingUser = await this.findByEmail(userData.email);
-    if (existingUser) {
-      throw new Error('Email já está em uso');
-    }
+    try {
+      // Validar dados
+      this.validateUserData(userData);
+      
+      // Verificar se email já existe
+      const existingUser = await this.findByEmail(userData.email);
+      if (existingUser) {
+        StructuredLogger.business('User creation failed - email exists', {
+          action: 'user_create',
+          entityType: 'user',
+          tenantId: userData.tenant_id,
+          metadata: { email: userData.email.substring(0, 3) + '***' }
+        });
+        throw new Error('Email já está em uso');
+      }
     
     const sql = `
       INSERT INTO users (
@@ -117,14 +147,41 @@ export class UserModel {
       userData.avatar_url || null
     ];
     
-    await execute(sql, params);
-    
-    const user = await this.findById(id);
-    if (!user) {
-      throw new Error('Erro ao criar usuário');
+      await execute(sql, params);
+      
+      const user = await this.findById(id);
+      if (!user) {
+        throw new Error('Erro ao criar usuário');
+      }
+      
+      // Log de sucesso
+      const duration = Date.now() - startTime;
+      StructuredLogger.business('User created successfully', {
+        action: 'user_create',
+        entityType: 'user',
+        entityId: id,
+        tenantId: userData.tenant_id,
+        operation: 'create',
+        metadata: { role: userData.role || 'user', status: userData.status || 'pendente' }
+      });
+      
+      StructuredLogger.performance('User creation', {
+        action: 'user_create',
+        entityType: 'user',
+        duration,
+        threshold: 1000
+      });
+      
+      return user;
+    } catch (error) {
+      StructuredLogger.error('User creation failed', error, {
+        action: 'user_create',
+        entityType: 'user',
+        tenantId: userData.tenant_id,
+        errorType: 'database_error'
+      });
+      throw error;
     }
-    
-    return user;
   }
   
   // ================================================================
@@ -132,15 +189,35 @@ export class UserModel {
   // ================================================================
   
   static async findById(id: string): Promise<User | null> {
-    const sql = 'SELECT * FROM users WHERE id = ?';
-    const user = await queryOne(sql, [id]) as User;
-    return user || null;
+    try {
+      const sql = 'SELECT * FROM users WHERE id = ?';
+      const user = await queryOne(sql, [id]) as User;
+      return user || null;
+    } catch (error) {
+      StructuredLogger.error('Error finding user by ID', error, {
+        action: 'user_find_by_id',
+        entityType: 'user',
+        entityId: id,
+        errorType: 'database_error'
+      });
+      throw error;
+    }
   }
   
   static async findByEmail(email: string): Promise<User | null> {
-    const sql = 'SELECT * FROM users WHERE email = ?';
-    const user = await queryOne(sql, [email.toLowerCase()]) as User;
-    return user || null;
+    try {
+      const sql = 'SELECT * FROM users WHERE email = ?';
+      const user = await queryOne(sql, [email.toLowerCase()]) as User;
+      return user || null;
+    } catch (error) {
+      StructuredLogger.error('Error finding user by email', error, {
+        action: 'user_find_by_email',
+        entityType: 'user',
+        metadata: { email: email.substring(0, 3) + '***' },
+        errorType: 'database_error'
+      });
+      throw error;
+    }
   }
   
   static async findByTenant(tenantId: string): Promise<User[]> {

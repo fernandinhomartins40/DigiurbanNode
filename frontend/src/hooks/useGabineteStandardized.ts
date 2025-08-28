@@ -4,7 +4,7 @@
 // =====================================================
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { toast } from 'react-hot-toast'
 import type { 
   BaseEntity, 
@@ -266,7 +266,7 @@ export function useGabineteStandardized() {
   const { data: agendaGabinete = [], isLoading: loadingAgenda } = useQuery({
     queryKey: ['gabinete', 'agenda'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_agenda')
         .select(`
           *,
@@ -284,7 +284,7 @@ export function useGabineteStandardized() {
   const { data: correspondenciasOficiais = [], isLoading: loadingCorrespondencias } = useQuery({
     queryKey: ['gabinete', 'correspondencias'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_correspondencias')
         .select(`
           *,
@@ -303,7 +303,7 @@ export function useGabineteStandardized() {
   const { data: decretosPortarias = [], isLoading: loadingDecretos } = useQuery({
     queryKey: ['gabinete', 'decretos-portarias'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_decretos_portarias')
         .select(`
           *,
@@ -322,7 +322,7 @@ export function useGabineteStandardized() {
   const { data: audienciasPublicas = [], isLoading: loadingAudiencias } = useQuery({
     queryKey: ['gabinete', 'audiencias-publicas'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_audiencias_publicas')
         .select(`
           *,
@@ -341,7 +341,7 @@ export function useGabineteStandardized() {
 
   const criarEventoAgendaMutation = useMutation({
     mutationFn: async (dados: Partial<AgendaGabinete>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_agenda')
         .insert([dados])
         .select()
@@ -366,7 +366,7 @@ export function useGabineteStandardized() {
       status: AgendaGabinete['status'], 
       observacoes?: string 
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_agenda')
         .update({ status, descricao: observacoes })
         .eq('id', id)
@@ -397,7 +397,7 @@ export function useGabineteStandardized() {
       const timestamp = Date.now().toString().slice(-6)
       const numero = `${dados.tipo?.toUpperCase()}-${ano}-${timestamp}`
       
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_correspondencias')
         .insert([{ ...dados, numero_correspondencia: numero }])
         .select()
@@ -422,7 +422,7 @@ export function useGabineteStandardized() {
       formaEnvio: CorrespondenciaOficial['forma_envio'],
       protocolo?: string
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_correspondencias')
         .update({
           status: 'expedido',
@@ -455,7 +455,7 @@ export function useGabineteStandardized() {
     mutationFn: async (dados: Partial<DecretoPortaria>) => {
       // Gerar número sequencial
       const ano = new Date().getFullYear()
-      const { count } = await supabase
+      const { count } = await APIClient
         .from('gabinete_decretos_portarias')
         .select('*', { count: 'exact', head: true })
         .eq('tipo', dados.tipo)
@@ -465,7 +465,7 @@ export function useGabineteStandardized() {
       const numeroSequencial = (count || 0) + 1
       const numero = `${dados.tipo === 'decreto' ? 'D' : 'P'} ${numeroSequencial}/${ano}`
       
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_decretos_portarias')
         .insert([{ ...dados, numero }])
         .select()
@@ -494,7 +494,7 @@ export function useGabineteStandardized() {
         data_vigencia: string
       }
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_decretos_portarias')
         .update({
           ...dadosPublicacao,
@@ -528,7 +528,7 @@ export function useGabineteStandardized() {
       const timestamp = Date.now().toString().slice(-4)
       const numeroEdital = `AP-${ano}-${timestamp}`
       
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_audiencias_publicas')
         .insert([{ ...dados, numero_edital: numeroEdital }])
         .select()
@@ -558,7 +558,7 @@ export function useGabineteStandardized() {
         status: AudienciaPublica['status']
       }
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('gabinete_audiencias_publicas')
         .update(resultados)
         .eq('id', id)

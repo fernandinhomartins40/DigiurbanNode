@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabase";
-import { supabaseAdmin, createUserAdmin, createUserProfileAdmin, logSystemActivity, logEmail } from "@/lib/supabaseAdmin";
+import { APIClient } from "@/auth/utils/httpInterceptor";
+import { supabaseAdmin, createUserAdmin, createUserProfileAdmin, logSystemActivity, logEmail } from "@/auth/utils/httpInterceptorAdmin";
 import { toast } from 'react-hot-toast';
 
 // ====================================================================
@@ -278,7 +278,7 @@ export class SuperAdminUserService {
    */
   static async resetUserPassword(email: string): Promise<boolean> {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await APIClient.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`
       });
 

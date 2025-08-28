@@ -3,7 +3,7 @@
 // =====================================================
 
 import { useState, useCallback } from 'react'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { ErrorHandler } from "@/lib/error-handler"
 import { ValidationHelper } from "@/lib/validation-schemas"
 import { CacheUtils } from "@/lib/cache-system"
@@ -169,7 +169,7 @@ export function useObrasStandardized() {
       const cached = CacheUtils.get<ObraPublicaPadrao>(`obra_publica:${id}`)
       if (cached) return { data: cached, success: true, message: 'Obra encontrada' }
 
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('obras_publicas')
         .select('*')
         .eq('id', id)
@@ -204,7 +204,7 @@ export function useObrasStandardized() {
 
       const offset = (page - 1) * limit
 
-      let query = supabase
+      let query = APIClient
         .from('obras_publicas')
         .select('*', { count: 'exact' })
 
@@ -262,7 +262,7 @@ export function useObrasStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('obras_publicas')
         .insert([{
           ...data,
@@ -291,7 +291,7 @@ export function useObrasStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('obras_publicas')
         .update({
           ...data,
@@ -334,7 +334,7 @@ export function useObrasStandardized() {
 
       const offset = (page - 1) * limit
 
-      let query = supabase
+      let query = APIClient
         .from('fiscalizacoes_obra')
         .select('*', { count: 'exact' })
 
@@ -392,7 +392,7 @@ export function useObrasStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('fiscalizacoes_obra')
         .insert([{
           ...data,
@@ -405,7 +405,7 @@ export function useObrasStandardized() {
 
       // Atualizar percentual de execução da obra
       if (data.percentual_executado) {
-        await supabase
+        await APIClient
           .from('obras_publicas')
           .update({
             percentual_execucao: data.percentual_executado,
@@ -445,7 +445,7 @@ export function useObrasStandardized() {
 
       const offset = (page - 1) * limit
 
-      let query = supabase
+      let query = APIClient
         .from('manutencoes_infraestrutura')
         .select('*', { count: 'exact' })
 
@@ -503,7 +503,7 @@ export function useObrasStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('manutencoes_infraestrutura')
         .insert([{
           ...data,
@@ -531,7 +531,7 @@ export function useObrasStandardized() {
 
   const iniciarObra = useCallback(async (obraId: string): Promise<EntityResponse<ObraPublicaPadrao>> => {
     return ErrorHandler.withErrorHandling(async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('obras_publicas')
         .update({
           status: 'em_execucao',
@@ -557,7 +557,7 @@ export function useObrasStandardized() {
 
   const concluirObra = useCallback(async (obraId: string): Promise<EntityResponse<ObraPublicaPadrao>> => {
     return ErrorHandler.withErrorHandling(async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('obras_publicas')
         .update({
           status: 'concluida',
@@ -588,7 +588,7 @@ export function useObrasStandardized() {
   ): Promise<EntityResponse<any>> => {
     return ErrorHandler.withErrorHandling(async () => {
       // Buscar obras no período
-      const { data: obras, error } = await supabase
+      const { data: obras, error } = await APIClient
         .from('obras_publicas')
         .select('*')
         .gte('data_inicio_real', dataInicio)

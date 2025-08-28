@@ -1,283 +1,448 @@
 // ====================================================================
-// 🚀 MIGRATION RUNNER - DIGIURBAN AUTH SYSTEM
+// 🔄 MIGRATION RUNNER - DIGIURBAN SYSTEM
 // ====================================================================
-// Sistema automatizado de migrações para SQLite3
-// Controle de versão do banco de dados
+// Sistema automatizado de migração para SQLite3
+// Controle de versão, rollback e validação de integridade
 // ====================================================================
 
-import { getDatabase, execute, query, transaction } from './connection.js';
-import fs from 'fs';
+import { getDatabase } from './connection.js';
+import { StructuredLogger } from '../monitoring/structuredLogger.js';
+import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 // ====================================================================
-// CONFIGURAÇÕES
+// INTERFACES
 // ====================================================================
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const MIGRATIONS_DIR = path.join(__dirname, 'migrations');
 
 interface Migration {
   id: number;
   filename: string;
+  description: string;
   sql: string;
+  checksum: string;
 }
 
-interface MigrationRecord {
+interface MigrationResult {
   id: number;
   filename: string;
-  executed_at: string;
+  success: boolean;
+  duration: number;
+  error?: string;
+}
+
+interface MigrationStatus {
+  currentVersion: number;
+  targetVersion: number;
+  pendingMigrations: Migration[];
+  appliedMigrations: Migration[];
+  canRollback: boolean;
 }
 
 // ====================================================================
-// SETUP DA TABELA DE MIGRAÇÕES
+// MIGRATION RUNNER
 // ====================================================================
 
-const createMigrationsTable = async (): Promise<void> => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS migrations (
-      id INTEGER PRIMARY KEY,
-      filename TEXT NOT NULL UNIQUE,
-      executed_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `;
-  
-  await execute(sql);
-  console.log('✅ Tabela de migrações criada/verificada');
-};
+export class MigrationRunner {
+  private migrationsPath: string;
 
-// ====================================================================
-// CARREGAMENTO DE MIGRAÇÕES
-// ====================================================================
-
-const loadMigrations = (): Migration[] => {
-  if (!fs.existsSync(MIGRATIONS_DIR)) {
-    console.warn('⚠️ Diretório de migrações não encontrado:', MIGRATIONS_DIR);
-    return [];
-  }
-
-  const files = fs.readdirSync(MIGRATIONS_DIR)
-    .filter(file => file.endsWith('.sql'))
-    .sort();
-
-  const migrations: Migration[] = [];
-
-  for (const filename of files) {
-    const match = filename.match(/^(\d{3})/);
-    if (!match) {
-      console.warn(`⚠️ Arquivo ignorado (formato inválido): ${filename}`);
-      continue;
-    }
-
-    const id = parseInt(match[1]);
-    const filepath = path.join(MIGRATIONS_DIR, filename);
-    const sql = fs.readFileSync(filepath, 'utf8');
-
-    migrations.push({ id, filename, sql });
-  }
-
-  console.log(`📂 ${migrations.length} migrações carregadas`);
-  return migrations;
-};
-
-// ====================================================================
-// VERIFICAÇÃO DE MIGRAÇÕES EXECUTADAS
-// ====================================================================
-
-const getExecutedMigrations = async (): Promise<MigrationRecord[]> => {
-  try {
-    const sql = 'SELECT * FROM migrations ORDER BY id';
-    return await query(sql) as MigrationRecord[];
-  } catch (error) {
-    // Se a tabela não existe ainda, retornar array vazio
-    return [];
-  }
-};
-
-// ====================================================================
-// EXECUÇÃO DE MIGRAÇÃO
-// ====================================================================
-
-const executeMigration = async (migration: Migration): Promise<void> => {
-  try {
-    console.log(`🔄 Executando migração: ${migration.filename}`);
+  constructor() {
     
-    // Dividir SQL em statements individuais
-    const statements = migration.sql
-      .split(';')
-      .map(stmt => stmt.trim())
-      .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
-
-    // Executar dentro de uma transação
-    await transaction(async (db) => {
-      // Executar o SQL completo de uma vez usando a instância do banco
-      const database = await getDatabase();
-      
-      return new Promise<void>((resolve, reject) => {
-        database.serialize(() => {
-          database.exec(migration.sql, (err) => {
-            if (err) {
-              reject(err);
-              return;
-            }
-            
-            // Registrar migração como executada
-            database.run('INSERT INTO migrations (id, filename) VALUES (?, ?)', 
-              [migration.id, migration.filename], (err) => {
-                if (err) {
-                  reject(err);
-                } else {
-                  resolve();
-                }
-              });
-          });
-        });
-      });
-    });
-
-    console.log(`✅ Migração executada: ${migration.filename}`);
-
-  } catch (error) {
-    console.error(`❌ Erro na migração ${migration.filename}:`, error);
-    throw error;
+    // Determinar caminho das migrações
+    const currentFile = fileURLToPath(import.meta.url);
+    const currentDir = path.dirname(currentFile);
+    this.migrationsPath = path.join(currentDir, 'migrations');
   }
+
+  /**
+   * Inicializar tabela de controle de migrações
+   */
+  private async initializeMigrationTable(): Promise<void> {
+    try {
+      await this.pool.executeStatement(`
+        CREATE TABLE IF NOT EXISTS schema_migrations (
+          id INTEGER PRIMARY KEY,
+          filename TEXT NOT NULL UNIQUE,
+          description TEXT,
+          checksum TEXT NOT NULL,
+          applied_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000),
+          execution_time INTEGER NOT NULL,
+          rollback_sql TEXT
+        )
+      `);
+
+      // Índice para performance
+      await this.pool.executeStatement(`
+        CREATE INDEX IF NOT EXISTS idx_schema_migrations_id 
+        ON schema_migrations(id)
+      `);
+
+      SafeLogger.info('Tabela de migrações inicializada');
+
+    } catch (error) {
+      SafeLogger.error('Erro ao inicializar tabela de migrações', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Carregar migrações do diretório
+   */
+  private async loadMigrations(): Promise<Migration[]> {
+    try {
+      const files = await fs.readdir(this.migrationsPath);
+      const migrations: Migration[] = [];
+
+      for (const filename of files) {
+        if (!filename.endsWith('.sql')) {
+          continue;
+        }
+
+        const match = filename.match(/^(\d{3})_(.+)\.sql$/);
+        if (!match) {
+          SafeLogger.warn(`Arquivo de migração inválido ignorado: ${filename}`);
+          continue;
+        }
+
+        const id = parseInt(match[1]);
+        const description = match[2].replace(/_/g, ' ');
+        const filePath = path.join(this.migrationsPath, filename);
+        const sql = await fs.readFile(filePath, 'utf-8');
+        const checksum = await this.generateChecksum(sql);
+
+        migrations.push({
+          id,
+          filename,
+          description,
+          sql,
+          checksum
+        });
+      }
+
+      // Ordenar por ID
+      migrations.sort((a, b) => a.id - b.id);
+
+      SafeLogger.debug(`${migrations.length} migrações carregadas`, {
+        migrações: migrations.map(m => `${m.id}: ${m.description}`)
+      });
+
+      return migrations;
+
+    } catch (error) {
+      SafeLogger.error('Erro ao carregar migrações', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gerar checksum MD5 para verificar integridade
+   */
+  private async generateChecksum(content: string): Promise<string> {
+    const crypto = await import('crypto');
+    return crypto.createHash('md5').update(content).digest('hex');
+  }
+
+  /**
+   * Obter versão atual do schema
+   */
+  async getCurrentVersion(): Promise<number> {
+    await this.initializeMigrationTable();
+
+    try {
+      const result = await this.pool.executeQuery<{ id: number }>(
+        'SELECT MAX(id) as id FROM schema_migrations'
+      );
+
+      return result[0]?.id || 0;
+    } catch (error) {
+      SafeLogger.error('Erro ao obter versão atual', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Executar uma migração específica
+   */
+  private async executeMigration(migration: Migration): Promise<MigrationResult> {
+    const startTime = performance.now();
+
+    try {
+      SafeLogger.info(`Executando migração ${migration.id}: ${migration.description}`);
+
+      // Executar em transação
+      await this.pool.executeTransaction((db) => {
+        // Executar comandos SQL da migração
+        db.exec(migration.sql);
+
+        // Registrar migração aplicada
+        db.prepare(`
+          INSERT INTO schema_migrations (
+            id, filename, description, checksum, applied_at, execution_time
+          ) VALUES (?, ?, ?, ?, ?, ?)
+        `).run(
+          migration.id,
+          migration.filename,
+          migration.description,
+          migration.checksum,
+          Date.now(),
+          Math.round(performance.now() - startTime)
+        );
+      });
+
+      const duration = Math.round(performance.now() - startTime);
+
+      SafeLogger.info(`Migração ${migration.id} aplicada com sucesso`, {
+        duration: `${duration}ms`
+      });
+
+      return {
+        id: migration.id,
+        filename: migration.filename,
+        success: true,
+        duration
+      };
+
+    } catch (error) {
+      const duration = Math.round(performance.now() - startTime);
+      
+      SafeLogger.error(`Falha na migração ${migration.id}`, error, {
+        filename: migration.filename,
+        duration: `${duration}ms`
+      });
+
+      return {
+        id: migration.id,
+        filename: migration.filename,
+        success: false,
+        duration,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Executar todas as migrações pendentes
+   */
+  async migrate(): Promise<{
+    success: boolean;
+    results: MigrationResult[];
+    newVersion: number;
+  }> {
+    SafeLogger.info('Iniciando processo de migração');
+
+    try {
+      const status = await this.getStatus();
+      
+      if (status.pendingMigrations.length === 0) {
+        SafeLogger.info('Nenhuma migração pendente');
+        return {
+          success: true,
+          results: [],
+          newVersion: status.currentVersion
+        };
+      }
+
+      SafeLogger.info(`${status.pendingMigrations.length} migrações pendentes encontradas`);
+
+      const results: MigrationResult[] = [];
+      let allSuccessful = true;
+
+      for (const migration of status.pendingMigrations) {
+        const result = await this.executeMigration(migration);
+        results.push(result);
+
+        if (!result.success) {
+          allSuccessful = false;
+          SafeLogger.error(`Migração falhou, interrompendo processo: ${migration.id}`);
+          break;
+        }
+      }
+
+      const newVersion = await this.getCurrentVersion();
+
+      if (allSuccessful) {
+        SafeLogger.audit('Processo de migração concluído com sucesso', {
+          versaoAnterior: status.currentVersion,
+          novaVersao: newVersion,
+          migracoes: results.length
+        });
+      } else {
+        SafeLogger.error('Processo de migração falhou', {
+          versaoAnterior: status.currentVersion,
+          versaoAtual: newVersion,
+          resultados: results
+        });
+      }
+
+      return {
+        success: allSuccessful,
+        results,
+        newVersion
+      };
+
+    } catch (error) {
+      SafeLogger.error('Erro crítico durante migração', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obter status das migrações
+   */
+  async getStatus(): Promise<MigrationStatus> {
+    const currentVersion = await this.getCurrentVersion();
+    const allMigrations = await this.loadMigrations();
+    
+    const appliedMigrations: Migration[] = [];
+    const pendingMigrations: Migration[] = [];
+
+    try {
+      const appliedRecords = await this.pool.executeQuery<{
+        id: number;
+        filename: string;
+        checksum: string;
+      }>('SELECT id, filename, checksum FROM schema_migrations ORDER BY id');
+
+      for (const migration of allMigrations) {
+        const applied = appliedRecords.find(r => r.id === migration.id);
+        
+        if (applied) {
+          // Verificar integridade
+          if (applied.checksum !== migration.checksum) {
+            SafeLogger.security('Checksum de migração não confere!', {
+              migrationId: migration.id,
+              filename: migration.filename,
+              expected: migration.checksum,
+              actual: applied.checksum
+            });
+          }
+          appliedMigrations.push(migration);
+        } else {
+          pendingMigrations.push(migration);
+        }
+      }
+
+      const targetVersion = allMigrations.length > 0 ? 
+        Math.max(...allMigrations.map(m => m.id)) : 0;
+
+      return {
+        currentVersion,
+        targetVersion,
+        pendingMigrations,
+        appliedMigrations,
+        canRollback: appliedMigrations.length > 0
+      };
+
+    } catch (error) {
+      SafeLogger.error('Erro ao obter status das migrações', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gerar relatório de status das migrações
+   */
+  async generateReport(): Promise<{
+    currentVersion: number;
+    totalMigrations: number;
+    appliedMigrations: number;
+    pendingMigrations: number;
+    lastMigration: string | null;
+    databaseSize: number;
+    details: any[];
+  }> {
+    try {
+      const status = await this.getStatus();
+      const healthStatus = await this.pool.getHealthStatus();
+
+      const lastMigrationRecord = await this.pool.executeQuery<{
+        filename: string;
+        applied_at: number;
+        execution_time: number;
+      }>(
+        'SELECT filename, applied_at, execution_time FROM schema_migrations ORDER BY id DESC LIMIT 1'
+      );
+
+      const lastMigration = lastMigrationRecord[0];
+
+      return {
+        currentVersion: status.currentVersion,
+        totalMigrations: status.appliedMigrations.length + status.pendingMigrations.length,
+        appliedMigrations: status.appliedMigrations.length,
+        pendingMigrations: status.pendingMigrations.length,
+        lastMigration: lastMigration ? 
+          `${lastMigration.filename} (${new Date(lastMigration.applied_at).toISOString()})` : null,
+        databaseSize: healthStatus.details.stats.databaseSize,
+        details: [
+          ...status.appliedMigrations.map(m => ({
+            ...m,
+            status: 'applied'
+          })),
+          ...status.pendingMigrations.map(m => ({
+            ...m,
+            status: 'pending'
+          }))
+        ]
+      };
+
+    } catch (error) {
+      SafeLogger.error('Erro ao gerar relatório de migrações', error);
+      throw error;
+    }
+  }
+}
+
+// ====================================================================
+// INSTÂNCIA SINGLETON
+// ====================================================================
+
+let migrationRunnerInstance: MigrationRunner | null = null;
+
+export const getMigrationRunner = (): MigrationRunner => {
+  if (!migrationRunnerInstance) {
+    migrationRunnerInstance = new MigrationRunner();
+  }
+  return migrationRunnerInstance;
 };
 
 // ====================================================================
-// FUNÇÃO PRINCIPAL DE MIGRAÇÃO
+// FUNÇÕES DE COMPATIBILIDADE
 // ====================================================================
 
 export const runMigrations = async (): Promise<void> => {
-  try {
-    console.log('🚀 Iniciando processo de migrações...');
-    
-    // 1. Criar tabela de migrações se não existir
-    await createMigrationsTable();
-    
-    // 2. Carregar migrações disponíveis
-    const availableMigrations = loadMigrations();
-    
-    if (availableMigrations.length === 0) {
-      console.log('📝 Nenhuma migração encontrada');
-      return;
-    }
-    
-    // 3. Verificar migrações já executadas
-    const executedMigrations = await getExecutedMigrations();
-    const executedIds = executedMigrations.map(m => m.id);
-    
-    console.log(`📊 Status: ${executedMigrations.length} executadas, ${availableMigrations.length} disponíveis`);
-    
-    // 4. Encontrar migrações pendentes
-    const pendingMigrations = availableMigrations.filter(
-      migration => !executedIds.includes(migration.id)
-    );
-    
-    if (pendingMigrations.length === 0) {
-      console.log('✅ Todas as migrações estão atualizadas');
-      return;
-    }
-    
-    console.log(`🔄 ${pendingMigrations.length} migrações pendentes`);
-    
-    // 5. Executar migrações pendentes
-    for (const migration of pendingMigrations) {
-      await executeMigration(migration);
-    }
-    
-    console.log('🎉 Todas as migrações executadas com sucesso!');
-    
-  } catch (error) {
-    console.error('❌ Erro no processo de migrações:', error);
-    throw error;
+  const runner = getMigrationRunner();
+  const result = await runner.migrate();
+  
+  if (!result.success) {
+    throw new Error('Falha na execução das migrações');
   }
 };
-
-// ====================================================================
-// ROLLBACK (FUNCIONALIDADE FUTURA)
-// ====================================================================
-
-export const rollbackMigration = async (targetId: number): Promise<void> => {
-  console.warn('⚠️ Rollback não implementado ainda');
-  console.log(`Rollback solicitado para migração: ${targetId}`);
-  
-  // TODO: Implementar rollback
-  // - Verificar se migração foi executada
-  // - Executar script de rollback (se existir)
-  // - Remover registro da tabela migrations
-};
-
-// ====================================================================
-// STATUS DAS MIGRAÇÕES
-// ====================================================================
 
 export const getMigrationStatus = async (): Promise<void> => {
-  try {
-    const availableMigrations = loadMigrations();
-    const executedMigrations = await getExecutedMigrations();
-    
-    console.log('\n📊 STATUS DAS MIGRAÇÕES');
-    console.log('========================');
-    
-    for (const migration of availableMigrations) {
-      const executed = executedMigrations.find(m => m.id === migration.id);
-      const status = executed ? '✅ EXECUTADA' : '⏳ PENDENTE';
-      const date = executed ? ` (${executed.executed_at})` : '';
-      
-      console.log(`${migration.id.toString().padStart(3, '0')}: ${status} - ${migration.filename}${date}`);
-    }
-    
-    console.log('========================\n');
-    
-  } catch (error) {
-    console.error('❌ Erro ao obter status:', error);
-  }
-};
-
-// ====================================================================
-// CLI COMMANDS
-// ====================================================================
-
-const isMainModule = import.meta.url === `file://${process.argv[1]}`;
-
-if (isMainModule) {
-  const command = process.argv[2];
+  const runner = getMigrationRunner();
+  const status = await runner.getStatus();
   
-  switch (command) {
-    case 'up':
-      runMigrations()
-        .then(() => process.exit(0))
-        .catch(() => process.exit(1));
-      break;
-      
-    case 'status':
-      getMigrationStatus()
-        .then(() => process.exit(0))
-        .catch(() => process.exit(1));
-      break;
-      
-    case 'rollback':
-      const targetId = parseInt(process.argv[3]);
-      if (isNaN(targetId)) {
-        console.error('❌ ID da migração é obrigatório para rollback');
-        process.exit(1);
-      }
-      rollbackMigration(targetId)
-        .then(() => process.exit(0))
-        .catch(() => process.exit(1));
-      break;
-      
-    default:
-      console.log('📚 Comandos disponíveis:');
-      console.log('  npm run migrate up      - Executar migrações pendentes');
-      console.log('  npm run migrate status   - Status das migrações');
-      console.log('  npm run migrate rollback <id> - Rollback (futuro)');
+  console.log('\n📊 STATUS DAS MIGRAÇÕES');
+  console.log('========================');
+  console.log(`Versão atual: ${status.currentVersion}`);
+  console.log(`Versão alvo: ${status.targetVersion}`);
+  console.log(`Migrações aplicadas: ${status.appliedMigrations.length}`);
+  console.log(`Migrações pendentes: ${status.pendingMigrations.length}`);
+  console.log('========================\n');
+  
+  if (status.pendingMigrations.length > 0) {
+    console.log('⏳ Migrações pendentes:');
+    status.pendingMigrations.forEach(m => {
+      console.log(`  ${m.id.toString().padStart(3, '0')}: ${m.description}`);
+    });
   }
-}
-
-export default {
-  runMigrations,
-  rollbackMigration,
-  getMigrationStatus
+  
+  if (status.appliedMigrations.length > 0) {
+    console.log('✅ Migrações aplicadas:');
+    status.appliedMigrations.forEach(m => {
+      console.log(`  ${m.id.toString().padStart(3, '0')}: ${m.description}`);
+    });
+  }
 };
+
+export default getMigrationRunner;

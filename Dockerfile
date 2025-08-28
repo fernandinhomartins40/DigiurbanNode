@@ -33,9 +33,17 @@ FROM node:18-alpine AS production
 RUN apk add --no-cache nginx
 RUN npm install -g pm2
 
-# Criar diretórios
+# Criar usuário não-privilegiado
+RUN addgroup -g 1001 -S digiurban && \
+    adduser -S digiurban -u 1001 -G digiurban
+
+# Criar diretórios com permissões corretas
 WORKDIR /app
-RUN mkdir -p backend data logs
+RUN mkdir -p backend data logs && \
+    chown -R digiurban:digiurban /app && \
+    chown -R digiurban:digiurban /var/log/nginx && \
+    chown -R digiurban:digiurban /var/lib/nginx && \
+    chown -R digiurban:digiurban /run/nginx
 
 # Instalar dependências do backend em produção
 COPY --from=backend-build /app/backend/package*.json ./backend/
@@ -43,17 +51,20 @@ WORKDIR /app/backend
 RUN npm install --only=production
 WORKDIR /app
 
-# Copiar backend compilado
-COPY --from=backend-build /app/backend/dist ./backend/dist
+# Copiar backend compilado com permissões corretas
+COPY --from=backend-build --chown=digiurban:digiurban /app/backend/dist ./backend/dist
 
-# Copiar frontend compilado
-COPY --from=frontend-build /app/frontend/dist ./frontend
+# Copiar frontend compilado com permissões corretas
+COPY --from=frontend-build --chown=digiurban:digiurban /app/frontend/dist ./frontend
 
 # Copiar configurações
-COPY nginx-unified.conf /etc/nginx/conf.d/default.conf
-COPY pm2.json ./
-COPY start-services.sh ./
+COPY --chown=digiurban:digiurban nginx-unified.conf /etc/nginx/conf.d/default.conf
+COPY --chown=digiurban:digiurban pm2.json ./
+COPY --chown=digiurban:digiurban start-services.sh ./
 RUN chmod +x start-services.sh
+
+# Trocar para usuário não-root
+USER digiurban
 
 # Expor apenas a porta do nginx
 EXPOSE 80

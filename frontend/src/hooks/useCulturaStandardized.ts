@@ -5,7 +5,7 @@
 
 import { useState, useCallback } from 'react'
 import { toast } from 'react-hot-toast'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { 
   GetEntityListParams, 
   EntityResponse, 
@@ -248,7 +248,7 @@ export function useCulturaStandardized() {
       setLoading(true)
       setError(null)
 
-      let query = supabase
+      let query = APIClient
         .from('eventos_culturais')
         .select(`
           *,
@@ -292,7 +292,7 @@ export function useCulturaStandardized() {
       setLoading(true)
       setError(null)
 
-      let query = supabase
+      let query = APIClient
         .from('eventos_culturais')
         .select(`
           *,
@@ -432,7 +432,7 @@ export function useCulturaStandardized() {
         }
       }
 
-      const { data: evento, error } = await supabase
+      const { data: evento, error } = await APIClient
         .from('eventos_culturais')
         .insert([{
           ...data,
@@ -492,7 +492,7 @@ export function useCulturaStandardized() {
         }
       }
 
-      const { data: evento, error } = await supabase
+      const { data: evento, error } = await APIClient
         .from('eventos_culturais')
         .update({
           ...data,
@@ -531,7 +531,7 @@ export function useCulturaStandardized() {
       setError(null)
 
       // Verificar se evento tem inscrições
-      const { data: inscricoes } = await supabase
+      const { data: inscricoes } = await APIClient
         .from('inscricoes_eventos')
         .select('id')
         .eq('evento_id', id)
@@ -544,7 +544,7 @@ export function useCulturaStandardized() {
         }
       }
 
-      const { error } = await supabase
+      const { error } = await APIClient
         .from('eventos_culturais')
         .delete()
         .eq('id', id)
@@ -570,7 +570,7 @@ export function useCulturaStandardized() {
       setLoading(true)
       setError(null)
 
-      const { error } = await supabase
+      const { error } = await APIClient
         .from('eventos_culturais')
         .update({
           status: 'cancelado',

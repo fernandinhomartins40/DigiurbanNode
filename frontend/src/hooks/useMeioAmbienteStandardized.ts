@@ -4,7 +4,7 @@
 // =====================================================
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { toast } from 'react-hot-toast'
 import type { 
   BaseEntity, 
@@ -226,7 +226,7 @@ export function useMeioAmbienteStandardized() {
   const { data: licencasAmbientais = [], isLoading: loadingLicencas } = useQuery({
     queryKey: ['meio-ambiente', 'licencas'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ambiente_licencas')
         .select(`
           *,
@@ -243,7 +243,7 @@ export function useMeioAmbienteStandardized() {
   const { data: monitoramentos = [], isLoading: loadingMonitoramentos } = useQuery({
     queryKey: ['meio-ambiente', 'monitoramentos'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ambiente_monitoramento')
         .select('*')
         .order('data_coleta', { ascending: false })
@@ -257,7 +257,7 @@ export function useMeioAmbienteStandardized() {
   const { data: areasProtegidas = [], isLoading: loadingAreas } = useQuery({
     queryKey: ['meio-ambiente', 'areas-protegidas'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ambiente_areas_protegidas')
         .select('*')
         .eq('status', 'ativo')
@@ -272,7 +272,7 @@ export function useMeioAmbienteStandardized() {
   const { data: ocorrencias = [], isLoading: loadingOcorrencias } = useQuery({
     queryKey: ['meio-ambiente', 'ocorrencias'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ocorrencias_ambientais')
         .select('*')
         .order('data_denuncia', { ascending: false })
@@ -291,7 +291,7 @@ export function useMeioAmbienteStandardized() {
       // Gerar número do processo
       const numeroProcesso = `AMB-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`
       
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ambiente_licencas')
         .insert([{ ...dados, numero_processo: numeroProcesso }])
         .select()
@@ -316,7 +316,7 @@ export function useMeioAmbienteStandardized() {
       status: LicencaAmbiental['status'], 
       observacoes?: string 
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ambiente_licencas')
         .update({ status, parecer_tecnico: observacoes })
         .eq('id', id)
@@ -342,7 +342,7 @@ export function useMeioAmbienteStandardized() {
 
   const registrarMonitoramentoMutation = useMutation({
     mutationFn: async (dados: Partial<MonitoramentoAmbiental>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ambiente_monitoramento')
         .insert([dados])
         .select()
@@ -371,7 +371,7 @@ export function useMeioAmbienteStandardized() {
         status: MonitoramentoAmbiental['status']
       }
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ambiente_monitoramento')
         .update(resultados)
         .eq('id', id)
@@ -397,7 +397,7 @@ export function useMeioAmbienteStandardized() {
 
   const criarAreaProtegidaMutation = useMutation({
     mutationFn: async (dados: Partial<AreaProtegida>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ambiente_areas_protegidas')
         .insert([dados])
         .select()
@@ -418,7 +418,7 @@ export function useMeioAmbienteStandardized() {
 
   const atualizarAreaProtegidaMutation = useMutation({
     mutationFn: async ({ id, dados }: { id: string, dados: Partial<AreaProtegida> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ambiente_areas_protegidas')
         .update(dados)
         .eq('id', id)
@@ -447,7 +447,7 @@ export function useMeioAmbienteStandardized() {
       // Gerar número da ocorrência
       const numeroOcorrencia = `OA-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`
       
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ocorrencias_ambientais')
         .insert([{ ...dados, numero_ocorrencia: numeroOcorrencia }])
         .select()
@@ -472,7 +472,7 @@ export function useMeioAmbienteStandardized() {
       status: OcorrenciaAmbiental['status'], 
       observacoes?: string 
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ocorrencias_ambientais')
         .update({ status, situacao_encontrada: observacoes })
         .eq('id', id)

@@ -8,8 +8,8 @@
  * @version 2.0 - Arquitetura Profissional
  */
 
-import { supabase, getSupabaseAdmin } from "@/lib/supabase-unified";
-import { SUPABASE_CONFIG } from '../config/supabase.config';
+import { APIClient } from '@/auth/utils/httpInterceptor';
+import { JWT_CONFIG } from '@/auth/config/authConfig';
 
 /**
  * Extrai mensagem segura de erro
@@ -69,83 +69,28 @@ export interface Tenant {
 // CONFIGURAÇÃO CENTRALIZADA
 // ====================================================================
 
-class SupabaseConfigService {
-  static readonly BASE_URL = SUPABASE_CONFIG.url;
-  static readonly SERVICE_ROLE_KEY = SUPABASE_CONFIG.serviceRoleKey;
+class APIConfigService {
+  static readonly BASE_URL = JWT_CONFIG.api.baseUrl;
   
   static validateConfig(): void {
     if (!this.BASE_URL) {
-      throw new Error('Supabase URL não configurada');
-    }
-    if (!this.SERVICE_ROLE_KEY) {
-      throw new Error('Supabase Service Role Key não configurada');
+      throw new Error('API URL não configurada');
     }
   }
   
-  static getAuthHeaders() {
+  static getHeaders() {
     return {
-      'apikey': this.SERVICE_ROLE_KEY,
-      'Authorization': `Bearer ${this.SERVICE_ROLE_KEY}`,
       'Content-Type': 'application/json'
     };
   }
 }
 
 // ====================================================================
-// CLIENTE HTTP PROFISSIONAL
+// CLIENTE HTTP JWT - USA O INTERCEPTOR AUTOMÁTICO
 // ====================================================================
 
-class HttpClient {
-  private static async request<T>(
-    endpoint: string, 
-    method: 'GET' | 'POST' | 'PATCH' | 'DELETE' = 'GET',
-    body?: any,
-    additionalHeaders?: Record<string, string>
-  ): Promise<T> {
-    SupabaseConfigService.validateConfig();
-    
-    const url = `${SupabaseConfigService.BASE_URL}${endpoint}`;
-    const headers = {
-      ...SupabaseConfigService.getAuthHeaders(),
-      ...additionalHeaders
-    };
-
-    console.log(`🔗 [HTTP] ${method} ${endpoint}`);
-
-    const response = await fetch(url, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      const error = `HTTP ${response.status}: ${errorText}`;
-      console.error(`❌ [HTTP] ${error}`);
-      throw new Error(error);
-    }
-
-    const data = await response.json();
-    console.log(`✅ [HTTP] ${method} ${endpoint} - Success`);
-    return data;
-  }
-
-  static get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, 'GET');
-  }
-
-  static post<T>(endpoint: string, body: any, additionalHeaders?: Record<string, string>): Promise<T> {
-    return this.request<T>(endpoint, 'POST', body, additionalHeaders);
-  }
-
-  static patch<T>(endpoint: string, body: any): Promise<T> {
-    return this.request<T>(endpoint, 'PATCH', body);
-  }
-
-  static delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, 'DELETE');
-  }
-}
+// O APIClient já inclui interceptação automática de tokens
+// Não precisamos reimplementar a lógica HTTP
 
 // ====================================================================
 // SERVIÇO DE GESTÃO DE USUÁRIOS - ARQUITETURA LIMPA
@@ -182,26 +127,25 @@ class UserManagementService {
   }
 
   /**
-   * Criar usuário no Supabase Auth - IMPLEMENTAÇÃO ROBUSTA
+   * Criar usuário via API JWT - IMPLEMENTAÇÃO ROBUSTA
    */
   private static async createAuthUser(userData: CreateUserData): Promise<any> {
     console.log(`🔑 [Auth] Criando usuário auth: ${userData.email}`);
     
-    const authData = await HttpClient.post('/auth/v1/admin/users', {
+    const authData = await APIClient.post('/auth/register', {
       email: userData.email,
       password: userData.senha,
-      email_confirm: true,
-      user_metadata: {
-        nome_completo: userData.nome_completo
-      }
+      name: userData.nome_completo,
+      role: userData.tipo_usuario,
+      tenant_id: userData.tenant_id
     });
 
-    if (!authData.id) {
+    if (!authData.user?.id) {
       throw new Error('Usuário auth criado mas ID não retornado');
     }
 
-    console.log(`✅ [Auth] Usuário auth criado: ${authData.id}`);
-    return authData;
+    console.log(`✅ [Auth] Usuário auth criado: ${authData.user.id}`);
+    return authData.user;
   }
 
   /**
@@ -211,30 +155,19 @@ class UserManagementService {
     console.log(`📝 [Profile] Criando perfil: ${userId}`);
     
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .insert({
-          id: userId,
-          nome_completo: userData.nome_completo,
-          email: userData.email,
-          tipo_usuario: userData.tipo_usuario,
-          tenant_id: userData.tenant_id,
-          cargo: userData.cargo || userData.tipo_usuario,
-          departamento: userData.departamento,
-          telefone: userData.telefone,
-          status: 'ativo',
-          primeiro_acesso: true,
-          senha_temporaria: true
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error(`❌ [Profile] Erro ao criar perfil:`, error);
-        // Rollback: deletar usuário auth
-        await this.deleteAuthUser(userId);
-        throw new Error(`Erro ao criar perfil: ${error.message}`);
-      }
+      const data = await APIClient.post('/users/profile', {
+        id: userId,
+        nome_completo: userData.nome_completo,
+        email: userData.email,
+        tipo_usuario: userData.tipo_usuario,
+        tenant_id: userData.tenant_id,
+        cargo: userData.cargo || userData.tipo_usuario,
+        departamento: userData.departamento,
+        telefone: userData.telefone,
+        status: 'ativo',
+        primeiro_acesso: true,
+        senha_temporaria: true
+      });
 
       if (!data) {
         await this.deleteAuthUser(userId);
@@ -258,7 +191,7 @@ class UserManagementService {
     try {
       console.log(`🗑️ [Rollback] Removendo usuário auth: ${userId}`);
       
-      await HttpClient.delete(`/auth/v1/admin/users/${userId}`);
+      await APIClient.delete(`/users/${userId}`);
       
       console.log(`✅ [Rollback] Usuário auth removido: ${userId}`);
     } catch (error) {
@@ -274,15 +207,7 @@ class UserManagementService {
     console.log(`🏢 [Tenants] Carregando lista de tenants`);
     
     try {
-      const { data, error } = await supabase
-        .from('tenants')
-        .select('id, nome')
-        .order('nome');
-
-      if (error) {
-        console.error(`❌ [Tenants] Erro ao carregar tenants:`, error);
-        throw new Error(`Erro ao carregar tenants: ${error.message}`);
-      }
+      const data = await APIClient.get<Tenant[]>('/tenants');
 
       console.log(`✅ [Tenants] ${data.length} tenants carregadas`);
       return {
@@ -312,31 +237,18 @@ class UserManagementService {
     console.log(`👥 [Users] Listando usuários`);
     
     try {
-      let query = supabase
-        .from('user_profiles')
-        .select('*, tenants:tenant_id(id,nome)');
+      const queryParams = new URLSearchParams();
       
-      if (filters?.tenant_id) {
-        query = query.eq('tenant_id', filters.tenant_id);
-      }
-      if (filters?.tipo_usuario) {
-        query = query.eq('tipo_usuario', filters.tipo_usuario);
-      }
-      if (filters?.status) {
-        query = query.eq('status', filters.status);
-      }
-      if (filters?.limit) {
-        query = query.limit(filters.limit);
-      }
-      if (filters?.offset) {
-        query = query.range(filters.offset, (filters.offset + (filters.limit || 50)) - 1);
-      }
+      if (filters?.tenant_id) queryParams.append('tenant_id', filters.tenant_id);
+      if (filters?.tipo_usuario) queryParams.append('tipo_usuario', filters.tipo_usuario);
+      if (filters?.status) queryParams.append('status', filters.status);
+      if (filters?.limit) queryParams.append('limit', filters.limit.toString());
+      if (filters?.offset) queryParams.append('offset', filters.offset.toString());
 
-      const { data, error } = await query;
-
-      if (error) {
-        throw new Error(`Erro ao listar usuários: ${error.message}`);
-      }
+      const queryString = queryParams.toString();
+      const endpoint = queryString ? `/users?${queryString}` : '/users';
+      
+      const data = await APIClient.get<UserProfile[]>(endpoint);
 
       console.log(`✅ [Users] ${data.length} usuários listados`);
       return {
@@ -360,19 +272,10 @@ class UserManagementService {
     console.log(`📝 [Users] Atualizando usuário: ${userId}`);
     
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId)
-        .select()
-        .single();
-
-      if (error) {
-        throw new Error(`Erro ao atualizar usuário: ${error.message}`);
-      }
+      const data = await APIClient.put<UserProfile>(`/users/${userId}`, {
+        ...updates,
+        updated_at: new Date().toISOString()
+      });
 
       if (!data) {
         throw new Error('Usuário não encontrado para atualização');
@@ -400,19 +303,10 @@ class UserManagementService {
     console.log(`🔄 [Users] Alterando status do usuário: ${userId} para ${status}`);
     
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .update({
-          status,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId)
-        .select()
-        .single();
-
-      if (error) {
-        throw new Error(`Erro ao atualizar status: ${error.message}`);
-      }
+      const data = await APIClient.put<UserProfile>(`/users/${userId}/status`, {
+        status,
+        updated_at: new Date().toISOString()
+      });
 
       if (!data) {
         throw new Error('Usuário não encontrado');
@@ -440,18 +334,7 @@ class UserManagementService {
     console.log(`🗑️ [Users] Deletando usuário: ${userId}`);
     
     try {
-      // Primeiro deletar o perfil
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .delete()
-        .eq('id', userId);
-
-      if (profileError) {
-        throw new Error(`Erro ao deletar perfil: ${profileError.message}`);
-      }
-
-      // Depois deletar o usuário auth
-      await HttpClient.delete(`/auth/v1/admin/users/${userId}`);
+      await APIClient.delete(`/users/${userId}`);
 
       console.log(`✅ [Users] Usuário deletado: ${userId}`);
       return {
@@ -474,18 +357,9 @@ class UserManagementService {
     console.log(`🔑 [Users] Reset de senha para usuário: ${userId}`);
     
     try {
-      await HttpClient.post(`/auth/v1/admin/users/${userId}`, {
-        password: undefined // Remove senha atual, força reset
+      await APIClient.post(`/users/${userId}/reset-password`, {
+        force_reset: true
       });
-
-      // Marcar como senha temporária no perfil
-      await supabase
-        .from('user_profiles')
-        .update({
-          senha_temporaria: true,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId);
 
       console.log(`✅ [Users] Reset de senha realizado: ${userId}`);
       return {
@@ -508,21 +382,11 @@ class UserManagementService {
     console.log(`🏢 [Users] Atualizando usuários órfãos do tenant: ${tenantId}`);
     
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .update({
-          status: 'sem_vinculo',
-          tenant_id: null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('tenant_id', tenantId)
-        .select('id');
+      const data = await APIClient.post<{updated_count: number}>(`/tenants/${tenantId}/orphan-users`, {
+        status: 'sem_vinculo'
+      });
 
-      if (error) {
-        throw new Error(`Erro ao atualizar usuários órfãos: ${error.message}`);
-      }
-
-      const updatedCount = data?.length || 0;
+      const updatedCount = data?.updated_count || 0;
       console.log(`✅ [Users] ${updatedCount} usuários marcados como 'sem_vinculo'`);
       
       return {

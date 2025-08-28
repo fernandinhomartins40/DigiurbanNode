@@ -10,6 +10,7 @@ import { JWTUtils, JWTPayload } from '../utils/jwt.js';
 import { UserModel, User, UserRole } from '../models/User.js';
 import { SessionModel } from '../models/Session.js';
 import { PermissionModel } from '../models/Permission.js';
+import { CookieManager } from '../utils/cookieManager.js';
 import { ERROR_MESSAGES } from '../config/auth.js';
 
 // ====================================================================
@@ -41,8 +42,8 @@ export const authenticateJWT = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // 1. Extrair token do header
-    const token = JWTUtils.extractTokenFromHeader(req.headers.authorization);
+    // 1. Extrair token dos cookies (prioridade) ou header Authorization
+    const token = CookieManager.extractToken(req);
     
     if (!token) {
       res.status(401).json({ 

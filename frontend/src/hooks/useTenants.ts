@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from "@/lib/supabase";
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { TenantPadrao, PlanoTenant, StatusTenant, BaseEntity } from "@/types/common";
 import { toast } from 'sonner';
 
@@ -75,15 +75,7 @@ export function useTenants() {
   } = useQuery({
     queryKey: ['tenants'],
     queryFn: async (): Promise<TenantPadrao[]> => {
-      const { data, error } = await supabase
-        .from('tenants')
-        .select('*')
-        .order('nome');
-      
-      if (error) {
-        throw new Error(error instanceof Error ? error.message : String(error));
-      }
-      
+      const data = await APIClient.get<TenantPadrao[]>('/tenants');
       return data || [];
     },
     staleTime: 1000 * 60 * 5, // 5 minutos
@@ -96,27 +88,19 @@ export function useTenants() {
   // Mutation para criar tenant
   const createMutation = useMutation({
     mutationFn: async (tenantData: CreateTenantData) => {
-      const { data, error } = await supabase
-        .from('tenants')
-        .insert([{
-          nome: tenantData.nome,
-          cnpj: tenantData.cnpj,
-          cidade: tenantData.cidade,
-          estado: tenantData.estado,
-          regiao: tenantData.regiao,
-          populacao: tenantData.populacao,
-          plano: tenantData.plano,
-          status: 'trial',
-          responsavel_nome: tenantData.responsavel.nome,
-          responsavel_email: tenantData.responsavel.email,
-          responsavel_telefone: tenantData.responsavel.telefone,
-          responsavel_cargo: tenantData.responsavel.cargo,
-          created_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await APIClient.post<TenantPadrao>('/tenants', {
+        nome: tenantData.nome,
+        cnpj: tenantData.cnpj,
+        cidade: tenantData.cidade,
+        estado: tenantData.estado,
+        regiao: tenantData.regiao,
+        populacao: tenantData.populacao,
+        plano: tenantData.plano,
+        responsavel_nome: tenantData.responsavel.nome,
+        responsavel_email: tenantData.responsavel.email,
+        responsavel_telefone: tenantData.responsavel.telefone,
+        responsavel_cargo: tenantData.responsavel.cargo
+      });
       return data;
     },
     onSuccess: (data) => {
@@ -131,17 +115,7 @@ export function useTenants() {
   // Mutation para atualizar tenant
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<CreateTenantData> }) => {
-      const { data: result, error } = await supabase
-        .from('tenants')
-        .update({
-          ...data,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const result = await APIClient.put<TenantPadrao>(`/tenants/${id}`, data);
       return result;
     },
     onSuccess: () => {
@@ -156,12 +130,7 @@ export function useTenants() {
   // Mutation para deletar tenant
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('tenants')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await APIClient.delete(`/tenants/${id}`);
       return id;
     },
     onSuccess: () => {
@@ -186,51 +155,45 @@ export function useTenants() {
     filters?: Record<string, any>;
   }) => {
     try {
-      let query = supabase
-        .from('tenants')
-        .select('*', { count: 'exact' });
+      const queryParams = new URLSearchParams();
 
       // Aplicar filtros se fornecidos
       if (params?.filters) {
         const { filters } = params;
-        if (filters.search) {
-          query = query.or(`nome.ilike.%${filters.search}%,cidade.ilike.%${filters.search}%`);
-        }
-        if (filters.status) {
-          query = query.eq('status', filters.status);
-        }
-        if (filters.plano) {
-          query = query.eq('plano', filters.plano);
-        }
-        if (filters.estado) {
-          query = query.eq('estado', filters.estado);
-        }
+        if (filters.search) queryParams.append('search', filters.search);
+        if (filters.status) queryParams.append('status', filters.status);
+        if (filters.plano) queryParams.append('plano', filters.plano);
+        if (filters.estado) queryParams.append('estado', filters.estado);
       }
 
       // Aplicar ordenação
       const sortField = params?.sort_by || 'created_at';
       const sortOrder = params?.sort_order || 'desc';
-      query = query.order(sortField, { ascending: sortOrder === 'asc' });
+      queryParams.append('sort_by', sortField);
+      queryParams.append('sort_order', sortOrder);
 
       // Aplicar paginação se fornecida
       if (params?.page && params?.limit) {
         const offset = (params.page - 1) * params.limit;
-        query = query.range(offset, offset + params.limit - 1);
+        queryParams.append('limit', params.limit.toString());
+        queryParams.append('offset', offset.toString());
       }
 
-      const { data, error, count } = await query;
-
-      if (error) throw error;
+      const endpoint = `/tenants?${queryParams.toString()}`;
+      const response = await APIClient.get<{data: TenantPadrao[], total: number}>(endpoint);
+      
+      const data = response.data || [];
+      const count = response.total || 0;
       
       // Retornar resposta padronizada
       return {
-        data: data || [],
+        data,
         pagination: params?.page && params?.limit ? {
           current_page: params.page,
-          total_pages: Math.ceil((count || 0) / params.limit),
-          total_items: count || 0,
+          total_pages: Math.ceil(count / params.limit),
+          total_items: count,
           items_per_page: params.limit,
-          has_next: params.page < Math.ceil((count || 0) / params.limit),
+          has_next: params.page < Math.ceil(count / params.limit),
           has_previous: params.page > 1
         } : undefined,
         success: true,

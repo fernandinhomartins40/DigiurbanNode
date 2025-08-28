@@ -11,6 +11,7 @@ import { RegistrationService } from '../services/RegistrationService.js';
 // import { ActivityService } from '../services/ActivityService.js';
 import { loginRateLimit, generalRateLimit, registerRateLimit } from '../middleware/rateLimiter.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { validators, handleValidationErrors, sanitizeAll } from '../middleware/validation.js';
 import { body, validationResult } from 'express-validator';
 
 export const authRoutes = Router();
@@ -62,21 +63,12 @@ const refreshTokenValidation = [
  * Realizar login com email e senha
  */
 authRoutes.post('/login', 
+  sanitizeAll,
   loginRateLimit,
-  loginValidation,
+  validators.login,
+  handleValidationErrors,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      // Validar entrada
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        res.status(400).json({
-          success: false,
-          error: 'Dados inválidos',
-          details: errors.array()
-        });
-        return;
-      }
-
       const { email, password } = req.body;
 
       // Realizar login
@@ -109,20 +101,12 @@ authRoutes.post('/login',
  * Registrar novo usuário
  */
 authRoutes.post('/register',
+  sanitizeAll,
   registerRateLimit,
-  registerValidation,
+  validators.register,
+  handleValidationErrors,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      // Validar entrada
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        res.status(400).json({
-          success: false,
-          error: 'Dados inválidos',
-          details: errors.array()
-        });
-        return;
-      }
 
       const registrationData = {
         ...req.body,

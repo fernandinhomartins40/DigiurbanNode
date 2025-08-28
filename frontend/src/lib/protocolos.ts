@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { ServicoMunicipal, Secretaria } from './services';
 import { withProtocolRetry, withUploadRetry, withNotificationRetry } from './retry';
 import { measureSupabaseOperation, measureUpload } from './performance';
@@ -161,7 +161,7 @@ export const protocolosService = {
   async gerarNumeroProtocolo(): Promise<string> {
     return withProtocolRetry(async () => {
       return measureSupabaseOperation('gerar_numero_protocolo', async () => {
-        const { data, error } = await supabase.rpc('gerar_numero_protocolo');
+        const data = await APIClient.post("/rpc/'gerar_numero_protocolo');
         
         if (error) throw error;
         return data;
@@ -172,7 +172,7 @@ export const protocolosService = {
   // Criar novo protocolo (cidadãos)
   async criar(dadosProtocolo: CriarProtocoloData): Promise<Protocolo> {
     return withProtocolRetry(async () => {
-      const { data: user } = await supabase.auth.getUser();
+      const { data: user } = await APIClient.get("/auth/me");
       
       if (!user.user) {
         throw new Error('Usuário não autenticado');
@@ -218,7 +218,7 @@ export const protocolosService = {
       prazoResolucao.setDate(now.getDate() + servico.prazo_resolucao_dias);
 
       // Criar protocolo
-      const { data, error } = await supabase
+      const data = await supabase
         .from('protocolos_completos')
         .insert({
           servico_id: dadosProtocolo.servico_id,
@@ -265,7 +265,7 @@ export const protocolosService = {
 
   // Listar protocolos do usuário atual
   async listarMeus(status?: StatusProtocolo): Promise<Protocolo[]> {
-    const { data: user } = await supabase.auth.getUser();
+    const { data: user } = await APIClient.get("/auth/me");
     
     if (!user.user) {
       throw new Error('Usuário não autenticado');
@@ -284,7 +284,7 @@ export const protocolosService = {
       query = query.eq('status', status);
     }
 
-    const { data, error } = await query.order('created_at', { ascending: false });
+    const data = await query.order('created_at', { ascending: false });
 
     if (error) throw error;
     return data || [];
@@ -305,7 +305,7 @@ export const protocolosService = {
       query = query.eq('status', status);
     }
 
-    const { data, error } = await query.order('created_at', { ascending: false });
+    const data = await query.order('created_at', { ascending: false });
 
     if (error) throw error;
     return data || [];
@@ -313,7 +313,7 @@ export const protocolosService = {
 
   // Buscar protocolo por ID
   async buscarPorId(id: string): Promise<Protocolo | null> {
-    const { data, error } = await supabase
+    const data = await supabase
       .from('protocolos_completos')
       .select(`
         *,
@@ -332,7 +332,7 @@ export const protocolosService = {
 
   // Buscar protocolo por número
   async buscarPorNumero(numero: string): Promise<Protocolo | null> {
-    const { data, error } = await supabase
+    const data = await supabase
       .from('protocolos_completos')
       .select(`
         *,
@@ -351,7 +351,7 @@ export const protocolosService = {
 
   // Atualizar protocolo
   async atualizar(id: string, dadosProtocolo: AtualizarProtocoloData): Promise<Protocolo> {
-    const { data, error } = await supabase
+    const data = await supabase
       .from('protocolos_completos')
       .update(dadosProtocolo)
       .eq('id', id)
@@ -383,7 +383,7 @@ export const protocolosService = {
       updates.data_conclusao = new Date().toISOString();
     }
 
-    const { data, error } = await supabase
+    const data = await supabase
       .from('protocolos_completos')
       .update(updates)
       .eq('id', id)
@@ -415,9 +415,9 @@ export const protocolosService = {
 
   // Aprovar protocolo (admins)
   async aprovar(id: string, observacoes?: string): Promise<Protocolo> {
-    const { data: user } = await supabase.auth.getUser();
+    const { data: user } = await APIClient.get("/auth/me");
     
-    const { data, error } = await supabase
+    const data = await supabase
       .from('protocolos_completos')
       .update({
         aprovado: true,
@@ -450,9 +450,9 @@ export const protocolosService = {
 
   // Rejeitar protocolo (admins)
   async rejeitar(id: string, motivo: string): Promise<Protocolo> {
-    const { data: user } = await supabase.auth.getUser();
+    const { data: user } = await APIClient.get("/auth/me");
     
-    const { data, error } = await supabase
+    const data = await supabase
       .from('protocolos_completos')
       .update({
         aprovado: false,
@@ -485,7 +485,7 @@ export const protocolosService = {
 
   // Avaliar protocolo (cidadãos)
   async avaliar(id: string, nota: number, comentario?: string): Promise<Protocolo> {
-    const { data, error } = await supabase
+    const data = await supabase
       .from('protocolos_completos')
       .update({
         avaliacao_nota: nota,
@@ -517,7 +517,7 @@ export const protocolosService = {
 
   // Buscar histórico do protocolo
   async buscarHistorico(protocoloId: string): Promise<ProtocoloHistorico[]> {
-    const { data, error } = await supabase
+    const data = await supabase
       .from('protocolos_historico')
       .select('*')
       .eq('protocolo_id', protocoloId)
@@ -529,7 +529,7 @@ export const protocolosService = {
 
   // Buscar comentários do protocolo
   async buscarComentarios(protocoloId: string): Promise<ProtocoloComentario[]> {
-    const { data, error } = await supabase
+    const data = await supabase
       .from('protocolos_comentarios')
       .select('*')
       .eq('protocolo_id', protocoloId)
@@ -546,14 +546,14 @@ export const protocolosService = {
     tipo: 'observacao' | 'resposta_oficial' | 'solicitacao_documentos' = 'observacao',
     visivelCidadao: boolean = true
   ): Promise<ProtocoloComentario> {
-    const { data: user } = await supabase.auth.getUser();
+    const { data: user } = await APIClient.get("/auth/me");
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('nome_completo, cargo, tipo_usuario')
       .eq('id', user.user?.id)
       .single();
 
-    const { data, error } = await supabase
+    const data = await supabase
       .from('protocolos_comentarios')
       .insert({
         protocolo_id: protocoloId,
@@ -573,7 +573,7 @@ export const protocolosService = {
 
   // Buscar anexos do protocolo
   async buscarAnexos(protocoloId: string): Promise<ProtocoloAnexo[]> {
-    const { data, error } = await supabase
+    const data = await supabase
       .from('protocolos_anexos')
       .select('*')
       .eq('protocolo_id', protocoloId)
@@ -591,23 +591,23 @@ export const protocolosService = {
     obrigatorio: boolean = false
   ): Promise<ProtocoloAnexo> {
     return withUploadRetry(async () => {
-      const { data: user } = await supabase.auth.getUser();
+      const { data: user } = await APIClient.get("/auth/me");
       
       // Upload do arquivo para Supabase Storage
       const nomeArquivo = `${protocoloId}/${Date.now()}-${arquivo.name}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await APIClient.storage
         .from('protocolos-anexos')
         .upload(nomeArquivo, arquivo);
 
       if (uploadError) throw uploadError;
 
       // Obter URL pública
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = APIClient.storage
         .from('protocolos-anexos')
         .getPublicUrl(nomeArquivo);
 
       // Salvar metadados no banco
-      const { data, error } = await supabase
+      const data = await supabase
         .from('protocolos_anexos')
         .insert({
           protocolo_id: protocoloId,

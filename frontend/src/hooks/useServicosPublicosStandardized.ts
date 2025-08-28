@@ -4,7 +4,7 @@
 // =====================================================
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { toast } from 'react-hot-toast'
 import type { 
   BaseEntity, 
@@ -300,7 +300,7 @@ export function useServicosPublicosStandardized() {
   const { data: servicosMunicipais = [], isLoading: loadingServicos } = useQuery({
     queryKey: ['servicos-publicos', 'servicos'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_municipais')
         .select(`
           *,
@@ -318,7 +318,7 @@ export function useServicosPublicosStandardized() {
   const { data: solicitacoes = [], isLoading: loadingSolicitacoes } = useQuery({
     queryKey: ['servicos-publicos', 'solicitacoes'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_solicitacoes')
         .select(`
           *,
@@ -336,7 +336,7 @@ export function useServicosPublicosStandardized() {
   const { data: atendimentosPresenciais = [], isLoading: loadingAtendimentos } = useQuery({
     queryKey: ['servicos-publicos', 'atendimentos'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_atendimentos')
         .select(`
           *,
@@ -353,7 +353,7 @@ export function useServicosPublicosStandardized() {
   const { data: pesquisasSatisfacao = [], isLoading: loadingPesquisas } = useQuery({
     queryKey: ['servicos-publicos', 'pesquisas'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_pesquisas_satisfacao')
         .select('*')
         .order('data_resposta', { ascending: false })
@@ -372,7 +372,7 @@ export function useServicosPublicosStandardized() {
       // Gerar código do serviço
       const codigoServico = `SRV-${dados.categoria?.toUpperCase()}-${Date.now().toString().slice(-6)}`
       
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_municipais')
         .insert([{ ...dados, codigo_servico: codigoServico }])
         .select()
@@ -393,7 +393,7 @@ export function useServicosPublicosStandardized() {
 
   const atualizarServicoMutation = useMutation({
     mutationFn: async ({ id, dados }: { id: string, dados: Partial<ServicoMunicipal> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_municipais')
         .update(dados)
         .eq('id', id)
@@ -424,7 +424,7 @@ export function useServicosPublicosStandardized() {
       const timestamp = Date.now().toString().slice(-8)
       const numeroProtocolo = `${ano}${timestamp}`
       
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_solicitacoes')
         .insert([{ ...dados, numero_protocolo: numeroProtocolo, etapa_atual: 1 }])
         .select()
@@ -450,7 +450,7 @@ export function useServicosPublicosStandardized() {
       observacoes?: string
     }) => {
       // Buscar solicitação atual
-      const { data: solicitacaoAtual } = await supabase
+      const { data: solicitacaoAtual } = await APIClient
         .from('servicos_solicitacoes')
         .select('historico_tramitacao, analista_responsavel_id')
         .eq('id', id)
@@ -467,7 +467,7 @@ export function useServicosPublicosStandardized() {
         }
       ]
 
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_solicitacoes')
         .update({
           etapa_atual: novaEtapa,
@@ -496,7 +496,7 @@ export function useServicosPublicosStandardized() {
       decisao: SolicitacaoServico['decisao'],
       motivo?: string
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_solicitacoes')
         .update({
           data_decisao: new Date().toISOString(),
@@ -527,7 +527,7 @@ export function useServicosPublicosStandardized() {
 
   const criarAtendimentoMutation = useMutation({
     mutationFn: async (dados: Partial<AtendimentoPresencial>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_atendimentos')
         .insert([dados])
         .select()
@@ -560,7 +560,7 @@ export function useServicosPublicosStandardized() {
       const horaFim = new Date(`1970-01-01T${dadosFinalizacao.hora_fim}`)
       const duracaoMinutos = Math.round((horaFim.getTime() - horaInicio.getTime()) / (1000 * 60))
 
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_atendimentos')
         .update({
           ...dadosFinalizacao,
@@ -590,7 +590,7 @@ export function useServicosPublicosStandardized() {
 
   const registrarPesquisaSatisfacaoMutation = useMutation({
     mutationFn: async (dados: Partial<PesquisaSatisfacao>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_pesquisas_satisfacao')
         .insert([dados])
         .select()

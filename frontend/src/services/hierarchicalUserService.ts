@@ -2,7 +2,7 @@
 // SERVIÇO DE USUÁRIOS HIERÁRQUICOS
 // =====================================================
 
-import { supabase } from "@/lib/supabase";
+import { APIClient } from "@/auth/utils/httpInterceptor";
 import { toast } from 'react-hot-toast';
 
 // =====================================================
@@ -50,7 +50,7 @@ export class HierarchicalUserService {
     try {
       console.log('🔧 Criando usuário hierárquico:', userData);
 
-      const { data, error } = await supabase.rpc('create_user_with_temp_password', {
+      const { data, error } = await APIClient.rpc('create_user_with_temp_password', {
         p_email: userData.email,
         p_nome_completo: userData.nome_completo,
         p_tipo_usuario: userData.tipo_usuario,
@@ -97,13 +97,13 @@ export class HierarchicalUserService {
    */
   static async getCreatableUserTypes(): Promise<CreatableUserType[]> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await APIClient.auth.getUser();
       
       if (!user) {
         throw new Error('Usuário não autenticado');
       }
 
-      const { data, error } = await supabase.rpc('get_creatable_user_types', {
+      const { data, error } = await APIClient.rpc('get_creatable_user_types', {
         creator_id: user.id
       });
 
@@ -130,13 +130,13 @@ export class HierarchicalUserService {
     targetSecretariaId?: string
   ): Promise<boolean> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await APIClient.auth.getUser();
       
       if (!user) {
         return false;
       }
 
-      const { data, error } = await supabase.rpc('can_create_user_type', {
+      const { data, error } = await APIClient.rpc('can_create_user_type', {
         creator_id: user.id,
         target_type: targetType,
         target_tenant_id: targetTenantId,
@@ -207,7 +207,7 @@ export class HierarchicalUserService {
    */
   static async forcePasswordChange(userId: string): Promise<boolean> {
     try {
-      const { data, error } = await supabase.rpc('force_password_change', {
+      const { data, error } = await APIClient.rpc('force_password_change', {
         user_id: userId
       });
 
@@ -234,13 +234,13 @@ export class HierarchicalUserService {
    */
   static async confirmPasswordChange(): Promise<boolean> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await APIClient.auth.getUser();
       
       if (!user) {
         return false;
       }
 
-      const { data, error } = await supabase.rpc('confirm_password_change', {
+      const { data, error } = await APIClient.rpc('confirm_password_change', {
         user_id: user.id
       });
 
@@ -262,7 +262,7 @@ export class HierarchicalUserService {
    */
   static async isPasswordExpired(userId?: string): Promise<boolean> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await APIClient.auth.getUser();
       
       const targetUserId = userId || user?.id;
       
@@ -270,7 +270,7 @@ export class HierarchicalUserService {
         return false;
       }
 
-      const { data, error } = await supabase.rpc('is_password_expired', {
+      const { data, error } = await APIClient.rpc('is_password_expired', {
         user_id: targetUserId
       });
 

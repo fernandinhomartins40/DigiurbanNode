@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { APIClient } from './APIClient'
 import { BaseEntity, StatusBase, StatusProcesso, PrioridadePadrao } from "@/types/common"
 
 export interface CategoriaServicoPadrao extends BaseEntity {
@@ -95,7 +95,7 @@ export interface NotificacaoPadrao extends BaseEntity {
 export const protocolService = {
   // Buscar categorias de serviços
   async getCategorias(): Promise<CategoriaServicoPadrao[]> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('categorias_servicos')
       .select('*')
       .eq('ativo', true)
@@ -107,7 +107,7 @@ export const protocolService = {
 
   // Buscar serviços por categoria
   async getServicosByCategoria(categoriaId: string): Promise<ServicoMunicipalPadrao[]> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('servicos_municipais')
       .select(`
         *,
@@ -124,7 +124,7 @@ export const protocolService = {
 
   // Buscar todos os serviços públicos
   async getServicosPublicos(): Promise<ServicoMunicipalPadrao[]> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('servicos_municipais')
       .select(`
         *,
@@ -140,7 +140,7 @@ export const protocolService = {
 
   // Buscar serviço por ID
   async getServicoById(id: string): Promise<ServicoMunicipalPadrao | null> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('servicos_municipais')
       .select(`
         *,
@@ -166,14 +166,14 @@ export const protocolService = {
     dados_formulario?: any
     localizacao?: any
   }): Promise<ProtocoloPadrao> {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await APIClient.auth.getUser()
     if (!user) throw new Error('Usuário não autenticado')
 
     // Buscar dados do serviço
     const servico = await this.getServicoById(dados.servico_id)
     if (!servico) throw new Error('Serviço não encontrado')
 
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('protocolos_completos')
       .insert([{
         solicitante_id: user.id,
@@ -204,10 +204,10 @@ export const protocolService = {
 
   // Buscar protocolos do usuário
   async getProtocolosUsuario(status?: string): Promise<ProtocoloPadrao[]> {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await APIClient.auth.getUser()
     if (!user) throw new Error('Usuário não autenticado')
 
-    let query = supabase
+    let query = APIClient
       .from('protocolos_completos')
       .select(`
         *,
@@ -233,7 +233,7 @@ export const protocolService = {
     secretaria_id?: string
     responsavel_id?: string
   }): Promise<ProtocoloPadrao[]> {
-    let query = supabase
+    let query = APIClient
       .from('protocolos_completos')
       .select(`
         *,
@@ -262,7 +262,7 @@ export const protocolService = {
 
   // Buscar protocolo por ID
   async getProtocoloById(id: string): Promise<ProtocoloPadrao | null> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('protocolos_completos')
       .select(`
         *,
@@ -283,7 +283,7 @@ export const protocolService = {
 
   // Buscar histórico do protocolo
   async getHistoricoProtocolo(protocoloId: string): Promise<ProtocoloHistoricoPadrao[]> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('protocolos_historico')
       .select(`
         *,
@@ -303,7 +303,7 @@ export const protocolService = {
     observacoes?: string,
     responsavelId?: string
   ): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await APIClient.auth.getUser()
     if (!user) throw new Error('Usuário não autenticado')
 
     // Buscar protocolo atual
@@ -323,7 +323,7 @@ export const protocolService = {
       updateData.data_conclusao = new Date().toISOString()
     }
 
-    const { error } = await supabase
+    const { error } = await APIClient
       .from('protocolos_completos')
       .update(updateData)
       .eq('id', protocoloId)
@@ -342,7 +342,7 @@ export const protocolService = {
 
   // Assumir responsabilidade por protocolo
   async assumirProtocolo(protocoloId: string, observacoes?: string): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await APIClient.auth.getUser()
     if (!user) throw new Error('Usuário não autenticado')
 
     await this.atualizarStatus(protocoloId, 'em_andamento', observacoes, user.id)
@@ -356,10 +356,10 @@ export const protocolService = {
     statusNovo?: string | null,
     observacoes?: string | null
   ): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await APIClient.auth.getUser()
     if (!user) return
 
-    const { error } = await supabase
+    const { error } = await APIClient
       .from('protocolos_historico')
       .insert([{
         protocolo_id: protocoloId,
@@ -380,10 +380,10 @@ export const protocolService = {
     concluidos: number
     total: number
   }> {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await APIClient.auth.getUser()
     if (!user) throw new Error('Usuário não autenticado')
 
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('protocolos_completos')
       .select('status')
       .eq('solicitante_id', user.id)
@@ -416,7 +416,7 @@ export const protocolService = {
     avaliacao: number, 
     comentario?: string
   ): Promise<void> {
-    const { error } = await supabase
+    const { error } = await APIClient
       .from('protocolos_completos')
       .update({
         avaliacao,

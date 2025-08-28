@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from "@/lib/supabase";
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { BaseEntity } from "@/types/common";
 
 export interface PersonalizacaoTenantPadrao extends BaseEntity {
@@ -187,15 +187,18 @@ export function useCustomization(tenantId?: string) {
       const fileExt = file.name.split('.').pop();
       const fileName = `${tenantId}/logo.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('tenant-assets')
-        .upload(fileName, file, { upsert: true });
+      const formData = new FormData();
+      formData.append('logo', file, fileName);
+      
+      const response = await APIClient.post('/tenants/logo', formData, {
+        'Content-Type': 'multipart/form-data'
+      });
+      
+      if (!response || !response.url) {
+        throw new Error('Erro no upload do logo');
+      }
 
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage
-        .from('tenant-assets')
-        .getPublicUrl(fileName);
+      const urlData = { publicUrl: response.url };
 
       await updateCustomization({ logo_url: urlData.publicUrl });
       return urlData.publicUrl;
@@ -212,15 +215,18 @@ export function useCustomization(tenantId?: string) {
       const fileExt = file.name.split('.').pop();
       const fileName = `${tenantId}/favicon.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('tenant-assets')
-        .upload(fileName, file, { upsert: true });
+      const formData = new FormData();
+      formData.append('logo', file, fileName);
+      
+      const response = await APIClient.post('/tenants/logo', formData, {
+        'Content-Type': 'multipart/form-data'
+      });
+      
+      if (!response || !response.url) {
+        throw new Error('Erro no upload do logo');
+      }
 
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage
-        .from('tenant-assets')
-        .getPublicUrl(fileName);
+      const urlData = { publicUrl: response.url };
 
       await updateCustomization({ favicon_url: urlData.publicUrl });
       return urlData.publicUrl;

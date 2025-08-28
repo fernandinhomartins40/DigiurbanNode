@@ -4,7 +4,7 @@
 // =====================================================
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { toast } from 'react-hot-toast'
 import type { 
   BaseEntity, 
@@ -172,7 +172,7 @@ export function useSaudeStandardized() {
   const { data: estabelecimentos = [], isLoading: loadingEstabelecimentos } = useQuery({
     queryKey: ['saude', 'estabelecimentos'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('estabelecimentos_saude')
         .select(`
           *,
@@ -191,7 +191,7 @@ export function useSaudeStandardized() {
   const { data: agendamentos = [], isLoading: loadingAgendamentos } = useQuery({
     queryKey: ['saude', 'agendamentos-consultas'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('agendamentos_consultas')
         .select(`
           *,
@@ -210,7 +210,7 @@ export function useSaudeStandardized() {
   const { data: pacientes = [], isLoading: loadingPacientes } = useQuery({
     queryKey: ['saude', 'pacientes'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('pacientes')
         .select('*')
         .eq('status', 'ativo')
@@ -227,7 +227,7 @@ export function useSaudeStandardized() {
 
   const criarEstabelecimentoMutation = useMutation({
     mutationFn: async (dados: Partial<EstabelecimentoSaude>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('estabelecimentos_saude')
         .insert([dados])
         .select()
@@ -248,7 +248,7 @@ export function useSaudeStandardized() {
 
   const atualizarEstabelecimentoMutation = useMutation({
     mutationFn: async ({ id, dados }: { id: string, dados: Partial<EstabelecimentoSaude> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('estabelecimentos_saude')
         .update(dados)
         .eq('id', id)
@@ -270,7 +270,7 @@ export function useSaudeStandardized() {
 
   const desativarEstabelecimentoMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('estabelecimentos_saude')
         .update({ status: 'inativo' })
         .eq('id', id)
@@ -296,7 +296,7 @@ export function useSaudeStandardized() {
 
   const criarAgendamentoMutation = useMutation({
     mutationFn: async (dados: Partial<AgendamentoConsulta>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('agendamentos_consultas')
         .insert([dados])
         .select()
@@ -317,7 +317,7 @@ export function useSaudeStandardized() {
 
   const atualizarStatusAgendamentoMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string, status: StatusAgendamento }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('agendamentos_consultas')
         .update({ status })
         .eq('id', id)
@@ -343,7 +343,7 @@ export function useSaudeStandardized() {
 
   const criarPacienteMutation = useMutation({
     mutationFn: async (dados: Partial<Paciente>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('pacientes')
         .insert([dados])
         .select()
@@ -364,7 +364,7 @@ export function useSaudeStandardized() {
 
   const atualizarPacienteMutation = useMutation({
     mutationFn: async ({ id, dados }: { id: string, dados: Partial<Paciente> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('pacientes')
         .update(dados)
         .eq('id', id)

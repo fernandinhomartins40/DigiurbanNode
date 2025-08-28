@@ -1,5 +1,4 @@
-import { supabase } from "@/lib/supabase";
-import { supabaseAdmin, logSystemActivity } from "@/lib/supabaseAdmin";
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { validateUUID, formatUUIDForLog } from '../utils/uuid';
 import { TenantPadrao, PlanoTenant, StatusTenant, EnderecoPadrao } from "@/types/common";
 import UserManagementService from './userManagementService';
@@ -61,56 +60,45 @@ export class TenantService {
         throw new Error('CNPJ já está sendo usado por outro tenant');
       }
       
-      // 3. Criar tenant usando RPC segura
-      const { data: result, error: tenantError } = await supabase.rpc('create_tenant_safe', {
-        tenant_data: {
-          nome: tenantData.nome,
-          cidade: tenantData.cidade,
-          estado: tenantData.estado,
-          populacao: tenantData.populacao,
-          cnpj: tenantData.cnpj,
-          endereco: tenantData.endereco,
-          plano: tenantData.plano,
-          responsavel_nome: tenantData.responsavel_nome,
-          responsavel_email: tenantData.responsavel_email,
-          responsavel_telefone: tenantData.responsavel_telefone
-        }
+      // 3. Criar tenant via API JWT
+      const tenant = await APIClient.post<TenantPadrao>('/tenants', {
+        nome: tenantData.nome,
+        cidade: tenantData.cidade,
+        estado: tenantData.estado,
+        populacao: tenantData.populacao,
+        cnpj: tenantData.cnpj,
+        endereco: tenantData.endereco,
+        plano: tenantData.plano,
+        responsavel_nome: tenantData.responsavel_nome,
+        responsavel_email: tenantData.responsavel_email,
+        responsavel_telefone: tenantData.responsavel_telefone,
+        tenant_code: tenantCode
       });
       
-      if (tenantError || !result?.success) {
-        console.error('❌ Erro ao criar tenant:', tenantError || result?.error);
-        throw new Error(`Erro ao criar tenant: ${tenantError?.message || result?.error}`);
-      }
-      
-      // Buscar tenant criado para retornar
-      const { data: tenant, error: fetchError } = await supabase
-        .from('tenants')
-        .select('*')
-        .eq('id', result.tenant_id)
-        .single();
-        
-      if (fetchError) {
-        console.error('❌ Erro ao buscar tenant criado:', fetchError);
-        throw new Error(`Tenant criado mas erro ao buscar: ${fetchError.message}`);
+      if (!tenant?.id) {
+        throw new Error('Erro ao criar tenant: ID não retornado');
       }
       
       console.log('✅ Tenant criado com sucesso:', tenant.id);
       
-      // 4. Registrar atividade de criação
-      await logSystemActivity({
-        user_id: null, // Criado pelo super admin
-        tenant_id: tenant.id,
-        acao: 'Tenant criado',
-        detalhes: `Tenant ${tenant.nome} (${tenant.tenant_code}) criado na cidade ${tenant.cidade}/${tenant.estado}`,
-        categoria: 'tenants',
-        metadata: {
+      // 4. Registrar atividade de criação via API
+      try {
+        await APIClient.post('/system/activity-logs', {
           tenant_id: tenant.id,
-          tenant_code: tenant.tenant_code,
-          tenant_name: tenant.nome,
-          plano: tenant.plano,
-          created_by: 'super_admin'
-        }
-      });
+          acao: 'Tenant criado',
+          detalhes: `Tenant ${tenant.nome} (${tenant.tenant_code}) criado na cidade ${tenant.cidade}/${tenant.estado}`,
+          categoria: 'tenants',
+          metadata: {
+            tenant_id: tenant.id,
+            tenant_code: tenant.tenant_code,
+            tenant_name: tenant.nome,
+            plano: tenant.plano,
+            created_by: 'super_admin'
+          }
+        });
+      } catch (logError) {
+        console.warn('⚠️ Falha ao registrar log (tenant foi criado com sucesso):', logError);
+      }
       
       return tenant;
       
@@ -137,50 +125,34 @@ export class TenantService {
         throw new Error('Tenant não encontrado');
       }
       
-      // 2. Usar RPC segura com SECURITY DEFINER para bypass de RLS
-      const { data: rpcResult, error: rpcError } = await supabase.rpc('update_tenant_safe', {
-        p_tenant_id: tenantId,
-        p_updates: updates
-      });
+      // 2. Atualizar tenant via API JWT
+      const updatedTenant = await APIClient.put<TenantPadrao>(`/tenants/${tenantId}`, updates);
       
-      if (rpcError) {
-        console.error('❌ Erro na RPC update_tenant_safe:', rpcError);
-        throw new Error(`Erro RPC ao atualizar tenant: ${rpcError.message}`);
+      if (!updatedTenant?.id) {
+        throw new Error('Erro ao atualizar tenant: dados não retornados');
       }
       
-      console.log('📋 Resultado da RPC update:', rpcResult);
+      console.log('✅ Tenant atualizado com sucesso:', tenantId, updatedTenant.nome);
       
-      // Verificar se a RPC foi bem-sucedida
-      if (!rpcResult?.success) {
-        const errorMsg = rpcResult?.error || 'Erro desconhecido na RPC';
-        console.error('❌ RPC retornou falha:', errorMsg);
-        throw new Error(`Falha na atualização via RPC: ${errorMsg}`);
-      }
-      
-      console.log('✅ Tenant atualizado com sucesso via RPC:', tenantId, rpcResult.tenant_name);
-      
-      // 3. Registrar atividade (será feito via RPC segura também)
+      // 3. Registrar atividade via API
       try {
-        await logSystemActivity({
-          user_id: null,
+        await APIClient.post('/system/activity-logs', {
           tenant_id: tenantId,
           acao: 'Tenant atualizado',
-          detalhes: `Tenant ${rpcResult.tenant_name} foi atualizado via RPC segura`,
+          detalhes: `Tenant ${updatedTenant.nome} foi atualizado`,
           categoria: 'tenants',
           metadata: {
             tenant_id: tenantId,
-            tenant_name: rpcResult.tenant_name,
+            tenant_name: updatedTenant.nome,
             updates: updates,
-            updated_by: 'super_admin',
-            update_type: 'rpc_security_definer'
+            updated_by: 'super_admin'
           }
         });
       } catch (logError) {
         console.warn('⚠️ Falha ao registrar log (tenant foi atualizado com sucesso):', logError);
       }
       
-      // Retornar o tenant atualizado da RPC
-      return rpcResult.updated_tenant;
+      return updatedTenant;
       
     } catch (error) {
       console.error('❌ Erro ao atualizar tenant:', error);
@@ -219,26 +191,10 @@ export class TenantService {
       console.log('🔧 Dados para atualização:', JSON.stringify(updateData));
       console.log('🎯 Condição WHERE - tenantId:', JSON.stringify(tenantId));
       
-      // 3. Usar RPC segura com SECURITY DEFINER para bypass de RLS
-      const { data: rpcResult, error: rpcError } = await supabase.rpc('delete_tenant_safe', {
-        p_tenant_id: tenantId
-      });
+      // 3. Excluir tenant via API JWT
+      await APIClient.delete(`/tenants/${tenantId}`);
       
-      if (rpcError) {
-        console.error('❌ Erro na RPC delete_tenant_safe:', rpcError);
-        throw new Error(`Erro RPC ao excluir tenant: ${rpcError.message}`);
-      }
-      
-      console.log('📋 Resultado da RPC:', rpcResult);
-      
-      // Verificar se a RPC foi bem-sucedida
-      if (!rpcResult?.success) {
-        const errorMsg = rpcResult?.error || 'Erro desconhecido na RPC';
-        console.error('❌ RPC retornou falha:', errorMsg);
-        throw new Error(`Falha na exclusão via RPC: ${errorMsg}`);
-      }
-      
-      console.log('✅ Tenant excluído com sucesso via RPC:', tenantId, rpcResult.tenant_name);
+      console.log('✅ Tenant excluído com sucesso:', tenantId, existingTenant.nome);
       
       // 4. Atualizar usuários órfãos (definir como 'sem_vinculo')
       try {
@@ -251,20 +207,21 @@ export class TenantService {
       }
       
       // 5. Registrar atividade
-      await logSystemActivity({
-        user_id: null,
-        tenant_id: tenantId,
-        acao: 'Tenant excluído',
-        detalhes: `Tenant ${existingTenant.nome} foi suspenso via RPC segura`,
-        categoria: 'tenants',
-        metadata: {
+      try {
+        await APIClient.post('/system/activity-logs', {
           tenant_id: tenantId,
-          tenant_name: existingTenant.nome,
-          deleted_by: 'super_admin',
-          deletion_type: 'rpc_security_definer',
-          rpc_result: rpcResult
-        }
-      });
+          acao: 'Tenant excluído',
+          detalhes: `Tenant ${existingTenant.nome} foi suspenso`,
+          categoria: 'tenants',
+          metadata: {
+            tenant_id: tenantId,
+            tenant_name: existingTenant.nome,
+            deleted_by: 'super_admin'
+          }
+        });
+      } catch (logError) {
+        console.warn('⚠️ Falha ao registrar log (tenant foi excluído com sucesso):', logError);
+      }
       
     } catch (error) {
       console.error('❌ Erro ao excluir tenant:', error);
@@ -277,18 +234,7 @@ export class TenantService {
    */
   static async getTenantById(tenantId: string): Promise<TenantPadrao | null> {
     try {
-      const { data: tenant, error } = await supabaseAdmin
-        .from('tenants')
-        .select('*')
-        .eq('id', tenantId)
-        .neq('status', 'suspenso')
-        .neq('status', 'cancelado')
-        .single();
-      
-      if (error || !tenant) {
-        return null;
-      }
-      
+      const tenant = await APIClient.get<TenantPadrao>(`/tenants/${tenantId}`);
       return tenant;
     } catch (error) {
       console.error('❌ Erro ao buscar tenant:', error);
@@ -301,16 +247,11 @@ export class TenantService {
    */
   static async getAllTenants(): Promise<TenantPadrao[]> {
     try {
-      console.log('🔄 Buscando tenants via RPC segura...');
+      console.log('🔄 Buscando tenants via API JWT...');
       
-      const { data: tenants, error } = await supabase.rpc('get_tenants_for_user');
+      const tenants = await APIClient.get<TenantPadrao[]>('/tenants');
       
-      if (error) {
-        console.error('❌ Erro ao buscar tenants via RPC:', error);
-        throw new Error(`Erro ao buscar tenants: ${error.message}`);
-      }
-      
-      console.log('✅ Tenants carregados via RPC:', tenants?.length || 0);
+      console.log('✅ Tenants carregados:', tenants?.length || 0);
       return tenants || [];
     } catch (error) {
       console.error('❌ Erro ao listar tenants:', error);
@@ -323,13 +264,7 @@ export class TenantService {
    */
   static async checkCnpjExists(cnpj: string): Promise<boolean> {
     try {
-      const { data, error } = await supabase.rpc('check_cnpj_available', { cnpj_input: cnpj });
-      
-      if (error) {
-        console.error('❌ Erro ao verificar CNPJ:', error);
-        return false;
-      }
-      
+      const data = await APIClient.get<{available: boolean}>(`/tenants/check-cnpj?cnpj=${cnpj}`);
       return !data?.available; // Se não está disponível, então existe
     } catch {
       return false;
@@ -341,17 +276,9 @@ export class TenantService {
    */
   static async markTenantAsHavingAdmin(tenantId: string): Promise<void> {
     try {
-      const { error } = await supabaseAdmin
-        .from('tenants')
-        .update({
-          has_admin: true,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', tenantId);
-      
-      if (error) {
-        throw new Error(`Erro ao marcar tenant com admin: ${error.message}`);
-      }
+      await APIClient.put(`/tenants/${tenantId}/admin-status`, {
+        has_admin: true
+      });
       
       console.log('✅ Tenant marcado como tendo admin:', tenantId);
     } catch (error) {
@@ -375,13 +302,13 @@ export class TenantService {
     for (let i = 1; i <= 999; i++) {
       const code = `${baseCode}${i.toString().padStart(3, '0')}`;
       
-      const { data, error } = await supabaseAdmin
-        .from('tenants')
-        .select('tenant_code')
-        .eq('tenant_code', code)
-        .maybeSingle();
-      
-      if (!data) {
+      try {
+        const exists = await APIClient.get<{exists: boolean}>(`/tenants/check-code?code=${code}`);
+        if (!exists.exists) {
+          return code;
+        }
+      } catch {
+        // Se houve erro, assumir que código está livre
         return code;
       }
     }

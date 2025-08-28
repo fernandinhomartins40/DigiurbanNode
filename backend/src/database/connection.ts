@@ -1,25 +1,33 @@
 // ====================================================================
-// 📦 CONEXÃO SQLite3 - DIGIURBAN AUTH SYSTEM
+// 📦 CONEXÃO SQLite3 OTIMIZADA - DIGIURBAN SYSTEM
 // ====================================================================
-// Configuração otimizada do banco SQLite3 padrão
+// Configuração otimizada do banco SQLite3 com WAL mode, cache otimizado
 // Performance, segurança e confiabilidade garantidas
 // ====================================================================
 
 import sqlite3 from 'sqlite3';
 import path from 'path';
 import fs from 'fs';
+import { StructuredLogger } from '../monitoring/structuredLogger.js';
 
 // ====================================================================
-// CONFIGURAÇÕES DO BANCO
+// CONFIGURAÇÕES DO BANCO OTIMIZADAS
 // ====================================================================
 
-const DB_PATH = process.env.DB_PATH || path.join(process.cwd(), 'data', 'digiurban.db');
+const DB_PATH = process.env.DATABASE_URL || process.env.DB_PATH || path.join(process.cwd(), 'data', 'digiurban.db');
 const DB_DIR = path.dirname(DB_PATH);
 
 // Garantir que o diretório existe
 if (!fs.existsSync(DB_DIR)) {
   fs.mkdirSync(DB_DIR, { recursive: true });
 }
+
+// Configurações de performance
+const SQLITE_CONFIG = {
+  CACHE_SIZE: process.env.SQLITE_CACHE_SIZE ? parseInt(process.env.SQLITE_CACHE_SIZE) : 10000, // páginas
+  BUSY_TIMEOUT: process.env.SQLITE_BUSY_TIMEOUT ? parseInt(process.env.SQLITE_BUSY_TIMEOUT) : 30000, // 30s
+  MMAP_SIZE: process.env.SQLITE_MMAP_SIZE ? parseInt(process.env.SQLITE_MMAP_SIZE) : 268435456, // 256MB
+};
 
 // ====================================================================
 // INSTÂNCIA DO BANCO
@@ -45,13 +53,28 @@ export const initializeDatabase = (): Promise<sqlite3.Database> => {
           return;
         }
 
-        // Configurações de performance e segurança
+        // Configurações de performance e segurança otimizadas
         db.serialize(() => {
           db.run('PRAGMA journal_mode = WAL'); // Write-Ahead Logging para melhor concorrência
           db.run('PRAGMA synchronous = NORMAL'); // Balance entre performance e segurança
-          db.run('PRAGMA cache_size = 1000'); // Cache de 1MB
+          db.run(`PRAGMA cache_size = ${SQLITE_CONFIG.CACHE_SIZE}`); // Cache otimizado
           db.run('PRAGMA temp_store = MEMORY'); // Tabelas temporárias em memória
           db.run('PRAGMA foreign_keys = ON'); // Habilitar foreign keys
+          db.run(`PRAGMA busy_timeout = ${SQLITE_CONFIG.BUSY_TIMEOUT}`); // Timeout para locks
+          db.run(`PRAGMA mmap_size = ${SQLITE_CONFIG.MMAP_SIZE}`); // Memory-mapped I/O
+          db.run('PRAGMA optimize'); // Otimizações automáticas
+        });
+
+        // Log de inicialização estruturado
+        StructuredLogger.info('SQLite database initialized', {
+          action: 'database_init',
+          resource: 'database',
+          metadata: {
+            path: DB_PATH,
+            cache_size: SQLITE_CONFIG.CACHE_SIZE,
+            mmap_size: SQLITE_CONFIG.MMAP_SIZE,
+            mode: 'WAL'
+          }
         });
 
         console.log('✅ Banco SQLite3 inicializado com sucesso');
@@ -59,7 +82,12 @@ export const initializeDatabase = (): Promise<sqlite3.Database> => {
       });
 
     } catch (error) {
-      console.error('❌ Erro ao inicializar banco:', error);
+      StructuredLogger.error('Database initialization failed', error, {
+        action: 'database_init',
+        resource: 'database',
+        errorType: 'connection_error',
+        metadata: { path: DB_PATH }
+      });
       reject(new Error(`Falha na inicialização do banco: ${error instanceof Error ? error.message : String(error)}`));
     }
   });

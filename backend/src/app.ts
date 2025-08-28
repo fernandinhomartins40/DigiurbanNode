@@ -9,16 +9,26 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import { errorHandler } from './middleware/errorHandler.js';
 import { generalRateLimit } from './middleware/rateLimiter.js';
 import { logger } from './config/logger.js';
+import { sanitizeAll } from './middleware/validation.js';
+import { BackupService } from './services/BackupService.js';
+import { CORS_CONFIG, SECURITY_HEADERS, validateConfig } from './config/auth.js';
+import { metricsMiddleware } from './monitoring/metrics.js';
+import { StructuredLogger } from './monitoring/structuredLogger.js';
 
 // Importar todas as rotas
 import { authRoutes } from './routes/auth.js';
 import { userRoutes } from './routes/users.js';
+import { tenantRoutes } from './routes/tenants.js';
+import { systemRoutes } from './routes/system.js';
 import permissionRoutes from './routes/permissions.js';
 import activityRoutes from './routes/activities.js';
 import registrationRoutes from './routes/registration.js';
+import metricsRoutes from './routes/metrics.js';
+import healthRoutes from './routes/health.js';
 
 const app = express();
 const PORT = process.env.PORT || 3021;
@@ -27,38 +37,41 @@ const PORT = process.env.PORT || 3021;
 // MIDDLEWARE DE SEGURANÇA
 // ====================================================================
 
+// Validar configurações de segurança
+validateConfig();
+
+// Headers de segurança personalizados
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    },
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  }
+  contentSecurityPolicy: false // Usando CSP personalizado
 }));
 
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL || false
-    : true,
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
+// Aplicar headers de segurança customizados
+app.use((req, res, next) => {
+  Object.entries(SECURITY_HEADERS).forEach(([header, value]) => {
+    res.setHeader(header, value);
+  });
+  next();
+});
+
+app.use(cors(CORS_CONFIG));
 
 app.use(compression());
 
 // Rate limiting geral
 app.use(generalRateLimit);
 
+// Middleware de métricas Prometheus
+app.use(metricsMiddleware);
+
+// Middleware de structured logging
+app.use(StructuredLogger.createRequestLogger());
+
 // ====================================================================
 // MIDDLEWARE DE PARSING
 // ====================================================================
+
+// Cookie parser para httpOnly cookies seguros
+app.use(cookieParser(process.env.COOKIE_SECRET));
 
 app.use(express.json({ 
   limit: '10mb',
@@ -69,6 +82,9 @@ app.use(express.urlencoded({
   extended: true,
   limit: '10mb'
 }));
+
+// Sanitização global de todas as entradas
+app.use(sanitizeAll);
 
 // ====================================================================
 // ROTAS DA API
@@ -93,11 +109,23 @@ app.use('/api/registration', registrationRoutes);
 // Rotas de usuários
 app.use('/api/users', userRoutes);
 
+// Rotas de tenants
+app.use('/api/tenants', tenantRoutes);
+
+// Rotas de sistema
+app.use('/api/system', systemRoutes);
+
 // Rotas de permissões
 app.use('/api/permissions', permissionRoutes);
 
 // Rotas de atividades/logs
 app.use('/api/activities', activityRoutes);
+
+// Rotas de métricas (Prometheus)
+app.use('/api', metricsRoutes);
+
+// Rotas de health check
+app.use('/api', healthRoutes);
 
 // ====================================================================
 // ROTA 404
@@ -122,16 +150,31 @@ app.use(errorHandler);
 // INICIALIZAÇÃO DO SERVIDOR
 // ====================================================================
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   logger.info(`🚀 Servidor Digiurban Auth rodando na porta ${PORT}`);
   logger.info(`📍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
   logger.info(`🔗 Health Check: http://localhost:${PORT}/api/health`);
+  
+  // Inicializar serviços
+  try {
+    await BackupService.initialize();
+    
+    // Iniciar backup automático em produção
+    if (process.env.NODE_ENV === 'production') {
+      BackupService.startAutomaticBackup();
+    }
+    
+  } catch (error) {
+    logger.error('❌ Erro ao inicializar serviços:', error);
+  }
   
   // Log das rotas disponíveis
   logger.info('🛣️  Rotas disponíveis:');
   logger.info('   • /api/auth/* - Autenticação e sessões');
   logger.info('   • /api/registration/* - Registro de usuários e tenants');
   logger.info('   • /api/users/* - Gerenciamento de usuários');
+  logger.info('   • /api/tenants/* - Gerenciamento de tenants');
+  logger.info('   • /api/system/* - Logs de sistema e diagnósticos');
   logger.info('   • /api/permissions/* - Sistema de permissões RBAC');
   logger.info('   • /api/activities/* - Logs e auditoria');
 });

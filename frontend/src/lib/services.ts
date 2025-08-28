@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { APIClient } from './APIClient';
 import { servicesCache, organizationCache, CacheKeys } from './cache';
 
 // =====================================================
@@ -55,7 +55,7 @@ export const secretariasService = {
     return organizationCache.getOrSet(
       CacheKeys.secretariasAtivas(),
       async () => {
-        const { data, error } = await supabase
+        const { data, error } = await APIClient
           .from('secretarias')
           .select('*')
           .eq('ativa', true)
@@ -73,7 +73,7 @@ export const secretariasService = {
     return organizationCache.getOrSet(
       CacheKeys.secretaria(id),
       async () => {
-        const { data, error } = await supabase
+        const { data, error } = await APIClient
           .from('secretarias')
           .select('*')
           .eq('id', id)
@@ -91,7 +91,7 @@ export const secretariasService = {
 
   // Criar nova secretaria (apenas admins)
   async criar(dadosSecretaria: Omit<Secretaria, 'id' | 'created_at' | 'updated_at'>): Promise<Secretaria> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('secretarias')
       .insert(dadosSecretaria)
       .select()
@@ -103,7 +103,7 @@ export const secretariasService = {
 
   // Atualizar secretaria
   async atualizar(id: string, dadosSecretaria: Partial<Secretaria>): Promise<Secretaria> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('secretarias')
       .update(dadosSecretaria)
       .eq('id', id)
@@ -129,7 +129,7 @@ export const servicosService = {
     return servicesCache.getOrSet(
       cacheKey,
       async () => {
-        let query = supabase
+        let query = APIClient
           .from('servicos_municipais')
           .select(`
             *,
@@ -152,7 +152,7 @@ export const servicosService = {
 
   // Buscar serviço por ID
   async buscarPorId(id: string): Promise<ServicoMunicipal | null> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('servicos_municipais')
       .select(`
         *,
@@ -170,7 +170,7 @@ export const servicosService = {
 
   // Buscar serviços por secretaria
   async listarPorSecretaria(secretariaId: string): Promise<ServicoMunicipal[]> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('servicos_municipais')
       .select(`
         *,
@@ -186,7 +186,7 @@ export const servicosService = {
 
   // Buscar categorias únicas
   async listarCategorias(): Promise<string[]> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('servicos_municipais')
       .select('categoria')
       .eq('status', 'ativo')
@@ -200,9 +200,9 @@ export const servicosService = {
 
   // Criar novo serviço (apenas secretários e admins)
   async criar(dadosServico: Omit<ServicoMunicipal, 'id' | 'created_at' | 'updated_at' | 'secretaria'>): Promise<ServicoMunicipal> {
-    const { data: user } = await supabase.auth.getUser();
+    const { data: user } = await APIClient.auth.getUser();
     
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('servicos_municipais')
       .insert({
         ...dadosServico,
@@ -220,7 +220,7 @@ export const servicosService = {
 
   // Atualizar serviço
   async atualizar(id: string, dadosServico: Partial<ServicoMunicipal>): Promise<ServicoMunicipal> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('servicos_municipais')
       .update(dadosServico)
       .eq('id', id)
@@ -236,9 +236,9 @@ export const servicosService = {
 
   // Aprovar serviço (apenas admins)
   async aprovar(id: string, observacoes?: string): Promise<ServicoMunicipal> {
-    const { data: user } = await supabase.auth.getUser();
+    const { data: user } = await APIClient.auth.getUser();
     
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('servicos_municipais')
       .update({
         status: 'ativo' as const,
@@ -258,7 +258,7 @@ export const servicosService = {
 
   // Rejeitar serviço (apenas admins)
   async rejeitar(id: string, motivo: string): Promise<ServicoMunicipal> {
-    const { data, error } = await supabase
+    const { data, error } = await APIClient
       .from('servicos_municipais')
       .update({
         status: 'inativo' as const

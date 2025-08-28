@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { toast } from '@/hooks/use-toast';
 
 /**
@@ -44,7 +44,7 @@ export const useServicosMunicipais = (secretariaId?: string) => {
   } = useQuery({
     queryKey: ['servicos_municipais', secretariaId],
     queryFn: async () => {
-      let query = supabase.from('servicos_municipais').select(`
+      let query = APIClient.from('servicos_municipais').select(`
         *,
         secretarias (
           nome,
@@ -71,7 +71,7 @@ export const useServicosMunicipais = (secretariaId?: string) => {
   // Mutation para criar serviço
   const createMutation = useMutation({
     mutationFn: async (newServico: Partial<ServicoMunicipal>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_municipais')
         .insert([newServico])
         .select()
@@ -99,7 +99,7 @@ export const useServicosMunicipais = (secretariaId?: string) => {
   // Mutation para atualizar serviço
   const updateMutation = useMutation({
     mutationFn: async ({ id, data: updateData }: { id: string; data: Partial<ServicoMunicipal> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_municipais')
         .update(updateData)
         .eq('id', id)
@@ -128,7 +128,7 @@ export const useServicosMunicipais = (secretariaId?: string) => {
   // Mutation para deletar serviço
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await APIClient
         .from('servicos_municipais')
         .delete()
         .eq('id', id);

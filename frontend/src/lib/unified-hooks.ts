@@ -6,7 +6,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { z } from 'zod';
-import { supabase } from './supabase';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { 
   FiltrosPadrao, 
   RespostaAPIPadrao, 
@@ -279,7 +279,7 @@ export const useHookPadrao = <T extends BaseEntity>(
 
   const criarQueryBase = useCallback(() => {
     const campos = config.camposSelect || '*';
-    let query = supabase.from(config.nomeTabela).select(campos);
+    let query = APIClient.get("config.nomeTabela).select(campos);
     
     // Filtrar apenas registros não deletados
     query = query.is('deleted_at', null);

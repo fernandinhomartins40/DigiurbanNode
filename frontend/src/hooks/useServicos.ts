@@ -1,6 +1,6 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/integrations/supabase/client'
+import { APIClient } from '@/auth/utils/httpInterceptor'
 import { useToast } from '@/hooks/use-toast'
 
 export interface ServicoMunicipal {
@@ -19,14 +19,8 @@ export const useServicos = () => {
   return useQuery({
     queryKey: ['servicos'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('servicos_municipais')
-        .select('*')
-        .eq('status', 'ativo')
-        .order('nome')
-
-      if (error) throw error
-      return data as ServicoMunicipal[]
+      const data = await APIClient.get<ServicoMunicipal[]>('/servicos-municipais?status=ativo&sort_by=nome&sort_order=asc')
+      return data || []
     },
   })
 }
@@ -35,7 +29,7 @@ export const useServicosBySecretaria = (secretariaId: string) => {
   return useQuery({
     queryKey: ['servicos', 'secretaria', secretariaId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('servicos_municipais')
         .select('*')
         .eq('secretaria_id', secretariaId)

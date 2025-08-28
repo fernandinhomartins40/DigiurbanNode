@@ -5,7 +5,7 @@
 
 import { useState, useCallback } from 'react'
 import { toast } from 'react-hot-toast'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { 
   GetEntityListParams, 
   EntityResponse, 
@@ -168,7 +168,7 @@ export function useAssistenciaSocialStandardized() {
       setLoading(true)
       setError(null)
 
-      let query = supabase
+      let query = APIClient
         .from('familias_assistencia_social')
         .select(`
           *,
@@ -214,7 +214,7 @@ export function useAssistenciaSocialStandardized() {
       setLoading(true)
       setError(null)
 
-      let query = supabase
+      let query = APIClient
         .from('familias_assistencia_social')
         .select(`
           *,
@@ -353,7 +353,7 @@ export function useAssistenciaSocialStandardized() {
       // Calcular renda per capita
       const renda_per_capita = data.renda_mensal_total / data.composicao_familiar.total_membros
 
-      const { data: familia, error } = await supabase
+      const { data: familia, error } = await APIClient
         .from('familias_assistencia_social')
         .insert([{
           ...data,
@@ -400,7 +400,7 @@ export function useAssistenciaSocialStandardized() {
       // Se atualizou composição familiar, recalcular renda per capita
       let updateData = { ...data }
       if (data.renda_mensal_total || data.composicao_familiar?.total_membros) {
-        const { data: familiaAtual } = await supabase
+        const { data: familiaAtual } = await APIClient
           .from('familias_assistencia_social')
           .select('renda_mensal_total, composicao_familiar')
           .eq('id', id)
@@ -413,7 +413,7 @@ export function useAssistenciaSocialStandardized() {
         }
       }
 
-      const { data: familia, error } = await supabase
+      const { data: familia, error } = await APIClient
         .from('familias_assistencia_social')
         .update({
           ...updateData,
@@ -453,7 +453,7 @@ export function useAssistenciaSocialStandardized() {
       setError(null)
 
       // Verificar se família tem atendimentos ativos
-      const { data: atendimentos } = await supabase
+      const { data: atendimentos } = await APIClient
         .from('atendimentos_sociais')
         .select('id')
         .eq('familia_id', id)
@@ -467,7 +467,7 @@ export function useAssistenciaSocialStandardized() {
         }
       }
 
-      const { error } = await supabase
+      const { error } = await APIClient
         .from('familias_assistencia_social')
         .delete()
         .eq('id', id)
@@ -493,7 +493,7 @@ export function useAssistenciaSocialStandardized() {
       setLoading(true)
       setError(null)
 
-      const { error } = await supabase
+      const { error } = await APIClient
         .from('familias_assistencia_social')
         .update({
           status: 'inativo',
@@ -532,7 +532,7 @@ export function useAssistenciaSocialStandardized() {
       setLoading(true)
 
       // Buscar vulnerabilidades atuais
-      const { data: familia } = await supabase
+      const { data: familia } = await APIClient
         .from('familias_assistencia_social')
         .select('vulnerabilidades')
         .eq('id', familiaId)
@@ -563,7 +563,7 @@ export function useAssistenciaSocialStandardized() {
         default: prioridade = 'baixa'
       }
 
-      const { data: familiaAtualizada, error } = await supabase
+      const { data: familiaAtualizada, error } = await APIClient
         .from('familias_assistencia_social')
         .update({
           vulnerabilidades,

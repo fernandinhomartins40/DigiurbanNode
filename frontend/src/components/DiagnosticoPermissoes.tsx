@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/auth';
 import { usePermissions } from '@/contexts/PermissionsContext';
-import { supabase } from '@/lib/supabase';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

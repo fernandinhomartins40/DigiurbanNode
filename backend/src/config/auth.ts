@@ -10,9 +10,19 @@
 // ====================================================================
 
 export const AUTH_CONFIG = {
-  // Segredos e chaves
-  JWT_SECRET: process.env.JWT_SECRET || 'digiurban-super-secret-key-change-in-production',
-  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'digiurban-refresh-secret-key',
+  // Segredos e chaves - NEVER USE DEFAULT IN PRODUCTION
+  JWT_SECRET: process.env.JWT_SECRET || (() => {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('🚨 ERRO CRÍTICO: JWT_SECRET deve ser definido em produção!');
+    }
+    return 'dev-jwt-secret-for-development-only';
+  })(),
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || (() => {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('🚨 ERRO CRÍTICO: JWT_REFRESH_SECRET deve ser definido em produção!');
+    }
+    return 'dev-refresh-secret-for-development-only';
+  })(),
   
   // Expiração de tokens
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '24h',
@@ -69,9 +79,13 @@ export const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'X-XSS-Protection': '1; mode=block',
-  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-  'Content-Security-Policy': "default-src 'self'",
-  'Referrer-Policy': 'strict-origin-when-cross-origin'
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+  'Content-Security-Policy': process.env.NODE_ENV === 'production' 
+    ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    : "default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' ws: wss: http: https:",
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+  'X-Permitted-Cross-Domain-Policies': 'none'
 } as const;
 
 // ====================================================================
@@ -79,15 +93,33 @@ export const SECURITY_HEADERS = {
 // ====================================================================
 
 export const CORS_CONFIG = {
-  origin: process.env.CORS_ORIGIN?.split(',') || [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'http://localhost:8082'
-  ],
+  origin: (origin: string | undefined, callback: (error: Error | null, success?: boolean) => void) => {
+    // Lista permitida baseada no ambiente
+    const allowedOrigins = process.env.NODE_ENV === 'production'
+      ? process.env.CORS_ORIGIN?.split(',') || []
+      : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:8082'];
+
+    // Permitir requests sem origin (mobile apps, Postman, etc.) apenas em dev
+    if (!origin && process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+
+    if (!origin) {
+      return callback(new Error('Origin não fornecido em produção'), false);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️ [CORS] Origin bloqueado: ${origin}`);
+      callback(new Error(`Origin ${origin} não permitido pelo CORS`), false);
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['X-Total-Count', 'X-Page-Count']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
+  exposedHeaders: ['X-Total-Count', 'X-Page-Count', 'X-RateLimit-Limit', 'X-RateLimit-Remaining'],
+  optionsSuccessStatus: 200 // Para legacy browsers
 } as const;
 
 // ====================================================================
@@ -262,24 +294,35 @@ export const isTest = (): boolean => {
 
 // Validar configurações essenciais
 export const validateConfig = (): void => {
-  const requiredEnvVars = [
-    'JWT_SECRET',
-    'JWT_REFRESH_SECRET'
-  ];
-  
-  const missing = requiredEnvVars.filter(
-    envVar => !process.env[envVar] || process.env[envVar] === AUTH_CONFIG.JWT_SECRET
-  );
-  
-  if (missing.length > 0 && isProduction()) {
-    throw new Error(`Variáveis de ambiente obrigatórias em produção: ${missing.join(', ')}`);
-  }
-  
-  if (isProduction() && (
-    AUTH_CONFIG.JWT_SECRET === 'digiurban-super-secret-key-change-in-production' ||
-    AUTH_CONFIG.JWT_REFRESH_SECRET === 'digiurban-refresh-secret-key'
-  )) {
-    console.warn('⚠️ AVISO: Usando chaves padrão em produção! Altere JWT_SECRET e JWT_REFRESH_SECRET');
+  if (isProduction()) {
+    const requiredEnvVars = [
+      'JWT_SECRET',
+      'JWT_REFRESH_SECRET',
+      'CORS_ORIGIN'
+    ];
+    
+    const missing = requiredEnvVars.filter(envVar => !process.env[envVar]);
+    
+    if (missing.length > 0) {
+      throw new Error(`🚨 ERRO CRÍTICO: Variáveis de ambiente obrigatórias em produção: ${missing.join(', ')}`);
+    }
+
+    // Validar tamanho das chaves JWT
+    if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
+      throw new Error('🚨 ERRO CRÍTICO: JWT_SECRET deve ter pelo menos 32 caracteres!');
+    }
+
+    if (process.env.JWT_REFRESH_SECRET && process.env.JWT_REFRESH_SECRET.length < 32) {
+      throw new Error('🚨 ERRO CRÍTICO: JWT_REFRESH_SECRET deve ter pelo menos 32 caracteres!');
+    }
+
+    // Validar CORS
+    const corsOrigins = process.env.CORS_ORIGIN?.split(',') || [];
+    const hasLocalhost = corsOrigins.some(origin => origin.includes('localhost') || origin.includes('127.0.0.1'));
+    
+    if (hasLocalhost) {
+      console.warn('⚠️ AVISO: CORS configurado com localhost em produção!');
+    }
   }
 };
 

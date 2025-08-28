@@ -3,7 +3,7 @@
 // =====================================================
 
 import { useState, useCallback } from 'react'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { ErrorHandler } from "@/lib/error-handler"
 import { ValidationHelper } from "@/lib/validation-schemas"
 import { CacheUtils } from "@/lib/cache-system"
@@ -145,7 +145,7 @@ export function useHabitacaoStandardized() {
       const cached = CacheUtils.get<ProgramaHabitacionalPadrao>(`programa_habitacional:${id}`)
       if (cached) return { data: cached, success: true, message: 'Programa encontrado' }
 
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('programas_habitacionais')
         .select('*')
         .eq('id', id)
@@ -180,7 +180,7 @@ export function useHabitacaoStandardized() {
 
       const offset = (page - 1) * limit
 
-      let query = supabase
+      let query = APIClient
         .from('programas_habitacionais')
         .select('*', { count: 'exact' })
 
@@ -232,7 +232,7 @@ export function useHabitacaoStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('programas_habitacionais')
         .insert([{
           ...data,
@@ -261,7 +261,7 @@ export function useHabitacaoStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('programas_habitacionais')
         .update({
           ...data,
@@ -304,7 +304,7 @@ export function useHabitacaoStandardized() {
 
       const offset = (page - 1) * limit
 
-      let query = supabase
+      let query = APIClient
         .from('regularizacoes_fundiarias')
         .select('*', { count: 'exact' })
 
@@ -356,7 +356,7 @@ export function useHabitacaoStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('regularizacoes_fundiarias')
         .insert([{
           ...data,
@@ -398,7 +398,7 @@ export function useHabitacaoStandardized() {
 
       const offset = (page - 1) * limit
 
-      let query = supabase
+      let query = APIClient
         .from('melhorias_habitacionais')
         .select('*', { count: 'exact' })
 
@@ -453,7 +453,7 @@ export function useHabitacaoStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('melhorias_habitacionais')
         .insert([{
           ...data,
@@ -481,7 +481,7 @@ export function useHabitacaoStandardized() {
 
   const aprovarMelhoria = useCallback(async (melhoriaId: string, valorAprovado: number): Promise<EntityResponse<MelhoriaHabitacionalPadrao>> => {
     return ErrorHandler.withErrorHandling(async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('melhorias_habitacionais')
         .update({
           status: 'aprovado',
@@ -509,7 +509,7 @@ export function useHabitacaoStandardized() {
       // Lógica de cálculo de pontuação social
       // baseada em critérios do cadastro habitacional
       
-      const { data: cadastro, error } = await supabase
+      const { data: cadastro, error } = await APIClient
         .from('cadastros_habitacionais')
         .select('*')
         .eq('id', cadastroId)
@@ -557,7 +557,7 @@ export function useHabitacaoStandardized() {
       }
 
       // Atualizar pontuação no cadastro
-      await supabase
+      await APIClient
         .from('cadastros_habitacionais')
         .update({
           pontuacao_social: pontuacao,

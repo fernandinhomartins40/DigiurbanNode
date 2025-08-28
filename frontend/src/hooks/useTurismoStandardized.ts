@@ -4,7 +4,7 @@
 // =====================================================
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { toast } from 'react-hot-toast'
 import type { 
   BaseEntity, 
@@ -189,7 +189,7 @@ export function useTurismoStandardized() {
   const { data: pontosTuristicos = [], isLoading: loadingPontos } = useQuery({
     queryKey: ['turismo', 'pontos-turisticos'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turismo_pontos_turisticos')
         .select('*')
         .eq('status', 'ativo')
@@ -204,7 +204,7 @@ export function useTurismoStandardized() {
   const { data: rotasTuristicas = [], isLoading: loadingRotas } = useQuery({
     queryKey: ['turismo', 'rotas'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turismo_roteiros')
         .select(`
           *,
@@ -222,7 +222,7 @@ export function useTurismoStandardized() {
   const { data: eventosTuristicos = [], isLoading: loadingEventos } = useQuery({
     queryKey: ['turismo', 'eventos'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turismo_eventos')
         .select('*')
         .neq('status', 'cancelado')
@@ -237,7 +237,7 @@ export function useTurismoStandardized() {
   const { data: guiasTuristicos = [], isLoading: loadingGuias } = useQuery({
     queryKey: ['turismo', 'guias'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turismo_guias')
         .select('*')
         .eq('status', 'ativo')
@@ -254,7 +254,7 @@ export function useTurismoStandardized() {
 
   const criarPontoTuristicoMutation = useMutation({
     mutationFn: async (dados: Partial<PontoTuristico>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turismo_pontos_turisticos')
         .insert([dados])
         .select()
@@ -275,7 +275,7 @@ export function useTurismoStandardized() {
 
   const atualizarPontoTuristicoMutation = useMutation({
     mutationFn: async ({ id, dados }: { id: string, dados: Partial<PontoTuristico> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turismo_pontos_turisticos')
         .update(dados)
         .eq('id', id)
@@ -301,7 +301,7 @@ export function useTurismoStandardized() {
 
   const criarRotaTuristicaMutation = useMutation({
     mutationFn: async (dados: Partial<RotaTuristica>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turismo_roteiros')
         .insert([dados])
         .select()
@@ -322,7 +322,7 @@ export function useTurismoStandardized() {
 
   const atualizarRotaTuristicaMutation = useMutation({
     mutationFn: async ({ id, dados }: { id: string, dados: Partial<RotaTuristica> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turismo_roteiros')
         .update(dados)
         .eq('id', id)
@@ -348,7 +348,7 @@ export function useTurismoStandardized() {
 
   const criarEventoTuristicoMutation = useMutation({
     mutationFn: async (dados: Partial<EventoTuristico>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turismo_eventos')
         .insert([dados])
         .select()
@@ -369,7 +369,7 @@ export function useTurismoStandardized() {
 
   const atualizarStatusEventoMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string, status: EventoTuristico['status'] }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turismo_eventos')
         .update({ status })
         .eq('id', id)
@@ -395,7 +395,7 @@ export function useTurismoStandardized() {
 
   const criarGuiaTuristicoMutation = useMutation({
     mutationFn: async (dados: Partial<GuiaTuristico>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turismo_guias')
         .insert([dados])
         .select()
@@ -417,7 +417,7 @@ export function useTurismoStandardized() {
   const avaliarGuiaMutation = useMutation({
     mutationFn: async ({ id, avaliacao }: { id: string, avaliacao: number }) => {
       // Buscar dados atuais para recalcular média
-      const { data: guiaAtual } = await supabase
+      const { data: guiaAtual } = await APIClient
         .from('turismo_guias')
         .select('avaliacao_media, total_avaliacoes')
         .eq('id', id)
@@ -426,7 +426,7 @@ export function useTurismoStandardized() {
       if (guiaAtual) {
         const novaMedia = (guiaAtual.avaliacao_media * guiaAtual.total_avaliacoes + avaliacao) / (guiaAtual.total_avaliacoes + 1)
         
-        const { data, error } = await supabase
+        const { data, error } = await APIClient
           .from('turismo_guias')
           .update({
             avaliacao_media: novaMedia,

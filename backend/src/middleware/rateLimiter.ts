@@ -1,13 +1,15 @@
 // ====================================================================
 // 🚦 RATE LIMITER MIDDLEWARE - DIGIURBAN AUTH SYSTEM
 // ====================================================================
-// Sistema avançado de rate limiting com diferentes estratégias
-// Controle por IP, usuário e endpoint específico
+// Sistema avançado de rate limiting com Redis + SQLite fallback
+// Controle persistente por IP, usuário e endpoint específico
 // ====================================================================
 
 import { Request, Response, NextFunction } from 'express';
 import { RATE_LIMITS } from '../config/auth.js';
 import { ActivityService } from '../services/ActivityService.js';
+import { RedisRateStore } from '../services/RedisRateStore.js';
+import { DatabaseRateStore } from '../services/DatabaseRateStore.js';
 
 // ====================================================================
 // INTERFACES
@@ -32,46 +34,125 @@ interface RateLimitConfig {
 }
 
 // ====================================================================
-// ARMAZENAMENTO EM MEMÓRIA
+// ARMAZENAMENTO PERSISTENTE COM FALLBACK
 // ====================================================================
 
-class MemoryStore {
-  private store: RateLimitStore = {};
+class PersistentRateStore {
+  private redisStore: RedisRateStore | null = null;
+  private databaseStore: DatabaseRateStore;
+  private memoryStore: RateLimitStore = {}; // Fallback final
 
-  get(key: string): { count: number; resetTime: number; firstRequest: number } | undefined {
-    return this.store[key];
+  constructor() {
+    this.databaseStore = new DatabaseRateStore();
+    this.initializeRedis();
   }
 
-  set(key: string, value: { count: number; resetTime: number; firstRequest: number }): void {
-    this.store[key] = value;
+  private async initializeRedis(): Promise<void> {
+    try {
+      this.redisStore = new RedisRateStore();
+      const isHealthy = await this.redisStore.healthCheck();
+      
+      if (!isHealthy) {
+        console.warn('⚠️ [RATE-LIMIT] Redis indisponível, usando SQLite');
+        this.redisStore = null;
+      } else {
+        console.log('✅ [RATE-LIMIT] Redis inicializado');
+      }
+    } catch (error) {
+      console.warn('⚠️ [RATE-LIMIT] Falha Redis, usando SQLite:', error.message);
+      this.redisStore = null;
+    }
   }
 
-  increment(key: string): number {
-    if (!this.store[key]) {
-      const now = Date.now();
-      this.store[key] = {
+  async increment(key: string, windowMs: number, maxHits: number): Promise<{
+    count: number;
+    resetTime: number;
+    firstRequest: number;
+  }> {
+    try {
+      // Tentar Redis primeiro
+      if (this.redisStore) {
+        const result = await this.redisStore.increment(key, windowMs, maxHits);
+        return {
+          count: result.totalHits,
+          resetTime: Date.now() + result.msBeforeNext,
+          firstRequest: Date.now() - windowMs + result.msBeforeNext
+        };
+      }
+
+      // Fallback para SQLite
+      const dbResult = await this.databaseStore.increment(key, windowMs, maxHits);
+      return {
+        count: dbResult.totalHits,
+        resetTime: Date.now() + dbResult.msBeforeNext,
+        firstRequest: Date.now() - windowMs + dbResult.msBeforeNext
+      };
+
+    } catch (error) {
+      console.error('❌ [RATE-LIMIT] Erro nos stores, usando memória:', error);
+      
+      // Fallback para memória
+      return this.incrementMemory(key, windowMs);
+    }
+  }
+
+  private incrementMemory(key: string, windowMs: number): {
+    count: number;
+    resetTime: number;
+    firstRequest: number;
+  } {
+    const now = Date.now();
+    
+    if (!this.memoryStore[key] || now > this.memoryStore[key].resetTime) {
+      this.memoryStore[key] = {
         count: 1,
-        resetTime: now + RATE_LIMITS.GENERAL.windowMs,
+        resetTime: now + windowMs,
         firstRequest: now
       };
-      return 1;
+      return this.memoryStore[key];
     }
 
-    this.store[key].count++;
-    return this.store[key].count;
+    this.memoryStore[key].count++;
+    return this.memoryStore[key];
   }
 
-  reset(key: string): void {
-    delete this.store[key];
+  async reset(key: string): Promise<void> {
+    try {
+      if (this.redisStore) {
+        await this.redisStore.reset(key);
+      } else {
+        await this.databaseStore.reset(key);
+      }
+    } catch (error) {
+      console.error('❌ [RATE-LIMIT] Erro ao resetar:', error);
+    }
+    
+    // Sempre limpar da memória também
+    delete this.memoryStore[key];
   }
 
-  cleanup(): void {
+  async cleanup(): Promise<void> {
+    try {
+      if (this.redisStore) {
+        await this.redisStore.cleanup();
+      } else {
+        await this.databaseStore.cleanup();
+      }
+    } catch (error) {
+      console.error('❌ [RATE-LIMIT] Erro na limpeza:', error);
+    }
+
+    // Limpeza da memória
     const now = Date.now();
-    Object.keys(this.store).forEach(key => {
-      if (this.store[key].resetTime < now) {
-        delete this.store[key];
+    Object.keys(this.memoryStore).forEach(key => {
+      if (this.memoryStore[key].resetTime < now) {
+        delete this.memoryStore[key];
       }
     });
+  }
+
+  getStoreType(): string {
+    return this.redisStore ? 'Redis' : 'SQLite';
   }
 }
 
@@ -79,11 +160,11 @@ class MemoryStore {
 // INSTÂNCIA GLOBAL DO STORE
 // ====================================================================
 
-const memoryStore = new MemoryStore();
+const persistentStore = new PersistentRateStore();
 
 // Limpeza automática a cada 5 minutos
 setInterval(() => {
-  memoryStore.cleanup();
+  persistentStore.cleanup();
 }, 5 * 60 * 1000);
 
 // ====================================================================
@@ -116,26 +197,15 @@ function createRateLimit(config: RateLimitConfig) {
       const key = config.keyGenerator ? config.keyGenerator(req) : defaultKeyGenerator(req);
       const now = Date.now();
       
-      let record = memoryStore.get(key);
-      
-      // Se não existe registro ou janela expirou, criar novo
-      if (!record || now > record.resetTime) {
-        record = {
-          count: 0,
-          resetTime: now + config.windowMs,
-          firstRequest: now
-        };
-        memoryStore.set(key, record);
-      }
-
-      // Incrementar contador
-      record.count++;
+      // Usar store persistente
+      const record = await persistentStore.increment(key, config.windowMs, config.max);
       
       // Headers informativos
       res.set({
         'X-RateLimit-Limit': config.max.toString(),
         'X-RateLimit-Remaining': Math.max(0, config.max - record.count).toString(),
-        'X-RateLimit-Reset': new Date(record.resetTime).toISOString()
+        'X-RateLimit-Reset': new Date(record.resetTime).toISOString(),
+        'X-RateLimit-Store': persistentStore.getStoreType()
       });
 
       // Verificar se excedeu limite
@@ -152,7 +222,8 @@ function createRateLimit(config: RateLimitConfig) {
             limit: config.max,
             window_ms: config.windowMs,
             key: key.startsWith('user:') ? key : '[IP_HIDDEN]',
-            attempts: record.count
+            attempts: record.count,
+            store: persistentStore.getStoreType()
           }),
           ip_address: req.ip,
           user_agent: req.get('User-Agent')
@@ -170,7 +241,8 @@ function createRateLimit(config: RateLimitConfig) {
           retryAfter: Math.ceil((record.resetTime - now) / 1000),
           limit: config.max,
           remaining: 0,
-          resetTime: new Date(record.resetTime).toISOString()
+          resetTime: new Date(record.resetTime).toISOString(),
+          store: persistentStore.getStoreType()
         });
         return;
       }
@@ -178,7 +250,7 @@ function createRateLimit(config: RateLimitConfig) {
       next();
 
     } catch (error) {
-      console.error('Erro no rate limiter:', error);
+      console.error('❌ [RATE-LIMIT] Erro no middleware:', error);
       // Em caso de erro, permitir requisição (fail open)
       next();
     }
@@ -391,9 +463,9 @@ export const getRateLimitStats = (): {
 /**
  * Limpar rate limits de um usuário/IP específico
  */
-export const clearRateLimit = (key: string): boolean => {
+export const clearRateLimit = async (key: string): Promise<boolean> => {
   try {
-    memoryStore.reset(key);
+    await persistentStore.reset(key);
     return true;
   } catch {
     return false;
@@ -401,10 +473,24 @@ export const clearRateLimit = (key: string): boolean => {
 };
 
 /**
- * Limpar todos os rate limits
+ * Obter estatísticas avançadas do rate limiter
  */
-export const clearAllRateLimits = (): void => {
-  (memoryStore as any).store = {};
+export const getAdvancedRateLimitStats = async (): Promise<any> => {
+  try {
+    const storeType = persistentStore.getStoreType();
+    const basicStats = getRateLimitStats();
+    
+    return {
+      store: storeType,
+      memory: basicStats,
+      persistent: storeType === 'Redis' ? 
+        await (persistentStore as any).redisStore?.getStats() :
+        await (persistentStore as any).databaseStore?.getStats()
+    };
+  } catch (error) {
+    console.error('❌ [RATE-LIMIT] Erro ao obter stats:', error);
+    return { error: error.message };
+  }
 };
 
 // ====================================================================

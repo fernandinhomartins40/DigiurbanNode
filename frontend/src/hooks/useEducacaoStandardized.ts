@@ -4,7 +4,7 @@
 // =====================================================
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { toast } from 'react-hot-toast'
 import type { 
   BaseEntity, 
@@ -146,7 +146,7 @@ export function useEducacaoStandardized() {
   const { data: escolas = [], isLoading: loadingEscolas } = useQuery({
     queryKey: ['educacao', 'escolas'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('escolas')
         .select(`
           *,
@@ -165,7 +165,7 @@ export function useEducacaoStandardized() {
   const { data: turmas = [], isLoading: loadingTurmas } = useQuery({
     queryKey: ['educacao', 'turmas'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turmas')
         .select(`
           *,
@@ -184,7 +184,7 @@ export function useEducacaoStandardized() {
   const { data: alunos = [], isLoading: loadingAlunos } = useQuery({
     queryKey: ['educacao', 'alunos'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('alunos')
         .select(`
           *,
@@ -202,7 +202,7 @@ export function useEducacaoStandardized() {
   const { data: matriculas = [], isLoading: loadingMatriculas } = useQuery({
     queryKey: ['educacao', 'matriculas'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('matriculas')
         .select(`
           *,
@@ -222,7 +222,7 @@ export function useEducacaoStandardized() {
 
   const criarEscolaMutation = useMutation({
     mutationFn: async (dados: Partial<Escola>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('escolas')
         .insert([dados])
         .select()
@@ -243,7 +243,7 @@ export function useEducacaoStandardized() {
 
   const atualizarEscolaMutation = useMutation({
     mutationFn: async ({ id, dados }: { id: string, dados: Partial<Escola> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('escolas')
         .update(dados)
         .eq('id', id)
@@ -265,7 +265,7 @@ export function useEducacaoStandardized() {
 
   const desativarEscolaMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('escolas')
         .update({ status: 'inativo' })
         .eq('id', id)
@@ -291,7 +291,7 @@ export function useEducacaoStandardized() {
 
   const criarTurmaMutation = useMutation({
     mutationFn: async (dados: Partial<Turma>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turmas')
         .insert([dados])
         .select()
@@ -312,7 +312,7 @@ export function useEducacaoStandardized() {
 
   const atualizarTurmaMutation = useMutation({
     mutationFn: async ({ id, dados }: { id: string, dados: Partial<Turma> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('turmas')
         .update(dados)
         .eq('id', id)
@@ -338,7 +338,7 @@ export function useEducacaoStandardized() {
 
   const criarAlunoMutation = useMutation({
     mutationFn: async (dados: Partial<Aluno>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('alunos')
         .insert([dados])
         .select()
@@ -359,7 +359,7 @@ export function useEducacaoStandardized() {
 
   const atualizarAlunoMutation = useMutation({
     mutationFn: async ({ id, dados }: { id: string, dados: Partial<Aluno> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('alunos')
         .update(dados)
         .eq('id', id)
@@ -385,7 +385,7 @@ export function useEducacaoStandardized() {
 
   const criarMatriculaMutation = useMutation({
     mutationFn: async (dados: Partial<Matricula>) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('matriculas')
         .insert([dados])
         .select()
@@ -407,7 +407,7 @@ export function useEducacaoStandardized() {
 
   const transferirAlunoMutation = useMutation({
     mutationFn: async ({ matriculaId, novaEscola }: { matriculaId: string, novaEscola: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('matriculas')
         .update({
           status: 'transferida',

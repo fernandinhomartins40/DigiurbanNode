@@ -2,7 +2,7 @@
 // SISTEMA DE OPERAÇÕES BULK E BATCH - FASE 3
 // =====================================================
 
-import { supabase } from './supabase'
+import { APIClient } from '@/auth/utils/httpInterceptor'
 import { ErrorHandler } from './error-handler'
 import { CacheUtils } from './cache-system'
 import { transactionManager } from './transaction-system'

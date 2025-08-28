@@ -3,7 +3,7 @@
 // Relatórios inteligentes e automáticos para todas as secretarias
 // ====================================================================
 
-import { supabase } from './supabase';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 
 // Types para relatórios
 interface RelatorioConfig {

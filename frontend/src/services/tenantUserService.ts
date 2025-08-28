@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabase";
-import { supabaseAdmin, createUserProfileAdmin, logSystemActivity } from "@/lib/supabaseAdmin";
+import { APIClient } from "@/auth/utils/httpInterceptor";
+import { supabaseAdmin, createUserProfileAdmin, logSystemActivity } from "@/auth/utils/httpInterceptorAdmin";
 import { TenantService } from './tenantService';
 
 // ====================================================================
@@ -386,7 +386,7 @@ export class TenantUserService {
    */
   static async resetUserPassword(email: string): Promise<boolean> {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await APIClient.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`
       });
       

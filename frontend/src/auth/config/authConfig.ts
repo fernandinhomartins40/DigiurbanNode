@@ -26,17 +26,21 @@ export const AUTH2_CONFIG: AuthConfig = {
 };
 
 // ====================================================================
-// CONFIGURAÇÃO DO SUPABASE CLIENTE
+// CONFIGURAÇÃO DO SISTEMA JWT
 // ====================================================================
 
-export const SUPABASE_CONFIG = {
-  auth: {
-    persistSession: AUTH2_CONFIG.persistSession,
-    autoRefreshToken: AUTH2_CONFIG.autoRefresh,
-    detectSessionInUrl: false, // Otimização - não detectar na URL
+export const JWT_CONFIG = {
+  api: {
+    baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:3021/api',
+    timeout: 10000, // 10 segundos
   },
-  db: {
-    schema: 'public'
+  storage: {
+    useLocalStorage: false, // Usar cookies httpOnly ao invés de localStorage
+    persistSession: AUTH2_CONFIG.persistSession,
+  },
+  security: {
+    autoRefreshToken: AUTH2_CONFIG.autoRefresh,
+    refreshThreshold: 5 * 60 * 1000, // Renovar 5 min antes de expirar
   }
 };
 
@@ -94,11 +98,8 @@ export const DEV_CONFIG = {
   // Bypass de algumas validações em desenvolvimento
   BYPASS_EMAIL_CONFIRMATION: import.meta.env.NODE_ENV === 'development',
   
-  // Dados de teste
-  TEST_CREDENTIALS: import.meta.env.NODE_ENV === 'development' ? {
-    email: 'admin@digiurban.com',
-    password: 'admin123'
-  } : null
+  // REMOVIDO: Credenciais hardcoded por segurança
+  // Use variáveis de ambiente para admin inicial: INITIAL_ADMIN_EMAIL e INITIAL_ADMIN_PASSWORD
 };
 
 // ====================================================================
@@ -128,10 +129,10 @@ export const ConfigUtils = {
   },
 
   /**
-   * Obter configuração do Supabase
+   * Obter configuração do JWT
    */
-  getSupabaseConfig: () => {
-    return SUPABASE_CONFIG;
+  getJWTConfig: () => {
+    return JWT_CONFIG;
   },
 
   /**
@@ -140,12 +141,8 @@ export const ConfigUtils = {
   validateConfig: (): { valid: boolean; errors: string[] } => {
     const errors: string[] = [];
 
-    if (!import.meta.env.REACT_APP_SUPABASE_URL) {
-      errors.push('REACT_APP_SUPABASE_URL não configurada');
-    }
-
-    if (!import.meta.env.REACT_APP_SUPABASE_ANON_KEY) {
-      errors.push('REACT_APP_SUPABASE_ANON_KEY não configurada');
+    if (!import.meta.env.VITE_API_URL && import.meta.env.NODE_ENV === 'production') {
+      errors.push('VITE_API_URL não configurada em produção');
     }
 
     return {

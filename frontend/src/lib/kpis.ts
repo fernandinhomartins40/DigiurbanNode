@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { APIClient } from '@/auth/utils/httpInterceptor'
 
 // ======================================================
 // INTERFACES DOS KPIs

@@ -3,14 +3,13 @@
 // =====================================================
 
 import { toast } from 'react-hot-toast'
-import { PostgrestError } from '@supabase/supabase-js'
 import { CRUD_ERROR_CODES, CrudError, CrudErrorCode } from "@/types/crud-patterns"
 
 // =====================================================
-// MAPEAMENTO DE CÓDIGOS DE ERRO DO SUPABASE
+// MAPEAMENTO DE CÓDIGOS DE ERRO DA API JWT
 // =====================================================
 
-const SUPABASE_ERROR_MAP: Record<string, CrudErrorCode> = {
+const API_ERROR_MAP: Record<string, CrudErrorCode> = {
   // Validation Errors
   '23502': CRUD_ERROR_CODES.REQUIRED_FIELD_MISSING,
   '23514': CRUD_ERROR_CODES.VALIDATION_FAILED,

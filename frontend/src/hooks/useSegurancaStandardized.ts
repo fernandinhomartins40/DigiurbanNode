@@ -3,7 +3,7 @@
 // =====================================================
 
 import { useState, useCallback } from 'react'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { ErrorHandler } from "@/lib/error-handler"
 import { ValidationHelper } from "@/lib/validation-schemas"
 import { CacheUtils } from "@/lib/cache-system"
@@ -169,7 +169,7 @@ export function useSegurancaStandardized() {
       const cached = CacheUtils.get<OcorrenciaSegurancaPadrao>(`ocorrencia_seguranca:${id}`)
       if (cached) return { data: cached, success: true, message: 'Ocorrência encontrada' }
 
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('ocorrencias_seguranca')
         .select('*')
         .eq('id', id)
@@ -204,7 +204,7 @@ export function useSegurancaStandardized() {
 
       const offset = (page - 1) * limit
 
-      let query = supabase
+      let query = APIClient
         .from('ocorrencias_seguranca')
         .select('*', { count: 'exact' })
 
@@ -268,7 +268,7 @@ export function useSegurancaStandardized() {
       // Gerar número de BO automático
       const numeroBo = `BO${Date.now().toString().slice(-6)}`
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('ocorrencias_seguranca')
         .insert([{
           ...data,
@@ -298,7 +298,7 @@ export function useSegurancaStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('ocorrencias_seguranca')
         .update({
           ...data,
@@ -341,7 +341,7 @@ export function useSegurancaStandardized() {
 
       const offset = (page - 1) * limit
 
-      let query = supabase
+      let query = APIClient
         .from('patrulhamentos')
         .select('*', { count: 'exact' })
 
@@ -396,7 +396,7 @@ export function useSegurancaStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('patrulhamentos')
         .insert([{
           ...data,
@@ -424,7 +424,7 @@ export function useSegurancaStandardized() {
     kmPercorridos?: number
   ): Promise<EntityResponse<PatrulhamentoPadrao>> => {
     return ErrorHandler.withErrorHandling(async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('patrulhamentos')
         .update({
           status: 'concluida',
@@ -468,7 +468,7 @@ export function useSegurancaStandardized() {
 
       const offset = (page - 1) * limit
 
-      let query = supabase
+      let query = APIClient
         .from('agentes_seguranca')
         .select('*', { count: 'exact' })
 
@@ -530,7 +530,7 @@ export function useSegurancaStandardized() {
   ): Promise<EntityResponse<any>> => {
     return ErrorHandler.withErrorHandling(async () => {
       // Buscar ocorrências no período
-      const { data: ocorrencias, error: errorOcorrencias } = await supabase
+      const { data: ocorrencias, error: errorOcorrencias } = await APIClient
         .from('ocorrencias_seguranca')
         .select('*')
         .gte('data_ocorrencia', dataInicio)
@@ -539,7 +539,7 @@ export function useSegurancaStandardized() {
       if (errorOcorrencias) throw errorOcorrencias
 
       // Buscar patrulhamentos no período
-      const { data: patrulhamentos, error: errorPatrulhamentos } = await supabase
+      const { data: patrulhamentos, error: errorPatrulhamentos } = await APIClient
         .from('patrulhamentos')
         .select('*')
         .gte('data_patrulha', dataInicio)

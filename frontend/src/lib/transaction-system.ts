@@ -2,7 +2,7 @@
 // SISTEMA DE TRANSAÇÕES UNIFICADO - FASE 3
 // =====================================================
 
-import { supabase } from './supabase'
+import { APIClient } from '@/auth/utils/httpInterceptor'
 import { PostgrestError } from '@supabase/supabase-js'
 import { ErrorHandler } from './error-handler'
 import { CacheUtils } from './cache-system'

@@ -3,7 +3,7 @@
 // =====================================================
 
 import { useState, useCallback } from 'react'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { ErrorHandler } from "@/lib/error-handler"
 import { ValidationHelper } from "@/lib/validation-schemas"
 import { CacheUtils } from "@/lib/cache-system"
@@ -172,7 +172,7 @@ export function useEsportesStandardized() {
       const cached = CacheUtils.get<EquipamentoEsportivoPadrao>(`equipamento_esportivo:${id}`)
       if (cached) return { data: cached, success: true, message: 'Equipamento encontrado' }
 
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('equipamentos_esportivos')
         .select('*')
         .eq('id', id)
@@ -207,7 +207,7 @@ export function useEsportesStandardized() {
 
       const offset = (page - 1) * limit
 
-      let query = supabase
+      let query = APIClient
         .from('equipamentos_esportivos')
         .select('*', { count: 'exact' })
 
@@ -259,7 +259,7 @@ export function useEsportesStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('equipamentos_esportivos')
         .insert([{
           ...data,
@@ -288,7 +288,7 @@ export function useEsportesStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('equipamentos_esportivos')
         .update({
           ...data,
@@ -313,7 +313,7 @@ export function useEsportesStandardized() {
 
   const deleteEquipamentoEsportivo = useCallback(async (id: string): Promise<DeleteResponse> => {
     return ErrorHandler.withErrorHandling(async () => {
-      const { error } = await supabase
+      const { error } = await APIClient
         .from('equipamentos_esportivos')
         .update({
           ativo: false,
@@ -353,7 +353,7 @@ export function useEsportesStandardized() {
 
       const offset = (page - 1) * limit
 
-      let query = supabase
+      let query = APIClient
         .from('agendamentos_equipamentos')
         .select('*', { count: 'exact' })
 
@@ -408,7 +408,7 @@ export function useEsportesStandardized() {
         return { success: false, message: validation.errors.join(', ') }
       }
 
-      const { data: result, error } = await supabase
+      const { data: result, error } = await APIClient
         .from('agendamentos_equipamentos')
         .insert([{
           ...data,
@@ -435,7 +435,7 @@ export function useEsportesStandardized() {
 
   const aprovarAgendamento = useCallback(async (agendamentoId: string): Promise<EntityResponse<AgendamentoEquipamentoPadrao>> => {
     return ErrorHandler.withErrorHandling(async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('agendamentos_equipamentos')
         .update({
           status: 'aprovado',
@@ -463,7 +463,7 @@ export function useEsportesStandardized() {
     dataFim: string
   ): Promise<EntityResponse<{ disponivel: boolean; conflitos?: unknown[] }>> => {
     return ErrorHandler.withErrorHandling(async () => {
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('agendamentos_equipamentos')
         .select('*')
         .eq('equipamento_id', equipamentoId)

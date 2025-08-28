@@ -2,7 +2,7 @@
 // SISTEMA DE AUDITORIA UNIFICADO
 // =====================================================
 
-import { supabase } from './supabase';
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { LogAuditoriaPadrao, LogSistemaPadrao, BaseEntity } from "@/types/common";
 import { mascaraDadosSensiveis, gerarHashAuditoria } from './rls-security-patterns';
 
@@ -74,7 +74,7 @@ export class SistemaAuditoria {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await APIClient.get("/auth/me");
       if (!user) {
         console.warn('Tentativa de auditoria sem usuário autenticado');
         return;
@@ -149,7 +149,7 @@ export class SistemaAuditoria {
 
       const dadosParaInserir = await Promise.all(
         eventos.map(async (evento) => {
-          const { data: { user } } = await supabase.auth.getUser();
+          const { data: { user } } = await APIClient.get("/auth/me");
           
           return {
             acao: evento.acao,
@@ -238,7 +238,7 @@ export class SistemaAuditoria {
         return;
       }
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await APIClient.get("/auth/me");
 
       const dadosLog: Omit<LogSistemaPadrao, 'id' | 'created_at' | 'updated_at'> = {
         nivel: log.nivel,

@@ -12,7 +12,7 @@ import ReactCrop, {
   makeAspectCrop
 } from 'react-image-crop';
 import imageCompression from 'browser-image-compression';
-import { supabase } from "@/lib/supabase";
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { useAuth } from '@/auth';
 import { toast } from "sonner";
 import 'react-image-crop/dist/ReactCrop.css';
@@ -186,74 +186,22 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
 
       console.log('📂 Arquivo:', { fileName, filePath, size: compressedFile.size });
 
-      // Fazer upload para Supabase Storage
-      console.log('⬆️ Fazendo upload para Supabase Storage...');
-      const { data, error } = await supabase.storage
-        .from('user-uploads')
-        .upload(filePath, compressedFile, {
-          cacheControl: '3600',
-          upsert: true
-        });
+      // Fazer upload via API JWT
+      console.log('⬆️ Fazendo upload via API JWT...');
+      
+      const formData = new FormData();
+      formData.append('avatar', compressedFile, fileName);
+      
+      const response = await APIClient.post('/users/avatar', formData, {
+        'Content-Type': 'multipart/form-data'
+      });
 
-      console.log('📦 Resultado do upload:', { data, error });
-
-      if (error) {
-        console.error('❌ Erro no upload:', error);
-        console.error('❌ Detalhes do erro:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
-        
-        // Mostrar erro específico para o usuário
-        if (error.message.includes('Bucket not found')) {
-          toast.error('Bucket de storage não encontrado. Verifique a configuração.');
-        } else if (error.message.includes('policy')) {
-          toast.error('Erro de permissão. Verifique as políticas RLS do storage.');
-        } else if (error.message.includes('size')) {
-          toast.error('Arquivo muito grande. Máximo permitido: 1MB');
-        } else {
-          toast.error(`Erro no upload: ${error.message}`);
-        }
-        throw error;
+      if (!response || !response.url) {
+        throw new Error('Erro no upload: URL não retornada');
       }
 
-      // Obter URL pública
-      const { data: urlData } = supabase.storage
-        .from('user-uploads')
-        .getPublicUrl(filePath);
-
-      const publicUrl = urlData.publicUrl;
-
-      // Atualizar perfil no banco de dados
-      const { error: updateError } = await supabase
-        .from('user_profiles')
-        .update({ 
-          foto_perfil: publicUrl,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (updateError) {
-        console.error('❌ Erro ao atualizar perfil:', updateError);
-        console.error('❌ Detalhes do erro do banco:', {
-          message: updateError.message,
-          details: updateError.details,
-          hint: updateError.hint,
-          code: updateError.code
-        });
-        
-        // Mostrar erro específico para o usuário
-        if (updateError.message.includes('column') && updateError.message.includes('foto_perfil')) {
-          toast.error('Coluna foto_perfil não existe. Execute o script de migração do banco.');
-        } else if (updateError.message.includes('permission')) {
-          toast.error('Erro de permissão no banco de dados.');
-        } else {
-          toast.error(`Erro ao salvar no banco: ${updateError.message}`);
-        }
-        throw updateError;
-      }
+      const publicUrl = response.url;
+      console.log('✅ Upload realizado com sucesso:', publicUrl);
 
       console.log('✅ Foto de perfil atualizada com sucesso');
       toast.success('Foto de perfil atualizada com sucesso!');
@@ -286,16 +234,8 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
     setIsUploading(true);
     
     try {
-      // Atualizar perfil removendo foto
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ 
-          foto_perfil: null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (error) throw error;
+      // Remover foto via API JWT
+      await APIClient.delete('/users/avatar');
 
       console.log('✅ Foto de perfil removida com sucesso');
       toast.success('Foto de perfil removida com sucesso!');

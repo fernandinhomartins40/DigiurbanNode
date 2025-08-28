@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from "@/lib/supabase";
+import { APIClient } from '@/auth/utils/httpInterceptor';
 import { BaseEntity, StatusBase } from "@/types/common";
 
 export interface FaturaPadrao extends BaseEntity {

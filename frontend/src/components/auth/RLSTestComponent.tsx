@@ -16,7 +16,7 @@ import {
   Building,
   Zap
 } from 'lucide-react';
-import { supabase } from "@/lib/supabase";
+import { APIClient } from "@/auth/utils/httpInterceptor";
 
 interface TestResult {
   name: string;

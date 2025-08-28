@@ -2,7 +2,7 @@
 // SISTEMA DE NOTIFICAÇÕES EM TEMPO REAL
 // =====================================================
 
-import { supabase } from './supabase'
+import { APIClient } from '@/auth/utils/httpInterceptor'
 import { RealtimeChannel } from '@supabase/supabase-js'
 
 export interface NotificacaoRealTime {

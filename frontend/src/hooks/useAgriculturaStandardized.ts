@@ -5,7 +5,7 @@
 
 import { useState, useCallback } from 'react'
 import { toast } from 'react-hot-toast'
-import { supabase } from "@/lib/supabase"
+import { APIClient } from "@/auth/utils/httpInterceptor"
 import { 
   GetEntityListParams, 
   EntityResponse, 
@@ -170,7 +170,7 @@ export function useAgriculturaStandardized() {
     return ErrorHandler.withErrorHandling(async () => {
       setLoading(true)
 
-      let query = supabase
+      let query = APIClient
         .from('produtores_rurais')
         .select(`
           *,
@@ -208,7 +208,7 @@ export function useAgriculturaStandardized() {
     return ErrorHandler.withErrorHandling(async () => {
       setLoading(true)
 
-      let query = supabase
+      let query = APIClient
         .from('produtores_rurais')
         .select('*', { count: 'exact' })
 
@@ -304,7 +304,7 @@ export function useAgriculturaStandardized() {
     return ErrorHandler.withErrorHandling(async () => {
       setLoading(true)
 
-      const { data: produtor, error } = await supabase
+      const { data: produtor, error } = await APIClient
         .from('produtores_rurais')
         .insert([{
           ...data,
@@ -336,7 +336,7 @@ export function useAgriculturaStandardized() {
     return ErrorHandler.withErrorHandling(async () => {
       setLoading(true)
 
-      const { data: produtor, error } = await supabase
+      const { data: produtor, error } = await APIClient
         .from('produtores_rurais')
         .update({
           ...data,
@@ -366,7 +366,7 @@ export function useAgriculturaStandardized() {
     return ErrorHandler.withErrorHandling(async () => {
       setLoading(true)
 
-      const { error } = await supabase
+      const { error } = await APIClient
         .from('produtores_rurais')
         .delete()
         .eq('id', id)
@@ -391,7 +391,7 @@ export function useAgriculturaStandardized() {
     return ErrorHandler.withErrorHandling(async () => {
       setLoading(true)
 
-      const { error } = await supabase
+      const { error } = await APIClient
         .from('produtores_rurais')
         .update({
           situacao: 'inativo',
@@ -423,7 +423,7 @@ export function useAgriculturaStandardized() {
     return ErrorHandler.withErrorHandling(async () => {
       setLoading(true)
 
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('assistencias_tecnicas')
         .select(`
           *,
@@ -458,7 +458,7 @@ export function useAgriculturaStandardized() {
     return ErrorHandler.withErrorHandling(async () => {
       setLoading(true)
 
-      const { data: assistencia, error } = await supabase
+      const { data: assistencia, error } = await APIClient
         .from('assistencias_tecnicas')
         .insert([{
           ...data,
@@ -503,7 +503,7 @@ export function useAgriculturaStandardized() {
     return ErrorHandler.withErrorHandling(async () => {
       setLoading(true)
 
-      const { data, error } = await supabase
+      const { data, error } = await APIClient
         .from('assistencias_tecnicas')
         .update({
           status: 'concluida',

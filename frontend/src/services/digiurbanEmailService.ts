@@ -3,7 +3,7 @@
 // ====================================================================
 
 import nodemailer from 'nodemailer';
-import { supabase } from "@/lib/supabase";
+import { APIClient } from '@/auth/utils/httpInterceptor';
 
 // ====================================================================
 // INTERFACES E TIPOS

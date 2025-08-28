@@ -12,19 +12,38 @@ services:
     container_name: digiurban-unified
     restart: unless-stopped
     ports:
-      - "3020:80"
+      - "3020:8080" # Nginx rodando na porta não-privilegiada 8080
     environment:
       - NODE_ENV=production
       - PORT=3021
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     volumes:
       - app_data:/app/data
       - app_logs:/app/logs
+    depends_on:
+      - redis
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
+
+  redis:
+    image: redis:7-alpine
+    container_name: digiurban-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 # ================================================================
 # VOLUMES PERSISTENTES
@@ -33,4 +52,6 @@ volumes:
   app_data:
     driver: local
   app_logs:
+    driver: local
+  redis_data:
     driver: local

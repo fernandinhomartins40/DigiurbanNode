@@ -2,7 +2,7 @@
 // SISTEMA DE VERIFICAÇÃO DE INTEGRIDADE - FASE 3
 // =====================================================
 
-import { supabase } from './supabase'
+import { APIClient } from '@/auth/utils/httpInterceptor'
 import { MigrationHelper } from "@/hooks/index-standardized"
 
 // =====================================================
@@ -172,7 +172,7 @@ export class IntegrityChecker {
       
       for (const query of constraintChecks) {
         try {
-          const { data, error } = await supabase.rpc('run_sql_query', { query })
+          const { data, error } = await APIClient.post("/rpc/'run_sql_query', { query })
           if (error) throw error
           
           if (data && data[0]?.count > 0) {

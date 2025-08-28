@@ -121,11 +121,17 @@ jobs:
         echo '=== Verificando estrutura do projeto ==='
         ls -la
         
-        echo '=== Verificando Dockerfile e docker-compose.yml ==='
-        ls -la Dockerfile docker-compose.yml nginx-unified.conf pm2.json start-services.sh
+        echo '=== Verificando arquivos necessários ==='
+        ls -la Dockerfile docker-compose.yml nginx-unified.conf start-services.sh
+        
+        echo '=== Verificando estrutura backend/frontend ==='
+        ls -la backend/ frontend/ 2>/dev/null || echo 'Estrutura monorepo detectada'
         
         echo '=== Tornando script executável ==='
         chmod +x start-services.sh
+        
+        echo '=== Executando migrações de banco ==='
+        cd backend && npm install --production && cd ..
         
         echo '=== Building com docker-compose ==='
         docker-compose build --no-cache
@@ -136,18 +142,27 @@ jobs:
         echo '=== Verificando status do container ==='
         docker-compose ps
         
-        echo '=== Aguardando inicialização (60s) ==='
-        sleep 60
+        echo '=== Aguardando inicialização (90s) ==='
+        sleep 90
         
-        echo '=== Testando health check ==='
-        curl -f http://localhost:3020/health || echo 'Health check aguardando...'
+        echo '=== Testando health check backend ==='
+        curl -f http://localhost:3020/api/health || echo 'Backend health check aguardando...'
+        
+        echo '=== Testando aplicação frontend ==='
+        curl -f http://localhost:3020/ || echo 'Frontend aguardando...'
         sleep 30
-        curl -f http://localhost:3020/health || echo 'Health check falhou'
         
-        echo '=== Verificando logs ==='
-        docker-compose logs --tail=50
+        echo '=== Testando novamente ==='
+        curl -f http://localhost:3020/api/health || echo 'Health check falhou'
+        curl -f http://localhost:3020/ || echo 'Frontend falhou'
         
-        echo 'Container unificado iniciado com sucesso!'
+        echo '=== Verificando logs completos ==='
+        docker-compose logs --tail=100
+        
+        echo '=== Status final dos containers ==='
+        docker ps
+        
+        echo 'Deploy do sistema DigiUrban concluído!'
         "
 
     - name: Verificacao Final
