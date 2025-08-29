@@ -139,12 +139,12 @@ class UserManagementService {
       tenant_id: userData.tenant_id
     });
 
-    if (!authData.user?.id) {
+    if (!authData.data?.user?.id) {
       throw new Error('Usuário auth criado mas ID não retornado');
     }
 
-    console.log(`✅ [Auth] Usuário auth criado: ${authData.user.id}`);
-    return authData.user;
+    console.log(`✅ [Auth] Usuário auth criado: ${authData.data.user.id}`);
+    return authData.data.user;
   }
 
   /**
