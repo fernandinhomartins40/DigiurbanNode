@@ -76,35 +76,23 @@ export const useReports = () => {
 
   const loadKPIs = async () => {
     try {
-      // KPIs de protocolos
-      const protocolStats = await APIClient.get('/protocols/stats')
-      const totalProtocolos = protocolStats?.total || 0
-      const protocolosResolvidos = protocolStats?.completed || 0
-      const protocolosPendentes = protocolStats?.pending || 0
-
-      // Tempo médio de resolução (em dias)
-      const tempoMedioResolucao = protocolStats?.avg_resolution_days || 7
-
-      // Satisfação média (dados mock - poderia vir de uma tabela de avaliações)
-      const satisfacaoMedia = 4.2
-
-      // Eficiência mensal (percentual de protocolos resolvidos no mês)
-      const monthlyStats = await APIClient.get('/protocols/monthly-stats')
-      const eficienciaMensal = monthlyStats?.efficiency_percentage || 87
-
+      // Por enquanto, usar dados mock pois endpoints não existem
+      console.warn('Usando dados mock para KPIs - endpoints /protocols/* não implementados')
+      
+      // Dados mock para desenvolvimento
       setKpis({
-        total_protocolos: totalProtocolos || 0,
-        protocolos_resolvidos: protocolosResolvidos || 0,
-        protocolos_pendentes: protocolosPendentes || 0,
-        tempo_medio_resolucao: Math.round(tempoMedioResolucao),
-        satisfacao_media: satisfacaoMedia,
-        eficiencia_mensal: Math.round(eficienciaMensal)
+        total_protocolos: 1245,
+        protocolos_resolvidos: 1089,
+        protocolos_pendentes: 156,
+        tempo_medio_resolucao: 7,
+        satisfacao_media: 4.2,
+        eficiencia_mensal: 87
       })
 
     } catch (error) {
       console.warn('Erro ao carregar KPIs, usando dados mock:', error)
       
-      // Dados mock para desenvolvimento
+      // Fallback para dados mock
       setKpis({
         total_protocolos: 1245,
         protocolos_resolvidos: 1089,
@@ -197,23 +185,20 @@ export const useReports = () => {
 
   const generatePerformanceData = async () => {
     try {
-      // Buscar dados dos últimos 12 meses
+      // Por enquanto, usar dados mock pois endpoint /protocols/monthly-data não existe
+      console.warn('Usando dados mock para performance - endpoint /protocols/monthly-data não implementado')
+      
       const meses = []
       const now = new Date()
       
       for (let i = 11; i >= 0; i--) {
         const data = new Date(now.getFullYear(), now.getMonth() - i, 1)
-        const proximoMes = new Date(now.getFullYear(), now.getMonth() - i + 1, 1)
         
-        const monthlyData = await APIClient.get(`/protocols/monthly-data?start=${data.toISOString()}&end=${proximoMes.toISOString()}`)
-        const totalMes = monthlyData?.total || 0
-        const resolvidos = monthlyData?.completed || 0
-
         meses.push({
           mes: data.toLocaleDateString('pt-BR', { month: 'short' }),
-          total: totalMes || Math.floor(Math.random() * 100) + 50,
-          resolvidos: resolvidos || Math.floor(Math.random() * 80) + 30,
-          eficiencia: totalMes > 0 ? Math.round((resolvidos / totalMes) * 100) : Math.floor(Math.random() * 30) + 70
+          total: Math.floor(Math.random() * 100) + 50,
+          resolvidos: Math.floor(Math.random() * 80) + 30,
+          eficiencia: Math.floor(Math.random() * 30) + 70
         })
       }
       
@@ -232,26 +217,15 @@ export const useReports = () => {
 
   const generateProtocolStatusData = async () => {
     try {
-      const statusData = []
-      const statuses = [
-        { key: 'open', label: 'Abertos' },
-        { key: 'in_progress', label: 'Em Andamento' },
-        { key: 'completed', label: 'Resolvidos' },
-        { key: 'cancelled', label: 'Cancelados' }
+      // Por enquanto, usar dados mock pois endpoint /protocols/count-by-status não existe
+      console.warn('Usando dados mock para status - endpoint /protocols/count-by-status não implementado')
+      
+      return [
+        { id: 'Resolvidos', label: 'Resolvidos', value: 1089 },
+        { id: 'Em Andamento', label: 'Em Andamento', value: 89 },
+        { id: 'Abertos', label: 'Abertos', value: 67 },
+        { id: 'Cancelados', label: 'Cancelados', value: 23 }
       ]
-
-      for (const status of statuses) {
-        const statusCount = await APIClient.get(`/protocols/count-by-status/${status.key}`)
-        const count = statusCount?.count
-
-        statusData.push({
-          id: status.label,
-          label: status.label,
-          value: count || Math.floor(Math.random() * 200) + 50
-        })
-      }
-
-      return statusData
     } catch (error) {
       console.warn('Erro ao gerar dados de status, usando mock:', error)
       return [
