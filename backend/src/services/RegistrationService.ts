@@ -13,6 +13,7 @@ import { ActivityService } from './ActivityService.js';
 import { JWTUtils } from '../utils/jwt.js';
 import { transaction } from '../database/connection.js';
 import { AUTH_CONFIG, ERROR_MESSAGES, SUCCESS_MESSAGES, VALIDATION_CONFIG } from '../config/auth.js';
+import type { UserRole } from '../models/User.js';
 
 // ====================================================================
 // INTERFACES
@@ -683,16 +684,16 @@ export class RegistrationService {
   /**
    * Mapear tipo_usuario para role
    */
-  private static mapTipoUsuarioToRole(tipo_usuario?: string, tenant_id?: string): string {
+  private static mapTipoUsuarioToRole(tipo_usuario?: string, tenant_id?: string): UserRole {
     // Se tipo_usuario foi especificado, validar e usar
     if (tipo_usuario) {
-      const validRoles = ['super_admin', 'admin', 'manager', 'coordinator', 'user', 'guest'];
-      if (validRoles.includes(tipo_usuario)) {
-        return tipo_usuario;
+      const validRoles: UserRole[] = ['super_admin', 'admin', 'manager', 'coordinator', 'user', 'guest'];
+      if (validRoles.includes(tipo_usuario as UserRole)) {
+        return tipo_usuario as UserRole;
       }
       
       // Mapeamento de tipos legados ou descritivos
-      const roleMapping: Record<string, string> = {
+      const roleMapping: Record<string, UserRole> = {
         'prefeito': 'admin',
         'vice_prefeito': 'admin', 
         'administrador': 'admin',
