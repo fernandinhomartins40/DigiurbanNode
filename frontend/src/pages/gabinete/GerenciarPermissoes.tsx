@@ -118,24 +118,24 @@ const TabelaUsuarios: FC<{
       </thead>
       <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
         {usuarios.map((usuario) => (
-          <tr key={usuario.id} className={!usuario.ativo ? "bg-gray-50 dark:bg-gray-900/30" : ""}>
-            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{usuario.nome}</td>
+          <tr key={usuario.id} className={!(usuario.ativo ?? false) ? "bg-gray-50 dark:bg-gray-900/30" : ""}>
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{usuario.nome_completo}</td>
             <td className="px-6 py-4 whitespace-nowrap text-sm">{usuario.email}</td>
             <td className="px-6 py-4 whitespace-nowrap text-sm">{usuario.secretaria?.nome || 'N/A'}</td>
             <td className="px-6 py-4 whitespace-nowrap text-sm capitalize">
-              {usuario.tipo_usuario.replace('_', ' ')}
+              {usuario.tipo_usuario?.replace('_', ' ') || 'N/A'}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm">
-              <StatusUsuario ativo={usuario.ativo} />
+              <StatusUsuario ativo={usuario.ativo ?? false} />
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-right space-x-2">
               <Button variant="ghost" size="sm">Editar</Button>
               <Button 
-                variant={usuario.ativo ? "ghost" : "outline"} 
+                variant={(usuario.ativo ?? false) ? "ghost" : "outline"} 
                 size="sm"
-                onClick={() => onToggleStatus(usuario.id, !usuario.ativo)}
+                onClick={() => onToggleStatus(usuario.id, !(usuario.ativo ?? false))}
               >
-                {usuario.ativo ? "Desativar" : "Ativar"}
+                {(usuario.ativo ?? false) ? "Desativar" : "Ativar"}
               </Button>
               <Button 
                 variant="ghost" 
