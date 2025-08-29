@@ -92,7 +92,8 @@
       "Bash(timeout 10s npm start)",
       "Bash(timeout 15s npm start)",
       "Bash(/dev/null)",
-      "Bash(do)"
+      "Bash(do)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

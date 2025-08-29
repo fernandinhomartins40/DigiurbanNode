@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
 import UserManagementService, { CreateUserData } from "@/services/userManagementService";
+import { PasswordStrength } from "@/components/ui/password-strength";
+import { PasswordConfirm } from "@/components/ui/password-confirm";
 
 const UsersManagementPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,6 +40,7 @@ const UsersManagementPage: React.FC = () => {
     telefone: '',
     senha: ''
   });
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Carregar dados ao montar o componente
   useEffect(() => {
@@ -200,6 +203,26 @@ const UsersManagementPage: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
+    // Validar se as senhas coincidem
+    if (formData.senha !== confirmPassword) {
+      toast.error('As senhas não coincidem');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // Validar se a senha é forte (pelo menos 8 caracteres com os requisitos)
+    const hasUppercase = /[A-Z]/.test(formData.senha);
+    const hasLowercase = /[a-z]/.test(formData.senha);
+    const hasNumbers = /\d/.test(formData.senha);
+    const hasSpecial = /[!@#$%^&*(),.?\":{}|<>]/.test(formData.senha);
+    const isLongEnough = formData.senha.length >= 8;
+    
+    if (!isLongEnough || !hasUppercase || !hasLowercase || !hasNumbers || !hasSpecial) {
+      toast.error('A senha deve atender a todos os requisitos de segurança');
+      setIsSubmitting(false);
+      return;
+    }
+    
     const result = await UserManagementService.createUser(formData);
     
     if (result.success) {
@@ -225,6 +248,7 @@ const UsersManagementPage: React.FC = () => {
       telefone: '',
       senha: ''
     });
+    setConfirmPassword('');
   };
 
   return (
@@ -340,18 +364,24 @@ const UsersManagementPage: React.FC = () => {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="senha">Senha Temporária</Label>
-                  <Input
-                    id="senha"
-                    type="password"
-                    value={formData.senha}
-                    onChange={(e) => handleInputChange('senha', e.target.value)}
-                    placeholder="Senha inicial do usuário (mínimo 6 caracteres)"
-                    required
-                    minLength={6}
-                  />
-                </div>
+                {/* Campo de Senha com Validação Visual */}
+                <PasswordStrength
+                  value={formData.senha}
+                  onChange={(value) => handleInputChange('senha', value)}
+                  label="Senha do Usuário"
+                  placeholder="Digite uma senha forte para o usuário"
+                  required={true}
+                />
+
+                {/* Campo de Confirmação de Senha */}
+                <PasswordConfirm
+                  value={confirmPassword}
+                  passwordValue={formData.senha}
+                  onChange={setConfirmPassword}
+                  label="Confirmar Senha"
+                  placeholder="Digite a senha novamente"
+                  required={true}
+                />
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} disabled={isSubmitting}>
                     Cancelar

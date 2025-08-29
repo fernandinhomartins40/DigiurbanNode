@@ -135,8 +135,7 @@ class UserManagementService {
     const authData = await APIClient.post('/auth/register', {
       email: userData.email,
       password: userData.senha,
-      name: userData.nome_completo,
-      role: userData.tipo_usuario,
+      nome_completo: userData.nome_completo,
       tenant_id: userData.tenant_id
     });
 
