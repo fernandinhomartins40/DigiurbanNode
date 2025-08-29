@@ -23,6 +23,7 @@ export interface RegisterUserRequest {
   email: string;
   password: string;
   tenant_id?: string;
+  tipo_usuario?: string;
 }
 
 export interface RegisterUserResponse {
@@ -91,7 +92,7 @@ export class RegistrationService {
    * Registrar novo usuário (cidadão ou funcionário)
    */
   static async registerUser(request: RegisterUserRequest): Promise<RegisterUserResponse> {
-    const { nome_completo, email, password, tenant_id } = request;
+    const { nome_completo, email, password, tenant_id, tipo_usuario } = request;
 
     try {
       // 1. Validar dados de entrada
@@ -120,23 +121,26 @@ export class RegistrationService {
       // 4. Hash da senha
       const passwordHash = await bcrypt.hash(password, AUTH_CONFIG.BCRYPT_ROUNDS);
 
-      // 5. Criar dados do usuário
+      // 5. Mapear tipo_usuario para role
+      const role = this.mapTipoUsuarioToRole(tipo_usuario, tenant_id);
+
+      // 6. Criar dados do usuário
       const userData: CreateUserData = {
         tenant_id: tenant_id || undefined,
         nome_completo: nome_completo.trim(),
         email: email.toLowerCase().trim(),
         password: password, // Será hasheada no UserModel
-        role: tenant_id ? 'user' : 'guest', // Cidadão sem tenant = guest
+        role: role,
         status: 'pendente' // Requer ativação por email
       };
 
-      // 6. Criar usuário
+      // 7. Criar usuário
       const user = await UserModel.create(userData);
 
-      // 7. Gerar token de ativação
+      // 8. Gerar token de ativação
       const activationToken = JWTUtils.generateActivationToken(user.id);
 
-      // 8. Registrar atividade
+      // 9. Registrar atividade
       await ActivityService.log({
         user_id: user.id,
         tenant_id: user.tenant_id,
@@ -150,7 +154,7 @@ export class RegistrationService {
         })
       });
 
-      // 9. Enviar email de ativação (implementar integração de email depois)
+      // 10. Enviar email de ativação (implementar integração de email depois)
       // await EmailService.sendActivationEmail(user.email, activationToken);
 
       return {
@@ -674,6 +678,40 @@ export class RegistrationService {
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : ERROR_MESSAGES.INTERNAL_ERROR);
     }
+  }
+
+  /**
+   * Mapear tipo_usuario para role
+   */
+  private static mapTipoUsuarioToRole(tipo_usuario?: string, tenant_id?: string): string {
+    // Se tipo_usuario foi especificado, validar e usar
+    if (tipo_usuario) {
+      const validRoles = ['super_admin', 'admin', 'manager', 'coordinator', 'user', 'guest'];
+      if (validRoles.includes(tipo_usuario)) {
+        return tipo_usuario;
+      }
+      
+      // Mapeamento de tipos legados ou descritivos
+      const roleMapping: Record<string, string> = {
+        'prefeito': 'admin',
+        'vice_prefeito': 'admin', 
+        'administrador': 'admin',
+        'secretario': 'manager',
+        'diretor': 'manager',
+        'coordenador': 'coordinator',
+        'funcionario': 'user',
+        'atendente': 'user',
+        'cidadao': 'guest'
+      };
+      
+      const normalizedType = tipo_usuario.toLowerCase().replace(/[^a-z]/g, '_');
+      if (roleMapping[normalizedType]) {
+        return roleMapping[normalizedType];
+      }
+    }
+    
+    // Fallback para lógica original
+    return tenant_id ? 'user' : 'guest';
   }
 
   /**

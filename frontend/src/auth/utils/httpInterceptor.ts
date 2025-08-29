@@ -229,7 +229,7 @@ export class APIClient {
         }
         
         const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || `HTTP Error: ${response.status}`);
+        throw new Error(error.error || error.message || `HTTP Error: ${response.status}`);
       }
 
       return await response.json();
