@@ -1,0 +1,40 @@
+[Unit]
+Description=DigiUrban - Sistema de Gestão Municipal
+Documentation=https://github.com/digiurban/digiurban
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=digiurban
+Group=digiurban
+WorkingDirectory=/var/www/digiurban/backend
+Environment=NODE_ENV=production
+Environment=PORT=3021
+EnvironmentFile=/var/www/digiurban/.env
+ExecStart=/usr/bin/node dist/app.js
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=mixed
+KillSignal=SIGINT
+TimeoutStartSec=60
+TimeoutStopSec=10
+SyslogIdentifier=digiurban
+StandardOutput=journal
+StandardError=journal
+
+# Recursos e limites
+LimitNOFILE=65536
+LimitNPROC=32768
+
+# Segurança
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/digiurban
+ReadWritePaths=/var/log/digiurban
+ReadWritePaths=/tmp
+
+[Install]
+WantedBy=multi-user.target

@@ -15,6 +15,7 @@ import { generalRateLimit } from './middleware/rateLimiter.js';
 import { logger } from './config/logger.js';
 import { sanitizeAll } from './middleware/validation.js';
 import { BackupService } from './services/BackupService.js';
+import { EmailService } from './services/EmailService.js';
 import { runMigrations } from './database/migrationRunner.js';
 import { CORS_CONFIG, SECURITY_HEADERS, validateConfig } from './config/auth.js';
 import { metricsMiddleware } from './monitoring/metrics.js';
@@ -28,6 +29,7 @@ import { systemRoutes } from './routes/system.js';
 import permissionRoutes from './routes/permissions.js';
 import activityRoutes from './routes/activities.js';
 import registrationRoutes from './routes/registration.js';
+import passwordResetRoutes from './routes/passwordReset.js';
 import metricsRoutes from './routes/metrics.js';
 import healthRoutes from './routes/health.js';
 import adminRoutes from './routes/admin.js';
@@ -118,6 +120,9 @@ app.use('/api/auth', authRoutes);
 // Rotas de registro
 app.use('/api/registration', registrationRoutes);
 
+// Rotas de recuperação de senha
+app.use('/api/password-reset', passwordResetRoutes);
+
 // Rotas de usuários
 app.use('/api/users', userRoutes);
 
@@ -179,6 +184,15 @@ const server = app.listen(PORT, async () => {
 
     // 2. Inicializar serviços
     await BackupService.initialize();
+    
+    // 3. Inicializar serviço de e-mail
+    logger.info('📧 Inicializando serviço de e-mail...');
+    EmailService.initialize();
+    if (EmailService.isConfigured()) {
+      logger.info('✅ EmailService configurado com Resend');
+    } else {
+      logger.warn('⚠️  EmailService não configurado (RESEND_API_KEY não encontrado)');
+    }
     
     // Iniciar backup automático em produção
     if (process.env.NODE_ENV === 'production') {

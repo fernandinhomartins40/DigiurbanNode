@@ -37,4 +37,4 @@ coverage/
 
 # OS
 .DS_Store
-Thumbs.db
+Thumbs.dbbackend/data/*.db*
