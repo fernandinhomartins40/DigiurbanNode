@@ -98,7 +98,7 @@ export default function SuperAdminLogin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-violet-900 to-indigo-900 flex items-center justify-center p-4">
+    <div className="fixed inset-0 w-screen h-screen bg-gradient-to-br from-purple-900 via-violet-900 to-indigo-900 flex items-center justify-center p-4 overflow-y-auto">
       <div className="w-full max-w-md space-y-6">
         {/* Header Premium */}
         <div className="text-center space-y-2">
