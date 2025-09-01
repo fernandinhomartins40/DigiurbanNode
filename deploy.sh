@@ -11,8 +11,8 @@ set -e  # Parar em caso de erro
 
 # Configurações
 VPS_IP="72.60.10.108"
-VPS_USER="root"  # Ajustar conforme necessário
-APP_DIR="/var/www/digiurban"
+VPS_USER="root"
+APP_DIR="/root/digiurban-unified"
 DOMAIN="www.digiurban.com.br"
 
 # Cores para output
@@ -46,44 +46,42 @@ else
     exit 1
 fi
 
-# Build local
+# Build da aplicação
 log "Fazendo build da aplicação..."
-npm run install:all
-cd frontend && npm run build && cd ..
-cd backend && npm run build && cd ..
+docker build -t digiurban-app .
 
-# Criar arquivo de deploy
-log "Criando pacote de deploy..."
-tar -czf digiurban-deploy.tar.gz \
-    backend/dist \
-    backend/package*.json \
-    backend/src/database/migrations \
-    frontend/dist \
-    .env.production \
-    package.json \
-    deploy-setup.sh \
-    nginx-config.conf \
-    digiurban.service \
-    --exclude=node_modules \
-    --exclude=.git \
-    --exclude=*.log
+# Salvar imagem Docker
+log "Salvando imagem Docker..."
+docker save digiurban-app | gzip > digiurban-app.tar.gz
 
-log "Pacote de deploy criado: digiurban-deploy.tar.gz"
+# Deploy automático na VPS
+log "Copiando arquivos para VPS..."
+scp digiurban-app.tar.gz docker-compose.yml $VPS_USER@$VPS_IP:$APP_DIR/
 
-echo -e "${BLUE}📋 Deploy preparado com sucesso!${NC}"
-echo -e "${YELLOW}Próximos passos para deploy na VPS:${NC}"
-echo ""
-echo -e "${GREEN}1. Copiar arquivos para VPS:${NC}"
-echo "   scp digiurban-deploy.tar.gz $VPS_USER@$VPS_IP:/tmp/"
-echo ""
-echo -e "${GREEN}2. Conectar na VPS e extrair:${NC}"
-echo "   ssh $VPS_USER@$VPS_IP"
-echo "   cd /tmp && tar -xzf digiurban-deploy.tar.gz"
-echo ""
-echo -e "${GREEN}3. Executar setup na VPS:${NC}"
-echo "   chmod +x deploy-setup.sh && ./deploy-setup.sh"
-echo ""
-echo -e "${GREEN}4. URLs após deploy:${NC}"
-echo "   • Produção: https://$DOMAIN"
-echo "   • API: https://$DOMAIN/api"
-echo "   • Health: https://$DOMAIN/api/health"
+log "Executando deploy na VPS..."
+ssh $VPS_USER@$VPS_IP << EOF
+cd $APP_DIR
+docker load -i digiurban-app.tar.gz
+docker compose down
+docker compose up -d
+docker system prune -f
+rm digiurban-app.tar.gz
+EOF
+
+# Verificar se está rodando
+log "Verificando status da aplicação..."
+sleep 10
+if curl -s https://$DOMAIN/health > /dev/null; then
+    log "✅ Deploy realizado com sucesso!"
+    echo -e "${GREEN}URLs disponíveis:${NC}"
+    echo "   • Produção: https://$DOMAIN"
+    echo "   • API: https://$DOMAIN/api"
+    echo "   • Health: https://$DOMAIN/health"
+else
+    error "Aplicação não está respondendo em https://$DOMAIN"
+    exit 1
+fi
+
+# Limpar arquivos locais
+log "Limpando arquivos temporários..."
+rm -f digiurban-app.tar.gz
