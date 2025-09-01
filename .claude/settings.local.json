@@ -95,7 +95,8 @@
       "Bash(do)",
       "Bash(taskkill:*)",
       "Bash(timeout 10s npm run dev)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "WebFetch(domain:www.digiurban.com.br)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

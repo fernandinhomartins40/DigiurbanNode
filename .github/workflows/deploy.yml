@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  VPS_HOST: '72.60.10.112'
+  VPS_HOST: '72.60.10.108'
   VPS_USER: 'root'
   APP_DIR: '/root/digiurban-unified'
   APP_PORT: '3020'
