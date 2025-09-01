@@ -276,7 +276,7 @@ jobs:
         chmod +x start-services.sh 2>/dev/null || echo 'ℹ️  Script não encontrado'
         
         echo '🏗️ Construindo container (isso pode levar alguns minutos)...'
-        if docker-compose build --no-cache; then
+        if docker compose build --no-cache; then
           echo '✅ Container construído com sucesso'
         else
           echo '❌ Falha na construção do container'
@@ -284,7 +284,7 @@ jobs:
         fi
         
         echo '🚀 Iniciando container...'
-        if docker-compose up -d; then
+        if docker compose up -d; then
           echo '✅ Container iniciado'
         else
           echo '❌ Falha ao iniciar container'
@@ -292,7 +292,7 @@ jobs:
         fi
         
         echo '📊 Status dos containers:'
-        docker-compose ps
+        docker compose ps
         "
 
     - name: 🏥 Health Checks Inteligentes
@@ -370,10 +370,10 @@ jobs:
           sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
           cd ${{ env.APP_DIR }}
           echo '📋 Status dos containers:'
-          docker-compose ps
+          docker compose ps
           echo ''
           echo '📝 Logs recentes (últimas 50 linhas):'
-          docker-compose logs --tail=50
+          docker compose logs --tail=50
           "
           
           exit 1
@@ -427,7 +427,7 @@ jobs:
         docker ps -a
         echo ''
         echo '📝 Logs completos do sistema:'
-        cd ${{ env.APP_DIR }} 2>/dev/null && docker-compose logs --tail=100 || echo 'Não foi possível acessar logs do docker-compose'
+        cd ${{ env.APP_DIR }} 2>/dev/null && docker compose logs --tail=100 || echo 'Não foi possível acessar logs do docker compose'
         echo ''
         echo '💾 Uso de disco:'
         df -h
