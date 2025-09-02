@@ -98,8 +98,8 @@ export default function SuperAdminLogin() {
   }
 
   return (
-    <div className="fixed inset-0 w-screen h-screen bg-gradient-to-br from-purple-900 via-violet-900 to-indigo-900 flex flex-col items-center justify-center px-4 py-8 overflow-y-auto min-h-0">
-      <div className="w-full max-w-md space-y-6 my-auto">
+    <div className="fixed inset-0 w-screen h-screen bg-gradient-to-br from-purple-900 via-violet-900 to-indigo-900 flex flex-col items-center justify-start px-4 py-12 overflow-y-auto">
+      <div className="w-full max-w-md space-y-6 flex-shrink-0 mt-8 mb-16">
         {/* Header Premium */}
         <div className="text-center space-y-2">
           <div className="flex justify-center">
