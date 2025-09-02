@@ -261,8 +261,12 @@ export const StyleSystemProvider: React.FC<StyleSystemProviderProps> = ({
     );
   }
 
+  // Para páginas de login, não aplicar classes de layout que podem interferir
+  const isLoginPage = window.location.pathname.endsWith('/login') || 
+                      window.location.pathname === '/super-admin-registration';
+  
   return (
-    <div className={`${systemClasses.layout} ${className}`} data-system={currentSystem}>
+    <div className={isLoginPage ? className : `${systemClasses.layout} ${className}`} data-system={currentSystem}>
       {children}
     </div>
   );

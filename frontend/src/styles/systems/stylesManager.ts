@@ -199,7 +199,9 @@ export const detectSystemFromRoute = (pathname: string): SystemType => {
   // Página inicial ou rotas públicas
   if (pathname === '/' || 
       pathname === '/landing' ||
-      pathname.startsWith('/auth')) {
+      pathname.startsWith('/auth') ||
+      pathname.endsWith('/login') ||
+      pathname === '/super-admin-registration') {
     return 'landing';
   }
   
