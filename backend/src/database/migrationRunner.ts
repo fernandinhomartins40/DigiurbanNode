@@ -309,18 +309,34 @@ export class MigrationRunner {
       const transaction = this.db.transaction(() => {
         StructuredLogger.info(`Executando SQL da migração ${migration.id}...`);
         
-        // Dividir SQL em comandos individuais se necessário
+        // Dividir SQL em comandos individuais PRESERVANDO ORDEM
         const sqlCommands = migration.sql
           .split(';')
           .map(cmd => cmd.trim())
-          .filter(cmd => cmd.length > 0 && !cmd.startsWith('--'));
+          .filter(cmd => {
+            // Filtrar comandos vazios, mas preservar ordem
+            if (cmd.length === 0) return false;
+            // Remover comandos que são apenas comentários
+            if (cmd.startsWith('--')) return false;
+            // Remover comandos que são apenas quebras de linha/espaços
+            if (!cmd.replace(/\s/g, '')) return false;
+            return true;
+          });
 
         // Debug detalhado do parsing SQL
-        console.log(`[DEBUG] Conteúdo SQL original (primeiros 300 chars): ${migration.sql.substring(0, 300)}`);
+        console.log(`[DEBUG] Conteúdo SQL original (primeiros 500 chars): ${migration.sql.substring(0, 500)}`);
         console.log(`[DEBUG] Total de comandos após split: ${sqlCommands.length}`);
-        console.log(`[DEBUG] Primeiros 3 comandos parseados:`);
-        sqlCommands.slice(0, 3).forEach((cmd, i) => {
-          console.log(`[DEBUG] Comando ${i + 1}: ${cmd.substring(0, 100)}${cmd.length > 100 ? '...' : ''}`);
+        
+        // Debug: mostrar as primeiras linhas do arquivo como foram lidas
+        const lines = migration.sql.split('\n').slice(0, 20);
+        console.log(`[DEBUG] Primeiras 20 linhas do arquivo como lido:`);
+        lines.forEach((line, i) => {
+          console.log(`[DEBUG] Linha ${i + 1}: ${line}`);
+        });
+        
+        console.log(`[DEBUG] Primeiros 5 comandos parseados:`);
+        sqlCommands.slice(0, 5).forEach((cmd, i) => {
+          console.log(`[DEBUG] Comando ${i + 1}: ${cmd.substring(0, 150)}${cmd.length > 150 ? '...' : ''}`);
         });
 
         StructuredLogger.info(`Executando ${sqlCommands.length} comandos SQL para ${migration.id}`);
