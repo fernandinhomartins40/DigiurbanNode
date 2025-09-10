@@ -315,6 +315,14 @@ export class MigrationRunner {
           .map(cmd => cmd.trim())
           .filter(cmd => cmd.length > 0 && !cmd.startsWith('--'));
 
+        // Debug detalhado do parsing SQL
+        console.log(`[DEBUG] Conteúdo SQL original (primeiros 300 chars): ${migration.sql.substring(0, 300)}`);
+        console.log(`[DEBUG] Total de comandos após split: ${sqlCommands.length}`);
+        console.log(`[DEBUG] Primeiros 3 comandos parseados:`);
+        sqlCommands.slice(0, 3).forEach((cmd, i) => {
+          console.log(`[DEBUG] Comando ${i + 1}: ${cmd.substring(0, 100)}${cmd.length > 100 ? '...' : ''}`);
+        });
+
         StructuredLogger.info(`Executando ${sqlCommands.length} comandos SQL para ${migration.id}`);
 
         // Executar cada comando separadamente para melhor debug
