@@ -14,7 +14,16 @@ import { StructuredLogger } from '../monitoring/structuredLogger.js';
 // CONFIGURAÇÕES DO BANCO OTIMIZADAS
 // ====================================================================
 
-const DB_PATH = process.env.DATABASE_URL || process.env.DB_PATH || path.join(process.cwd(), 'data', 'digiurban.db');
+// Padronizar caminho único para produção e desenvolvimento
+const DB_PATH = (() => {
+  // Em produção (container Docker), usar sempre /app/data/
+  if (process.env.NODE_ENV === 'production' || process.env.DOCKER_ENV === 'true') {
+    return '/app/data/digiurban.db';
+  }
+  
+  // Para desenvolvimento local, manter estrutura atual
+  return process.env.DATABASE_URL || process.env.DB_PATH || path.join(process.cwd(), 'data', 'digiurban.db');
+})();
 const DB_DIR = path.dirname(DB_PATH);
 
 // Garantir que o diretório existe

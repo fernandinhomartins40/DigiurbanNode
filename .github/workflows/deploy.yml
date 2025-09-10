@@ -316,37 +316,69 @@ jobs:
         fi
         
         echo ''
+        echo '🧹 Limpando banco anterior se necessário...'
+        docker exec ${{ env.CONTAINER_NAME }} sh -c \"
+          if [ -f '/app/data/digiurban.db' ]; then
+            echo 'Removendo banco anterior...'
+            rm -f /app/data/digiurban.db*
+            echo '✅ Banco anterior removido'
+          else
+            echo 'ℹ️ Nenhum banco anterior encontrado'
+          fi
+        \"
+        
+        echo ''
         echo '🚀 Executando migrations no container...'
         
         # Aguardar container estar totalmente iniciado
         sleep 10
         
-        # Executar migrations via container
-        if docker exec ${{ env.CONTAINER_NAME }} node /app/backend/dist/database/migrate.js; then
+        # Executar migrations via container com NODE_ENV=production
+        if docker exec -e NODE_ENV=production ${{ env.CONTAINER_NAME }} node /app/backend/dist/database/migrate.js; then
           echo '✅ Migrations executadas com sucesso'
           
-          # Verificar versão atual do schema
           echo ''
-          echo '📋 Verificando versão do schema...'
-          docker exec ${{ env.CONTAINER_NAME }} node -e \"
-            import('./dist/database/connection.js').then(async ({ getDatabase }) => {
-              try {
-                const db = getDatabase();
-                const version = db.prepare('SELECT value FROM system_config WHERE key = ?').get('schema_version');
-                console.log('🏷️ Versão atual do schema:', version ? version.value : 'Não definida');
-                
-                // Listar migrations aplicadas
-                const migrations = db.prepare('SELECT id, filename, applied_at FROM schema_migrations ORDER BY sequence_number').all();
-                console.log('📝 Migrations aplicadas:', migrations.length);
-                migrations.forEach(m => {
-                  const date = new Date(m.applied_at).toISOString();
-                  console.log(\\\`  • \\\${m.id}: \\\${m.filename} (aplicada em \\\${date})\\\`);
-                });
-              } catch (error) {
-                console.error('❌ Erro ao verificar status:', error.message);
-              }
-            });
-          \" /dev/null 2>&1 || echo '⚠️ Não foi possível verificar status do schema'
+          echo '🎯 Criando super admin inicial...'
+          docker exec -e NODE_ENV=production -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=SuperAdmin2024 -e INITIAL_ADMIN_NAME='Super Administrador' ${{ env.CONTAINER_NAME }} node /app/backend/dist/database/seeds/001_initial_admin.js || echo '⚠️ Super admin pode já existir'
+          
+          # Verificar integridade do banco
+          echo ''
+          echo '🔍 Verificando integridade do banco...'
+          docker exec ${{ env.CONTAINER_NAME }} sh -c \"
+            cd /app/backend && node -e \\\"
+              import('./dist/database/connection.js').then(async ({ getDatabase }) => {
+                try {
+                  const db = getDatabase();
+                  
+                  // Verificar tabelas criadas
+                  const tables = db.prepare('SELECT name FROM sqlite_master WHERE type=\\\\\\\\\\\\\\\"table\\\\\\\\\\\\\\\" ORDER BY name').all();
+                  console.log('📋 Tabelas criadas:', tables.length);
+                  tables.forEach(t => console.log('  •', t.name));
+                  
+                  // Verificar migrations aplicadas
+                  const migrations = db.prepare('SELECT id, filename FROM schema_migrations ORDER BY sequence_number').all();
+                  console.log('📝 Migrations aplicadas:', migrations.length);
+                  migrations.forEach(m => console.log('  •', m.id, '-', m.filename));
+                  
+                  // Verificar usuário admin
+                  const admin = db.prepare('SELECT email, role, status FROM users WHERE role = \\\\\\\\\\\\\\\"super_admin\\\\\\\\\\\\\\\"').get();
+                  console.log('👤 Super admin:', admin ? admin.email : 'NÃO ENCONTRADO');
+                  
+                } catch (error) {
+                  console.error('❌ Erro na verificação:', error.message);
+                }
+              });
+            \\\"
+          \" || echo '⚠️ Não foi possível verificar integridade completa'
+          
+          echo ''
+          echo '🧪 Testando login do super admin...'
+          sleep 5
+          if curl -f -X POST http://localhost:3020/api/auth/login -H 'Content-Type: application/json' -d '{\\\"email\\\":\\\"admin@digiurban.com.br\\\",\\\"password\\\":\\\"SuperAdmin2024\\\"}' --max-time 10 | grep -q '\\\"success\\\":true'; then
+            echo '✅ Login do super admin funcionando!'
+          else
+            echo '⚠️ Login do super admin não testado com sucesso'
+          fi
           
         else
           echo '❌ Falha ao executar migrations'

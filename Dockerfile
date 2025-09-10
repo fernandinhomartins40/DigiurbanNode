@@ -54,8 +54,8 @@ WORKDIR /app
 # Copiar backend compilado com permissões corretas
 COPY --from=backend-build --chown=digiurban:digiurban /app/backend/dist ./backend/dist
 
-# Copiar arquivos de migração SQL (necessários em runtime)
-COPY --from=backend-build --chown=digiurban:digiurban /app/backend/src/database/migrations ./backend/dist/database/migrations
+# Copiar migrations da pasta raiz (nova estrutura organizada)
+COPY --chown=digiurban:digiurban migrations ./migrations
 
 # Copiar frontend compilado com permissões corretas
 COPY --from=frontend-build --chown=digiurban:digiurban /app/frontend/dist ./frontend
@@ -66,6 +66,10 @@ COPY --chown=digiurban:digiurban nginx-unified.conf /etc/nginx/conf.d/default.co
 COPY --chown=digiurban:digiurban pm2.json ./
 COPY --chown=digiurban:digiurban start-services.sh ./
 RUN chmod +x start-services.sh
+
+# Configurar variáveis de ambiente para produção
+ENV NODE_ENV=production
+ENV DOCKER_ENV=true
 
 # Trocar para usuário não-root
 USER digiurban

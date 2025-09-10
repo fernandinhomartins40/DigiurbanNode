@@ -50,11 +50,26 @@ export class MigrationRunner {
   private db: any;
 
   constructor() {
-    // Caminho para pasta de migrations na raiz do projeto
+    // Caminho para pasta de migrations - padronizado para produção e desenvolvimento
     const currentFile = fileURLToPath(import.meta.url);
-    const projectRoot = path.resolve(path.dirname(currentFile), '../../../'); // backend/dist/database -> backend -> root
-    this.migrationsPath = path.join(projectRoot, 'migrations');
+    
+    if (process.env.NODE_ENV === 'production' || process.env.DOCKER_ENV === 'true') {
+      // Em produção (container Docker), usar caminho absoluto
+      this.migrationsPath = '/app/migrations';
+    } else {
+      // Para desenvolvimento local, resolver a partir do arquivo atual
+      const projectRoot = path.resolve(path.dirname(currentFile), '../../../'); // backend/dist/database -> backend -> root
+      this.migrationsPath = path.join(projectRoot, 'migrations');
+    }
+    
     this.db = getDatabase();
+    
+    StructuredLogger.info('Migration Runner inicializado', {
+      metadata: {
+        migrationsPath: this.migrationsPath,
+        environment: process.env.NODE_ENV || 'development'
+      }
+    });
   }
 
   /**
@@ -276,10 +291,47 @@ export class MigrationRunner {
         };
       }
 
+      StructuredLogger.info(`Iniciando execução da migração ${migration.id}`, {
+        metadata: {
+          sql_length: migration.sql.length,
+          checksum: migration.checksum,
+          filename: migration.filename
+        }
+      });
+
+      // Log do conteúdo SQL (apenas primeiras linhas para debug)
+      const sqlPreview = migration.sql.split('\n').slice(0, 3).join('\n');
+      StructuredLogger.debug(`SQL Preview para ${migration.id}`, {
+        metadata: { sql_preview: sqlPreview }
+      });
+
       // Executar em transação
       const transaction = this.db.transaction(() => {
-        // Executar comandos SQL da migração
-        this.db.exec(migration.sql);
+        StructuredLogger.info(`Executando SQL da migração ${migration.id}...`);
+        
+        // Dividir SQL em comandos individuais se necessário
+        const sqlCommands = migration.sql
+          .split(';')
+          .map(cmd => cmd.trim())
+          .filter(cmd => cmd.length > 0 && !cmd.startsWith('--'));
+
+        StructuredLogger.info(`Executando ${sqlCommands.length} comandos SQL para ${migration.id}`);
+
+        // Executar cada comando separadamente para melhor debug
+        for (let i = 0; i < sqlCommands.length; i++) {
+          const command = sqlCommands[i];
+          if (command.trim()) {
+            try {
+              this.db.exec(command);
+              StructuredLogger.debug(`Comando ${i + 1}/${sqlCommands.length} executado com sucesso`);
+            } catch (cmdError: any) {
+              StructuredLogger.error(`Erro no comando ${i + 1}: ${command.substring(0, 100)}...`, cmdError);
+              throw cmdError;
+            }
+          }
+        }
+
+        StructuredLogger.info(`Todos os comandos SQL da migração ${migration.id} executados com sucesso`);
 
         // Registrar migração aplicada
         const stmt = this.db.prepare(`
@@ -299,9 +351,23 @@ export class MigrationRunner {
           duration,
           migration.sequence
         );
+
+        StructuredLogger.info(`Migração ${migration.id} registrada na tabela schema_migrations`);
       });
       
       transaction();
+
+      // Verificar se tabelas foram criadas (apenas para A01)
+      if (migration.id === 'A01') {
+        try {
+          const tables = this.db.prepare('SELECT name FROM sqlite_master WHERE type="table"').all();
+          StructuredLogger.info(`Verificação pós-migração A01: ${tables.length} tabelas encontradas`, {
+            metadata: { tables: tables.map((t: any) => t.name) }
+          });
+        } catch (verifyError) {
+          StructuredLogger.warn('Não foi possível verificar tabelas criadas', verifyError);
+        }
+      }
 
       const duration = Math.round(performance.now() - startTime);
 
@@ -326,7 +392,8 @@ export class MigrationRunner {
         error: error.message,
         metadata: {
           duration: `${duration}ms`,
-          arquivo: migration.filename
+          arquivo: migration.filename,
+          stack: error.stack
         }
       });
 
