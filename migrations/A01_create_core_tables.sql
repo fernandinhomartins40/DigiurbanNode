@@ -161,26 +161,26 @@ CREATE INDEX IF NOT EXISTS idx_activity_action ON activity_logs(action);
 -- TRIGGERS SIMPLES (SEM COMPARAÇÕES COMPLEXAS)
 -- ====================================================================
 
--- Trigger simples para atualizar updated_at em tenants
+-- Trigger simples para atualizar updated_at em tenants (usando timestamp determinístico)
 CREATE TRIGGER IF NOT EXISTS update_tenants_timestamp
     AFTER UPDATE ON tenants
     FOR EACH ROW
 BEGIN
-    UPDATE tenants SET updated_at = datetime('now') WHERE id = NEW.id;
+    UPDATE tenants SET updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now') WHERE id = NEW.id;
 END;
 
--- Trigger simples para atualizar updated_at em users  
+-- Trigger simples para atualizar updated_at em users (usando timestamp determinístico)
 CREATE TRIGGER IF NOT EXISTS update_users_timestamp
     AFTER UPDATE ON users
     FOR EACH ROW
 BEGIN
-    UPDATE users SET updated_at = datetime('now') WHERE id = NEW.id;
+    UPDATE users SET updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now') WHERE id = NEW.id;
 END;
 
--- Trigger simples para atualizar updated_at em system_config
+-- Trigger simples para atualizar updated_at em system_config (usando timestamp determinístico)
 CREATE TRIGGER IF NOT EXISTS update_system_config_timestamp
     AFTER UPDATE ON system_config
     FOR EACH ROW
 BEGIN
-    UPDATE system_config SET updated_at = datetime('now') WHERE key = NEW.key;
+    UPDATE system_config SET updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now') WHERE key = NEW.key;
 END;

@@ -322,9 +322,19 @@ export class MigrationRunner {
           const command = sqlCommands[i];
           if (command.trim()) {
             try {
+              console.log(`[DEBUG] Executando comando ${i + 1}/${sqlCommands.length} da migração ${migration.id}:`);
+              console.log(`[DEBUG] SQL: ${command.substring(0, 200)}${command.length > 200 ? '...' : ''}`);
+              
               this.db.exec(command);
+              
+              console.log(`[DEBUG] ✅ Comando ${i + 1}/${sqlCommands.length} executado com sucesso`);
               StructuredLogger.debug(`Comando ${i + 1}/${sqlCommands.length} executado com sucesso`);
             } catch (cmdError: any) {
+              console.error(`[ERROR] ❌ Falha no comando ${i + 1}/${sqlCommands.length} da migração ${migration.id}:`);
+              console.error(`[ERROR] SQL que falhou: ${command}`);
+              console.error(`[ERROR] Erro SQLite: ${cmdError.message}`);
+              console.error(`[ERROR] Stack: ${cmdError.stack}`);
+              
               StructuredLogger.error(`Erro no comando ${i + 1}: ${command.substring(0, 100)}...`, cmdError);
               throw cmdError;
             }
@@ -426,12 +436,20 @@ export class MigrationRunner {
       StructuredLogger.info(`Versão atual: ${currentVersion}, ${migrations.length} migrações disponíveis`);
 
       for (const migration of migrations) {
+        console.log(`[INFO] 🚀 Iniciando migração ${migration.id}: ${migration.description}`);
+        
         const result = await this.executeMigration(migration);
         results.push(result);
 
         if (!result.success) {
+          console.error(`[ERROR] ❌ Migração ${migration.id} falhou!`);
+          console.error(`[ERROR] Erro: ${result.error}`);
+          console.error(`[ERROR] Arquivo: ${migration.filename}`);
+          
           StructuredLogger.error(`Migração ${migration.id} falhou, interrompendo execução`);
           break;
+        } else {
+          console.log(`[INFO] ✅ Migração ${migration.id} executada com sucesso em ${result.duration}ms`);
         }
       }
 
