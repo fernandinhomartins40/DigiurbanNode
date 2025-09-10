@@ -295,6 +295,68 @@ jobs:
         docker compose ps
         "
 
+    - name: 🗃️ Executar Database Migrations
+      run: |
+        echo "🗃️ Executando migrations do banco de dados..."
+        echo "============================================="
+        
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+        cd ${{ env.APP_DIR }}
+        
+        echo '🔍 Verificando estrutura de migrations...'
+        if [ -d 'migrations' ]; then
+          echo '✅ Pasta migrations encontrada'
+          ls -la migrations/
+          echo ''
+          echo '📊 Migrations disponíveis:'
+          ls migrations/A*.sql 2>/dev/null | wc -l | xargs -I {} echo '{} migrations encontradas'
+        else
+          echo '❌ Pasta migrations não encontrada'
+          exit 1
+        fi
+        
+        echo ''
+        echo '🚀 Executando migrations no container...'
+        
+        # Aguardar container estar totalmente iniciado
+        sleep 10
+        
+        # Executar migrations via container
+        if docker exec ${{ env.CONTAINER_NAME }} node /app/backend/dist/database/migrate.js; then
+          echo '✅ Migrations executadas com sucesso'
+          
+          # Verificar versão atual do schema
+          echo ''
+          echo '📋 Verificando versão do schema...'
+          docker exec ${{ env.CONTAINER_NAME }} node -e \"
+            import('./dist/database/connection.js').then(async ({ getDatabase }) => {
+              try {
+                const db = getDatabase();
+                const version = db.prepare('SELECT value FROM system_config WHERE key = ?').get('schema_version');
+                console.log('🏷️ Versão atual do schema:', version ? version.value : 'Não definida');
+                
+                // Listar migrations aplicadas
+                const migrations = db.prepare('SELECT id, filename, applied_at FROM schema_migrations ORDER BY sequence_number').all();
+                console.log('📝 Migrations aplicadas:', migrations.length);
+                migrations.forEach(m => {
+                  const date = new Date(m.applied_at).toISOString();
+                  console.log(\\\`  • \\\${m.id}: \\\${m.filename} (aplicada em \\\${date})\\\`);
+                });
+              } catch (error) {
+                console.error('❌ Erro ao verificar status:', error.message);
+              }
+            });
+          \" /dev/null 2>&1 || echo '⚠️ Não foi possível verificar status do schema'
+          
+        else
+          echo '❌ Falha ao executar migrations'
+          echo ''
+          echo '🔍 Verificando logs do container...'
+          docker logs ${{ env.CONTAINER_NAME }} --tail 50
+          exit 1
+        fi
+        "
+
     - name: 🏥 Health Checks Inteligentes
       run: |
         echo "🏥 Executando health checks inteligentes..."
