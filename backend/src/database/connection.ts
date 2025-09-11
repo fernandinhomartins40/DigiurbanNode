@@ -1,84 +1,79 @@
 // ====================================================================
-// 📦 CONEXÃO BETTER-SQLITE3 OTIMIZADA - DIGIURBAN SYSTEM
+// 📦 CONEXÃO KNEX.JS OTIMIZADA - DIGIURBAN SYSTEM
 // ====================================================================
-// Configuração otimizada do banco SQLite3 com WAL mode, cache otimizado
+// Configuração otimizada do banco SQLite3 com Knex.js Query Builder
 // Performance, segurança e confiabilidade garantidas
 // ====================================================================
 
-import Database from 'better-sqlite3';
+import knex, { Knex } from 'knex';
 import path from 'path';
 import fs from 'fs';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
+
+// Importar configuração do Knex
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const knexConfig = require('../../knexfile.cjs');
 
 // ====================================================================
 // CONFIGURAÇÕES DO BANCO OTIMIZADAS
 // ====================================================================
 
-// Padronizar caminho único para produção e desenvolvimento
-const DB_PATH = (() => {
-  // Em produção (container Docker), usar sempre /app/data/
-  if (process.env.NODE_ENV === 'production' || process.env.DOCKER_ENV === 'true') {
-    return '/app/data/digiurban.db';
-  }
-  
-  // Para desenvolvimento local, manter estrutura atual
-  return process.env.DATABASE_URL || process.env.DB_PATH || path.join(process.cwd(), 'data', 'digiurban.db');
-})();
-const DB_DIR = path.dirname(DB_PATH);
+const environment = process.env.NODE_ENV || 'development';
+const config = knexConfig[environment];
 
-// Garantir que o diretório existe
-if (!fs.existsSync(DB_DIR)) {
-  fs.mkdirSync(DB_DIR, { recursive: true });
+// Garantir que o diretório do banco existe
+const dbPath = typeof config.connection === 'string' 
+  ? config.connection 
+  : config.connection.filename;
+
+if (dbPath && dbPath !== ':memory:') {
+  const dbDir = path.dirname(dbPath);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
 }
 
 // ====================================================================
 // INSTÂNCIA DO BANCO
 // ====================================================================
 
-let db: Database.Database;
+let db: Knex;
 
-export const initializeDatabase = (): Database.Database => {
+export const initializeDatabase = (): Knex => {
   if (db) {
     return db;
   }
 
   try {
-    console.log('🔄 Inicializando banco SQLite3...');
-    console.log('📍 Caminho do banco:', DB_PATH);
+    console.log('🔄 Inicializando banco SQLite3 com Knex.js...');
+    console.log('📍 Ambiente:', environment);
+    console.log('📍 Caminho do banco:', dbPath);
 
-    db = new Database(DB_PATH);
-
-    // Configurações de performance e segurança otimizadas
-    db.exec('PRAGMA journal_mode = WAL'); // Write-Ahead Logging para melhor concorrência
-    db.exec('PRAGMA synchronous = NORMAL'); // Balance entre performance e segurança
-    db.exec('PRAGMA cache_size = 10000'); // Cache otimizado
-    db.exec('PRAGMA temp_store = MEMORY'); // Tabelas temporárias em memória
-    db.exec('PRAGMA foreign_keys = ON'); // Habilitar foreign keys
-    db.exec('PRAGMA busy_timeout = 30000'); // Timeout para locks
-    db.exec('PRAGMA mmap_size = 268435456'); // Memory-mapped I/O - 256MB
-    db.exec('PRAGMA optimize'); // Otimizações automáticas
+    db = knex(config);
 
     // Log de inicialização estruturado
-    StructuredLogger.info('SQLite database initialized', {
+    StructuredLogger.info('Knex.js database initialized', {
       action: 'database_init',
       resource: 'database',
       metadata: {
-        path: DB_PATH,
-        cache_size: 10000,
-        mmap_size: 268435456,
-        mode: 'WAL'
+        environment,
+        path: dbPath,
+        client: config.client,
+        poolMin: config.pool?.min,
+        poolMax: config.pool?.max
       }
     });
 
-    console.log('✅ Banco SQLite3 inicializado com sucesso');
+    console.log('✅ Banco SQLite3 com Knex.js inicializado com sucesso');
     return db;
 
   } catch (error) {
-    StructuredLogger.error('Database initialization failed', error, {
+    StructuredLogger.error('Knex.js database initialization failed', error, {
       action: 'database_init',
       resource: 'database',
       errorType: 'connection_error',
-      metadata: { path: DB_PATH }
+      metadata: { path: dbPath, environment }
     });
     throw new Error(`Falha na inicialização do banco: ${error instanceof Error ? error.message : String(error)}`);
   }
@@ -88,17 +83,17 @@ export const initializeDatabase = (): Database.Database => {
 // FUNÇÕES DE CONEXÃO
 // ====================================================================
 
-export const getDatabase = (): Database.Database => {
+export const getDatabase = (): Knex => {
   if (!db) {
     return initializeDatabase();
   }
   return db;
 };
 
-export const closeDatabase = (): void => {
+export const closeDatabase = async (): Promise<void> => {
   if (db) {
     try {
-      db.close();
+      await db.destroy();
       console.log('✅ Conexão com banco fechada');
     } catch (error) {
       console.error('❌ Erro ao fechar banco:', error);
@@ -107,33 +102,34 @@ export const closeDatabase = (): void => {
 };
 
 // ====================================================================
-// FUNÇÕES DE QUERY SEGURAS
+// FUNÇÕES DE QUERY COMPATÍVEIS (Para backwards compatibility)
 // ====================================================================
 
-export const query = (sql: string, params: any[] = []): any[] => {
+export const query = async (sql: string, params: any[] = []): Promise<any[]> => {
   try {
     const database = getDatabase();
-    return database.prepare(sql).all(...params);
+    return await database.raw(sql, params);
   } catch (error) {
     console.error('❌ Erro na query:', sql, params, error);
     throw error;
   }
 };
 
-export const queryOne = (sql: string, params: any[] = []): any => {
+export const queryOne = async (sql: string, params: any[] = []): Promise<any> => {
   try {
     const database = getDatabase();
-    return database.prepare(sql).get(...params);
+    const result = await database.raw(sql, params);
+    return result[0] || null;
   } catch (error) {
     console.error('❌ Erro na query (single):', sql, params, error);
     throw error;
   }
 };
 
-export const execute = (sql: string, params: any[] = []): Database.RunResult => {
+export const execute = async (sql: string, params: any[] = []): Promise<any> => {
   try {
     const database = getDatabase();
-    return database.prepare(sql).run(...params);
+    return await database.raw(sql, params);
   } catch (error) {
     console.error('❌ Erro na execução:', sql, params, error);
     throw error;
@@ -144,19 +140,18 @@ export const execute = (sql: string, params: any[] = []): Database.RunResult => 
 // UTILITÁRIOS DE TRANSAÇÃO
 // ====================================================================
 
-export const transaction = <T>(fn: (db: Database.Database) => T): T => {
+export const transaction = async <T>(fn: (trx: Knex.Transaction) => Promise<T>): Promise<T> => {
   const database = getDatabase();
-  const transactionFn = database.transaction(fn);
-  return transactionFn(database);
+  return await database.transaction(fn);
 };
 
 // ====================================================================
 // HEALTH CHECK
 // ====================================================================
 
-export const healthCheck = (): boolean => {
+export const healthCheck = async (): Promise<boolean> => {
   try {
-    const result = queryOne('SELECT 1 as health');
+    const result = await queryOne('SELECT 1 as health');
     return result && result.health === 1;
   } catch (error) {
     console.error('❌ Health check falhou:', error);
@@ -165,10 +160,10 @@ export const healthCheck = (): boolean => {
 };
 
 // ====================================================================
-// BACKUP UTILITIES
+// BACKUP UTILITIES (Adaptado para Knex.js)
 // ====================================================================
 
-export const createBackup = (backupPath: string): void => {
+export const createBackup = async (backupPath: string): Promise<void> => {
   try {
     const database = getDatabase();
     
@@ -178,17 +173,59 @@ export const createBackup = (backupPath: string): void => {
       fs.mkdirSync(backupDir, { recursive: true });
     }
     
-    // Better-sqlite3 suporta backup nativo
-    const backup = database.backup(backupPath);
-    backup.then(() => {
+    // Para SQLite, podemos fazer um backup copiando o arquivo
+    // Em produção, isso seria mais sofisticado
+    if (dbPath && dbPath !== ':memory:') {
+      fs.copyFileSync(dbPath, backupPath);
       console.log('✅ Backup criado:', backupPath);
-    }).catch((error) => {
-      console.error('❌ Erro ao criar backup:', error);
-      throw error;
-    });
+    } else {
+      console.warn('⚠️ Backup não suportado para banco em memória');
+    }
 
   } catch (error) {
     console.error('❌ Erro ao criar backup:', error);
+    throw error;
+  }
+};
+
+// ====================================================================
+// MIGRATION HELPERS
+// ====================================================================
+
+export const runKnexMigrations = async (): Promise<void> => {
+  try {
+    const database = getDatabase();
+    const [batchNo, log] = await database.migrate.latest();
+    
+    if (log.length === 0) {
+      console.log('✅ Nenhuma migration pendente');
+    } else {
+      console.log(`✅ Executadas ${log.length} migrations no batch ${batchNo}`);
+      log.forEach((migration) => {
+        console.log(`  - ${migration}`);
+      });
+    }
+  } catch (error) {
+    console.error('❌ Erro ao executar migrations:', error);
+    throw error;
+  }
+};
+
+export const rollbackKnexMigrations = async (): Promise<void> => {
+  try {
+    const database = getDatabase();
+    const [batchNo, log] = await database.migrate.rollback();
+    
+    if (log.length === 0) {
+      console.log('✅ Nenhuma migration para rollback');
+    } else {
+      console.log(`✅ Rollback de ${log.length} migrations do batch ${batchNo}`);
+      log.forEach((migration) => {
+        console.log(`  - ${migration}`);
+      });
+    }
+  } catch (error) {
+    console.error('❌ Erro ao fazer rollback:', error);
     throw error;
   }
 };
@@ -199,18 +236,25 @@ export const createBackup = (backupPath: string): void => {
 
 // Processos de cleanup na finalização do processo
 process.on('exit', () => {
-  closeDatabase();
+  if (db) {
+    // Knex.js cleanup is async, but exit event cannot wait
+    console.log('🔄 Processo finalizando...');
+  }
 });
 
 process.on('SIGINT', async () => {
-  closeDatabase();
+  await closeDatabase();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  closeDatabase();
+  await closeDatabase();
   process.exit(0);
 });
+
+// ====================================================================
+// EXPORTS PRINCIPAIS
+// ====================================================================
 
 export default {
   initializeDatabase,
@@ -221,5 +265,10 @@ export default {
   queryOne,
   execute,
   healthCheck,
-  createBackup
+  createBackup,
+  runKnexMigrations,
+  rollbackKnexMigrations
 };
+
+// Export da instância Knex para uso direto
+export { db as knex };

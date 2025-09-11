@@ -3,9 +3,10 @@
 // ====================================================================
 // Modelo de tenant (prefeituras/organizações)
 // Gerenciamento multi-tenant com isolamento de dados
+// Migrado para Knex.js Query Builder
 // ====================================================================
 
-import { query, queryOne, execute } from '../database/connection.js';
+import { getDatabase } from '../database/connection.js';
 import { v4 as uuidv4 } from 'uuid';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
 
@@ -112,30 +113,23 @@ export class TenantModel {
     // Gerar código único
     const tenantCode = await this.generateUniqueCode(tenantData.nome);
     
-    const sql = `
-      INSERT INTO tenants (
-        id, tenant_code, nome, cidade, estado, cnpj, plano, status,
-        populacao, endereco, responsavel_nome, responsavel_email, responsavel_telefone
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    const db = getDatabase();
     
-    const params = [
+    await db('tenants').insert({
       id,
-      tenantCode,
-      tenantData.nome,
-      tenantData.cidade,
-      tenantData.estado,
-      this.cleanCNPJ(tenantData.cnpj),
-      tenantData.plano || 'basico',
-      tenantData.status || 'ativo',
-      tenantData.populacao || null,
-      tenantData.endereco || null,
-      tenantData.responsavel_nome || null,
-      tenantData.responsavel_email || null,
-      tenantData.responsavel_telefone || null
-    ];
-    
-    await execute(sql, params);
+      tenant_code: tenantCode,
+      nome: tenantData.nome,
+      cidade: tenantData.cidade,
+      estado: tenantData.estado,
+      cnpj: this.cleanCNPJ(tenantData.cnpj),
+      plano: tenantData.plano || 'basico',
+      status: tenantData.status || 'ativo',
+      populacao: tenantData.populacao || null,
+      endereco: tenantData.endereco || null,
+      responsavel_nome: tenantData.responsavel_nome || null,
+      responsavel_email: tenantData.responsavel_email || null,
+      responsavel_telefone: tenantData.responsavel_telefone || null
+    });
     
     const tenant = await this.findById(id);
     if (!tenant) {
@@ -150,35 +144,40 @@ export class TenantModel {
   // ================================================================
   
   static async findById(id: string): Promise<Tenant | null> {
-    const sql = 'SELECT * FROM tenants WHERE id = ?';
-    const tenant = await queryOne(sql, [id]) as Tenant;
+    const db = getDatabase();
+    const tenant = await db('tenants')
+      .where('id', id)
+      .first() as Tenant | undefined;
     return tenant || null;
   }
   
   static async findByCode(tenantCode: string): Promise<Tenant | null> {
-    const sql = 'SELECT * FROM tenants WHERE tenant_code = ?';
-    const tenant = await queryOne(sql, [tenantCode]) as Tenant;
+    const db = getDatabase();
+    const tenant = await db('tenants')
+      .where('tenant_code', tenantCode)
+      .first() as Tenant | undefined;
     return tenant || null;
   }
   
   static async findByCNPJ(cnpj: string): Promise<Tenant | null> {
     const cleanedCNPJ = this.cleanCNPJ(cnpj);
-    const sql = 'SELECT * FROM tenants WHERE cnpj = ?';
-    const tenant = await queryOne(sql, [cleanedCNPJ]) as Tenant;
+    const db = getDatabase();
+    const tenant = await db('tenants')
+      .where('cnpj', cleanedCNPJ)
+      .first() as Tenant | undefined;
     return tenant || null;
   }
   
   static async findByCity(cidade: string, estado?: string): Promise<Tenant[]> {
-    let sql = 'SELECT * FROM tenants WHERE LOWER(cidade) = LOWER(?)';
-    const params = [cidade];
+    const db = getDatabase();
+    let query = db('tenants')
+      .whereRaw('LOWER(cidade) = LOWER(?)', [cidade]);
     
     if (estado) {
-      sql += ' AND UPPER(estado) = UPPER(?)';
-      params.push(estado);
+      query = query.whereRaw('UPPER(estado) = UPPER(?)', [estado]);
     }
     
-    sql += ' ORDER BY nome';
-    return await query(sql, params) as Tenant[];
+    return await query.orderBy('nome') as Tenant[];
   }
   
   // ================================================================
@@ -191,79 +190,40 @@ export class TenantModel {
       throw new Error('Tenant não encontrado');
     }
     
-    // Construir query dinâmica
-    const updateFields: string[] = [];
-    const params: any[] = [];
-    
-    if (updates.nome) {
-      updateFields.push('nome = ?');
-      params.push(updates.nome);
-    }
-    
-    if (updates.cidade) {
-      updateFields.push('cidade = ?');
-      params.push(updates.cidade);
-    }
-    
-    if (updates.estado) {
-      updateFields.push('estado = ?');
-      params.push(updates.estado.toUpperCase());
-    }
-    
+    // Verificar se novo CNPJ já existe
     if (updates.cnpj) {
-      // Verificar se novo CNPJ já existe
       const existingTenant = await this.findByCNPJ(updates.cnpj);
       if (existingTenant && existingTenant.id !== id) {
         throw new Error('CNPJ já está em uso');
       }
-      updateFields.push('cnpj = ?');
-      params.push(this.cleanCNPJ(updates.cnpj));
     }
     
-    if (updates.plano) {
-      updateFields.push('plano = ?');
-      params.push(updates.plano);
-    }
-    
-    if (updates.status) {
-      updateFields.push('status = ?');
-      params.push(updates.status);
-    }
-    
-    if (updates.populacao !== undefined) {
-      updateFields.push('populacao = ?');
-      params.push(updates.populacao);
-    }
-    
-    if (updates.endereco !== undefined) {
-      updateFields.push('endereco = ?');
-      params.push(updates.endereco);
-    }
-    
-    if (updates.responsavel_nome !== undefined) {
-      updateFields.push('responsavel_nome = ?');
-      params.push(updates.responsavel_nome);
-    }
-    
-    if (updates.responsavel_email !== undefined) {
-      updateFields.push('responsavel_email = ?');
-      params.push(updates.responsavel_email);
-    }
-    
-    if (updates.responsavel_telefone !== undefined) {
-      updateFields.push('responsavel_telefone = ?');
-      params.push(updates.responsavel_telefone);
-    }
-    
-    if (updateFields.length === 0) {
+    // Verificar se há atualizações
+    const hasUpdates = Object.keys(updates).length > 0;
+    if (!hasUpdates) {
       return tenant; // Nenhuma atualização
     }
     
-    updateFields.push('updated_at = CURRENT_TIMESTAMP');
-    params.push(id);
+    const db = getDatabase();
+    const updateData: any = {};
     
-    const sql = `UPDATE tenants SET ${updateFields.join(', ')} WHERE id = ?`;
-    await execute(sql, params);
+    if (updates.nome) updateData.nome = updates.nome;
+    if (updates.cidade) updateData.cidade = updates.cidade;
+    if (updates.estado) updateData.estado = updates.estado.toUpperCase();
+    if (updates.cnpj) updateData.cnpj = this.cleanCNPJ(updates.cnpj);
+    if (updates.plano) updateData.plano = updates.plano;
+    if (updates.status) updateData.status = updates.status;
+    if (updates.populacao !== undefined) updateData.populacao = updates.populacao;
+    if (updates.endereco !== undefined) updateData.endereco = updates.endereco;
+    if (updates.responsavel_nome !== undefined) updateData.responsavel_nome = updates.responsavel_nome;
+    if (updates.responsavel_email !== undefined) updateData.responsavel_email = updates.responsavel_email;
+    if (updates.responsavel_telefone !== undefined) updateData.responsavel_telefone = updates.responsavel_telefone;
+    
+    updateData.updated_at = db.fn.now();
+    
+    await db('tenants')
+      .where('id', id)
+      .update(updateData);
     
     const updatedTenant = await this.findById(id);
     if (!updatedTenant) {
@@ -278,13 +238,20 @@ export class TenantModel {
   // ================================================================
   
   static async softDelete(id: string): Promise<void> {
-    const sql = 'UPDATE tenants SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-    await execute(sql, ['suspenso', id]);
+    const db = getDatabase();
+    await db('tenants')
+      .where('id', id)
+      .update({
+        status: 'suspenso',
+        updated_at: db.fn.now()
+      });
   }
   
   static async hardDelete(id: string): Promise<void> {
-    const sql = 'DELETE FROM tenants WHERE id = ?';
-    await execute(sql, [id]);
+    const db = getDatabase();
+    await db('tenants')
+      .where('id', id)
+      .del();
   }
   
   // ================================================================
@@ -298,37 +265,32 @@ export class TenantModel {
     plano?: TenantPlano;
     estado?: string;
   } = {}): Promise<Tenant[]> {
-    let sql = 'SELECT * FROM tenants WHERE 1=1';
-    const params: any[] = [];
+    const db = getDatabase();
+    let query = db('tenants').select('*');
     
     if (options.status) {
-      sql += ' AND status = ?';
-      params.push(options.status);
+      query = query.where('status', options.status);
     }
     
     if (options.plano) {
-      sql += ' AND plano = ?';
-      params.push(options.plano);
+      query = query.where('plano', options.plano);
     }
     
     if (options.estado) {
-      sql += ' AND UPPER(estado) = UPPER(?)';
-      params.push(options.estado);
+      query = query.whereRaw('UPPER(estado) = UPPER(?)', [options.estado]);
     }
     
-    sql += ' ORDER BY nome';
+    query = query.orderBy('nome');
     
     if (options.limit) {
-      sql += ' LIMIT ?';
-      params.push(options.limit);
+      query = query.limit(options.limit);
       
       if (options.offset) {
-        sql += ' OFFSET ?';
-        params.push(options.offset);
+        query = query.offset(options.offset);
       }
     }
     
-    return await query(sql, params) as Tenant[];
+    return await query as Tenant[];
   }
   
   static async count(filters: {
@@ -336,26 +298,23 @@ export class TenantModel {
     plano?: TenantPlano;
     estado?: string;
   } = {}): Promise<number> {
-    let sql = 'SELECT COUNT(*) as count FROM tenants WHERE 1=1';
-    const params: any[] = [];
+    const db = getDatabase();
+    let query = db('tenants');
     
     if (filters.status) {
-      sql += ' AND status = ?';
-      params.push(filters.status);
+      query = query.where('status', filters.status);
     }
     
     if (filters.plano) {
-      sql += ' AND plano = ?';
-      params.push(filters.plano);
+      query = query.where('plano', filters.plano);
     }
     
     if (filters.estado) {
-      sql += ' AND UPPER(estado) = UPPER(?)';
-      params.push(filters.estado);
+      query = query.whereRaw('UPPER(estado) = UPPER(?)', [filters.estado]);
     }
     
-    const result = await queryOne(sql, params) as { count: number };
-    return result.count;
+    const result = await query.count('* as total').first() as { total: number };
+    return result.total;
   }
   
   // ================================================================
@@ -372,11 +331,10 @@ export class TenantModel {
     const total = await this.count();
     
     // Por status
-    const statusStats = await query(`
-      SELECT status, COUNT(*) as count 
-      FROM tenants 
-      GROUP BY status
-    `) as { status: TenantStatus; count: number }[];
+    const db = getDatabase();
+    const statusStats = await db('tenants')
+      .select('status', db.raw('COUNT(*) as count'))
+      .groupBy('status') as { status: TenantStatus; count: number }[];
     
     const byStatus: Record<TenantStatus, number> = {
       ativo: 0,
@@ -389,11 +347,9 @@ export class TenantModel {
     });
     
     // Por plano
-    const planoStats = await query(`
-      SELECT plano, COUNT(*) as count 
-      FROM tenants 
-      GROUP BY plano
-    `) as { plano: TenantPlano; count: number }[];
+    const planoStats = await db('tenants')
+      .select('plano', db.raw('COUNT(*) as count'))
+      .groupBy('plano') as { plano: TenantPlano; count: number }[];
     
     const byPlano: Record<TenantPlano, number> = {
       basico: 0,
@@ -406,12 +362,10 @@ export class TenantModel {
     });
     
     // Por estado
-    const estadoStats = await query(`
-      SELECT estado, COUNT(*) as count 
-      FROM tenants 
-      GROUP BY estado 
-      ORDER BY count DESC
-    `) as { estado: string; count: number }[];
+    const estadoStats = await db('tenants')
+      .select('estado', db.raw('COUNT(*) as count'))
+      .groupBy('estado')
+      .orderBy('count', 'desc') as { estado: string; count: number }[];
     
     const byEstado: Record<string, number> = {};
     estadoStats.forEach(stat => {
@@ -514,9 +468,13 @@ export class TenantModel {
   // ================================================================
   
   static async getUserCount(tenantId: string): Promise<number> {
-    const sql = 'SELECT COUNT(*) as count FROM users WHERE tenant_id = ? AND status != ?';
-    const result = await queryOne(sql, [tenantId, 'inativo']) as { count: number };
-    return result.count;
+    const db = getDatabase();
+    const result = await db('users')
+      .where('tenant_id', tenantId)
+      .where('status', '!=', 'inativo')
+      .count('* as total')
+      .first() as { total: number };
+    return result.total;
   }
   
   static async canAddUser(tenantId: string): Promise<boolean> {
@@ -579,15 +537,21 @@ export class TenantModel {
     inactive: number;
   }> {
     try {
-      const stats = await query(`
-        SELECT 
-          COUNT(*) as total,
-          SUM(CASE WHEN status = 'ativo' THEN 1 ELSE 0 END) as active,
-          SUM(CASE WHEN status != 'ativo' THEN 1 ELSE 0 END) as inactive
-        FROM tenants
-      `) as [{ total: number; active: number; inactive: number }];
+      const db = getDatabase();
+      const result = await db('tenants')
+        .select(
+          db.raw('COUNT(*) as total'),
+          db.raw('SUM(CASE WHEN status = "ativo" THEN 1 ELSE 0 END) as active'),
+          db.raw('SUM(CASE WHEN status != "ativo" THEN 1 ELSE 0 END) as inactive')
+        )
+        .first();
 
-      return stats[0] || { total: 0, active: 0, inactive: 0 };
+      const stats = result as any;
+      return {
+        total: Number(stats?.total) || 0,
+        active: Number(stats?.active) || 0,
+        inactive: Number(stats?.inactive) || 0
+      };
     } catch (error) {
       StructuredLogger.error('Erro ao obter estatísticas de tenants', error as Error);
       return { total: 0, active: 0, inactive: 0 };

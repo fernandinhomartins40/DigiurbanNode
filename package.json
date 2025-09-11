@@ -16,8 +16,9 @@
     "build:backend": "cd backend && npm run build",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
     "clean": "rm -rf node_modules frontend/node_modules backend/node_modules",
-    "db:migrate": "cd backend && npm run db:migrate",
-    "db:seed": "cd backend && npm run db:seed"
+    "db:migrate": "cd backend && npm run knex:migrate",
+    "db:seed": "cd backend && npm run knex:seed",
+    "db:status": "cd backend && npm run knex:status"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

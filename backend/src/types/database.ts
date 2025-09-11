@@ -1,20 +1,21 @@
 // ====================================================================
 // 🔧 TIPOS DE BANCO DE DADOS - DIGIURBAN SYSTEM
 // ====================================================================
-// Definições de tipos para better-sqlite3 e interfaces do sistema
+// Definições de tipos para Knex.js e interfaces do sistema
 // ====================================================================
 
-import { Database } from 'better-sqlite3';
+import { Knex } from 'knex';
 
-// Tipos base do better-sqlite3
+// Tipos base do Knex.js (compatibilidade com better-sqlite3)
 export interface DatabaseRunResult {
-  changes: number;
-  lastInsertRowid: number;
+  changes?: number;
+  lastInsertRowid?: number;
+  rowCount?: number;
 }
 
 // Compatibility shim para sqlite3 -> better-sqlite3
 export interface RunResult extends DatabaseRunResult {
-  lastID: number; // Alias para lastInsertRowid para compatibilidade
+  lastID?: number; // Alias para lastInsertRowid para compatibilidade
 }
 
 // Tipos para User
@@ -91,8 +92,11 @@ export interface ActivateAccountResponse {
 // Helper type para resultados com RunResult compatível
 export const createRunResult = (result: DatabaseRunResult): RunResult => ({
   ...result,
-  lastID: result.lastInsertRowid
+  lastID: result.lastInsertRowid || result.rowCount
 });
 
-// Database instance type
-export type DatabaseInstance = Database;
+// Database instance type (Knex)
+export type DatabaseInstance = Knex;
+
+// Knex Transaction type for typing
+export type Transaction = Knex.Transaction;

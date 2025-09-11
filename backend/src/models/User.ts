@@ -3,9 +3,10 @@
 // ====================================================================
 // Modelo de usuário com validações e métodos seguros
 // Hierarquia: guest → user → coordinator → manager → admin → super_admin
+// Migrado para Knex.js Query Builder
 // ====================================================================
 
-import { query, queryOne, execute } from '../database/connection.js';
+import { getDatabase } from '../database/connection.js';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
@@ -128,25 +129,18 @@ export class UserModel {
         throw new Error('Email já está em uso');
       }
     
-    const sql = `
-      INSERT INTO users (
-        id, tenant_id, nome_completo, email, password_hash, 
-        role, status, avatar_url
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    
-    const params = [
-      id,
-      userData.tenant_id || null,
-      userData.nome_completo,
-      userData.email.toLowerCase(),
-      hashedPassword,
-      userData.role || 'user',
-      userData.status || 'pendente',
-      userData.avatar_url || null
-    ];
-    
-      await execute(sql, params);
+      const db = getDatabase();
+      
+      await db('users').insert({
+        id,
+        tenant_id: userData.tenant_id || null,
+        nome_completo: userData.nome_completo,
+        email: userData.email.toLowerCase(),
+        password_hash: hashedPassword,
+        role: userData.role || 'user',
+        status: userData.status || 'pendente',
+        avatar_url: userData.avatar_url || null
+      });
       
       const user = await this.findById(id);
       if (!user) {
@@ -185,8 +179,10 @@ export class UserModel {
   
   static async findById(id: string): Promise<User | null> {
     try {
-      const sql = 'SELECT * FROM users WHERE id = ?';
-      const user = await queryOne(sql, [id]) as User;
+      const db = getDatabase();
+      const user = await db('users')
+        .where('id', id)
+        .first() as User | undefined;
       return user || null;
     } catch (error) {
       StructuredLogger.error('Error finding user by ID', error, {
@@ -199,8 +195,10 @@ export class UserModel {
   
   static async findByEmail(email: string): Promise<User | null> {
     try {
-      const sql = 'SELECT * FROM users WHERE email = ?';
-      const user = await queryOne(sql, [email.toLowerCase()]) as User;
+      const db = getDatabase();
+      const user = await db('users')
+        .where('email', email.toLowerCase())
+        .first() as User | undefined;
       return user || null;
     } catch (error) {
       StructuredLogger.error('Error finding user by email', error, {
@@ -213,13 +211,17 @@ export class UserModel {
   }
   
   static async findByTenant(tenantId: string): Promise<User[]> {
-    const sql = 'SELECT * FROM users WHERE tenant_id = ? ORDER BY created_at DESC';
-    return await query(sql, [tenantId]) as User[];
+    const db = getDatabase();
+    return await db('users')
+      .where('tenant_id', tenantId)
+      .orderBy('created_at', 'desc') as User[];
   }
   
   static async findByRole(role: UserRole): Promise<User[]> {
-    const sql = 'SELECT * FROM users WHERE role = ? ORDER BY created_at DESC';
-    return await query(sql, [role]) as User[];
+    const db = getDatabase();
+    return await db('users')
+      .where('role', role)
+      .orderBy('created_at', 'desc') as User[];
   }
   
   // ================================================================
@@ -227,19 +229,19 @@ export class UserModel {
   // ================================================================
   
   static async getProfile(id: string): Promise<UserProfile | null> {
-    const sql = `
-      SELECT 
-        u.*,
-        t.nome as tenant_name,
-        t.cidade as tenant_cidade,
-        t.estado as tenant_estado,
-        t.plano as tenant_plano,
-        t.status as tenant_status
-      FROM users u
-      LEFT JOIN tenants t ON u.tenant_id = t.id
-      WHERE u.id = ?
-    `;
-    const user = await queryOne(sql, [id]) as any;
+    const db = getDatabase();
+    const user = await db('users as u')
+      .leftJoin('tenants as t', 'u.tenant_id', 't.id')
+      .select(
+        'u.*',
+        't.nome as tenant_name',
+        't.cidade as tenant_cidade',
+        't.estado as tenant_estado',
+        't.plano as tenant_plano',
+        't.status as tenant_status'
+      )
+      .where('u.id', id)
+      .first() as any;
     
     if (!user) return null;
     
@@ -249,19 +251,19 @@ export class UserModel {
   }
   
   static async getProfileByEmail(email: string): Promise<UserProfile | null> {
-    const sql = `
-      SELECT 
-        u.*,
-        t.nome as tenant_name,
-        t.cidade as tenant_cidade,
-        t.estado as tenant_estado,
-        t.plano as tenant_plano,
-        t.status as tenant_status
-      FROM users u
-      LEFT JOIN tenants t ON u.tenant_id = t.id
-      WHERE u.email = ?
-    `;
-    const user = await queryOne(sql, [email.toLowerCase()]) as any;
+    const db = getDatabase();
+    const user = await db('users as u')
+      .leftJoin('tenants as t', 'u.tenant_id', 't.id')
+      .select(
+        'u.*',
+        't.nome as tenant_name',
+        't.cidade as tenant_cidade',
+        't.estado as tenant_estado',
+        't.plano as tenant_plano',
+        't.status as tenant_status'
+      )
+      .where('u.email', email.toLowerCase())
+      .first() as any;
     
     if (!user) return null;
     
@@ -280,54 +282,35 @@ export class UserModel {
       throw new Error('Usuário não encontrado');
     }
     
-    // Construir query dinâmica
-    const updateFields: string[] = [];
-    const params: any[] = [];
-    
-    if (updates.nome_completo) {
-      updateFields.push('nome_completo = ?');
-      params.push(updates.nome_completo);
-    }
-    
+    // Verificar se novo email já existe
     if (updates.email) {
-      // Verificar se novo email já existe
       const existingUser = await this.findByEmail(updates.email);
       if (existingUser && existingUser.id !== id) {
         throw new Error('Email já está em uso');
       }
-      updateFields.push('email = ?');
-      params.push(updates.email.toLowerCase());
     }
     
-    if (updates.role) {
-      updateFields.push('role = ?');
-      params.push(updates.role);
-    }
-    
-    if (updates.status) {
-      updateFields.push('status = ?');
-      params.push(updates.status);
-    }
-    
-    if (updates.avatar_url !== undefined) {
-      updateFields.push('avatar_url = ?');
-      params.push(updates.avatar_url);
-    }
-    
-    if (updates.tenant_id !== undefined) {
-      updateFields.push('tenant_id = ?');
-      params.push(updates.tenant_id);
-    }
-    
-    if (updateFields.length === 0) {
+    // Verificar se há atualizações
+    const hasUpdates = Object.keys(updates).length > 0;
+    if (!hasUpdates) {
       return user; // Nenhuma atualização
     }
     
-    updateFields.push('updated_at = CURRENT_TIMESTAMP');
-    params.push(id);
+    const db = getDatabase();
+    const updateData: any = {};
     
-    const sql = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
-    await execute(sql, params);
+    if (updates.nome_completo) updateData.nome_completo = updates.nome_completo;
+    if (updates.email) updateData.email = updates.email.toLowerCase();
+    if (updates.role) updateData.role = updates.role;
+    if (updates.status) updateData.status = updates.status;
+    if (updates.avatar_url !== undefined) updateData.avatar_url = updates.avatar_url;
+    if (updates.tenant_id !== undefined) updateData.tenant_id = updates.tenant_id;
+    
+    updateData.updated_at = db.fn.now();
+    
+    await db('users')
+      .where('id', id)
+      .update(updateData);
     
     const updatedUser = await this.findById(id);
     if (!updatedUser) {
@@ -347,13 +330,22 @@ export class UserModel {
   
   static async updatePassword(id: string, newPassword: string): Promise<void> {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
-    const sql = 'UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-    await execute(sql, [hashedPassword, id]);
+    const db = getDatabase();
+    await db('users')
+      .where('id', id)
+      .update({
+        password_hash: hashedPassword,
+        updated_at: db.fn.now()
+      });
   }
   
   static async updateLastLogin(id: string): Promise<void> {
-    const sql = 'UPDATE users SET ultimo_login = CURRENT_TIMESTAMP WHERE id = ?';
-    await execute(sql, [id]);
+    const db = getDatabase();
+    await db('users')
+      .where('id', id)
+      .update({
+        ultimo_login: db.fn.now()
+      });
   }
   
   // ================================================================
@@ -361,7 +353,8 @@ export class UserModel {
   // ================================================================
   
   static async incrementFailedAttempts(id: string): Promise<void> {
-    const sql = `
+    const db = getDatabase();
+    await db.raw(`
       UPDATE users 
       SET failed_login_attempts = failed_login_attempts + 1,
           locked_until = CASE 
@@ -369,13 +362,17 @@ export class UserModel {
             ELSE locked_until
           END
       WHERE id = ?
-    `;
-    await execute(sql, [id]);
+    `, [id]);
   }
   
   static async resetFailedAttempts(id: string): Promise<void> {
-    const sql = 'UPDATE users SET failed_login_attempts = 0, locked_until = NULL WHERE id = ?';
-    await execute(sql, [id]);
+    const db = getDatabase();
+    await db('users')
+      .where('id', id)
+      .update({
+        failed_login_attempts: 0,
+        locked_until: null
+      });
   }
   
   static async isLocked(user: User): Promise<boolean> {
@@ -390,8 +387,12 @@ export class UserModel {
   // ================================================================
   
   static async markEmailAsVerified(id: string): Promise<void> {
-    const sql = 'UPDATE users SET email_verified = TRUE WHERE id = ?';
-    await execute(sql, [id]);
+    const db = getDatabase();
+    await db('users')
+      .where('id', id)
+      .update({
+        email_verified: true
+      });
   }
   
   // ================================================================
@@ -399,13 +400,20 @@ export class UserModel {
   // ================================================================
   
   static async softDelete(id: string): Promise<void> {
-    const sql = 'UPDATE users SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-    await execute(sql, ['inativo', id]);
+    const db = getDatabase();
+    await db('users')
+      .where('id', id)
+      .update({
+        status: 'inativo',
+        updated_at: db.fn.now()
+      });
   }
   
   static async hardDelete(id: string): Promise<void> {
-    const sql = 'DELETE FROM users WHERE id = ?';
-    await execute(sql, [id]);
+    const db = getDatabase();
+    await db('users')
+      .where('id', id)
+      .del();
   }
   
   // ================================================================
@@ -419,37 +427,32 @@ export class UserModel {
     status?: UserStatus;
     tenant_id?: string;
   } = {}): Promise<User[]> {
-    let sql = 'SELECT * FROM users WHERE 1=1';
-    const params: any[] = [];
+    const db = getDatabase();
+    let query = db('users').select('*');
     
     if (options.role) {
-      sql += ' AND role = ?';
-      params.push(options.role);
+      query = query.where('role', options.role);
     }
     
     if (options.status) {
-      sql += ' AND status = ?';
-      params.push(options.status);
+      query = query.where('status', options.status);
     }
     
     if (options.tenant_id) {
-      sql += ' AND tenant_id = ?';
-      params.push(options.tenant_id);
+      query = query.where('tenant_id', options.tenant_id);
     }
     
-    sql += ' ORDER BY created_at DESC';
+    query = query.orderBy('created_at', 'desc');
     
     if (options.limit) {
-      sql += ' LIMIT ?';
-      params.push(options.limit);
+      query = query.limit(options.limit);
       
       if (options.offset) {
-        sql += ' OFFSET ?';
-        params.push(options.offset);
+        query = query.offset(options.offset);
       }
     }
     
-    return await query(sql, params) as User[];
+    return await query as User[];
   }
   
   static async count(filters: {
@@ -457,26 +460,23 @@ export class UserModel {
     status?: UserStatus;
     tenant_id?: string;
   } = {}): Promise<number> {
-    let sql = 'SELECT COUNT(*) as count FROM users WHERE 1=1';
-    const params: any[] = [];
+    const db = getDatabase();
+    let query = db('users');
     
     if (filters.role) {
-      sql += ' AND role = ?';
-      params.push(filters.role);
+      query = query.where('role', filters.role);
     }
     
     if (filters.status) {
-      sql += ' AND status = ?';
-      params.push(filters.status);
+      query = query.where('status', filters.status);
     }
     
     if (filters.tenant_id) {
-      sql += ' AND tenant_id = ?';
-      params.push(filters.tenant_id);
+      query = query.where('tenant_id', filters.tenant_id);
     }
     
-    const result = await queryOne(sql, params) as { count: number };
-    return result.count;
+    const result = await query.count('* as total').first() as { total: number };
+    return result.total;
   }
   
   // ================================================================
@@ -546,8 +546,13 @@ export class UserModel {
   }
   
   static async markOrphanUsers(tenantId: string): Promise<void> {
-    const sql = 'UPDATE users SET tenant_id = NULL, status = ? WHERE tenant_id = ?';
-    await execute(sql, ['inativo', tenantId]);
+    const db = getDatabase();
+    await db('users')
+      .where('tenant_id', tenantId)
+      .update({
+        tenant_id: null,
+        status: 'inativo'
+      });
   }
 
   // ================================================================
@@ -584,15 +589,21 @@ export class UserModel {
     inactive: number;
   }> {
     try {
-      const stats = await query(`
-        SELECT 
-          COUNT(*) as total,
-          SUM(CASE WHEN status = 'ativo' THEN 1 ELSE 0 END) as active,
-          SUM(CASE WHEN status != 'ativo' THEN 1 ELSE 0 END) as inactive
-        FROM users
-      `) as [{ total: number; active: number; inactive: number }];
+      const db = getDatabase();
+      const result = await db('users')
+        .select(
+          db.raw('COUNT(*) as total'),
+          db.raw('SUM(CASE WHEN status = "ativo" THEN 1 ELSE 0 END) as active'),
+          db.raw('SUM(CASE WHEN status != "ativo" THEN 1 ELSE 0 END) as inactive')
+        )
+        .first();
 
-      return stats[0] || { total: 0, active: 0, inactive: 0 };
+      const stats = result as any;
+      return {
+        total: Number(stats?.total) || 0,
+        active: Number(stats?.active) || 0,
+        inactive: Number(stats?.inactive) || 0
+      };
     } catch (error) {
       StructuredLogger.error('Erro ao obter estatísticas de usuários', error as Error);
       return { total: 0, active: 0, inactive: 0 };

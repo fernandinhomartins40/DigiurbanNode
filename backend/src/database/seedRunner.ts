@@ -109,8 +109,7 @@ const loadSeeds = async (): Promise<Seed[]> => {
 const getExecutedSeeds = async (): Promise<SeedRecord[]> => {
   try {
     const db = await getDatabase();
-    const sql = 'SELECT * FROM seeds ORDER BY id';
-    return db.prepare(sql).all() as unknown as SeedRecord[];
+    return await db('seeds').select('*').orderBy('id') as unknown as SeedRecord[];
   } catch (error) {
     // Se a tabela não existe ainda, retornar array vazio
     return [];
@@ -133,8 +132,10 @@ const executeSeed = async (seed: Seed): Promise<void> => {
     await seed.seedFunction();
     
     // Registrar seed como executado
-    db.prepare('INSERT OR REPLACE INTO seeds (id, filename) VALUES (?, ?)')
-      .run(seed.id, seed.filename);
+    await db('seeds').insert({
+      id: seed.id,
+      filename: seed.filename
+    }).onConflict('id').merge();
     
     const duration = Date.now() - startTime;
     console.log(`✅ Seed executado: ${seed.filename} (${duration}ms)`);

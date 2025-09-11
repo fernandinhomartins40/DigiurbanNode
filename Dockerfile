@@ -54,6 +54,9 @@ WORKDIR /app
 # Copiar backend compilado com permissões corretas
 COPY --from=backend-build --chown=digiurban:digiurban /app/backend/dist ./backend/dist
 
+# Copiar knexfile.cjs do backend
+COPY --from=backend-build --chown=digiurban:digiurban /app/backend/knexfile.cjs ./backend/
+
 # Copiar migrations da pasta raiz (nova estrutura organizada)
 COPY --chown=digiurban:digiurban migrations ./migrations
 

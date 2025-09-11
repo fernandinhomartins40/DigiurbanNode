@@ -1,9 +1,10 @@
 // ====================================================================
 // 🔄 MIGRATION RUNNER - DIGIURBAN SYSTEM (ATUALIZADO)
 // ====================================================================
-// Sistema automatizado de migração para SQLite3
+// Sistema automatizado de migração para SQLite3 com Knex.js
 // Controle de versão, rollback e validação de integridade
 // Atualizado para nomenclatura A01, A02, A03... e pasta /migrations
+// Migrado para Knex.js Query Builder
 // ====================================================================
 
 import { getDatabase } from './connection.js';
@@ -11,6 +12,7 @@ import { StructuredLogger } from '../monitoring/structuredLogger.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { Knex } from 'knex';
 
 // ====================================================================
 // INTERFACES
@@ -47,7 +49,7 @@ interface MigrationStatus {
 
 export class MigrationRunner {
   private migrationsPath: string;
-  private db: any;
+  private db: Knex;
 
   constructor() {
     // Caminho para pasta de migrations - padronizado para produção e desenvolvimento
@@ -78,14 +80,16 @@ export class MigrationRunner {
   private async initializeMigrationTable(): Promise<void> {
     try {
       // Verificar se tabela existe
-      const tableExists = this.db.prepare(`
+      const tableExists = await this.db.raw(`
         SELECT name FROM sqlite_master 
         WHERE type='table' AND name='schema_migrations'
-      `).get();
+      `);
+      
+      const hasTable = tableExists && tableExists.length > 0 && tableExists[0].length > 0;
 
-      if (!tableExists) {
+      if (!hasTable) {
         // Criar nova tabela com formato atualizado
-        this.db.exec(`
+        await this.db.raw(`
           CREATE TABLE schema_migrations (
             id TEXT PRIMARY KEY,
             filename TEXT NOT NULL UNIQUE,
@@ -100,15 +104,14 @@ export class MigrationRunner {
         StructuredLogger.info('Nova tabela de migrações criada');
       } else {
         // Verificar se precisa migrar tabela existente
-        const hasSequenceColumn = this.db.prepare(`
-          PRAGMA table_info(schema_migrations)
-        `).all().some((col: any) => col.name === 'sequence_number');
+        const columnInfo = await this.db.raw('PRAGMA table_info(schema_migrations)');
+        const hasSequenceColumn = columnInfo.some((col: any) => col.name === 'sequence_number');
 
         if (!hasSequenceColumn) {
           // Migrar tabela existente para novo formato
           StructuredLogger.info('Migrando tabela de migrações para novo formato');
           
-          this.db.exec(`
+          await this.db.raw(`
             -- Criar nova tabela
             CREATE TABLE schema_migrations_new (
               id TEXT PRIMARY KEY,
@@ -150,7 +153,7 @@ export class MigrationRunner {
       }
 
       // Índice para performance
-      this.db.exec(`
+      await this.db.raw(`
         CREATE INDEX IF NOT EXISTS idx_schema_migrations_sequence 
         ON schema_migrations(sequence_number)
       `);
@@ -247,8 +250,11 @@ export class MigrationRunner {
     await this.initializeMigrationTable();
 
     try {
-      const stmt = this.db.prepare('SELECT id FROM schema_migrations ORDER BY sequence_number DESC LIMIT 1');
-      const result = stmt.get() as { id: string } | undefined;
+      const result = await this.db('schema_migrations')
+        .select('id')
+        .orderBy('sequence_number', 'desc')
+        .limit(1)
+        .first() as { id: string } | undefined;
 
       return result?.id || 'A00';
     } catch (error) {
@@ -262,8 +268,10 @@ export class MigrationRunner {
    */
   private async isMigrationApplied(migrationId: string): Promise<boolean> {
     try {
-      const stmt = this.db.prepare('SELECT id FROM schema_migrations WHERE id = ?');
-      const result = stmt.get(migrationId);
+      const result = await this.db('schema_migrations')
+        .select('id')
+        .where('id', migrationId)
+        .first();
       return !!result;
     } catch (error) {
       StructuredLogger.error(`Erro ao verificar migração ${migrationId}`, error);
@@ -306,7 +314,7 @@ export class MigrationRunner {
       });
 
       // Executar em transação
-      const transaction = this.db.transaction(() => {
+      await this.db.transaction(async (trx) => {
         StructuredLogger.info(`Executando SQL da migração ${migration.id}...`);
         
         // Dividir SQL em comandos individuais PRESERVANDO ORDEM
@@ -349,7 +357,7 @@ export class MigrationRunner {
               console.log(`[DEBUG] Executando comando ${i + 1}/${sqlCommands.length} da migração ${migration.id}:`);
               console.log(`[DEBUG] SQL: ${command.substring(0, 200)}${command.length > 200 ? '...' : ''}`);
               
-              this.db.exec(command);
+              await trx.raw(command);
               
               console.log(`[DEBUG] ✅ Comando ${i + 1}/${sqlCommands.length} executado com sucesso`);
               StructuredLogger.debug(`Comando ${i + 1}/${sqlCommands.length} executado com sucesso`);
@@ -368,35 +376,28 @@ export class MigrationRunner {
         StructuredLogger.info(`Todos os comandos SQL da migração ${migration.id} executados com sucesso`);
 
         // Registrar migração aplicada
-        const stmt = this.db.prepare(`
-          INSERT INTO schema_migrations (
-            id, filename, description, checksum, applied_at, execution_time, sequence_number
-          ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        `);
-        
         const duration = Math.round(performance.now() - startTime);
         
-        stmt.run(
-          migration.id,
-          migration.filename,
-          migration.description,
-          migration.checksum,
-          Date.now(),
-          duration,
-          migration.sequence
-        );
+        await trx('schema_migrations').insert({
+          id: migration.id,
+          filename: migration.filename,
+          description: migration.description,
+          checksum: migration.checksum,
+          applied_at: Date.now(),
+          execution_time: duration,
+          sequence_number: migration.sequence
+        });
 
         StructuredLogger.info(`Migração ${migration.id} registrada na tabela schema_migrations`);
       });
-      
-      transaction();
 
       // Verificar se tabelas foram criadas (apenas para A01)
       if (migration.id === 'A01') {
         try {
-          const tables = this.db.prepare('SELECT name FROM sqlite_master WHERE type="table"').all();
-          StructuredLogger.info(`Verificação pós-migração A01: ${tables.length} tabelas encontradas`, {
-            metadata: { tables: tables.map((t: any) => t.name) }
+          const tables = await this.db.raw('SELECT name FROM sqlite_master WHERE type="table"');
+          const tableList = Array.isArray(tables) ? tables : [];
+          StructuredLogger.info(`Verificação pós-migração A01: ${tableList.length} tabelas encontradas`, {
+            metadata: { tables: tableList.map((t: any) => t.name) }
           });
         } catch (verifyError) {
           StructuredLogger.warn('Não foi possível verificar tabelas criadas', verifyError);
@@ -486,11 +487,10 @@ export class MigrationRunner {
       const finalVersion = await this.getCurrentVersion();
       if (finalVersion !== 'A00') {
         try {
-          const updateStmt = this.db.prepare(`
+          await this.db.raw(`
             INSERT OR REPLACE INTO system_config (key, value, description, updated_at) 
-            VALUES ('schema_version', ?, 'Versão atual do schema após migrations', datetime('now'))
-          `);
-          updateStmt.run(finalVersion);
+            VALUES (?, ?, 'Versão atual do schema após migrations', datetime('now'))
+          `, ['schema_version', finalVersion]);
         } catch (configError) {
           StructuredLogger.warn('Erro ao atualizar schema_version em system_config', configError);
         }
@@ -551,8 +551,10 @@ export class MigrationRunner {
 
       for (const migration of migrations) {
         if (await this.isMigrationApplied(migration.id)) {
-          const stmt = this.db.prepare('SELECT checksum FROM schema_migrations WHERE id = ?');
-          const applied = stmt.get(migration.id) as { checksum: string } | undefined;
+          const applied = await this.db('schema_migrations')
+            .select('checksum')
+            .where('id', migration.id)
+            .first() as { checksum: string } | undefined;
 
           if (applied && applied.checksum !== migration.checksum) {
             StructuredLogger.error(`Checksum inválido para migração ${migration.id}`);

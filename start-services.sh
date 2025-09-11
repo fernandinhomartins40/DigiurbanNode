@@ -16,6 +16,15 @@ echo "🔒 UID/GID: $(id)"
 echo "📁 Criando diretórios..."
 mkdir -p /app/logs /tmp/client_temp /tmp/proxy_temp_path /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp
 
+# Executar migrations Knex antes de iniciar backend
+echo "🗃️ Executando migrations do banco..."
+cd /app/backend && npm run knex:migrate
+if [ $? -eq 0 ]; then
+  echo "✅ Migrations executadas com sucesso"
+else
+  echo "❌ Erro nas migrations, mas continuando..."
+fi
+
 # Iniciar backend com PM2
 echo "🔧 Iniciando Backend..."
 cd /app && pm2 start pm2.json --no-daemon &

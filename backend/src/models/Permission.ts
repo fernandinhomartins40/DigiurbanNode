@@ -3,9 +3,10 @@
 // ====================================================================
 // Modelo de permissões granulares
 // RBAC (Role-Based Access Control) completo
+// Migrado para Knex.js Query Builder
 // ====================================================================
 
-import { query, queryOne, execute } from '../database/connection.js';
+import { getDatabase } from '../database/connection.js';
 import { UserRole } from './User.js';
 
 // ====================================================================
@@ -100,19 +101,16 @@ export class PermissionModel {
       throw new Error('Código de permissão já existe');
     }
     
-    const sql = `
-      INSERT INTO permissions (code, resource, action, description)
-      VALUES (?, ?, ?, ?)
-    `;
+    const db = getDatabase();
     
-    const result = await execute(sql, [
-      permissionData.code,
-      permissionData.resource,
-      permissionData.action,
-      permissionData.description || null
-    ]);
+    const [id] = await db('permissions').insert({
+      code: permissionData.code,
+      resource: permissionData.resource,
+      action: permissionData.action,
+      description: permissionData.description || null
+    });
     
-    const permission = await this.findById(Number((result as any).lastInsertRowid));
+    const permission = await this.findById(Number(id));
     if (!permission) {
       throw new Error('Erro ao criar permissão');
     }
@@ -125,25 +123,33 @@ export class PermissionModel {
   // ================================================================
   
   static async findById(id: number): Promise<Permission | null> {
-    const sql = 'SELECT * FROM permissions WHERE id = ?';
-    const permission = await queryOne(sql, [id]) as Permission;
+    const db = getDatabase();
+    const permission = await db('permissions')
+      .where('id', id)
+      .first() as Permission | undefined;
     return permission || null;
   }
   
   static async findByCode(code: string): Promise<Permission | null> {
-    const sql = 'SELECT * FROM permissions WHERE code = ?';
-    const permission = await queryOne(sql, [code]) as Permission;
+    const db = getDatabase();
+    const permission = await db('permissions')
+      .where('code', code)
+      .first() as Permission | undefined;
     return permission || null;
   }
   
   static async findByResource(resource: string): Promise<Permission[]> {
-    const sql = 'SELECT * FROM permissions WHERE resource = ? ORDER BY action';
-    return await query(sql, [resource]) as Permission[];
+    const db = getDatabase();
+    return await db('permissions')
+      .where('resource', resource)
+      .orderBy('action') as Permission[];
   }
   
   static async list(): Promise<Permission[]> {
-    const sql = 'SELECT * FROM permissions ORDER BY resource, action';
-    return await query(sql) as Permission[];
+    const db = getDatabase();
+    return await db('permissions')
+      .orderBy('resource')
+      .orderBy('action') as Permission[];
   }
   
   // ================================================================
@@ -151,18 +157,17 @@ export class PermissionModel {
   // ================================================================
   
   static async getUserPermissions(userId: string): Promise<PermissionWithDetails[]> {
-    const sql = `
-      SELECT 
-        p.*,
-        up.granted_by,
-        up.created_at as permission_granted_at
-      FROM permissions p
-      JOIN user_permissions up ON p.id = up.permission_id
-      WHERE up.user_id = ?
-      ORDER BY p.resource, p.action
-    `;
-    
-    return await query(sql, [userId]) as PermissionWithDetails[];
+    const db = getDatabase();
+    return await db('permissions as p')
+      .join('user_permissions as up', 'p.id', 'up.permission_id')
+      .select(
+        'p.*',
+        'up.granted_by',
+        'up.created_at as permission_granted_at'
+      )
+      .where('up.user_id', userId)
+      .orderBy('p.resource')
+      .orderBy('p.action') as PermissionWithDetails[];
   }
   
   static async hasPermission(userId: string, permissionCode: string): Promise<boolean> {
@@ -173,14 +178,12 @@ export class PermissionModel {
     }
     
     // Verificar permissão direta
-    const sql = `
-      SELECT 1
-      FROM user_permissions up
-      JOIN permissions p ON up.permission_id = p.id
-      WHERE up.user_id = ? AND p.code = ?
-    `;
-    
-    const result = await queryOne(sql, [userId, permissionCode]);
+    const db = getDatabase();
+    const result = await db('user_permissions as up')
+      .join('permissions as p', 'up.permission_id', 'p.id')
+      .where('up.user_id', userId)
+      .where('p.code', permissionCode)
+      .first();
     if (result) {
       return true;
     }
@@ -220,12 +223,13 @@ export class PermissionModel {
       return; // Já concedida
     }
     
-    const sql = `
-      INSERT INTO user_permissions (user_id, permission_id, granted_by)
-      VALUES (?, ?, ?)
-    `;
+    const db = getDatabase();
     
-    execute(sql, [userId, permissionId, grantedBy || null]);
+    await db('user_permissions').insert({
+      user_id: userId,
+      permission_id: permissionId,
+      granted_by: grantedBy || null
+    });
   }
   
   static async grantPermissionByCode(
@@ -242,8 +246,11 @@ export class PermissionModel {
   }
   
   static async revokePermission(userId: string, permissionId: number): Promise<void> {
-    const sql = 'DELETE FROM user_permissions WHERE user_id = ? AND permission_id = ?';
-    execute(sql, [userId, permissionId]);
+    const db = getDatabase();
+    await db('user_permissions')
+      .where('user_id', userId)
+      .where('permission_id', permissionId)
+      .del();
   }
   
   static async revokePermissionByCode(userId: string, permissionCode: string): Promise<void> {
@@ -256,8 +263,10 @@ export class PermissionModel {
   }
   
   static async revokeAllUserPermissions(userId: string): Promise<void> {
-    const sql = 'DELETE FROM user_permissions WHERE user_id = ?';
-    execute(sql, [userId]);
+    const db = getDatabase();
+    await db('user_permissions')
+      .where('user_id', userId)
+      .del();
   }
   
   // ================================================================
@@ -358,14 +367,20 @@ export class PermissionModel {
     userId: string,
     permissionId: number
   ): Promise<UserPermission | null> {
-    const sql = 'SELECT * FROM user_permissions WHERE user_id = ? AND permission_id = ?';
-    const record = await queryOne(sql, [userId, permissionId]) as UserPermission;
+    const db = getDatabase();
+    const record = await db('user_permissions')
+      .where('user_id', userId)
+      .where('permission_id', permissionId)
+      .first() as UserPermission | undefined;
     return record || null;
   }
   
   private static async getUserRole(userId: string): Promise<UserRole | null> {
-    const sql = 'SELECT role FROM users WHERE id = ?';
-    const result = await queryOne(sql, [userId]) as { role: UserRole };
+    const db = getDatabase();
+    const result = await db('users')
+      .select('role')
+      .where('id', userId)
+      .first() as { role: UserRole } | undefined;
     return result?.role || null;
   }
   

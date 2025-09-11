@@ -3,11 +3,13 @@
 // ====================================================================
 // Store de rate limiting baseado em SQLite para fallback do Redis
 // Implementa sliding window com persistência otimizada
+// Migrado para Knex.js Query Builder
 // ====================================================================
 
 import { getDatabase } from '../database/connection.js';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
 import { RateLimitInfo, RateLimitStore } from './RedisRateStore.js';
+import { Knex } from 'knex';
 
 // ====================================================================
 // INTERFACES
@@ -30,7 +32,7 @@ interface RateLimitRecord {
 
 export class DatabaseRateStore implements RateLimitStore {
   private initialized: boolean = false;
-  private db: any;
+  private db: Knex;
 
   constructor() {
     this.db = getDatabase();
@@ -46,35 +48,27 @@ export class DatabaseRateStore implements RateLimitStore {
     }
 
     try {
-      // Tabela otimizada com sliding window
-      this.db.prepare(`
-        CREATE TABLE IF NOT EXISTS rate_limits (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          key TEXT NOT NULL UNIQUE,
-          hits INTEGER NOT NULL DEFAULT 0,
-          window_start INTEGER NOT NULL,
-          window_ms INTEGER NOT NULL,
-          max_hits INTEGER NOT NULL,
-          created_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000),
-          updated_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
-        )
-      `).run();
-
-      // Índices otimizados para performance
-      this.db.prepare(`
-        CREATE INDEX IF NOT EXISTS idx_rate_limits_key 
-        ON rate_limits(key)
-      `).run();
-
-      this.db.prepare(`
-        CREATE INDEX IF NOT EXISTS idx_rate_limits_window_start 
-        ON rate_limits(window_start)
-      `).run();
-
-      this.db.prepare(`
-        CREATE INDEX IF NOT EXISTS idx_rate_limits_updated_at 
-        ON rate_limits(updated_at)
-      `).run();
+      // Verificar se tabela existe
+      const hasTable = await this.db.schema.hasTable('rate_limits');
+      
+      if (!hasTable) {
+        // Criar tabela otimizada com sliding window
+        await this.db.schema.createTable('rate_limits', (table) => {
+          table.increments('id').primary();
+          table.string('key').notNullable().unique();
+          table.integer('hits').notNullable().defaultTo(0);
+          table.bigInteger('window_start').notNullable();
+          table.integer('window_ms').notNullable();
+          table.integer('max_hits').notNullable();
+          table.bigInteger('created_at').notNullable().defaultTo(this.db.raw('(unixepoch() * 1000)'));
+          table.bigInteger('updated_at').notNullable().defaultTo(this.db.raw('(unixepoch() * 1000)'));
+          
+          // Índices otimizados para performance
+          table.index(['key'], 'idx_rate_limits_key');
+          table.index(['window_start'], 'idx_rate_limits_window_start');
+          table.index(['updated_at'], 'idx_rate_limits_updated_at');
+        });
+      }
 
       this.initialized = true;
       StructuredLogger.info('DatabaseRateStore otimizado inicializado');
@@ -96,16 +90,21 @@ export class DatabaseRateStore implements RateLimitStore {
 
     try {
       // Buscar registro existente
-      const existing = this.db
-        .prepare('SELECT * FROM rate_limits WHERE key = ?')
-        .get(key) as RateLimitRecord | undefined;
+      const existing = await this.db('rate_limits')
+        .where('key', key)
+        .first() as RateLimitRecord | undefined;
 
       if (!existing) {
         // Criar novo registro
-        this.db.prepare(`
-          INSERT INTO rate_limits (key, hits, window_start, window_ms, max_hits, created_at, updated_at)
-          VALUES (?, 1, ?, ?, ?, ?, ?)
-        `).run(key, now, windowMs, maxHits, now, now);
+        await this.db('rate_limits').insert({
+          key,
+          hits: 1,
+          window_start: now,
+          window_ms: windowMs,
+          max_hits: maxHits,
+          created_at: now,
+          updated_at: now
+        });
 
         return {
           totalHits: 1,
@@ -118,11 +117,15 @@ export class DatabaseRateStore implements RateLimitStore {
       // Verificar se janela expirou
       if (existing.window_start < windowStart) {
         // Reset da janela
-        this.db.prepare(`
-          UPDATE rate_limits 
-          SET hits = 1, window_start = ?, window_ms = ?, max_hits = ?, updated_at = ?
-          WHERE key = ?
-        `).run(now, windowMs, maxHits, now, key);
+        await this.db('rate_limits')
+          .where('key', key)
+          .update({
+            hits: 1,
+            window_start: now,
+            window_ms: windowMs,
+            max_hits: maxHits,
+            updated_at: now
+          });
 
         return {
           totalHits: 1,
@@ -134,11 +137,13 @@ export class DatabaseRateStore implements RateLimitStore {
 
       // Incrementar hits na janela atual
       const newHits = existing.hits + 1;
-      this.db.prepare(`
-        UPDATE rate_limits 
-        SET hits = ?, max_hits = ?, updated_at = ?
-        WHERE key = ?
-      `).run(newHits, maxHits, now, key);
+      await this.db('rate_limits')
+        .where('key', key)
+        .update({
+          hits: newHits,
+          max_hits: maxHits,
+          updated_at: now
+        });
 
       const remainingWindowTime = (existing.window_start + existing.window_ms) - now;
 
@@ -171,14 +176,14 @@ export class DatabaseRateStore implements RateLimitStore {
     await this.initialize();
 
     try {
-      const result = this.db.prepare(
-        'DELETE FROM rate_limits WHERE key = ?'
-      ).run(key);
+      const deletedCount = await this.db('rate_limits')
+        .where('key', key)
+        .del();
 
       StructuredLogger.debug('Rate limit resetado', {
         metadata: {
           key: this.sanitizeKey(key),
-          affected: result.changes
+          affected: deletedCount
         }
       });
 
@@ -202,14 +207,14 @@ export class DatabaseRateStore implements RateLimitStore {
       const maxAge = 24 * 60 * 60 * 1000;
       const cutoff = now - maxAge;
 
-      const result = this.db.prepare(
-        'DELETE FROM rate_limits WHERE updated_at < ?'
-      ).run(cutoff);
+      const deletedCount = await this.db('rate_limits')
+        .where('updated_at', '<', cutoff)
+        .del();
 
-      if (result.changes > 0) {
+      if (deletedCount > 0) {
         StructuredLogger.debug('Limpeza de rate limits concluída', {
           metadata: {
-            removidos: result.changes,
+            removidos: deletedCount,
             cutoff: new Date(cutoff).toISOString()
           }
         });
@@ -240,6 +245,98 @@ export class DatabaseRateStore implements RateLimitStore {
     } catch (error) {
       StructuredLogger.error('Health check do DatabaseRateStore falhou', error);
       return false;
+    }
+  }
+
+  /**
+   * Obter estatísticas do rate limiting
+   */
+  async getStats(): Promise<{
+    totalKeys: number;
+    activeKeys: number;
+    avgHitsPerKey: number;
+    topKeys: Array<{ key: string; hits: number; window_start: number }>;
+  }> {
+    try {
+      await this.initialize();
+      
+      const now = Date.now();
+      const recentThreshold = now - (60 * 60 * 1000); // 1 hora atrás
+
+      // Total de chaves
+      const totalResult = await this.db('rate_limits')
+        .count('* as total')
+        .first() as { total: number };
+
+      // Chaves ativas (atualizadas na última hora)
+      const activeResult = await this.db('rate_limits')
+        .where('updated_at', '>=', recentThreshold)
+        .count('* as total')
+        .first() as { total: number };
+
+      // Média de hits por chave
+      const avgResult = await this.db('rate_limits')
+        .avg('hits as average')
+        .first() as { average: number };
+
+      // Top chaves com mais hits
+      const topKeys = await this.db('rate_limits')
+        .select('key', 'hits', 'window_start')
+        .orderBy('hits', 'desc')
+        .limit(10) as Array<{ key: string; hits: number; window_start: number }>;
+
+      return {
+        totalKeys: totalResult.total,
+        activeKeys: activeResult.total,
+        avgHitsPerKey: Math.round(avgResult.average || 0),
+        topKeys: topKeys.map(key => ({
+          ...key,
+          key: this.sanitizeKey(key.key)
+        }))
+      };
+
+    } catch (error) {
+      StructuredLogger.error('Erro ao obter stats do rate limiting', error);
+      return {
+        totalKeys: 0,
+        activeKeys: 0,
+        avgHitsPerKey: 0,
+        topKeys: []
+      };
+    }
+  }
+
+  /**
+   * Verificar se chave está sendo rate limited
+   */
+  async isRateLimited(key: string, windowMs: number, maxHits: number): Promise<boolean> {
+    try {
+      await this.initialize();
+
+      const now = Date.now();
+      const windowStart = now - windowMs;
+
+      const record = await this.db('rate_limits')
+        .where('key', key)
+        .first() as RateLimitRecord | undefined;
+
+      if (!record) {
+        return false; // Sem registro = não limitado
+      }
+
+      // Se janela expirou, não está limitado
+      if (record.window_start < windowStart) {
+        return false;
+      }
+
+      // Verificar se excedeu o limite
+      return record.hits >= maxHits;
+
+    } catch (error) {
+      StructuredLogger.error('Erro ao verificar rate limit', error as Error, {
+        metadata: { key: this.sanitizeKey(key) }
+      });
+      return false; // Em caso de erro, não bloquear
     }
   }
 
