@@ -8,7 +8,7 @@
 import { beforeAll, afterAll, beforeEach, describe, test, expect } from '@jest/globals';
 import { UserModel, CreateUserData, UpdateUserData, User } from '../../models/User.js';
 import { initializeDatabase, closeDatabase } from '../../database/connection.js';
-import { runMigrations } from '../../database/migrationRunner.js';
+// import { runMigrations } from '../../database/migrationRunner.js'; // Removido - usando Knex nativo
 import bcrypt from 'bcryptjs';
 
 // ====================================================================
@@ -19,9 +19,9 @@ beforeAll(async () => {
   // Usar banco em memória para testes
   process.env.DB_PATH = ':memory:';
   
-  // Inicializar banco e executar migrações
+  // Inicializar banco (migrações executadas via Knex em outros contextos)
   initializeDatabase();
-  await runMigrations();
+  // await runMigrations(); // Removido - usando Knex nativo
 });
 
 afterAll(async () => {
