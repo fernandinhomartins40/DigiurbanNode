@@ -69,12 +69,12 @@ const config = {
       filename: process.env.DATABASE_URL || '/app/data/digiurban.db'
     },
     migrations: {
-      directory: path.join(__dirname, '..', 'migrations'),
+      directory: '/app/migrations',
       pattern: /^A\d{2}_.*\.js$/,
       tableName: 'knex_migrations'
     },
     seeds: {
-      directory: path.join(__dirname, 'src', 'database', 'seeds')
+      directory: '/app/backend/src/database/seeds'
     },
     useNullAsDefault: true,
     pool: {
