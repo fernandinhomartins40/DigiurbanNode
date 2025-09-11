@@ -183,12 +183,12 @@ export class MigrationRunner {
       const migrations: Migration[] = [];
 
       for (const filename of files) {
-        if (!filename.endsWith('.sql')) {
+        if (!filename.endsWith('.js')) {
           continue;
         }
 
         // Nova regex para A01, A02, A03, etc.
-        const match = filename.match(/^A(\d{2})_(.+)\.sql$/);
+        const match = filename.match(/^A(\d{2})_(.+)\.js$/);
         if (!match) {
           StructuredLogger.warn(`Arquivo de migração inválido ignorado: ${filename}`);
           continue;
@@ -201,7 +201,13 @@ export class MigrationRunner {
         const filePath = path.join(this.migrationsPath, filename);
         
         try {
-          const sql = await fs.readFile(filePath, 'utf-8');
+          // Ler o arquivo JS e extrair o SQL do módulo
+          const moduleContent = await fs.readFile(filePath, 'utf-8');
+          
+          // Para arquivos JS, precisamos executar o módulo para obter o SQL
+          // Por enquanto, vamos usar uma abordagem simples de regex para extrair o SQL
+          const sqlMatch = moduleContent.match(/exports\.up\s*=\s*function[^{]*\{[\s\S]*?knex\.raw\(`([^`]+)`\)/);
+          const sql = sqlMatch ? sqlMatch[1] : moduleContent;
           const checksum = await this.generateChecksum(sql);
 
           migrations.push({
