@@ -10,7 +10,7 @@ import request from 'supertest';
 import app from '../../app.js';
 import { UserModel } from '../../models/User.js';
 import { TenantModel } from '../../models/Tenant.js';
-import { migrate } from '../../database/migrate.js';
+// import { migrate } from '../../database/migrate.js'; // Removido - usando Knex nativo
 
 describe('Auth Integration Tests', () => {
   let testTenantId: string;
@@ -23,8 +23,8 @@ describe('Auth Integration Tests', () => {
   // ================================================================
 
   beforeAll(async () => {
-    // Executar migrações
-    await migrate();
+    // Executar migrações (removido - usando Knex nativo)
+    // await migrate();
 
     // Criar tenant de teste
     const tenant = await TenantModel.create({

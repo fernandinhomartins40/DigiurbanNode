@@ -12,7 +12,7 @@ import { AuthService } from '../../services/AuthService.js';
 import { PermissionService } from '../../services/PermissionService.js';
 import { ActivityService } from '../../services/ActivityService.js';
 import { RegistrationService } from '../../services/RegistrationService.js';
-import { migrate } from '../../database/migrate.js';
+// import { migrate } from '../../database/migrate.js'; // Removido - usando Knex nativo
 
 describe('Services Unit Tests', () => {
   let testTenantId: string;
@@ -24,7 +24,7 @@ describe('Services Unit Tests', () => {
   // ================================================================
 
   beforeAll(async () => {
-    await migrate();
+    // await migrate(); // Removido - usando Knex nativo
 
     // Criar tenant de teste
     const tenant = await TenantModel.create({

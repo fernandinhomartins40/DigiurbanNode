@@ -12,7 +12,7 @@ import { UserModel } from '../../models/User.js';
 import { TenantModel } from '../../models/Tenant.js';
 import { PermissionService } from '../../services/PermissionService.js';
 import { AuthService } from '../../services/AuthService.js';
-import { migrate } from '../../database/migrate.js';
+// import { migrate } from '../../database/migrate.js'; // Removido - usando Knex nativo
 
 describe('Permissions Integration Tests', () => {
   let testTenantId: string;
@@ -26,8 +26,8 @@ describe('Permissions Integration Tests', () => {
   // ================================================================
 
   beforeAll(async () => {
-    // Executar migrações
-    await migrate();
+    // Executar migrações (removido - usando Knex nativo)
+    // await migrate();
 
     // Criar tenant de teste
     const tenant = await TenantModel.create({
