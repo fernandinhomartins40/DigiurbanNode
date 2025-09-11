@@ -18,6 +18,16 @@ mkdir -p /app/logs /tmp/client_temp /tmp/proxy_temp_path /tmp/fastcgi_temp /tmp/
 
 # Executar migrations Knex antes de iniciar backend
 echo "🗃️ Executando migrations do banco..."
+
+# Debug: Verificar estrutura de arquivos
+echo "🔍 Debug - Verificando estrutura:"
+echo "📁 Conteúdo /app/:"
+ls -la /app/
+echo "📁 Conteúdo /app/backend/:"
+ls -la /app/backend/
+echo "📁 Conteúdo /app/migrations/:"
+ls -la /app/migrations/ || echo "❌ Diretório /app/migrations não existe"
+
 cd /app/backend && npm run knex:migrate
 if [ $? -eq 0 ]; then
   echo "✅ Migrations executadas com sucesso"
