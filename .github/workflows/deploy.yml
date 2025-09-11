@@ -334,12 +334,12 @@ jobs:
         sleep 10
         
         # Executar migrations via Knex nativo
-        if docker exec -e NODE_ENV=production ${{ env.CONTAINER_NAME }} sh -c "cd /app/backend && npm run knex:migrate"; then
+        if docker exec -e NODE_ENV=production ${{ env.CONTAINER_NAME }} bash -c 'cd /app/backend && npm run knex:migrate'; then
           echo '✅ Migrations executadas com sucesso'
           
           echo ''
           echo '🎯 Criando super admin inicial...'
-          docker exec -e NODE_ENV=production -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=SuperAdmin2024 -e INITIAL_ADMIN_NAME='Super Administrador' ${{ env.CONTAINER_NAME }} sh -c "cd /app/backend && npm run knex:seed" || echo '⚠️ Super admin pode já existir'
+          docker exec -e NODE_ENV=production -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=SuperAdmin2024 -e INITIAL_ADMIN_NAME='Super Administrador' ${{ env.CONTAINER_NAME }} bash -c 'cd /app/backend && npm run knex:seed' || echo '⚠️ Super admin pode já existir'
           
           # Verificar integridade do banco
           echo ''
