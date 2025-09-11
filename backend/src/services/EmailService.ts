@@ -55,7 +55,8 @@ export class EmailService {
    */
   static initialize(): void {
     if (!EMAIL_CONFIG.RESEND_API_KEY) {
-      console.warn('⚠️ RESEND_API_KEY não configurado. Serviço de e-mail não estará disponível.');
+      console.log('ℹ️  EmailService: RESEND_API_KEY não configurado - funcionalidades de e-mail desabilitadas');
+      console.log('   Para habilitar e-mails, configure RESEND_API_KEY no docker-compose.yml');
       return;
     }
 

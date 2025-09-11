@@ -12,9 +12,11 @@ echo "🚀 Iniciando Digiurban System..."
 echo "👤 Executando como usuário: $(whoami)"
 echo "🔒 UID/GID: $(id)"
 
-# Criar diretórios necessários
-echo "📁 Criando diretórios..."
+# Criar diretórios necessários e configurar permissões
+echo "📁 Criando diretórios e configurando permissões..."
 mkdir -p /app/logs /tmp/client_temp /tmp/proxy_temp_path /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp
+chmod 755 /app/logs
+chmod 777 /tmp/client_temp /tmp/proxy_temp_path /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp
 
 # Executar migrations Knex antes de iniciar backend
 echo "🗃️ Executando migrations do banco..."
@@ -68,7 +70,20 @@ fi
 
 # Iniciar Nginx com configuração não-root
 echo "🌐 Iniciando Nginx..."
+
+# Testar configuração do nginx primeiro
+echo "🔍 Testando configuração do Nginx..."
+if nginx -t; then
+  echo "✅ Configuração do Nginx válida"
+else
+  echo "❌ Erro na configuração do Nginx"
+  cat /tmp/error.log 2>/dev/null || echo "Sem logs de erro disponíveis"
+  exit 1
+fi
+
+# Iniciar nginx
 nginx -g 'daemon off;' &
+nginx_pid=$!
 
 # Aguardar nginx inicializar
 sleep 2
@@ -93,17 +108,47 @@ while [ $nginx_retries -lt $nginx_max_retries ]; do
 done
 
 if [ "$nginx_ok" = "false" ]; then
-  echo "⚠️ Nginx health check falhou, mas continuando..."
+  echo "⚠️ Nginx health check falhou!"
   echo "📋 Logs do Nginx:"
   cat /tmp/error.log 2>/dev/null || echo "Sem logs de erro"
+  
+  # Verificar se o processo nginx ainda está rodando
+  if kill -0 $nginx_pid 2>/dev/null; then
+    echo "🔄 Processo Nginx ainda está rodando (PID: $nginx_pid)"
+  else
+    echo "❌ Processo Nginx não está mais rodando"
+    exit 1
+  fi
 fi
 
 echo "🎉 Sistema DigiUrban iniciado em http://localhost:3020"
 echo "📊 Status Backend: $(if [ "$backend_ok" = "true" ]; then echo "✅ OK"; else echo "⚠️ Aguardando"; fi)"
 echo "📊 Status Nginx: $(if [ "$nginx_ok" = "true" ]; then echo "✅ OK"; else echo "⚠️ Verificar"; fi)"
 
+# Função para monitorar processos
+monitor_processes() {
+  while true; do
+    # Verificar backend (PM2)
+    if ! pm2 list | grep -q "online"; then
+      echo "❌ Backend PM2 não está rodando!"
+      exit 1
+    fi
+    
+    # Verificar nginx
+    if ! kill -0 $nginx_pid 2>/dev/null; then
+      echo "❌ Nginx não está mais rodando!"
+      exit 1
+    fi
+    
+    sleep 30
+  done
+}
+
+# Iniciar monitor em background
+monitor_processes &
+
 # Manter container rodando e mostrar logs
-echo "📊 Monitorando logs..."
+echo "📊 Monitorando logs e processos..."
 tail -f /tmp/access.log /tmp/error.log /app/logs/*.log 2>/dev/null &
 
 # Aguardar processos
