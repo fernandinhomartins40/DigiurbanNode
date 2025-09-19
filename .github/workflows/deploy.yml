@@ -131,12 +131,27 @@ jobs:
           exit 1
         fi
 
+        echo "🔧 Configurando ambiente Prisma para CI..."
+        export PRISMA_CLI_QUERY_ENGINE_TYPE=binary
+        export PRISMA_QUERY_ENGINE_LIBRARY=/tmp/prisma-engines/libquery_engine.so.node
+        export PRISMA_QUERY_ENGINE_BINARY=/tmp/prisma-engines/query-engine
+
+        echo "📦 Baixando engines Prisma manualmente..."
+        mkdir -p /tmp/prisma-engines
+        npx prisma version
+
         echo "🔧 Gerando Prisma Client..."
-        if npm run db:generate; then
+        if npx prisma generate --schema=../schema.prisma --generator-skip-validate; then
           echo "✅ Prisma Client gerado com sucesso"
         else
-          echo "❌ Falha ao gerar Prisma Client"
-          exit 1
+          echo "❌ Tentando abordagem alternativa..."
+          # Tentar com configuração diferente
+          if PRISMA_GENERATE_SKIP_AUTOINSTALL=true npx prisma generate --schema=../schema.prisma; then
+            echo "✅ Prisma Client gerado com abordagem alternativa"
+          else
+            echo "❌ Falha ao gerar Prisma Client"
+            exit 1
+          fi
         fi
 
         echo "🔨 Compilando TypeScript..."
