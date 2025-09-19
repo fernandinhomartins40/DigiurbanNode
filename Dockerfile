@@ -10,8 +10,17 @@ FROM node:20-alpine AS backend-build
 WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm install
+
+# Copiar schema.prisma primeiro (necessário para gerar Prisma Client)
+COPY schema.prisma ../schema.prisma
+
+# Gerar Prisma Client ANTES de copiar o código fonte
+RUN npm run db:generate
+
+# Agora copiar o código fonte
 COPY backend/ ./
-# Manter todos os arquivos de seed para funcionamento correto
+
+# Build TypeScript (agora que o Prisma Client está gerado)
 RUN npm run build
 
 # ====================================================================

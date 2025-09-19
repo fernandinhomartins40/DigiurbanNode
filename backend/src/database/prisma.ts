@@ -309,17 +309,4 @@ process.on('SIGTERM', async () => {
 export default prisma
 
 // Re-export tipos úteis
-export type {
-  User,
-  Tenant,
-  Permission,
-  UserPermission,
-  ActivityLog,
-  SmtpUser,
-  EmailDomain,
-  Email,
-  SmtpConnection,
-  AuthAttempt,
-  DkimKey,
-  Prisma
-} from '@prisma/client'
+export type { Prisma } from '@prisma/client'
