@@ -4,7 +4,7 @@
 // Cria usuários de teste para cada nível de acesso para auditoria completa
 // ====================================================================
 
-import { PrismaClient } from './generated/client/index.js'
+import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 

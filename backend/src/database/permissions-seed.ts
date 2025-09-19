@@ -5,7 +5,7 @@
 // Substitui sistema legado por controle de acesso baseado em recursos
 // ====================================================================
 
-import { PrismaClient } from './generated/client/index.js'
+import { PrismaClient } from '@prisma/client'
 import { PermissionService } from '../services/PermissionService.js'
 
 const prisma = new PrismaClient()

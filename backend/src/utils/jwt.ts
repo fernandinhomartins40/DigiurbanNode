@@ -7,7 +7,7 @@
 
 import jwt from 'jsonwebtoken';
 import { AUTH_CONFIG } from '../config/auth.js';
-import { User } from '../database/generated/client/index.js';
+import { User } from '@prisma/client';
 
 // ====================================================================
 // INTERFACES E TIPOS

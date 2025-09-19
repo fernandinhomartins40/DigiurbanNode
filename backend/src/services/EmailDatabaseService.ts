@@ -5,7 +5,7 @@
 // Integração completa com sistema DigiUrban
 // ====================================================================
 
-import { PrismaClient } from '../database/generated/client/index.js';
+import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
 
 // Constants para substituir enums (compatibilidade SQLite)

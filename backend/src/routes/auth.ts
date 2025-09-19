@@ -10,7 +10,7 @@ import { Router, Request, Response } from 'express';
 import { AuthService } from '../services/AuthService.js';
 import { RegistrationService, RegisterUserResponse } from '../services/RegistrationService.js';
 import { UserModel } from '../models/User.js';
-import { User } from '../database/generated/client/index.js';
+import { User } from '@prisma/client';
 // import { ActivityService } from '../services/ActivityService.js';
 import { loginRateLimit, generalRateLimit, registerRateLimit } from '../middleware/rateLimiter.js';
 import { authMiddleware } from '../middleware/auth.js';

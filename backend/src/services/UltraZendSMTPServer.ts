@@ -7,7 +7,7 @@
 
 import { SMTPServer } from 'smtp-server';
 import { createTransport } from 'nodemailer';
-import { PrismaClient } from '../database/generated/client/index.js';
+import { PrismaClient } from '@prisma/client';
 import { EmailDatabaseService, EmailDirection, EmailStatus, SmtpServerType, ConnectionStatus } from './EmailDatabaseService.js';
 import { logger } from '../config/logger.js';
 import crypto from 'crypto';

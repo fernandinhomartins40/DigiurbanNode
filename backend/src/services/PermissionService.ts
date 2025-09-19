@@ -6,7 +6,7 @@
 // ====================================================================
 
 import { Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '../database/generated/client/index.js';
+import { PrismaClient } from '@prisma/client';
 import { PERMISSIONS, Permission, ROLE_HIERARCHY, ROLE_PERMISSIONS } from '../types/permissions.js';
 import { ActivityService } from './ActivityService.js';
 

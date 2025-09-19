@@ -8,7 +8,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from "../database/prisma.js";
 import { UserRole as UserRoleType } from '../models/User.js';
-import { User } from '../database/generated/client/index.js';
+import { User } from '@prisma/client';
 
 // Tipos para o sistema de autorização
 export type UserRole = UserRoleType;

@@ -7,7 +7,7 @@
 // ====================================================================
 
 import { prisma } from '../database/prisma.js'
-import { User, Prisma } from '../database/generated/client/index.js'
+import { User, Prisma } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 import { StructuredLogger } from '../monitoring/structuredLogger.js'
