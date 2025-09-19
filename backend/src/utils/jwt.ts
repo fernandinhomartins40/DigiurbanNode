@@ -7,14 +7,14 @@
 
 import jwt from 'jsonwebtoken';
 import { AUTH_CONFIG } from '../config/auth.js';
-import User from '../models/User.js';
+import { User } from '../database/generated/client/index.js';
 
 // ====================================================================
 // INTERFACES E TIPOS
 // ====================================================================
 
 export interface JWTPayload {
-  userId: string;
+  user_id: string;
   email: string;
   role: string;
   tenantId?: string;
@@ -24,7 +24,7 @@ export interface JWTPayload {
 }
 
 export interface RefreshTokenPayload {
-  userId: string;
+  user_id: string;
   sessionId: string;
   iat: number;
   exp: number;
@@ -58,10 +58,10 @@ export class JWTUtils {
    */
   static generateAccessToken(user: User, sessionId?: string): string {
     const payload: Omit<JWTPayload, 'iat' | 'exp'> = {
-      userId: user.id,
+      user_id: user.id,
       email: user.email,
       role: user.role,
-      tenantId: user.tenantId,
+      tenantId: user.tenant_id,
       sessionId
     };
     
@@ -75,9 +75,9 @@ export class JWTUtils {
   /**
    * Gerar token de atualização (Refresh Token)
    */
-  static generateRefreshToken(userId: string, sessionId: string): string {
+  static generateRefreshToken(user_id: string, sessionId: string): string {
     const payload: Omit<RefreshTokenPayload, 'iat' | 'exp'> = {
-      userId,
+      user_id: user_id,
       sessionId
     };
     
@@ -204,10 +204,10 @@ export class JWTUtils {
     const expiresAt = new Date(decoded.exp * 1000).toISOString();
     
     return {
-      userId: decoded.userId,
+      user_id: decoded.userId,
       email: decoded.email,
       role: decoded.role,
-      tenantId: decoded.tenantId,
+      tenant_id: decoded.tenantId,
       expired,
       expiresAt
     };
@@ -220,7 +220,7 @@ export class JWTUtils {
   /**
    * Gerar token de ativação de conta
    */
-  static generateActivationToken(userId: string): string {
+  static generateActivationToken(user_id: string): string {
     const payload = {
       userId,
       type: 'activation'
@@ -236,7 +236,7 @@ export class JWTUtils {
   /**
    * Gerar token de reset de senha
    */
-  static generatePasswordResetToken(userId: string): string {
+  static generatePasswordResetToken(user_id: string): string {
     const payload = {
       userId,
       type: 'password_reset'
@@ -261,14 +261,14 @@ export class JWTUtils {
       const payload = jwt.verify(token, AUTH_CONFIG.JWT_SECRET, {
         issuer: 'digiurban-auth',
         audience: 'digiurban-activation'
-      }) as { userId: string; type: string };
+      }) as { user_id: string; type: string };
       
       if (payload.type !== 'activation') {
         return { valid: false, error: 'Tipo de token inválido' };
       }
       
       return {
-        userId: payload.userId,
+        user_id: payload.userId,
         valid: true
       };
       
@@ -292,14 +292,14 @@ export class JWTUtils {
       const payload = jwt.verify(token, AUTH_CONFIG.JWT_SECRET, {
         issuer: 'digiurban-auth',
         audience: 'digiurban-password-reset'
-      }) as { userId: string; type: string };
+      }) as { user_id: string; type: string };
       
       if (payload.type !== 'password_reset') {
         return { valid: false, error: 'Tipo de token inválido' };
       }
       
       return {
-        userId: payload.userId,
+        user_id: payload.userId,
         valid: true
       };
       
@@ -403,10 +403,10 @@ export class JWTUtils {
     }
     
     const defaultPayload: Omit<JWTPayload, 'iat' | 'exp'> = {
-      userId: 'dev-user-id',
+      user_id: 'dev-user-id',
       email: 'dev@digiurban.com',
       role: 'admin',
-      tenantId: 'dev-tenant-id',
+      tenant_id: 'dev-tenant-id',
       ...overrides
     };
     

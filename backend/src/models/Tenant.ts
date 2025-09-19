@@ -19,7 +19,7 @@ export type TenantStatus = 'ativo' | 'inativo' | 'suspenso';
 
 export interface Tenant {
   id: string;
-  tenant_code: string;
+  tenantCode: string;
   nome: string;
   cidade: string;
   estado: string;
@@ -28,11 +28,11 @@ export interface Tenant {
   status: TenantStatus;
   populacao?: number;
   endereco?: string;
-  responsavel_nome?: string;
-  responsavel_email?: string;
-  responsavel_telefone?: string;
-  created_at: string;
-  updated_at: string;
+  responsavelNome?: string;
+  responsavelEmail?: string;
+  responsavelTelefone?: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface CreateTenantData {
@@ -118,7 +118,7 @@ export class TenantModel {
     await prisma.tenant.create({
       data: {
         id,
-        tenant_code: tenantCode,
+        tenantCode: tenantCode,
         nome: tenantData.nome,
         cidade: tenantData.cidade,
         estado: tenantData.estado,
@@ -127,9 +127,9 @@ export class TenantModel {
         status: tenantData.status || 'ativo',
         populacao: tenantData.populacao || null,
         endereco: tenantData.endereco || null,
-        responsavel_nome: tenantData.responsavel_nome || null,
-        responsavel_email: tenantData.responsavel_email || null,
-        responsavel_telefone: tenantData.responsavel_telefone || null
+        responsavelNome: tenantData.responsavel_nome || null,
+        responsavelEmail: tenantData.responsavel_email || null,
+        responsavelTelefone: tenantData.responsavel_telefone || null
       }
     });
     
@@ -156,7 +156,7 @@ export class TenantModel {
   static async findByCode(tenantCode: string): Promise<Tenant | null> {
     // Usando prisma client diretamente;
     const tenant = await prisma.tenant.findUnique({
-      where: { tenant_code: tenantCode }
+      where: { tenantCode: tenantCode }
     }) as Tenant | null;
     return tenant;
   }
@@ -256,7 +256,7 @@ export class TenantModel {
       where: { id },
       data: {
         status: 'suspenso',
-        updated_at: new Date()
+        updatedAt: new Date()
       }
     });
   }
@@ -494,29 +494,29 @@ export class TenantModel {
   // VERIFICAÇÕES DE PLANO
   // ================================================================
   
-  static async getUserCount(tenantId: string): Promise<number> {
+  static async getUserCount(tenant_id: string): Promise<number> {
     // Usando prisma client diretamente;
     return await prisma.user.count({
       where: {
-        tenant_id: tenantId,
+        tenantId: tenant_id,
         status: { not: 'inativo' }
       }
     });
   }
   
-  static async canAddUser(tenantId: string): Promise<boolean> {
-    const tenant = await this.findById(tenantId);
+  static async canAddUser(tenant_id: string): Promise<boolean> {
+    const tenant = await this.findById(tenant_id);
     if (!tenant) return false;
     
     const plan = TENANT_PLANS[tenant.plano];
     if (plan.max_users === -1) return true; // Ilimitado
     
-    const userCount = await this.getUserCount(tenantId);
+    const userCount = await this.getUserCount(tenant_id);
     return userCount < plan.max_users;
   }
   
-  static async hasFeature(tenantId: string, feature: string): Promise<boolean> {
-    const tenant = await this.findById(tenantId);
+  static async hasFeature(tenant_id: string, feature: string): Promise<boolean> {
+    const tenant = await this.findById(tenant_id);
     if (!tenant) return false;
     
     const plan = TENANT_PLANS[tenant.plano];

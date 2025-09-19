@@ -187,9 +187,9 @@ export class UserModel {
     }
   }
 
-  static async findByTenant(tenantId: string): Promise<User[]> {
+  static async findByTenant(tenant_id: string): Promise<User[]> {
     return await prisma.user.findMany({
-      where: { tenantId },
+      where: { tenantId: tenant_id },
       orderBy: { createdAt: 'desc' }
     })
   }
@@ -269,7 +269,7 @@ export class UserModel {
       return user // Nenhuma atualização
     }
 
-    const updateData: Prisma.UserUpdateInput = {}
+    const updateData: any = {}
 
     if (updates.nomeCompleto) updateData.nomeCompleto = updates.nomeCompleto
     if (updates.email) updateData.email = updates.email.toLowerCase()
@@ -487,9 +487,9 @@ export class UserModel {
     return this.getProfile(user.id)
   }
 
-  static async markOrphanUsers(tenantId: string): Promise<void> {
+  static async markOrphanUsers(tenant_id: string): Promise<void> {
     await prisma.user.updateMany({
-      where: { tenantId },
+      where: { tenantId: tenant_id },
       data: {
         tenantId: null,
         status: 'inativo'

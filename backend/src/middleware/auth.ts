@@ -108,7 +108,7 @@ export const authenticateJWT = async (
     
     // 6. Anexar informações ao request
     req.user = user;
-    req.userRole = user.role;
+    req.userRole = user.role as UserRole;
     req.tenantId = user.tenantId || undefined;
     req.sessionId = payload.sessionId;
     req.tokenPayload = payload;
@@ -202,7 +202,7 @@ export const requireAnyRole = (allowedRoles: UserRole[]) => {
       return;
     }
     
-    if (!allowedRoles.includes(req.user.role)) {
+    if (!allowedRoles.includes(req.user.role as UserRole)) {
       res.status(403).json({ 
         success: false,
         error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS,
