@@ -109,22 +109,36 @@ jobs:
       run: |
         echo "🏗️ Iniciando build local do backend..."
         echo "======================================"
-        
+
         if [ ! -d "backend" ]; then
           echo "❌ Diretório backend não encontrado"
           exit 1
         fi
-        
+
+        echo "🔍 Verificando schema.prisma..."
+        if [ ! -f "schema.prisma" ]; then
+          echo "❌ Schema Prisma não encontrado na raiz"
+          exit 1
+        fi
+
         cd backend
-        
+
         echo "📦 Instalando dependências do backend..."
-        if npm install; then
+        if npm install --no-optional; then
           echo "✅ Dependências instaladas com sucesso"
         else
           echo "❌ Falha ao instalar dependências"
           exit 1
         fi
-        
+
+        echo "🔧 Gerando Prisma Client..."
+        if npm run db:generate; then
+          echo "✅ Prisma Client gerado com sucesso"
+        else
+          echo "❌ Falha ao gerar Prisma Client"
+          exit 1
+        fi
+
         echo "🔨 Compilando TypeScript..."
         if npm run build; then
           echo "✅ Build do backend concluído com sucesso"

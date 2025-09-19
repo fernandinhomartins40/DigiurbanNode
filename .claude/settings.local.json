@@ -99,7 +99,8 @@
       "WebFetch(domain:www.digiurban.com.br)",
       "Bash(npm uninstall:*)",
       "Bash(tsx:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(tasklist)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",
