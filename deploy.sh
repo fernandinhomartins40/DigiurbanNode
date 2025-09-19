@@ -48,30 +48,38 @@ fi
 
 # Build da aplicação
 log "Fazendo build da aplicação..."
-docker build -t digiurban-app .
+docker build -t digiurban-unified .
 
 # Salvar imagem Docker
 log "Salvando imagem Docker..."
-docker save digiurban-app | gzip > digiurban-app.tar.gz
+docker save digiurban-unified | gzip > digiurban-unified.tar.gz
 
 # Deploy automático na VPS
 log "Copiando arquivos para VPS..."
-scp digiurban-app.tar.gz docker-compose.yml $VPS_USER@$VPS_IP:$APP_DIR/
+scp digiurban-unified.tar.gz docker-compose.yml $VPS_USER@$VPS_IP:$APP_DIR/
 
 log "Executando deploy na VPS..."
 ssh $VPS_USER@$VPS_IP << EOF
 cd $APP_DIR
-docker load -i digiurban-app.tar.gz
+docker load -i digiurban-unified.tar.gz
 docker compose down
 docker compose up -d
+
+# Aguardar container inicializar
+sleep 30
+
+# Executar migrations Prisma
+log "Executando migrations Prisma..."
+docker exec digiurban-unified sh -c 'cd /app/backend && npm run db:migrate:deploy'
+
 docker system prune -f
-rm digiurban-app.tar.gz
+rm digiurban-unified.tar.gz
 EOF
 
 # Verificar se está rodando
 log "Verificando status da aplicação..."
 sleep 10
-if curl -s https://$DOMAIN/health > /dev/null; then
+if curl -s http://$VPS_IP:3020/health > /dev/null; then
     log "✅ Deploy realizado com sucesso!"
     echo -e "${GREEN}URLs disponíveis:${NC}"
     echo "   • Produção: https://$DOMAIN"
@@ -84,4 +92,4 @@ fi
 
 # Limpar arquivos locais
 log "Limpando arquivos temporários..."
-rm -f digiurban-app.tar.gz
+rm -f digiurban-unified.tar.gz

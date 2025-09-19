@@ -11,7 +11,7 @@ WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm install
 COPY backend/ ./
-RUN rm -f src/database/seedRunner.ts src/database/seeds/001_initial_data.ts src/database/seed.ts
+# Manter todos os arquivos de seed para funcionamento correto
 RUN npm run build
 
 # ====================================================================
