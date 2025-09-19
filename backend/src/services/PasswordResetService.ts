@@ -9,7 +9,7 @@ import bcrypt from 'bcryptjs';
 import { UserModel } from '../models/User.js';
 import { TokenService } from './TokenService.js';
 import { EmailService } from './EmailService.js';
-import { execute } from '../database/connection.js';
+import { prisma } from "../database/prisma.js";
 
 // ====================================================================
 // INTERFACES

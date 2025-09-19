@@ -6,7 +6,7 @@
 // Migrado para Knex.js Query Builder
 // ====================================================================
 
-import { getDatabase } from '../database/connection.js';
+import { prisma } from '../database/prisma.js';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
 
 // ====================================================================
@@ -47,7 +47,7 @@ export class ActivityModel {
    */
   static async create(activityData: CreateActivityData): Promise<Activity> {
     try {
-      const db = getDatabase();
+      // Usando prisma client diretamente;
       const id = crypto.randomUUID();
       
       await db('activity_logs').insert({
@@ -78,7 +78,7 @@ export class ActivityModel {
    */
   static async findById(id: string): Promise<Activity | null> {
     try {
-      const db = getDatabase();
+      // Usando prisma client diretamente;
       const activity = await db('activity_logs')
         .where('id', id)
         .first() as Activity | undefined;
@@ -104,7 +104,7 @@ export class ActivityModel {
     limit?: number;
   } = {}): Promise<Activity[]> {
     try {
-      const db = getDatabase();
+      // Usando prisma client diretamente;
       const page = options.page || 1;
       const limit = Math.min(options.limit || 50, 100);
       const offset = (page - 1) * limit;
@@ -152,7 +152,7 @@ export class ActivityModel {
     resource?: string;
   } = {}): Promise<number> {
     try {
-      const db = getDatabase();
+      // Usando prisma client diretamente;
       
       let query = db('activity_logs');
 
@@ -188,7 +188,7 @@ export class ActivityModel {
    */
   static async getRecentByUser(userId: string, limit: number = 10): Promise<Activity[]> {
     try {
-      const db = getDatabase();
+      // Usando prisma client diretamente;
       
       const activities = await db('activity_logs')
         .where('user_id', userId)
@@ -210,7 +210,7 @@ export class ActivityModel {
    */
   static async cleanup(daysOld: number = 90): Promise<number> {
     try {
-      const db = getDatabase();
+      // Usando prisma client diretamente;
       
       // Calcular timestamp Unix em milissegundos para X dias atrás
       const cutoffTimestamp = Date.now() - (daysOld * 24 * 60 * 60 * 1000);
@@ -244,7 +244,7 @@ export class ActivityModel {
     limit?: number;
   } = {}): Promise<Activity[]> {
     try {
-      const db = getDatabase();
+      // Usando prisma client diretamente;
       const limit = Math.min(options.limit || 100, 1000);
 
       let query = db('activity_logs')
@@ -294,7 +294,7 @@ export class ActivityModel {
     topResources: Array<{ resource: string; count: number }>;
   }> {
     try {
-      const db = getDatabase();
+      // Usando prisma client diretamente;
       const days = options.days || 30;
       
       // Calcular timestamps

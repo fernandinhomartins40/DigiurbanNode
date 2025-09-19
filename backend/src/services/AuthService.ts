@@ -11,7 +11,7 @@ import { UserModel, User, UserRole } from '../models/User.js';
 import { SessionModel } from '../models/Session.js';
 import { JWTUtils, TokenPair } from '../utils/jwt.js';
 import { AUTH_CONFIG, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../config/auth.js';
-import { execute } from '../database/connection.js';
+import { prisma } from "../database/prisma.js";
 
 // ====================================================================
 // INTERFACES

@@ -13,6 +13,8 @@ services:
     restart: unless-stopped
     ports:
       - "3020:3020" # Nginx rodando na porta 3020
+      # - "25:25"     # SMTP MX Port (comentado por segurança - ativar se necessário)
+      # - "587:587"   # SMTP Submission Port (comentado por segurança - ativar se necessário)
     environment:
       - NODE_ENV=production
       - PORT=3021
@@ -21,9 +23,18 @@ services:
       - COOKIE_SECRET=+4nAMw2izSgWUJf+H0VXDccqbPAdZXfkW+2CgBdX3Io=
       - DATABASE_PATH=/app/data/digiurban.db
       - CORS_ORIGIN=https://www.digiurban.com.br,https://digiurban.com.br,http://72.60.10.108:3020,https://72.60.10.108:3020
-      # - RESEND_API_KEY=sua_chave_resend_aqui  # Opcional: para funcionalidades de e-mail
+      # - RESEND_API_KEY=sua_chave_resend_aqui  # Opcional: para funcionalidades de e-mail (substituído por UltraZend)
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      # UltraZend SMTP Server Configuration
+      - SMTP_ENABLE=true
+      - SMTP_HOST=0.0.0.0
+      - SMTP_HOSTNAME=mail.digiurban.com.br
+      - SMTP_MX_PORT=25
+      - SMTP_SUBMISSION_PORT=587
+      - SMTP_AUTH_REQUIRED=true
+      # - SMTP_TLS_CERT=/app/certs/smtp.crt  # Opcional: certificado TLS
+      # - SMTP_TLS_KEY=/app/certs/smtp.key   # Opcional: chave TLS
     volumes:
       - app_data:/app/data
       - app_logs:/app/logs

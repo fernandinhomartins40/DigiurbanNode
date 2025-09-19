@@ -43,6 +43,7 @@ import MonitoringManagement from "./pages/super-admin/MonitoringManagement"
 import OperationsManagement from "./pages/super-admin/OperationsManagement"
 import SettingsManagement from "./pages/super-admin/SettingsManagement"
 import SchemaManagement from "./pages/super-admin/SchemaManagement"
+import EmailManagement from "./pages/super-admin/EmailManagement"
 
 // Secretarias (all protected)
 import GabineteDashboard from "./pages/gabinete/DashboardGabinete"
@@ -131,6 +132,7 @@ const App = () => (
                       <Route path="users" element={<UsersManagementPage />} />
                       <Route path="analytics" element={<AnalyticsPage />} />
                       <Route path="billing" element={<BillingManagement />} />
+                      <Route path="emails" element={<EmailManagement />} />
                       <Route path="monitoring" element={<MonitoringManagement />} />
                       <Route path="operations" element={<OperationsManagement />} />
                       <Route path="settings" element={<SettingsManagement />} />

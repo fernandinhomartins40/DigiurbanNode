@@ -1,4 +1,4 @@
-import { query, queryOne, execute } from '../database/connection.js';
+import { prisma } from "../database/prisma.js";
 import { User, CreateUserData } from '../types/auth.js';
 import { v4 as uuidv4 } from 'uuid';
 

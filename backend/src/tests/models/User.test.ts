@@ -7,7 +7,7 @@
 
 import { beforeAll, afterAll, beforeEach, describe, test, expect } from '@jest/globals';
 import { UserModel, CreateUserData, UpdateUserData, User } from '../../models/User.js';
-import { initializeDatabase, closeDatabase } from '../../database/connection.js';
+import { initializeDatabase, closeDatabase } from '../../database/prisma.js';
 // import { runMigrations } from '../../database/migrationRunner.js'; // Removido - usando Knex nativo
 import bcrypt from 'bcryptjs';
 

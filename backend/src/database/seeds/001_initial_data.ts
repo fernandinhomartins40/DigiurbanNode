@@ -7,7 +7,7 @@
 
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { execute, query } from '../connection.js';
+import { prisma } from '../prisma.js';
 import { PermissionModel } from '../../models/Permission.js';
 
 // ====================================================================

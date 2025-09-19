@@ -1,0 +1,144 @@
+// ====================================================================
+// 🗄️ PRISMA SCHEMA LIMPO - DIGIURBAN SYSTEM
+// ====================================================================
+// Schema focado nos modelos principais, removendo tabelas legadas
+// ====================================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./backend/src/database/generated/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ====================================================================
+// TENANT MODEL (Multi-tenant core)
+// ====================================================================
+
+model Tenant {
+  id                  String       @id
+  tenantCode          String       @unique(map: "tenants_tenant_code_unique") @map("tenant_code")
+  nome                String
+  cidade              String
+  estado              String
+  cnpj                String       @unique(map: "tenants_cnpj_unique")
+  plano               String?      @default("basico")
+  status              String?      @default("ativo")
+  populacao           Int?
+  endereco            String?
+  responsavelNome     String?      @map("responsavel_nome")
+  responsavelEmail    String?      @map("responsavel_email")
+  responsavelTelefone String?      @map("responsavel_telefone")
+  createdAt           DateTime?    @map("created_at")
+  updatedAt           DateTime?    @map("updated_at")
+
+  // Relacionamentos
+  users               User[]
+  activityLogs        ActivityLog[]
+
+  @@index([tenantCode], map: "idx_tenants_codigo")
+  @@index([cnpj], map: "idx_tenants_cnpj")
+  @@index([status], map: "idx_tenants_status")
+  @@map("tenants")
+}
+
+// ====================================================================
+// USER MODEL (Authentication & Authorization)
+// ====================================================================
+
+model User {
+  id                  String       @id
+  tenantId            String?      @map("tenant_id")
+  nomeCompleto        String       @map("nome_completo")
+  email               String       @unique(map: "users_email_unique")
+  passwordHash        String       @map("password_hash")
+  role                String       @default("user")
+  status              String       @default("pendente")
+  avatarUrl           String?      @map("avatar_url")
+  ultimoLogin         DateTime?    @map("ultimo_login")
+  failedLoginAttempts Int?         @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime?    @map("locked_until")
+  emailVerified       Boolean?     @default(false) @map("email_verified")
+  createdAt           DateTime?    @map("created_at")
+  updatedAt           DateTime?    @map("updated_at")
+
+  // Relacionamentos
+  tenant              Tenant?      @relation(fields: [tenantId], references: [id])
+  permissions         UserPermission[]
+  grantedPermissions  UserPermission[] @relation("GrantedBy")
+  activityLogs        ActivityLog[]
+
+  @@index([email], map: "idx_users_email")
+  @@index([tenantId], map: "idx_users_tenant")
+  @@index([role], map: "idx_users_role")
+  @@index([status], map: "idx_users_status")
+  @@index([ultimoLogin], map: "idx_users_ultimo_login")
+  @@map("users")
+}
+
+// ====================================================================
+// PERMISSIONS MODEL (RBAC System)
+// ====================================================================
+
+model Permission {
+  id              Int              @id @default(autoincrement())
+  code            String           @unique(map: "permissions_code_unique")
+  resource        String
+  action          String
+  description     String?
+  createdAt       DateTime?        @map("created_at")
+
+  // Relacionamentos
+  userPermissions UserPermission[]
+
+  @@index([code], map: "idx_permissions_code")
+  @@index([resource], map: "idx_permissions_resource")
+  @@map("permissions")
+}
+
+model UserPermission {
+  id           Int        @id @default(autoincrement())
+  userId       String     @map("user_id")
+  permissionId Int        @map("permission_id")
+  grantedBy    String?    @map("granted_by")
+  createdAt    DateTime?  @map("created_at")
+
+  // Relacionamentos
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  grantor      User?      @relation("GrantedBy", fields: [grantedBy], references: [id])
+
+  @@unique([userId, permissionId], map: "user_permissions_user_id_permission_id_unique")
+  @@index([userId], map: "idx_user_permissions_user")
+  @@index([permissionId], map: "idx_user_permissions_permission")
+  @@map("user_permissions")
+}
+
+// ====================================================================
+// ACTIVITY LOG MODEL (Audit Trail)
+// ====================================================================
+
+model ActivityLog {
+  id         Int       @id @default(autoincrement())
+  userId     String?   @map("user_id")
+  tenantId   String?   @map("tenant_id")
+  action     String
+  resource   String?
+  resourceId String?   @map("resource_id")
+  details    String?
+  ipAddress  String?   @map("ip_address")
+  userAgent  String?   @map("user_agent")
+  createdAt  DateTime? @map("created_at")
+
+  // Relacionamentos
+  user       User?     @relation(fields: [userId], references: [id])
+  tenant     Tenant?   @relation(fields: [tenantId], references: [id])
+
+  @@index([userId], map: "idx_activity_user")
+  @@index([tenantId], map: "idx_activity_tenant")
+  @@index([action], map: "idx_activity_action")
+  @@map("activity_logs")
+}

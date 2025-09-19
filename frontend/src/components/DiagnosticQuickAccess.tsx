@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Stethoscope, ArrowRight } from 'lucide-react'
-import { useSupabaseDiagnostics } from "@/hooks/useSupabaseDiagnostics"
+// import { useSupabaseDiagnostics } from "@/hooks/useSupabaseDiagnostics" // TODO: Migrar para novo sistema
 
 export default function DiagnosticQuickAccess() {
-  const { runQuickTest, loading } = useSupabaseDiagnostics()
+  // const { runQuickTest, loading } = useSupabaseDiagnostics()
+  const runQuickTest = async () => console.log('Diagnóstico desabilitado temporariamente')
+  const loading = false
 
   const handleQuickTest = async () => {
     try {

@@ -6,7 +6,7 @@
 // Migrado para Knex.js Query Builder
 // ====================================================================
 
-import { getDatabase } from '../database/connection.js';
+import { prisma } from '../database/prisma.js';
 import { UserRole } from './User.js';
 
 // ====================================================================
@@ -101,7 +101,7 @@ export class PermissionModel {
       throw new Error('Código de permissão já existe');
     }
     
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     
     const [id] = await db('permissions').insert({
       code: permissionData.code,
@@ -123,7 +123,7 @@ export class PermissionModel {
   // ================================================================
   
   static async findById(id: number): Promise<Permission | null> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const permission = await db('permissions')
       .where('id', id)
       .first() as Permission | undefined;
@@ -131,7 +131,7 @@ export class PermissionModel {
   }
   
   static async findByCode(code: string): Promise<Permission | null> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const permission = await db('permissions')
       .where('code', code)
       .first() as Permission | undefined;
@@ -139,14 +139,14 @@ export class PermissionModel {
   }
   
   static async findByResource(resource: string): Promise<Permission[]> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     return await db('permissions')
       .where('resource', resource)
       .orderBy('action') as Permission[];
   }
   
   static async list(): Promise<Permission[]> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     return await db('permissions')
       .orderBy('resource')
       .orderBy('action') as Permission[];
@@ -157,7 +157,7 @@ export class PermissionModel {
   // ================================================================
   
   static async getUserPermissions(userId: string): Promise<PermissionWithDetails[]> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     return await db('permissions as p')
       .join('user_permissions as up', 'p.id', 'up.permission_id')
       .select(
@@ -178,7 +178,7 @@ export class PermissionModel {
     }
     
     // Verificar permissão direta
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const result = await db('user_permissions as up')
       .join('permissions as p', 'up.permission_id', 'p.id')
       .where('up.user_id', userId)
@@ -223,7 +223,7 @@ export class PermissionModel {
       return; // Já concedida
     }
     
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     
     await db('user_permissions').insert({
       user_id: userId,
@@ -246,7 +246,7 @@ export class PermissionModel {
   }
   
   static async revokePermission(userId: string, permissionId: number): Promise<void> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('user_permissions')
       .where('user_id', userId)
       .where('permission_id', permissionId)
@@ -263,7 +263,7 @@ export class PermissionModel {
   }
   
   static async revokeAllUserPermissions(userId: string): Promise<void> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('user_permissions')
       .where('user_id', userId)
       .del();
@@ -367,7 +367,7 @@ export class PermissionModel {
     userId: string,
     permissionId: number
   ): Promise<UserPermission | null> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const record = await db('user_permissions')
       .where('user_id', userId)
       .where('permission_id', permissionId)
@@ -376,7 +376,7 @@ export class PermissionModel {
   }
   
   private static async getUserRole(userId: string): Promise<UserRole | null> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const result = await db('users')
       .select('role')
       .where('id', userId)

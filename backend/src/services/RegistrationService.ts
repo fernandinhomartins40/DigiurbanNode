@@ -11,7 +11,7 @@ import { UserModel, User, CreateUserData } from '../models/User.js';
 import { TenantModel, Tenant, CreateTenantData } from '../models/Tenant.js';
 import { ActivityService } from './ActivityService.js';
 import { JWTUtils } from '../utils/jwt.js';
-import { transaction } from '../database/connection.js';
+import { transaction } from '../database/prisma.js';
 import { AUTH_CONFIG, ERROR_MESSAGES, SUCCESS_MESSAGES, VALIDATION_CONFIG } from '../config/auth.js';
 import type { UserRole } from '../models/User.js';
 

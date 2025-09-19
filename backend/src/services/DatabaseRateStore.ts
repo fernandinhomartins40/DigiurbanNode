@@ -6,7 +6,7 @@
 // Migrado para Knex.js Query Builder
 // ====================================================================
 
-import { getDatabase } from '../database/connection.js';
+import { prisma } from '../database/prisma.js';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
 import { RateLimitInfo, RateLimitStore } from './RedisRateStore.js';
 import { Knex } from 'knex';
@@ -32,10 +32,10 @@ interface RateLimitRecord {
 
 export class DatabaseRateStore implements RateLimitStore {
   private initialized: boolean = false;
-  private db: Knex;
+  private client: typeof prisma;
 
   constructor() {
-    this.db = getDatabase();
+    this.client = prisma;
     this.initialize();
   }
 
@@ -49,19 +49,19 @@ export class DatabaseRateStore implements RateLimitStore {
 
     try {
       // Verificar se tabela existe
-      const hasTable = await this.db.schema.hasTable('rate_limits');
+      const hasTable = await this.client.schema.hasTable('rate_limits');
       
       if (!hasTable) {
         // Criar tabela otimizada com sliding window
-        await this.db.schema.createTable('rate_limits', (table) => {
+        await this.client.schema.createTable('rate_limits', (table) => {
           table.increments('id').primary();
           table.string('key').notNullable().unique();
           table.integer('hits').notNullable().defaultTo(0);
           table.bigInteger('window_start').notNullable();
           table.integer('window_ms').notNullable();
           table.integer('max_hits').notNullable();
-          table.bigInteger('created_at').notNullable().defaultTo(this.db.raw('(unixepoch() * 1000)'));
-          table.bigInteger('updated_at').notNullable().defaultTo(this.db.raw('(unixepoch() * 1000)'));
+          table.bigInteger('created_at').notNullable().defaultTo(this.client.raw('(unixepoch() * 1000)'));
+          table.bigInteger('updated_at').notNullable().defaultTo(this.client.raw('(unixepoch() * 1000)'));
           
           // Índices otimizados para performance
           table.index(['key'], 'idx_rate_limits_key');
@@ -90,13 +90,13 @@ export class DatabaseRateStore implements RateLimitStore {
 
     try {
       // Buscar registro existente
-      const existing = await this.db('rate_limits')
+      const existing = await this.client('rate_limits')
         .where('key', key)
         .first() as RateLimitRecord | undefined;
 
       if (!existing) {
         // Criar novo registro
-        await this.db('rate_limits').insert({
+        await this.client('rate_limits').insert({
           key,
           hits: 1,
           window_start: now,
@@ -117,7 +117,7 @@ export class DatabaseRateStore implements RateLimitStore {
       // Verificar se janela expirou
       if (existing.window_start < windowStart) {
         // Reset da janela
-        await this.db('rate_limits')
+        await this.client('rate_limits')
           .where('key', key)
           .update({
             hits: 1,
@@ -137,7 +137,7 @@ export class DatabaseRateStore implements RateLimitStore {
 
       // Incrementar hits na janela atual
       const newHits = existing.hits + 1;
-      await this.db('rate_limits')
+      await this.client('rate_limits')
         .where('key', key)
         .update({
           hits: newHits,
@@ -176,7 +176,7 @@ export class DatabaseRateStore implements RateLimitStore {
     await this.initialize();
 
     try {
-      const deletedCount = await this.db('rate_limits')
+      const deletedCount = await this.client('rate_limits')
         .where('key', key)
         .del();
 
@@ -207,7 +207,7 @@ export class DatabaseRateStore implements RateLimitStore {
       const maxAge = 24 * 60 * 60 * 1000;
       const cutoff = now - maxAge;
 
-      const deletedCount = await this.db('rate_limits')
+      const deletedCount = await this.client('rate_limits')
         .where('updated_at', '<', cutoff)
         .del();
 
@@ -264,23 +264,23 @@ export class DatabaseRateStore implements RateLimitStore {
       const recentThreshold = now - (60 * 60 * 1000); // 1 hora atrás
 
       // Total de chaves
-      const totalResult = await this.db('rate_limits')
+      const totalResult = await this.client('rate_limits')
         .count('* as total')
         .first() as { total: number };
 
       // Chaves ativas (atualizadas na última hora)
-      const activeResult = await this.db('rate_limits')
+      const activeResult = await this.client('rate_limits')
         .where('updated_at', '>=', recentThreshold)
         .count('* as total')
         .first() as { total: number };
 
       // Média de hits por chave
-      const avgResult = await this.db('rate_limits')
+      const avgResult = await this.client('rate_limits')
         .avg('hits as average')
         .first() as { average: number };
 
       // Top chaves com mais hits
-      const topKeys = await this.db('rate_limits')
+      const topKeys = await this.client('rate_limits')
         .select('key', 'hits', 'window_start')
         .orderBy('hits', 'desc')
         .limit(10) as Array<{ key: string; hits: number; window_start: number }>;
@@ -316,7 +316,7 @@ export class DatabaseRateStore implements RateLimitStore {
       const now = Date.now();
       const windowStart = now - windowMs;
 
-      const record = await this.db('rate_limits')
+      const record = await this.client('rate_limits')
         .where('key', key)
         .first() as RateLimitRecord | undefined;
 

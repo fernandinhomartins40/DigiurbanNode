@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { userService } from '../services/userService.js';
 import { AppError } from '../middleware/errorHandler.js';
-import { query, queryOne } from '../database/connection.js';
+import { prisma } from "../database/prisma.js";
 import { User, UserModel } from '../models/User.js';
 import { CookieManager } from '../utils/cookieManager.js';
 import { AUTH_CONFIG, isProduction } from '../config/auth.js';

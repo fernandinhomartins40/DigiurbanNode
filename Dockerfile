@@ -54,11 +54,13 @@ WORKDIR /app
 # Copiar backend compilado com permissões corretas
 COPY --from=backend-build --chown=digiurban:digiurban /app/backend/dist ./backend/dist
 
-# Copiar knexfile.cjs do backend
-COPY --from=backend-build --chown=digiurban:digiurban /app/backend/knexfile.cjs ./backend/
+# Copiar schema.prisma da raiz (estrutura Prisma)
+COPY --chown=digiurban:digiurban schema.prisma ./schema.prisma
 
-# Copiar migrations da pasta raiz (nova estrutura organizada)
-COPY --chown=digiurban:digiurban migrations ./migrations
+# Garantir que Prisma client seja gerado no container
+WORKDIR /app/backend
+RUN npm run db:generate
+WORKDIR /app
 
 # Copiar frontend compilado com permissões corretas
 COPY --from=frontend-build --chown=digiurban:digiurban /app/frontend/dist ./frontend

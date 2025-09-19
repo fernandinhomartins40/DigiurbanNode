@@ -1,7 +1,7 @@
 import { APIClient } from '@/auth/utils/httpInterceptor';
 import { ServicoMunicipal, Secretaria } from './services';
 import { withProtocolRetry, withUploadRetry, withNotificationRetry } from './retry';
-import { measureSupabaseOperation, measureUpload } from './performance';
+// import { measureSupabaseOperation, measureUpload } from './performance'; // TODO: Migrar para novo sistema
 
 // =====================================================
 // TIPOS DE DADOS
@@ -160,12 +160,10 @@ export const protocolosService = {
   // Gerar número único de protocolo
   async gerarNumeroProtocolo(): Promise<string> {
     return withProtocolRetry(async () => {
-      return measureSupabaseOperation('gerar_numero_protocolo', async () => {
-        const data = await APIClient.post("/rpc/'gerar_numero_protocolo');
-        
-        if (error) throw error;
+      // return measureSupabaseOperation('gerar_numero_protocolo', async () => {
+        const data = await APIClient.post("/api/protocolos/gerar-numero");
         return data;
-      });
+      // });
     });
   },
 

@@ -7,7 +7,7 @@
 
 import dotenv from 'dotenv';
 import path from 'path';
-import { getDatabase } from '../database/connection.js';
+import { prisma } from '../database/prisma.js';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
 
 // ====================================================================
@@ -60,12 +60,12 @@ afterAll(() => {
 // SETUP DE BANCO DE DADOS PARA TESTES
 // ====================================================================
 
-// Variável removida - usando conexão direta do getDatabase()
+// Variável removida - usando conexão direta do prisma()
 
 export const setupTestDatabase = async (): Promise<void> => {
   try {
     // Inicializar conexão de testes
-    const db = await getDatabase();
+    const db = await prisma();
     
     // Executar migrations básicas para testes
     await new Promise<void>((resolve, reject) => {
@@ -143,7 +143,7 @@ export const setupTestDatabase = async (): Promise<void> => {
 
 export const cleanupTestDatabase = async (): Promise<void> => {
   try {
-    const db = await getDatabase();
+    const db = await prisma();
     
     // Limpar todas as tabelas usando promises
     await new Promise<void>((resolve, reject) => {

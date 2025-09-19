@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Building2, 
-  DollarSign, 
-  BarChart3, 
-  Shield, 
+import {
+  LayoutDashboard,
+  Building2,
+  DollarSign,
+  BarChart3,
+  Shield,
   Settings,
   Monitor,
   LogOut,
@@ -15,7 +15,8 @@ import {
   Zap,
   Calendar,
   Users,
-  Database
+  Database,
+  Mail
 } from 'lucide-react';
 import { useAuth } from '@/auth';
 import { Button } from './ui/button';
@@ -97,6 +98,12 @@ const SuperAdminLayout: React.FC<SuperAdminLayoutProps> = ({ children }) => {
       href: '/super-admin/analytics',
       icon: BarChart3,
       description: 'Relatórios empresariais'
+    },
+    {
+      name: 'Sistema de Email',
+      href: '/super-admin/emails',
+      icon: Mail,
+      description: 'Gestão UltraZend SMTP'
     },
     {
       name: 'Monitoramento',

@@ -5,8 +5,9 @@
 // Rastreamento completo de ações dos usuários
 // ====================================================================
 
-import { query, queryOne, execute } from '../database/connection.js';
+import { prisma } from "../database/prisma.js";
 import { UserModel } from '../models/User.js';
+import { ActivityModel } from '../models/Activity.js';
 import { LOG_CONFIG } from '../config/auth.js';
 
 // ====================================================================
@@ -83,29 +84,20 @@ export class ActivityService {
       // Limpar dados sensíveis
       const cleanedDetails = this.sanitizeDetails(activityData.details);
 
-      // Inserir no banco
-      const result = await execute(`
-        INSERT INTO activity_logs (
-          user_id, tenant_id, action, resource, resource_id,
-          details, ip_address, user_agent
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `, [
-        activityData.user_id || null,
-        activityData.tenant_id || null,
-        activityData.action,
-        activityData.resource,
-        activityData.resource_id || null,
-        cleanedDetails || null,
-        activityData.ip_address || null,
-        activityData.user_agent || null
-      ]);
+      // Inserir no banco usando ActivityModel
+      const activity = await ActivityModel.create({
+        user_id: activityData.user_id,
+        tenant_id: activityData.tenant_id,
+        action: activityData.action,
+        resource: activityData.resource,
+        resource_id: activityData.resource_id,
+        details: cleanedDetails,
+        ip_address: activityData.ip_address,
+        user_agent: activityData.user_agent
+      });
 
-      // Buscar o log criado
-      const createdLog = await queryOne(`
-        SELECT * FROM activity_logs WHERE id = ?
-      `, [result.lastInsertRowid]) as ActivityLog;
-
-      return createdLog;
+      // Retornar a atividade criada
+      return activity as ActivityLog;
 
     } catch (error) {
       console.error('Erro ao registrar atividade:', error);

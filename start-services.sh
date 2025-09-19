@@ -27,12 +27,12 @@ echo "📁 Conteúdo /app/:"
 ls -la /app/
 echo "📁 Conteúdo /app/backend/:"
 ls -la /app/backend/
-echo "📁 Conteúdo /app/migrations/:"
-ls -la /app/migrations/ || echo "❌ Diretório /app/migrations não existe"
+echo "📁 Schema Prisma:"
+ls -la /app/schema.prisma || echo "❌ Schema Prisma não encontrado"
 
-cd /app/backend && npm run knex:migrate
+cd /app/backend && npm run db:migrate:deploy
 if [ $? -eq 0 ]; then
-  echo "✅ Migrations executadas com sucesso"
+  echo "✅ Migrations Prisma executadas com sucesso"
 else
   echo "❌ Erro nas migrations, mas continuando..."
 fi

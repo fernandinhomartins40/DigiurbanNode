@@ -1,0 +1,288 @@
+// ====================================================================
+// 🗄️ PRISMA SCHEMA COMPLETO - DIGIURBAN + EMAIL SYSTEM
+// ====================================================================
+// Schema integrado com UltraZend SMTP Server
+// ====================================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./backend/src/database/generated/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ====================================================================
+// MODELOS EXISTENTES DIGIURBAN
+// ====================================================================
+
+model Tenant {
+  id                  String       @id
+  tenantCode          String       @unique(map: "tenants_tenant_code_unique") @map("tenant_code")
+  nome                String
+  cidade              String
+  estado              String
+  cnpj                String       @unique(map: "tenants_cnpj_unique")
+  plano               String?      @default("basico")
+  status              String?      @default("ativo")
+  populacao           Int?
+  endereco            String?
+  responsavelNome     String?      @map("responsavel_nome")
+  responsavelEmail    String?      @map("responsavel_email")
+  responsavelTelefone String?      @map("responsavel_telefone")
+  createdAt           DateTime?    @map("created_at")
+  updatedAt           DateTime?    @map("updated_at")
+
+  // Relacionamentos existentes
+  users               User[]
+  activityLogs        ActivityLog[]
+
+  // Novos relacionamentos com email
+  emailDomains        EmailDomain[]
+
+  @@index([tenantCode], map: "idx_tenants_codigo")
+  @@index([cnpj], map: "idx_tenants_cnpj")
+  @@index([status], map: "idx_tenants_status")
+  @@map("tenants")
+}
+
+model User {
+  id                  String       @id
+  tenantId            String?      @map("tenant_id")
+  nomeCompleto        String       @map("nome_completo")
+  email               String       @unique(map: "users_email_unique")
+  passwordHash        String       @map("password_hash")
+  role                String       @default("user")
+  status              String       @default("pendente")
+  avatarUrl           String?      @map("avatar_url")
+  ultimoLogin         DateTime?    @map("ultimo_login")
+  failedLoginAttempts Int?         @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime?    @map("locked_until")
+  emailVerified       Boolean?     @default(false) @map("email_verified")
+  createdAt           DateTime?    @map("created_at")
+  updatedAt           DateTime?    @map("updated_at")
+
+  // Relacionamentos existentes
+  tenant              Tenant?      @relation(fields: [tenantId], references: [id])
+  permissions         UserPermission[]
+  grantedPermissions  UserPermission[] @relation("GrantedBy")
+  activityLogs        ActivityLog[]
+
+  // Novos relacionamentos com email
+  smtpUsers           SmtpUser[]
+
+  @@index([email], map: "idx_users_email")
+  @@index([tenantId], map: "idx_users_tenant")
+  @@index([role], map: "idx_users_role")
+  @@index([status], map: "idx_users_status")
+  @@index([ultimoLogin], map: "idx_users_ultimo_login")
+  @@map("users")
+}
+
+model Permission {
+  id              Int              @id @default(autoincrement())
+  code            String           @unique(map: "permissions_code_unique")
+  resource        String
+  action          String
+  description     String?
+  createdAt       DateTime?        @map("created_at")
+
+  userPermissions UserPermission[]
+
+  @@index([code], map: "idx_permissions_code")
+  @@index([resource], map: "idx_permissions_resource")
+  @@map("permissions")
+}
+
+model UserPermission {
+  id           Int        @id @default(autoincrement())
+  userId       String     @map("user_id")
+  permissionId Int        @map("permission_id")
+  grantedBy    String?    @map("granted_by")
+  createdAt    DateTime?  @map("created_at")
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  grantor      User?      @relation("GrantedBy", fields: [grantedBy], references: [id])
+
+  @@unique([userId, permissionId], map: "user_permissions_user_id_permission_id_unique")
+  @@index([userId], map: "idx_user_permissions_user")
+  @@index([permissionId], map: "idx_user_permissions_permission")
+  @@map("user_permissions")
+}
+
+model ActivityLog {
+  id         Int       @id @default(autoincrement())
+  userId     String?   @map("user_id")
+  tenantId   String?   @map("tenant_id")
+  action     String
+  resource   String?
+  resourceId String?   @map("resource_id")
+  details    String?
+  ipAddress  String?   @map("ip_address")
+  userAgent  String?   @map("user_agent")
+  createdAt  DateTime? @map("created_at")
+
+  user       User?     @relation(fields: [userId], references: [id])
+  tenant     Tenant?   @relation(fields: [tenantId], references: [id])
+
+  @@index([userId], map: "idx_activity_user")
+  @@index([tenantId], map: "idx_activity_tenant")
+  @@index([action], map: "idx_activity_action")
+  @@map("activity_logs")
+}
+
+// ====================================================================
+// NOVOS MODELOS PARA EMAIL SYSTEM (UltraZend SMTP)
+// ====================================================================
+
+// Usuários SMTP (separados dos usuários do sistema)
+model SmtpUser {
+  id           Int           @id @default(autoincrement())
+  userId       String?       @map("user_id")        // Link opcional com usuário DigiUrban
+  email        String        @unique
+  passwordHash String        @map("password_hash")
+  name         String
+  isVerified   Boolean       @default(false) @map("is_verified")
+  isActive     Boolean       @default(true) @map("is_active")
+  isAdmin      Boolean       @default(false) @map("is_admin")
+  lastLogin    DateTime?     @map("last_login")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  domains      EmailDomain[]
+  authAttempts AuthAttempt[]
+
+  @@index([email])
+  @@index([isActive], map: "idx_smtp_users_active")
+  @@map("smtp_users")
+}
+
+// Domínios de email
+model EmailDomain {
+  id                 Int        @id @default(autoincrement())
+  tenantId           String?    @map("tenant_id")      // Link com tenant
+  smtpUserId         Int        @map("smtp_user_id")   // Usuário responsável
+  domainName         String     @unique @map("domain_name")
+  isVerified         Boolean    @default(false) @map("is_verified")
+  verificationToken  String?    @map("verification_token")
+  verifiedAt         DateTime?  @map("verified_at")
+  verificationMethod String?    @default("dns") @map("verification_method")
+  dkimEnabled        Boolean    @default(true) @map("dkim_enabled")
+  spfEnabled         Boolean    @default(true) @map("spf_enabled")
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  tenant             Tenant?    @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  smtpUser           SmtpUser   @relation(fields: [smtpUserId], references: [id], onDelete: Cascade)
+  dkimKeys           DkimKey[]
+  emails             Email[]
+
+  @@index([domainName])
+  @@index([isVerified])
+  @@index([tenantId])
+  @@map("email_domains")
+}
+
+// Chaves DKIM
+model DkimKey {
+  id              Int         @id @default(autoincrement())
+  domainId        Int         @map("domain_id")
+  selector        String
+  privateKey      String      @map("private_key")
+  publicKey       String      @map("public_key")
+  algorithm       String      @default("rsa-sha256")
+  canonicalization String    @default("relaxed/relaxed")
+  keySize         Int         @default(2048) @map("key_size")
+  isActive        Boolean     @default(true) @map("is_active")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  domain          EmailDomain @relation(fields: [domainId], references: [id], onDelete: Cascade)
+
+  @@unique([domainId, selector])
+  @@index([isActive])
+  @@map("dkim_keys")
+}
+
+// Emails processados
+model Email {
+  id           Int          @id @default(autoincrement())
+  messageId    String       @unique @map("message_id")
+  domainId     Int?         @map("domain_id")
+  fromEmail    String       @map("from_email")
+  toEmail      String       @map("to_email")
+  subject      String
+  htmlContent  String?      @map("html_content")
+  textContent  String?      @map("text_content")
+  status       String       @default("PENDING")
+  direction    String
+  sentAt       DateTime?    @map("sent_at")
+  deliveredAt  DateTime?    @map("delivered_at")
+  mxServer     String?      @map("mx_server")
+  errorMessage String?      @map("error_message")
+  attempts     Int          @default(0)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  domain       EmailDomain? @relation(fields: [domainId], references: [id], onDelete: SetNull)
+
+  @@index([messageId])
+  @@index([fromEmail])
+  @@index([toEmail])
+  @@index([status])
+  @@index([direction])
+  @@index([sentAt])
+  @@map("emails")
+}
+
+// Conexões SMTP
+model SmtpConnection {
+  id            Int               @id @default(autoincrement())
+  remoteAddress String           @map("remote_address")
+  hostname      String?
+  serverType    String           @map("server_type")
+  status        String
+  rejectReason  String?          @map("reject_reason")
+  createdAt     DateTime         @default(now()) @map("created_at")
+
+  @@index([remoteAddress])
+  @@index([serverType])
+  @@index([status])
+  @@index([createdAt])
+  @@map("smtp_connections")
+}
+
+// Tentativas de autenticação
+model AuthAttempt {
+  id            Int      @id @default(autoincrement())
+  smtpUserId    Int?     @map("smtp_user_id")
+  username      String
+  remoteAddress String   @map("remote_address")
+  success       Boolean
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  // Relacionamentos
+  smtpUser      SmtpUser? @relation(fields: [smtpUserId], references: [id], onDelete: SetNull)
+
+  @@index([username])
+  @@index([remoteAddress])
+  @@index([success])
+  @@index([createdAt])
+  @@map("auth_attempts")
+}
+
+// ====================================================================
+// CONSTANTS (usando strings ao invés de enums para compatibilidade SQLite)
+// ====================================================================
+// EmailStatus: "PENDING", "SENT", "DELIVERED", "BOUNCED", "FAILED"
+// EmailDirection: "INBOUND", "OUTBOUND"
+// SmtpServerType: "MX", "SUBMISSION"
+// ConnectionStatus: "ACCEPTED", "REJECTED", "FAILED"

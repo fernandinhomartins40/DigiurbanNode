@@ -16,6 +16,8 @@ import { logger } from './config/logger.js';
 import { sanitizeAll } from './middleware/validation.js';
 import { BackupService } from './services/BackupService.js';
 import { EmailService } from './services/EmailService.js';
+import { getUltraZendSMTPServer } from './services/UltraZendSMTPServer.js';
+import { prisma } from './database/prisma.js';
 // Migrations agora são executadas via Knex nativo no deploy
 // import { runMigrations } from './database/migrationRunner.js';
 import { CORS_CONFIG, SECURITY_HEADERS, validateConfig } from './config/auth.js';
@@ -34,6 +36,8 @@ import passwordResetRoutes from './routes/passwordReset.js';
 import metricsRoutes from './routes/metrics.js';
 import healthRoutes from './routes/health.js';
 import adminRoutes from './routes/admin.js';
+import emailRoutes from './routes/emails.js';
+import tenantEmailRoutes from './routes/tenantEmails.js';
 
 const app = express();
 const PORT = process.env.PORT || 3021;
@@ -148,6 +152,12 @@ app.use('/api', metricsRoutes);
 // Rotas de health check
 app.use('/api', healthRoutes);
 
+// Rotas de sistema de email (UltraZend Integration)
+app.use('/api/emails', emailRoutes);
+
+// Rotas de email para tenants (Sistema isolado por tenant)
+app.use('/api/tenant/emails', tenantEmailRoutes);
+
 // ====================================================================
 // ROTA 404
 // ====================================================================
@@ -171,11 +181,14 @@ app.use(errorHandler);
 // INICIALIZAÇÃO DO SERVIDOR
 // ====================================================================
 
+// Inicializar instância do UltraZend SMTP Server
+const smtpServer = getUltraZendSMTPServer(prisma);
+
 const server = app.listen(PORT, async () => {
   logger.info(`🚀 Servidor Digiurban Auth rodando na porta ${PORT}`);
   logger.info(`📍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
   logger.info(`🔗 Health Check: http://localhost:${PORT}/api/health`);
-  
+
   // Inicializar serviços
   try {
     // Migrations são executadas via Knex nativo no script de deploy
@@ -183,21 +196,36 @@ const server = app.listen(PORT, async () => {
 
     // 2. Inicializar serviços
     await BackupService.initialize();
-    
-    // 3. Inicializar serviço de e-mail
-    logger.info('📧 Inicializando serviço de e-mail...');
+
+    // 3. Inicializar serviço de e-mail integrado (UltraZend + DigiUrban)
+    logger.info('📧 Inicializando serviço de e-mail integrado...');
     EmailService.initialize();
     if (EmailService.isConfigured()) {
-      logger.info('✅ EmailService configurado com Resend');
+      logger.info('✅ EmailService configurado com UltraZend SMTP');
     } else {
-      logger.warn('⚠️  EmailService não configurado (RESEND_API_KEY não encontrado)');
+      logger.warn('⚠️  EmailService em modo simulação (configuração SMTP ausente)');
     }
-    
+
+    // 4. Inicializar UltraZend SMTP Server (se configurado)
+    if (process.env.SMTP_ENABLE === 'true') {
+      logger.info('📨 Inicializando UltraZend SMTP Server...');
+      try {
+        await smtpServer.start();
+        const stats = await smtpServer.getServerStats();
+        logger.info(`✅ UltraZend SMTP Server ativo nas portas MX:${stats.ports.mx} / Submission:${stats.ports.submission}`);
+      } catch (smtpError) {
+        logger.error('❌ Erro ao inicializar UltraZend SMTP Server:', smtpError);
+        logger.warn('⚠️  Sistema continuará sem servidor SMTP próprio');
+      }
+    } else {
+      logger.info('ℹ️  UltraZend SMTP Server desabilitado (SMTP_ENABLE != true)');
+    }
+
     // Iniciar backup automático em produção
     if (process.env.NODE_ENV === 'production') {
       BackupService.startAutomaticBackup();
     }
-    
+
   } catch (error) {
     logger.error('❌ Erro ao inicializar serviços:', error);
   }
@@ -211,22 +239,38 @@ const server = app.listen(PORT, async () => {
   logger.info('   • /api/system/* - Logs de sistema e diagnósticos');
   logger.info('   • /api/permissions/* - Sistema de permissões RBAC');
   logger.info('   • /api/activities/* - Logs e auditoria');
+  logger.info('   • /api/emails/* - Sistema integrado de email (UltraZend)');
+  logger.info('   • /api/tenant/emails/* - Sistema de email para tenants (isolado)');
 });
 
 // ====================================================================
 // GRACEFUL SHUTDOWN
 // ====================================================================
 
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   logger.info('🛑 SIGTERM recebido. Encerrando servidor...');
+
+  // Parar UltraZend SMTP Server primeiro
+  if (smtpServer.isServerRunning()) {
+    logger.info('📨 Parando UltraZend SMTP Server...');
+    await smtpServer.stop();
+  }
+
   server.close(() => {
     logger.info('✅ Servidor encerrado graciosamente');
     process.exit(0);
   });
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   logger.info('🛑 SIGINT recebido. Encerrando servidor...');
+
+  // Parar UltraZend SMTP Server primeiro
+  if (smtpServer.isServerRunning()) {
+    logger.info('📨 Parando UltraZend SMTP Server...');
+    await smtpServer.stop();
+  }
+
   server.close(() => {
     logger.info('✅ Servidor encerrado graciosamente');
     process.exit(0);

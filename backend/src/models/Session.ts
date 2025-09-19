@@ -3,10 +3,11 @@
 // ====================================================================
 // Modelo de sessões JWT para controle de autenticação
 // Segurança e rastreamento de sessões ativas
-// Migrado para Knex.js Query Builder
+// Migrado para Prisma ORM
 // ====================================================================
 
-import { getDatabase } from '../database/connection.js';
+import { prisma } from '../database/prisma.js';
+import { Session as PrismaSession } from '../database/generated/client/index.js';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 
@@ -59,7 +60,7 @@ export class SessionModel {
     const id = uuidv4();
     const tokenHash = this.hashToken(sessionData.token);
     
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     
     await db('user_sessions').insert({
       id,
@@ -83,7 +84,7 @@ export class SessionModel {
   // ================================================================
   
   static async findById(id: string): Promise<Session | null> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const session = await db('user_sessions')
       .where('id', id)
       .first() as Session | undefined;
@@ -92,7 +93,7 @@ export class SessionModel {
   
   static async findByToken(token: string): Promise<Session | null> {
     const tokenHash = this.hashToken(token);
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const session = await db('user_sessions')
       .where('token_hash', tokenHash)
       .where('is_active', true)
@@ -102,14 +103,14 @@ export class SessionModel {
   }
   
   static async findByUser(userId: string): Promise<Session[]> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     return await db('user_sessions')
       .where('user_id', userId)
       .orderBy('created_at', 'desc') as Session[];
   }
   
   static async getActiveSessions(userId: string): Promise<Session[]> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     return await db('user_sessions')
       .where('user_id', userId)
       .where('is_active', true)
@@ -151,7 +152,7 @@ export class SessionModel {
   // ================================================================
   
   static async invalidate(sessionId: string): Promise<void> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('user_sessions')
       .where('id', sessionId)
       .update({ is_active: false });
@@ -159,21 +160,21 @@ export class SessionModel {
   
   static async invalidateByToken(token: string): Promise<void> {
     const tokenHash = this.hashToken(token);
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('user_sessions')
       .where('token_hash', tokenHash)
       .update({ is_active: false });
   }
   
   static async invalidateAllUserSessions(userId: string): Promise<void> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('user_sessions')
       .where('user_id', userId)
       .update({ is_active: false });
   }
   
   static async invalidateOtherUserSessions(userId: string, currentSessionId: string): Promise<void> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('user_sessions')
       .where('user_id', userId)
       .where('id', '!=', currentSessionId)
@@ -185,7 +186,7 @@ export class SessionModel {
   // ================================================================
   
   static async cleanupExpiredSessions(): Promise<number> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const result = await db.raw(`
       UPDATE user_sessions 
       SET is_active = FALSE 
@@ -197,7 +198,7 @@ export class SessionModel {
   }
   
   static async deleteOldSessions(daysOld: number = 30): Promise<number> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const result = await db.raw(`
       DELETE FROM user_sessions 
       WHERE created_at <= datetime('now', '-${daysOld} days')
@@ -218,7 +219,7 @@ export class SessionModel {
     byUser: { user_id: string; count: number }[];
   }> {
     // Total de sessões
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const totalResult = await db('user_sessions')
       .count('* as total')
       .first() as { total: number };
@@ -259,7 +260,7 @@ export class SessionModel {
   // ================================================================
   
   static async getSessionsWithUser(limit: number = 50): Promise<SessionWithUser[]> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     return await db('user_sessions as s')
       .join('users as u', 's.user_id', 'u.id')
       .select(
@@ -275,7 +276,7 @@ export class SessionModel {
   }
   
   static async getUserSessionsWithDetails(userId: string): Promise<SessionWithUser[]> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     return await db('user_sessions as s')
       .join('users as u', 's.user_id', 'u.id')
       .select(
@@ -298,7 +299,7 @@ export class SessionModel {
     user_name: string;
     user_email: string;
   }[]> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     return await db('user_sessions as s')
       .join('users as u', 's.user_id', 'u.id')
       .select(
@@ -324,7 +325,7 @@ export class SessionModel {
   // ================================================================
   
   static async updateLastActivity(sessionId: string): Promise<void> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('user_sessions')
       .where('id', sessionId)
       .update({
@@ -333,7 +334,7 @@ export class SessionModel {
   }
   
   static async extendSession(sessionId: string, newExpiresAt: string): Promise<void> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('user_sessions')
       .where('id', sessionId)
       .update({
@@ -390,14 +391,14 @@ export class SessionModel {
   }
   
   static async invalidateAllByUser(userId: string): Promise<void> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('user_sessions')
       .where('user_id', userId)
       .update({ is_active: false });
   }
   
   static async getActiveByUser(userId: string): Promise<Session[]> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     return await db('user_sessions')
       .where('user_id', userId)
       .where('is_active', true)
@@ -406,7 +407,7 @@ export class SessionModel {
   }
   
   static async invalidateById(id: string): Promise<void> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('user_sessions')
       .where('id', id)
       .update({ is_active: false });

@@ -1,4 +1,4 @@
-import { query, queryOne } from '../database/connection.js';
+import { prisma } from "../database/prisma.js";
 import { StructuredLogger } from './structuredLogger.js';
 
 interface HealthCheckResult {

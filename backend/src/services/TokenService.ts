@@ -6,7 +6,7 @@
 // ====================================================================
 
 import { randomBytes, createHash } from 'crypto';
-import { execute } from '../database/connection.js';
+import { prisma } from "../database/prisma.js";
 import { EMAIL_CONFIG } from '../config/email.js';
 
 // ====================================================================

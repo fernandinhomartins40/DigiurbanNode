@@ -303,15 +303,13 @@ jobs:
         sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
         cd ${{ env.APP_DIR }}
         
-        echo '🔍 Verificando estrutura de migrations...'
-        if [ -d 'migrations' ]; then
-          echo '✅ Pasta migrations encontrada'
-          ls -la migrations/
-          echo ''
-          echo '📊 Migrations disponíveis:'
-          ls migrations/A*.sql 2>/dev/null | wc -l | xargs -I {} echo '{} migrations encontradas'
+        echo '🔍 Verificando estrutura Prisma...'
+        if [ -f 'schema.prisma' ]; then
+          echo '✅ Schema Prisma encontrado'
+          echo '📊 Verificando schema...'
+          head -20 schema.prisma
         else
-          echo '❌ Pasta migrations não encontrada'
+          echo '❌ Schema Prisma não encontrado'
           exit 1
         fi
         
@@ -333,41 +331,53 @@ jobs:
         # Aguardar container estar totalmente iniciado
         sleep 10
         
-        # Executar migrations via Knex nativo
-        if docker exec -e NODE_ENV=production ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && npm run knex:migrate'; then
-          echo '✅ Migrations executadas com sucesso'
-          
+        # Executar migrations via Prisma
+        if docker exec -e NODE_ENV=production ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && npm run db:migrate:deploy'; then
+          echo '✅ Migrations Prisma executadas com sucesso'
+
           echo ''
           echo '🎯 Criando super admin inicial...'
-          docker exec -e NODE_ENV=production -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=SuperAdmin2024 -e INITIAL_ADMIN_NAME='Super Administrador' ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && npm run knex:seed' || echo '⚠️ Super admin pode já existir'
+          docker exec -e NODE_ENV=production -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=SuperAdmin2024 -e INITIAL_ADMIN_NAME='Super Administrador' ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && npm run db:seed' || echo '⚠️ Super admin pode já existir'
           
-          # Verificar integridade do banco
+          # Verificar integridade do banco (Prisma)
           echo ''
-          echo '🔍 Verificando integridade do banco...'
+          echo '🔍 Verificando integridade do banco Prisma...'
           docker exec ${{ env.CONTAINER_NAME }} sh -c \"
             cd /app/backend && node -e \\\"
-              import('./dist/database/connection.js').then(async ({ getDatabase }) => {
+              import { PrismaClient } from './dist/database/generated/client/index.js';
+
+              const prisma = new PrismaClient();
+
+              (async () => {
                 try {
-                  const db = getDatabase();
-                  
-                  // Verificar tabelas criadas
-                  const tables = db.prepare('SELECT name FROM sqlite_master WHERE type=\\\\\\\\\\\\\\\"table\\\\\\\\\\\\\\\" ORDER BY name').all();
-                  console.log('📋 Tabelas criadas:', tables.length);
-                  tables.forEach(t => console.log('  •', t.name));
-                  
-                  // Verificar migrations aplicadas
-                  const migrations = db.prepare('SELECT id, filename FROM schema_migrations ORDER BY sequence_number').all();
-                  console.log('📝 Migrations aplicadas:', migrations.length);
-                  migrations.forEach(m => console.log('  •', m.id, '-', m.filename));
-                  
-                  // Verificar usuário admin
-                  const admin = db.prepare('SELECT email, role, status FROM users WHERE role = \\\\\\\\\\\\\\\"super_admin\\\\\\\\\\\\\\\"').get();
+                  // Verificar se as tabelas existem
+                  const result = await prisma.\\$queryRaw\\\`SELECT name FROM sqlite_master WHERE type='table' ORDER BY name\\\`;
+                  console.log('📋 Tabelas criadas:', result.length);
+                  result.forEach(t => console.log('  •', t.name));
+
+                  // Verificar se há usuários super admin
+                  const admin = await prisma.user.findFirst({
+                    where: { role: 'super_admin' },
+                    select: { email: true, role: true, status: true }
+                  });
                   console.log('👤 Super admin:', admin ? admin.email : 'NÃO ENCONTRADO');
-                  
+
+                  // Verificar tabelas de email se existirem
+                  try {
+                    const smtpUsers = await prisma.smtpUser.count();
+                    const emailDomains = await prisma.emailDomain.count();
+                    console.log('📧 Usuários SMTP:', smtpUsers);
+                    console.log('🌐 Domínios Email:', emailDomains);
+                  } catch (e) {
+                    console.log('ℹ️  Tabelas de email não criadas ainda');
+                  }
+
+                  await prisma.\\$disconnect();
                 } catch (error) {
                   console.error('❌ Erro na verificação:', error.message);
+                  await prisma.\\$disconnect();
                 }
-              });
+              })();
             \\\"
           \" || echo '⚠️ Não foi possível verificar integridade completa'
           
@@ -443,6 +453,16 @@ jobs:
         else
           echo "❌ Backend não está respondendo"
           BACKEND_FAILED=1
+        fi
+
+        echo ""
+
+        # Health check do sistema de email
+        if health_check "http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/api/emails/health" "Sistema de Email"; then
+          echo "✅ Sistema de Email está funcionando!"
+        else
+          echo "⚠️ Sistema de Email não está respondendo (pode estar desabilitado)"
+          # Não falha o deploy por isso, pois SMTP pode estar desabilitado
         fi
         
         echo ""

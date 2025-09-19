@@ -6,7 +6,7 @@
 // Migrado para Knex.js Query Builder
 // ====================================================================
 
-import { getDatabase } from '../database/connection.js';
+import { prisma } from '../database/prisma.js';
 import { v4 as uuidv4 } from 'uuid';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
 
@@ -113,7 +113,7 @@ export class TenantModel {
     // Gerar código único
     const tenantCode = await this.generateUniqueCode(tenantData.nome);
     
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     
     await db('tenants').insert({
       id,
@@ -144,7 +144,7 @@ export class TenantModel {
   // ================================================================
   
   static async findById(id: string): Promise<Tenant | null> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const tenant = await db('tenants')
       .where('id', id)
       .first() as Tenant | undefined;
@@ -152,7 +152,7 @@ export class TenantModel {
   }
   
   static async findByCode(tenantCode: string): Promise<Tenant | null> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const tenant = await db('tenants')
       .where('tenant_code', tenantCode)
       .first() as Tenant | undefined;
@@ -161,7 +161,7 @@ export class TenantModel {
   
   static async findByCNPJ(cnpj: string): Promise<Tenant | null> {
     const cleanedCNPJ = this.cleanCNPJ(cnpj);
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const tenant = await db('tenants')
       .where('cnpj', cleanedCNPJ)
       .first() as Tenant | undefined;
@@ -169,7 +169,7 @@ export class TenantModel {
   }
   
   static async findByCity(cidade: string, estado?: string): Promise<Tenant[]> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     let query = db('tenants')
       .whereRaw('LOWER(cidade) = LOWER(?)', [cidade]);
     
@@ -204,7 +204,7 @@ export class TenantModel {
       return tenant; // Nenhuma atualização
     }
     
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const updateData: any = {};
     
     if (updates.nome) updateData.nome = updates.nome;
@@ -238,7 +238,7 @@ export class TenantModel {
   // ================================================================
   
   static async softDelete(id: string): Promise<void> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('tenants')
       .where('id', id)
       .update({
@@ -248,7 +248,7 @@ export class TenantModel {
   }
   
   static async hardDelete(id: string): Promise<void> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     await db('tenants')
       .where('id', id)
       .del();
@@ -265,7 +265,7 @@ export class TenantModel {
     plano?: TenantPlano;
     estado?: string;
   } = {}): Promise<Tenant[]> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     let query = db('tenants').select('*');
     
     if (options.status) {
@@ -298,7 +298,7 @@ export class TenantModel {
     plano?: TenantPlano;
     estado?: string;
   } = {}): Promise<number> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     let query = db('tenants');
     
     if (filters.status) {
@@ -331,7 +331,7 @@ export class TenantModel {
     const total = await this.count();
     
     // Por status
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const statusStats = await db('tenants')
       .select('status', db.raw('COUNT(*) as count'))
       .groupBy('status') as { status: TenantStatus; count: number }[];
@@ -468,7 +468,7 @@ export class TenantModel {
   // ================================================================
   
   static async getUserCount(tenantId: string): Promise<number> {
-    const db = getDatabase();
+    // Usando prisma client diretamente;
     const result = await db('users')
       .where('tenant_id', tenantId)
       .where('status', '!=', 'inativo')
@@ -537,7 +537,7 @@ export class TenantModel {
     inactive: number;
   }> {
     try {
-      const db = getDatabase();
+      // Usando prisma client diretamente;
       const result = await db('tenants')
         .select(
           db.raw('COUNT(*) as total'),

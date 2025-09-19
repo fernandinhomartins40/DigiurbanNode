@@ -6,7 +6,7 @@
 // ====================================================================
 
 import { Request, Response, NextFunction } from 'express';
-import { query, queryOne } from '../database/connection.js';
+import { prisma } from "../database/prisma.js";
 import { User, UserRole as UserRoleType } from '../models/User.js';
 
 // Tipos para o sistema de autorização

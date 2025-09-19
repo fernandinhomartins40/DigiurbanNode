@@ -51,13 +51,13 @@ export { authLogger, AuthMetrics, AuthDebug } from './utils/authLogger';
 // ====================================================================
 // CONFIGURAÇÕES
 // ====================================================================
-export { 
-  AUTH2_CONFIG, 
-  SUPABASE_CONFIG, 
+export {
+  AUTH2_CONFIG,
+  JWT_CONFIG,
   PERFORMANCE_CONFIG,
   AUTH_ERRORS,
   DEV_CONFIG,
-  ConfigUtils 
+  ConfigUtils
 } from './config/authConfig';
 
 // ====================================================================

@@ -1,0 +1,20655 @@
+
+/**
+ * Client
+**/
+
+import * as runtime from './runtime/library.js';
+import $Types = runtime.Types // general types
+import $Public = runtime.Types.Public
+import $Utils = runtime.Types.Utils
+import $Extensions = runtime.Types.Extensions
+import $Result = runtime.Types.Result
+
+export type PrismaPromise<T> = $Public.PrismaPromise<T>
+
+
+/**
+ * Model Tenant
+ * 
+ */
+export type Tenant = $Result.DefaultSelection<Prisma.$TenantPayload>
+/**
+ * Model User
+ * 
+ */
+export type User = $Result.DefaultSelection<Prisma.$UserPayload>
+/**
+ * Model Permission
+ * 
+ */
+export type Permission = $Result.DefaultSelection<Prisma.$PermissionPayload>
+/**
+ * Model UserPermission
+ * 
+ */
+export type UserPermission = $Result.DefaultSelection<Prisma.$UserPermissionPayload>
+/**
+ * Model ActivityLog
+ * 
+ */
+export type ActivityLog = $Result.DefaultSelection<Prisma.$ActivityLogPayload>
+/**
+ * Model SmtpUser
+ * 
+ */
+export type SmtpUser = $Result.DefaultSelection<Prisma.$SmtpUserPayload>
+/**
+ * Model EmailDomain
+ * 
+ */
+export type EmailDomain = $Result.DefaultSelection<Prisma.$EmailDomainPayload>
+/**
+ * Model DkimKey
+ * 
+ */
+export type DkimKey = $Result.DefaultSelection<Prisma.$DkimKeyPayload>
+/**
+ * Model Email
+ * 
+ */
+export type Email = $Result.DefaultSelection<Prisma.$EmailPayload>
+/**
+ * Model SmtpConnection
+ * 
+ */
+export type SmtpConnection = $Result.DefaultSelection<Prisma.$SmtpConnectionPayload>
+/**
+ * Model AuthAttempt
+ * 
+ */
+export type AuthAttempt = $Result.DefaultSelection<Prisma.$AuthAttemptPayload>
+
+/**
+ * ##  Prisma Client ʲˢ
+ *
+ * Type-safe database client for TypeScript & Node.js
+ * @example
+ * ```
+ * const prisma = new PrismaClient()
+ * // Fetch zero or more Tenants
+ * const tenants = await prisma.tenant.findMany()
+ * ```
+ *
+ *
+ * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+ */
+export class PrismaClient<
+  ClientOptions extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions,
+  const U = 'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never,
+  ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs
+> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
+
+    /**
+   * ##  Prisma Client ʲˢ
+   *
+   * Type-safe database client for TypeScript & Node.js
+   * @example
+   * ```
+   * const prisma = new PrismaClient()
+   * // Fetch zero or more Tenants
+   * const tenants = await prisma.tenant.findMany()
+   * ```
+   *
+   *
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+   */
+
+  constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
+  $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): PrismaClient;
+
+  /**
+   * Connect with the database
+   */
+  $connect(): $Utils.JsPromise<void>;
+
+  /**
+   * Disconnect from the database
+   */
+  $disconnect(): $Utils.JsPromise<void>;
+
+/**
+   * Executes a prepared raw query and returns the number of affected rows.
+   * @example
+   * ```
+   * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
+   * ```
+   *
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   */
+  $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
+
+  /**
+   * Executes a raw query and returns the number of affected rows.
+   * Susceptible to SQL injections, see documentation.
+   * @example
+   * ```
+   * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
+   * ```
+   *
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   */
+  $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
+
+  /**
+   * Performs a prepared raw query and returns the `SELECT` data.
+   * @example
+   * ```
+   * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
+   * ```
+   *
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   */
+  $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
+
+  /**
+   * Performs a raw query and returns the `SELECT` data.
+   * Susceptible to SQL injections, see documentation.
+   * @example
+   * ```
+   * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
+   * ```
+   *
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   */
+  $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
+
+
+  /**
+   * Allows the running of a sequence of read/write operations that are guaranteed to either succeed or fail as a whole.
+   * @example
+   * ```
+   * const [george, bob, alice] = await prisma.$transaction([
+   *   prisma.user.create({ data: { name: 'George' } }),
+   *   prisma.user.create({ data: { name: 'Bob' } }),
+   *   prisma.user.create({ data: { name: 'Alice' } }),
+   * ])
+   * ```
+   * 
+   * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
+   */
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+
+  $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
+
+
+  $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb<ClientOptions>, ExtArgs, $Utils.Call<Prisma.TypeMapCb<ClientOptions>, {
+    extArgs: ExtArgs
+  }>>
+
+      /**
+   * `prisma.tenant`: Exposes CRUD operations for the **Tenant** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Tenants
+    * const tenants = await prisma.tenant.findMany()
+    * ```
+    */
+  get tenant(): Prisma.TenantDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.user`: Exposes CRUD operations for the **User** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Users
+    * const users = await prisma.user.findMany()
+    * ```
+    */
+  get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.permission`: Exposes CRUD operations for the **Permission** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Permissions
+    * const permissions = await prisma.permission.findMany()
+    * ```
+    */
+  get permission(): Prisma.PermissionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userPermission`: Exposes CRUD operations for the **UserPermission** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserPermissions
+    * const userPermissions = await prisma.userPermission.findMany()
+    * ```
+    */
+  get userPermission(): Prisma.UserPermissionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.activityLog`: Exposes CRUD operations for the **ActivityLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ActivityLogs
+    * const activityLogs = await prisma.activityLog.findMany()
+    * ```
+    */
+  get activityLog(): Prisma.ActivityLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.smtpUser`: Exposes CRUD operations for the **SmtpUser** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SmtpUsers
+    * const smtpUsers = await prisma.smtpUser.findMany()
+    * ```
+    */
+  get smtpUser(): Prisma.SmtpUserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.emailDomain`: Exposes CRUD operations for the **EmailDomain** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmailDomains
+    * const emailDomains = await prisma.emailDomain.findMany()
+    * ```
+    */
+  get emailDomain(): Prisma.EmailDomainDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.dkimKey`: Exposes CRUD operations for the **DkimKey** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DkimKeys
+    * const dkimKeys = await prisma.dkimKey.findMany()
+    * ```
+    */
+  get dkimKey(): Prisma.DkimKeyDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.email`: Exposes CRUD operations for the **Email** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Emails
+    * const emails = await prisma.email.findMany()
+    * ```
+    */
+  get email(): Prisma.EmailDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.smtpConnection`: Exposes CRUD operations for the **SmtpConnection** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SmtpConnections
+    * const smtpConnections = await prisma.smtpConnection.findMany()
+    * ```
+    */
+  get smtpConnection(): Prisma.SmtpConnectionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.authAttempt`: Exposes CRUD operations for the **AuthAttempt** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AuthAttempts
+    * const authAttempts = await prisma.authAttempt.findMany()
+    * ```
+    */
+  get authAttempt(): Prisma.AuthAttemptDelegate<ExtArgs, ClientOptions>;
+}
+
+export namespace Prisma {
+  export import DMMF = runtime.DMMF
+
+  export type PrismaPromise<T> = $Public.PrismaPromise<T>
+
+  /**
+   * Validator
+   */
+  export import validator = runtime.Public.validator
+
+  /**
+   * Prisma Errors
+   */
+  export import PrismaClientKnownRequestError = runtime.PrismaClientKnownRequestError
+  export import PrismaClientUnknownRequestError = runtime.PrismaClientUnknownRequestError
+  export import PrismaClientRustPanicError = runtime.PrismaClientRustPanicError
+  export import PrismaClientInitializationError = runtime.PrismaClientInitializationError
+  export import PrismaClientValidationError = runtime.PrismaClientValidationError
+
+  /**
+   * Re-export of sql-template-tag
+   */
+  export import sql = runtime.sqltag
+  export import empty = runtime.empty
+  export import join = runtime.join
+  export import raw = runtime.raw
+  export import Sql = runtime.Sql
+
+
+
+  /**
+   * Decimal.js
+   */
+  export import Decimal = runtime.Decimal
+
+  export type DecimalJsLike = runtime.DecimalJsLike
+
+  /**
+   * Metrics
+   */
+  export type Metrics = runtime.Metrics
+  export type Metric<T> = runtime.Metric<T>
+  export type MetricHistogram = runtime.MetricHistogram
+  export type MetricHistogramBucket = runtime.MetricHistogramBucket
+
+  /**
+  * Extensions
+  */
+  export import Extension = $Extensions.UserArgs
+  export import getExtensionContext = runtime.Extensions.getExtensionContext
+  export import Args = $Public.Args
+  export import Payload = $Public.Payload
+  export import Result = $Public.Result
+  export import Exact = $Public.Exact
+
+  /**
+   * Prisma Client JS version: 6.16.2
+   * Query Engine version: 605197351a3c8bdd595af2d2a9bc3025bca48ea2
+   */
+  export type PrismaVersion = {
+    client: string
+  }
+
+  export const prismaVersion: PrismaVersion
+
+  /**
+   * Utility Types
+   */
+
+
+  export import JsonObject = runtime.JsonObject
+  export import JsonArray = runtime.JsonArray
+  export import JsonValue = runtime.JsonValue
+  export import InputJsonObject = runtime.InputJsonObject
+  export import InputJsonArray = runtime.InputJsonArray
+  export import InputJsonValue = runtime.InputJsonValue
+
+  /**
+   * Types of the values used to represent different kinds of `null` values when working with JSON fields.
+   *
+   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+   */
+  namespace NullTypes {
+    /**
+    * Type of `Prisma.DbNull`.
+    *
+    * You cannot use other instances of this class. Please use the `Prisma.DbNull` value.
+    *
+    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+    */
+    class DbNull {
+      private DbNull: never
+      private constructor()
+    }
+
+    /**
+    * Type of `Prisma.JsonNull`.
+    *
+    * You cannot use other instances of this class. Please use the `Prisma.JsonNull` value.
+    *
+    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+    */
+    class JsonNull {
+      private JsonNull: never
+      private constructor()
+    }
+
+    /**
+    * Type of `Prisma.AnyNull`.
+    *
+    * You cannot use other instances of this class. Please use the `Prisma.AnyNull` value.
+    *
+    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+    */
+    class AnyNull {
+      private AnyNull: never
+      private constructor()
+    }
+  }
+
+  /**
+   * Helper for filtering JSON entries that have `null` on the database (empty on the db)
+   *
+   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+   */
+  export const DbNull: NullTypes.DbNull
+
+  /**
+   * Helper for filtering JSON entries that have JSON `null` values (not empty on the db)
+   *
+   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+   */
+  export const JsonNull: NullTypes.JsonNull
+
+  /**
+   * Helper for filtering JSON entries that are `Prisma.DbNull` or `Prisma.JsonNull`
+   *
+   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+   */
+  export const AnyNull: NullTypes.AnyNull
+
+  type SelectAndInclude = {
+    select: any
+    include: any
+  }
+
+  type SelectAndOmit = {
+    select: any
+    omit: any
+  }
+
+  /**
+   * Get the type of the value, that the Promise holds.
+   */
+  export type PromiseType<T extends PromiseLike<any>> = T extends PromiseLike<infer U> ? U : T;
+
+  /**
+   * Get the return type of a function which returns a Promise.
+   */
+  export type PromiseReturnType<T extends (...args: any) => $Utils.JsPromise<any>> = PromiseType<ReturnType<T>>
+
+  /**
+   * From T, pick a set of properties whose keys are in the union K
+   */
+  type Prisma__Pick<T, K extends keyof T> = {
+      [P in K]: T[P];
+  };
+
+
+  export type Enumerable<T> = T | Array<T>;
+
+  export type RequiredKeys<T> = {
+    [K in keyof T]-?: {} extends Prisma__Pick<T, K> ? never : K
+  }[keyof T]
+
+  export type TruthyKeys<T> = keyof {
+    [K in keyof T as T[K] extends false | undefined | null ? never : K]: K
+  }
+
+  export type TrueKeys<T> = TruthyKeys<Prisma__Pick<T, RequiredKeys<T>>>
+
+  /**
+   * Subset
+   * @desc From `T` pick properties that exist in `U`. Simple version of Intersection
+   */
+  export type Subset<T, U> = {
+    [key in keyof T]: key extends keyof U ? T[key] : never;
+  };
+
+  /**
+   * SelectSubset
+   * @desc From `T` pick properties that exist in `U`. Simple version of Intersection.
+   * Additionally, it validates, if both select and include are present. If the case, it errors.
+   */
+  export type SelectSubset<T, U> = {
+    [key in keyof T]: key extends keyof U ? T[key] : never
+  } &
+    (T extends SelectAndInclude
+      ? 'Please either choose `select` or `include`.'
+      : T extends SelectAndOmit
+        ? 'Please either choose `select` or `omit`.'
+        : {})
+
+  /**
+   * Subset + Intersection
+   * @desc From `T` pick properties that exist in `U` and intersect `K`
+   */
+  export type SubsetIntersection<T, U, K> = {
+    [key in keyof T]: key extends keyof U ? T[key] : never
+  } &
+    K
+
+  type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
+
+  /**
+   * XOR is needed to have a real mutually exclusive union type
+   * https://stackoverflow.com/questions/42123407/does-typescript-support-mutually-exclusive-types
+   */
+  type XOR<T, U> =
+    T extends object ?
+    U extends object ?
+      (Without<T, U> & U) | (Without<U, T> & T)
+    : U : T
+
+
+  /**
+   * Is T a Record?
+   */
+  type IsObject<T extends any> = T extends Array<any>
+  ? False
+  : T extends Date
+  ? False
+  : T extends Uint8Array
+  ? False
+  : T extends BigInt
+  ? False
+  : T extends object
+  ? True
+  : False
+
+
+  /**
+   * If it's T[], return T
+   */
+  export type UnEnumerate<T extends unknown> = T extends Array<infer U> ? U : T
+
+  /**
+   * From ts-toolbelt
+   */
+
+  type __Either<O extends object, K extends Key> = Omit<O, K> &
+    {
+      // Merge all but K
+      [P in K]: Prisma__Pick<O, P & keyof O> // With K possibilities
+    }[K]
+
+  type EitherStrict<O extends object, K extends Key> = Strict<__Either<O, K>>
+
+  type EitherLoose<O extends object, K extends Key> = ComputeRaw<__Either<O, K>>
+
+  type _Either<
+    O extends object,
+    K extends Key,
+    strict extends Boolean
+  > = {
+    1: EitherStrict<O, K>
+    0: EitherLoose<O, K>
+  }[strict]
+
+  type Either<
+    O extends object,
+    K extends Key,
+    strict extends Boolean = 1
+  > = O extends unknown ? _Either<O, K, strict> : never
+
+  export type Union = any
+
+  type PatchUndefined<O extends object, O1 extends object> = {
+    [K in keyof O]: O[K] extends undefined ? At<O1, K> : O[K]
+  } & {}
+
+  /** Helper Types for "Merge" **/
+  export type IntersectOf<U extends Union> = (
+    U extends unknown ? (k: U) => void : never
+  ) extends (k: infer I) => void
+    ? I
+    : never
+
+  export type Overwrite<O extends object, O1 extends object> = {
+      [K in keyof O]: K extends keyof O1 ? O1[K] : O[K];
+  } & {};
+
+  type _Merge<U extends object> = IntersectOf<Overwrite<U, {
+      [K in keyof U]-?: At<U, K>;
+  }>>;
+
+  type Key = string | number | symbol;
+  type AtBasic<O extends object, K extends Key> = K extends keyof O ? O[K] : never;
+  type AtStrict<O extends object, K extends Key> = O[K & keyof O];
+  type AtLoose<O extends object, K extends Key> = O extends unknown ? AtStrict<O, K> : never;
+  export type At<O extends object, K extends Key, strict extends Boolean = 1> = {
+      1: AtStrict<O, K>;
+      0: AtLoose<O, K>;
+  }[strict];
+
+  export type ComputeRaw<A extends any> = A extends Function ? A : {
+    [K in keyof A]: A[K];
+  } & {};
+
+  export type OptionalFlat<O> = {
+    [K in keyof O]?: O[K];
+  } & {};
+
+  type _Record<K extends keyof any, T> = {
+    [P in K]: T;
+  };
+
+  // cause typescript not to expand types and preserve names
+  type NoExpand<T> = T extends unknown ? T : never;
+
+  // this type assumes the passed object is entirely optional
+  type AtLeast<O extends object, K extends string> = NoExpand<
+    O extends unknown
+    ? | (K extends keyof O ? { [P in K]: O[P] } & O : O)
+      | {[P in keyof O as P extends K ? P : never]-?: O[P]} & O
+    : never>;
+
+  type _Strict<U, _U = U> = U extends unknown ? U & OptionalFlat<_Record<Exclude<Keys<_U>, keyof U>, never>> : never;
+
+  export type Strict<U extends object> = ComputeRaw<_Strict<U>>;
+  /** End Helper Types for "Merge" **/
+
+  export type Merge<U extends object> = ComputeRaw<_Merge<Strict<U>>>;
+
+  /**
+  A [[Boolean]]
+  */
+  export type Boolean = True | False
+
+  // /**
+  // 1
+  // */
+  export type True = 1
+
+  /**
+  0
+  */
+  export type False = 0
+
+  export type Not<B extends Boolean> = {
+    0: 1
+    1: 0
+  }[B]
+
+  export type Extends<A1 extends any, A2 extends any> = [A1] extends [never]
+    ? 0 // anything `never` is false
+    : A1 extends A2
+    ? 1
+    : 0
+
+  export type Has<U extends Union, U1 extends Union> = Not<
+    Extends<Exclude<U1, U>, U1>
+  >
+
+  export type Or<B1 extends Boolean, B2 extends Boolean> = {
+    0: {
+      0: 0
+      1: 1
+    }
+    1: {
+      0: 1
+      1: 1
+    }
+  }[B1][B2]
+
+  export type Keys<U extends Union> = U extends unknown ? keyof U : never
+
+  type Cast<A, B> = A extends B ? A : B;
+
+  export const type: unique symbol;
+
+
+
+  /**
+   * Used by group by
+   */
+
+  export type GetScalarType<T, O> = O extends object ? {
+    [P in keyof T]: P extends keyof O
+      ? O[P]
+      : never
+  } : never
+
+  type FieldPaths<
+    T,
+    U = Omit<T, '_avg' | '_sum' | '_count' | '_min' | '_max'>
+  > = IsObject<T> extends True ? U : T
+
+  type GetHavingFields<T> = {
+    [K in keyof T]: Or<
+      Or<Extends<'OR', K>, Extends<'AND', K>>,
+      Extends<'NOT', K>
+    > extends True
+      ? // infer is only needed to not hit TS limit
+        // based on the brilliant idea of Pierre-Antoine Mills
+        // https://github.com/microsoft/TypeScript/issues/30188#issuecomment-478938437
+        T[K] extends infer TK
+        ? GetHavingFields<UnEnumerate<TK> extends object ? Merge<UnEnumerate<TK>> : never>
+        : never
+      : {} extends FieldPaths<T[K]>
+      ? never
+      : K
+  }[keyof T]
+
+  /**
+   * Convert tuple to union
+   */
+  type _TupleToUnion<T> = T extends (infer E)[] ? E : never
+  type TupleToUnion<K extends readonly any[]> = _TupleToUnion<K>
+  type MaybeTupleToUnion<T> = T extends any[] ? TupleToUnion<T> : T
+
+  /**
+   * Like `Pick`, but additionally can also accept an array of keys
+   */
+  type PickEnumerable<T, K extends Enumerable<keyof T> | keyof T> = Prisma__Pick<T, MaybeTupleToUnion<K>>
+
+  /**
+   * Exclude all keys with underscores
+   */
+  type ExcludeUnderscoreKeys<T extends string> = T extends `_${string}` ? never : T
+
+
+  export type FieldRef<Model, FieldType> = runtime.FieldRef<Model, FieldType>
+
+  type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRef<Model, FieldType>
+
+
+  export const ModelName: {
+    Tenant: 'Tenant',
+    User: 'User',
+    Permission: 'Permission',
+    UserPermission: 'UserPermission',
+    ActivityLog: 'ActivityLog',
+    SmtpUser: 'SmtpUser',
+    EmailDomain: 'EmailDomain',
+    DkimKey: 'DkimKey',
+    Email: 'Email',
+    SmtpConnection: 'SmtpConnection',
+    AuthAttempt: 'AuthAttempt'
+  };
+
+  export type ModelName = (typeof ModelName)[keyof typeof ModelName]
+
+
+  export type Datasources = {
+    db?: Datasource
+  }
+
+  interface TypeMapCb<ClientOptions = {}> extends $Utils.Fn<{extArgs: $Extensions.InternalArgs }, $Utils.Record<string, any>> {
+    returns: Prisma.TypeMap<this['params']['extArgs'], ClientOptions extends { omit: infer OmitOptions } ? OmitOptions : {}>
+  }
+
+  export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> = {
+    globalOmitOptions: {
+      omit: GlobalOmitOptions
+    }
+    meta: {
+      modelProps: "tenant" | "user" | "permission" | "userPermission" | "activityLog" | "smtpUser" | "emailDomain" | "dkimKey" | "email" | "smtpConnection" | "authAttempt"
+      txIsolationLevel: Prisma.TransactionIsolationLevel
+    }
+    model: {
+      Tenant: {
+        payload: Prisma.$TenantPayload<ExtArgs>
+        fields: Prisma.TenantFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TenantFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TenantFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantPayload>
+          }
+          findFirst: {
+            args: Prisma.TenantFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TenantFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantPayload>
+          }
+          findMany: {
+            args: Prisma.TenantFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantPayload>[]
+          }
+          create: {
+            args: Prisma.TenantCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantPayload>
+          }
+          createMany: {
+            args: Prisma.TenantCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TenantCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantPayload>[]
+          }
+          delete: {
+            args: Prisma.TenantDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantPayload>
+          }
+          update: {
+            args: Prisma.TenantUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantPayload>
+          }
+          deleteMany: {
+            args: Prisma.TenantDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TenantUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TenantUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantPayload>
+          }
+          aggregate: {
+            args: Prisma.TenantAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTenant>
+          }
+          groupBy: {
+            args: Prisma.TenantGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TenantGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TenantCountArgs<ExtArgs>
+            result: $Utils.Optional<TenantCountAggregateOutputType> | number
+          }
+        }
+      }
+      User: {
+        payload: Prisma.$UserPayload<ExtArgs>
+        fields: Prisma.UserFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          findFirst: {
+            args: Prisma.UserFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          findMany: {
+            args: Prisma.UserFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
+          }
+          create: {
+            args: Prisma.UserCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          createMany: {
+            args: Prisma.UserCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
+          }
+          delete: {
+            args: Prisma.UserDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          update: {
+            args: Prisma.UserUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.UserUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          aggregate: {
+            args: Prisma.UserAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUser>
+          }
+          groupBy: {
+            args: Prisma.UserGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserCountArgs<ExtArgs>
+            result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      Permission: {
+        payload: Prisma.$PermissionPayload<ExtArgs>
+        fields: Prisma.PermissionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PermissionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PermissionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          findFirst: {
+            args: Prisma.PermissionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PermissionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          findMany: {
+            args: Prisma.PermissionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>[]
+          }
+          create: {
+            args: Prisma.PermissionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          createMany: {
+            args: Prisma.PermissionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PermissionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>[]
+          }
+          delete: {
+            args: Prisma.PermissionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          update: {
+            args: Prisma.PermissionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          deleteMany: {
+            args: Prisma.PermissionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PermissionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PermissionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
+          }
+          aggregate: {
+            args: Prisma.PermissionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePermission>
+          }
+          groupBy: {
+            args: Prisma.PermissionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PermissionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PermissionCountArgs<ExtArgs>
+            result: $Utils.Optional<PermissionCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserPermission: {
+        payload: Prisma.$UserPermissionPayload<ExtArgs>
+        fields: Prisma.UserPermissionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserPermissionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPermissionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserPermissionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+          }
+          findFirst: {
+            args: Prisma.UserPermissionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPermissionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserPermissionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+          }
+          findMany: {
+            args: Prisma.UserPermissionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPermissionPayload>[]
+          }
+          create: {
+            args: Prisma.UserPermissionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+          }
+          createMany: {
+            args: Prisma.UserPermissionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserPermissionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPermissionPayload>[]
+          }
+          delete: {
+            args: Prisma.UserPermissionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+          }
+          update: {
+            args: Prisma.UserPermissionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserPermissionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserPermissionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.UserPermissionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+          }
+          aggregate: {
+            args: Prisma.UserPermissionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserPermission>
+          }
+          groupBy: {
+            args: Prisma.UserPermissionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserPermissionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserPermissionCountArgs<ExtArgs>
+            result: $Utils.Optional<UserPermissionCountAggregateOutputType> | number
+          }
+        }
+      }
+      ActivityLog: {
+        payload: Prisma.$ActivityLogPayload<ExtArgs>
+        fields: Prisma.ActivityLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ActivityLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActivityLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ActivityLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActivityLogPayload>
+          }
+          findFirst: {
+            args: Prisma.ActivityLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActivityLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ActivityLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActivityLogPayload>
+          }
+          findMany: {
+            args: Prisma.ActivityLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActivityLogPayload>[]
+          }
+          create: {
+            args: Prisma.ActivityLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActivityLogPayload>
+          }
+          createMany: {
+            args: Prisma.ActivityLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ActivityLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActivityLogPayload>[]
+          }
+          delete: {
+            args: Prisma.ActivityLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActivityLogPayload>
+          }
+          update: {
+            args: Prisma.ActivityLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActivityLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.ActivityLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ActivityLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ActivityLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActivityLogPayload>
+          }
+          aggregate: {
+            args: Prisma.ActivityLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateActivityLog>
+          }
+          groupBy: {
+            args: Prisma.ActivityLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ActivityLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ActivityLogCountArgs<ExtArgs>
+            result: $Utils.Optional<ActivityLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      SmtpUser: {
+        payload: Prisma.$SmtpUserPayload<ExtArgs>
+        fields: Prisma.SmtpUserFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SmtpUserFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpUserPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SmtpUserFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpUserPayload>
+          }
+          findFirst: {
+            args: Prisma.SmtpUserFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpUserPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SmtpUserFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpUserPayload>
+          }
+          findMany: {
+            args: Prisma.SmtpUserFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpUserPayload>[]
+          }
+          create: {
+            args: Prisma.SmtpUserCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpUserPayload>
+          }
+          createMany: {
+            args: Prisma.SmtpUserCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SmtpUserCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpUserPayload>[]
+          }
+          delete: {
+            args: Prisma.SmtpUserDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpUserPayload>
+          }
+          update: {
+            args: Prisma.SmtpUserUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpUserPayload>
+          }
+          deleteMany: {
+            args: Prisma.SmtpUserDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SmtpUserUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SmtpUserUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpUserPayload>
+          }
+          aggregate: {
+            args: Prisma.SmtpUserAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSmtpUser>
+          }
+          groupBy: {
+            args: Prisma.SmtpUserGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SmtpUserGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SmtpUserCountArgs<ExtArgs>
+            result: $Utils.Optional<SmtpUserCountAggregateOutputType> | number
+          }
+        }
+      }
+      EmailDomain: {
+        payload: Prisma.$EmailDomainPayload<ExtArgs>
+        fields: Prisma.EmailDomainFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmailDomainFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDomainPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmailDomainFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDomainPayload>
+          }
+          findFirst: {
+            args: Prisma.EmailDomainFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDomainPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmailDomainFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDomainPayload>
+          }
+          findMany: {
+            args: Prisma.EmailDomainFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDomainPayload>[]
+          }
+          create: {
+            args: Prisma.EmailDomainCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDomainPayload>
+          }
+          createMany: {
+            args: Prisma.EmailDomainCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmailDomainCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDomainPayload>[]
+          }
+          delete: {
+            args: Prisma.EmailDomainDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDomainPayload>
+          }
+          update: {
+            args: Prisma.EmailDomainUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDomainPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmailDomainDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmailDomainUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.EmailDomainUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDomainPayload>
+          }
+          aggregate: {
+            args: Prisma.EmailDomainAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmailDomain>
+          }
+          groupBy: {
+            args: Prisma.EmailDomainGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmailDomainGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmailDomainCountArgs<ExtArgs>
+            result: $Utils.Optional<EmailDomainCountAggregateOutputType> | number
+          }
+        }
+      }
+      DkimKey: {
+        payload: Prisma.$DkimKeyPayload<ExtArgs>
+        fields: Prisma.DkimKeyFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DkimKeyFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DkimKeyPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DkimKeyFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DkimKeyPayload>
+          }
+          findFirst: {
+            args: Prisma.DkimKeyFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DkimKeyPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DkimKeyFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DkimKeyPayload>
+          }
+          findMany: {
+            args: Prisma.DkimKeyFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DkimKeyPayload>[]
+          }
+          create: {
+            args: Prisma.DkimKeyCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DkimKeyPayload>
+          }
+          createMany: {
+            args: Prisma.DkimKeyCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DkimKeyCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DkimKeyPayload>[]
+          }
+          delete: {
+            args: Prisma.DkimKeyDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DkimKeyPayload>
+          }
+          update: {
+            args: Prisma.DkimKeyUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DkimKeyPayload>
+          }
+          deleteMany: {
+            args: Prisma.DkimKeyDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DkimKeyUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DkimKeyUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DkimKeyPayload>
+          }
+          aggregate: {
+            args: Prisma.DkimKeyAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDkimKey>
+          }
+          groupBy: {
+            args: Prisma.DkimKeyGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DkimKeyGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DkimKeyCountArgs<ExtArgs>
+            result: $Utils.Optional<DkimKeyCountAggregateOutputType> | number
+          }
+        }
+      }
+      Email: {
+        payload: Prisma.$EmailPayload<ExtArgs>
+        fields: Prisma.EmailFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmailFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmailFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailPayload>
+          }
+          findFirst: {
+            args: Prisma.EmailFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmailFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailPayload>
+          }
+          findMany: {
+            args: Prisma.EmailFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailPayload>[]
+          }
+          create: {
+            args: Prisma.EmailCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailPayload>
+          }
+          createMany: {
+            args: Prisma.EmailCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmailCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailPayload>[]
+          }
+          delete: {
+            args: Prisma.EmailDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailPayload>
+          }
+          update: {
+            args: Prisma.EmailUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmailDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmailUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.EmailUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailPayload>
+          }
+          aggregate: {
+            args: Prisma.EmailAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmail>
+          }
+          groupBy: {
+            args: Prisma.EmailGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmailGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmailCountArgs<ExtArgs>
+            result: $Utils.Optional<EmailCountAggregateOutputType> | number
+          }
+        }
+      }
+      SmtpConnection: {
+        payload: Prisma.$SmtpConnectionPayload<ExtArgs>
+        fields: Prisma.SmtpConnectionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SmtpConnectionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpConnectionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SmtpConnectionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpConnectionPayload>
+          }
+          findFirst: {
+            args: Prisma.SmtpConnectionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpConnectionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SmtpConnectionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpConnectionPayload>
+          }
+          findMany: {
+            args: Prisma.SmtpConnectionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpConnectionPayload>[]
+          }
+          create: {
+            args: Prisma.SmtpConnectionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpConnectionPayload>
+          }
+          createMany: {
+            args: Prisma.SmtpConnectionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SmtpConnectionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpConnectionPayload>[]
+          }
+          delete: {
+            args: Prisma.SmtpConnectionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpConnectionPayload>
+          }
+          update: {
+            args: Prisma.SmtpConnectionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpConnectionPayload>
+          }
+          deleteMany: {
+            args: Prisma.SmtpConnectionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SmtpConnectionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SmtpConnectionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmtpConnectionPayload>
+          }
+          aggregate: {
+            args: Prisma.SmtpConnectionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSmtpConnection>
+          }
+          groupBy: {
+            args: Prisma.SmtpConnectionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SmtpConnectionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SmtpConnectionCountArgs<ExtArgs>
+            result: $Utils.Optional<SmtpConnectionCountAggregateOutputType> | number
+          }
+        }
+      }
+      AuthAttempt: {
+        payload: Prisma.$AuthAttemptPayload<ExtArgs>
+        fields: Prisma.AuthAttemptFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AuthAttemptFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuthAttemptPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AuthAttemptFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuthAttemptPayload>
+          }
+          findFirst: {
+            args: Prisma.AuthAttemptFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuthAttemptPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AuthAttemptFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuthAttemptPayload>
+          }
+          findMany: {
+            args: Prisma.AuthAttemptFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuthAttemptPayload>[]
+          }
+          create: {
+            args: Prisma.AuthAttemptCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuthAttemptPayload>
+          }
+          createMany: {
+            args: Prisma.AuthAttemptCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AuthAttemptCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuthAttemptPayload>[]
+          }
+          delete: {
+            args: Prisma.AuthAttemptDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuthAttemptPayload>
+          }
+          update: {
+            args: Prisma.AuthAttemptUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuthAttemptPayload>
+          }
+          deleteMany: {
+            args: Prisma.AuthAttemptDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AuthAttemptUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AuthAttemptUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuthAttemptPayload>
+          }
+          aggregate: {
+            args: Prisma.AuthAttemptAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAuthAttempt>
+          }
+          groupBy: {
+            args: Prisma.AuthAttemptGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AuthAttemptGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AuthAttemptCountArgs<ExtArgs>
+            result: $Utils.Optional<AuthAttemptCountAggregateOutputType> | number
+          }
+        }
+      }
+    }
+  } & {
+    other: {
+      payload: any
+      operations: {
+        $executeRaw: {
+          args: [query: TemplateStringsArray | Prisma.Sql, ...values: any[]],
+          result: any
+        }
+        $executeRawUnsafe: {
+          args: [query: string, ...values: any[]],
+          result: any
+        }
+        $queryRaw: {
+          args: [query: TemplateStringsArray | Prisma.Sql, ...values: any[]],
+          result: any
+        }
+        $queryRawUnsafe: {
+          args: [query: string, ...values: any[]],
+          result: any
+        }
+      }
+    }
+  }
+  export const defineExtension: $Extensions.ExtendsHook<"define", Prisma.TypeMapCb, $Extensions.DefaultArgs>
+  export type DefaultPrismaClient = PrismaClient
+  export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
+  export interface PrismaClientOptions {
+    /**
+     * Overwrites the datasource url from your schema.prisma file
+     */
+    datasources?: Datasources
+    /**
+     * Overwrites the datasource url from your schema.prisma file
+     */
+    datasourceUrl?: string
+    /**
+     * @default "colorless"
+     */
+    errorFormat?: ErrorFormat
+    /**
+     * @example
+     * ```
+     * // Shorthand for `emit: 'stdout'`
+     * log: ['query', 'info', 'warn', 'error']
+     * 
+     * // Emit as events only
+     * log: [
+     *   { emit: 'event', level: 'query' },
+     *   { emit: 'event', level: 'info' },
+     *   { emit: 'event', level: 'warn' }
+     *   { emit: 'event', level: 'error' }
+     * ]
+     * 
+     * / Emit as events and log to stdout
+     * og: [
+     *  { emit: 'stdout', level: 'query' },
+     *  { emit: 'stdout', level: 'info' },
+     *  { emit: 'stdout', level: 'warn' }
+     *  { emit: 'stdout', level: 'error' }
+     * 
+     * ```
+     * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
+     */
+    log?: (LogLevel | LogDefinition)[]
+    /**
+     * The default values for transactionOptions
+     * maxWait ?= 2000
+     * timeout ?= 5000
+     */
+    transactionOptions?: {
+      maxWait?: number
+      timeout?: number
+      isolationLevel?: Prisma.TransactionIsolationLevel
+    }
+    /**
+     * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-planetscale`
+     */
+    adapter?: runtime.SqlDriverAdapterFactory | null
+    /**
+     * Global configuration for omitting model fields by default.
+     * 
+     * @example
+     * ```
+     * const prisma = new PrismaClient({
+     *   omit: {
+     *     user: {
+     *       password: true
+     *     }
+     *   }
+     * })
+     * ```
+     */
+    omit?: Prisma.GlobalOmitConfig
+  }
+  export type GlobalOmitConfig = {
+    tenant?: TenantOmit
+    user?: UserOmit
+    permission?: PermissionOmit
+    userPermission?: UserPermissionOmit
+    activityLog?: ActivityLogOmit
+    smtpUser?: SmtpUserOmit
+    emailDomain?: EmailDomainOmit
+    dkimKey?: DkimKeyOmit
+    email?: EmailOmit
+    smtpConnection?: SmtpConnectionOmit
+    authAttempt?: AuthAttemptOmit
+  }
+
+  /* Types for Logging */
+  export type LogLevel = 'info' | 'query' | 'warn' | 'error'
+  export type LogDefinition = {
+    level: LogLevel
+    emit: 'stdout' | 'event'
+  }
+
+  export type CheckIsLogLevel<T> = T extends LogLevel ? T : never;
+
+  export type GetLogType<T> = CheckIsLogLevel<
+    T extends LogDefinition ? T['level'] : T
+  >;
+
+  export type GetEvents<T extends any[]> = T extends Array<LogLevel | LogDefinition>
+    ? GetLogType<T[number]>
+    : never;
+
+  export type QueryEvent = {
+    timestamp: Date
+    query: string
+    params: string
+    duration: number
+    target: string
+  }
+
+  export type LogEvent = {
+    timestamp: Date
+    message: string
+    target: string
+  }
+  /* End Types for Logging */
+
+
+  export type PrismaAction =
+    | 'findUnique'
+    | 'findUniqueOrThrow'
+    | 'findMany'
+    | 'findFirst'
+    | 'findFirstOrThrow'
+    | 'create'
+    | 'createMany'
+    | 'createManyAndReturn'
+    | 'update'
+    | 'updateMany'
+    | 'updateManyAndReturn'
+    | 'upsert'
+    | 'delete'
+    | 'deleteMany'
+    | 'executeRaw'
+    | 'queryRaw'
+    | 'aggregate'
+    | 'count'
+    | 'runCommandRaw'
+    | 'findRaw'
+    | 'groupBy'
+
+  // tested in getLogLevel.test.ts
+  export function getLogLevel(log: Array<LogLevel | LogDefinition>): LogLevel | undefined;
+
+  /**
+   * `PrismaClient` proxy available in interactive transactions.
+   */
+  export type TransactionClient = Omit<Prisma.DefaultPrismaClient, runtime.ITXClientDenyList>
+
+  export type Datasource = {
+    url?: string
+  }
+
+  /**
+   * Count Types
+   */
+
+
+  /**
+   * Count Type TenantCountOutputType
+   */
+
+  export type TenantCountOutputType = {
+    users: number
+    activityLogs: number
+    emailDomains: number
+  }
+
+  export type TenantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | TenantCountOutputTypeCountUsersArgs
+    activityLogs?: boolean | TenantCountOutputTypeCountActivityLogsArgs
+    emailDomains?: boolean | TenantCountOutputTypeCountEmailDomainsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantCountOutputType
+     */
+    select?: TenantCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountActivityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ActivityLogWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountEmailDomainsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailDomainWhereInput
+  }
+
+
+  /**
+   * Count Type UserCountOutputType
+   */
+
+  export type UserCountOutputType = {
+    permissions: number
+    grantedPermissions: number
+    activityLogs: number
+    smtpUsers: number
+  }
+
+  export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    permissions?: boolean | UserCountOutputTypeCountPermissionsArgs
+    grantedPermissions?: boolean | UserCountOutputTypeCountGrantedPermissionsArgs
+    activityLogs?: boolean | UserCountOutputTypeCountActivityLogsArgs
+    smtpUsers?: boolean | UserCountOutputTypeCountSmtpUsersArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserCountOutputType
+     */
+    select?: UserCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountPermissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserPermissionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountGrantedPermissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserPermissionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountActivityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ActivityLogWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSmtpUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmtpUserWhereInput
+  }
+
+
+  /**
+   * Count Type PermissionCountOutputType
+   */
+
+  export type PermissionCountOutputType = {
+    userPermissions: number
+  }
+
+  export type PermissionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    userPermissions?: boolean | PermissionCountOutputTypeCountUserPermissionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PermissionCountOutputType without action
+   */
+  export type PermissionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PermissionCountOutputType
+     */
+    select?: PermissionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PermissionCountOutputType without action
+   */
+  export type PermissionCountOutputTypeCountUserPermissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserPermissionWhereInput
+  }
+
+
+  /**
+   * Count Type SmtpUserCountOutputType
+   */
+
+  export type SmtpUserCountOutputType = {
+    domains: number
+    authAttempts: number
+  }
+
+  export type SmtpUserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    domains?: boolean | SmtpUserCountOutputTypeCountDomainsArgs
+    authAttempts?: boolean | SmtpUserCountOutputTypeCountAuthAttemptsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * SmtpUserCountOutputType without action
+   */
+  export type SmtpUserCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUserCountOutputType
+     */
+    select?: SmtpUserCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * SmtpUserCountOutputType without action
+   */
+  export type SmtpUserCountOutputTypeCountDomainsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailDomainWhereInput
+  }
+
+  /**
+   * SmtpUserCountOutputType without action
+   */
+  export type SmtpUserCountOutputTypeCountAuthAttemptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuthAttemptWhereInput
+  }
+
+
+  /**
+   * Count Type EmailDomainCountOutputType
+   */
+
+  export type EmailDomainCountOutputType = {
+    dkimKeys: number
+    emails: number
+  }
+
+  export type EmailDomainCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dkimKeys?: boolean | EmailDomainCountOutputTypeCountDkimKeysArgs
+    emails?: boolean | EmailDomainCountOutputTypeCountEmailsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * EmailDomainCountOutputType without action
+   */
+  export type EmailDomainCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomainCountOutputType
+     */
+    select?: EmailDomainCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * EmailDomainCountOutputType without action
+   */
+  export type EmailDomainCountOutputTypeCountDkimKeysArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DkimKeyWhereInput
+  }
+
+  /**
+   * EmailDomainCountOutputType without action
+   */
+  export type EmailDomainCountOutputTypeCountEmailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailWhereInput
+  }
+
+
+  /**
+   * Models
+   */
+
+  /**
+   * Model Tenant
+   */
+
+  export type AggregateTenant = {
+    _count: TenantCountAggregateOutputType | null
+    _avg: TenantAvgAggregateOutputType | null
+    _sum: TenantSumAggregateOutputType | null
+    _min: TenantMinAggregateOutputType | null
+    _max: TenantMaxAggregateOutputType | null
+  }
+
+  export type TenantAvgAggregateOutputType = {
+    populacao: number | null
+  }
+
+  export type TenantSumAggregateOutputType = {
+    populacao: number | null
+  }
+
+  export type TenantMinAggregateOutputType = {
+    id: string | null
+    tenantCode: string | null
+    nome: string | null
+    cidade: string | null
+    estado: string | null
+    cnpj: string | null
+    plano: string | null
+    status: string | null
+    populacao: number | null
+    endereco: string | null
+    responsavelNome: string | null
+    responsavelEmail: string | null
+    responsavelTelefone: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TenantMaxAggregateOutputType = {
+    id: string | null
+    tenantCode: string | null
+    nome: string | null
+    cidade: string | null
+    estado: string | null
+    cnpj: string | null
+    plano: string | null
+    status: string | null
+    populacao: number | null
+    endereco: string | null
+    responsavelNome: string | null
+    responsavelEmail: string | null
+    responsavelTelefone: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TenantCountAggregateOutputType = {
+    id: number
+    tenantCode: number
+    nome: number
+    cidade: number
+    estado: number
+    cnpj: number
+    plano: number
+    status: number
+    populacao: number
+    endereco: number
+    responsavelNome: number
+    responsavelEmail: number
+    responsavelTelefone: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TenantAvgAggregateInputType = {
+    populacao?: true
+  }
+
+  export type TenantSumAggregateInputType = {
+    populacao?: true
+  }
+
+  export type TenantMinAggregateInputType = {
+    id?: true
+    tenantCode?: true
+    nome?: true
+    cidade?: true
+    estado?: true
+    cnpj?: true
+    plano?: true
+    status?: true
+    populacao?: true
+    endereco?: true
+    responsavelNome?: true
+    responsavelEmail?: true
+    responsavelTelefone?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TenantMaxAggregateInputType = {
+    id?: true
+    tenantCode?: true
+    nome?: true
+    cidade?: true
+    estado?: true
+    cnpj?: true
+    plano?: true
+    status?: true
+    populacao?: true
+    endereco?: true
+    responsavelNome?: true
+    responsavelEmail?: true
+    responsavelTelefone?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TenantCountAggregateInputType = {
+    id?: true
+    tenantCode?: true
+    nome?: true
+    cidade?: true
+    estado?: true
+    cnpj?: true
+    plano?: true
+    status?: true
+    populacao?: true
+    endereco?: true
+    responsavelNome?: true
+    responsavelEmail?: true
+    responsavelTelefone?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TenantAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Tenant to aggregate.
+     */
+    where?: TenantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Tenants to fetch.
+     */
+    orderBy?: TenantOrderByWithRelationInput | TenantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TenantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Tenants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Tenants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Tenants
+    **/
+    _count?: true | TenantCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TenantAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TenantSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TenantMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TenantMaxAggregateInputType
+  }
+
+  export type GetTenantAggregateType<T extends TenantAggregateArgs> = {
+        [P in keyof T & keyof AggregateTenant]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTenant[P]>
+      : GetScalarType<T[P], AggregateTenant[P]>
+  }
+
+
+
+
+  export type TenantGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TenantWhereInput
+    orderBy?: TenantOrderByWithAggregationInput | TenantOrderByWithAggregationInput[]
+    by: TenantScalarFieldEnum[] | TenantScalarFieldEnum
+    having?: TenantScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TenantCountAggregateInputType | true
+    _avg?: TenantAvgAggregateInputType
+    _sum?: TenantSumAggregateInputType
+    _min?: TenantMinAggregateInputType
+    _max?: TenantMaxAggregateInputType
+  }
+
+  export type TenantGroupByOutputType = {
+    id: string
+    tenantCode: string
+    nome: string
+    cidade: string
+    estado: string
+    cnpj: string
+    plano: string | null
+    status: string | null
+    populacao: number | null
+    endereco: string | null
+    responsavelNome: string | null
+    responsavelEmail: string | null
+    responsavelTelefone: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    _count: TenantCountAggregateOutputType | null
+    _avg: TenantAvgAggregateOutputType | null
+    _sum: TenantSumAggregateOutputType | null
+    _min: TenantMinAggregateOutputType | null
+    _max: TenantMaxAggregateOutputType | null
+  }
+
+  type GetTenantGroupByPayload<T extends TenantGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TenantGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TenantGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TenantGroupByOutputType[P]>
+            : GetScalarType<T[P], TenantGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TenantSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantCode?: boolean
+    nome?: boolean
+    cidade?: boolean
+    estado?: boolean
+    cnpj?: boolean
+    plano?: boolean
+    status?: boolean
+    populacao?: boolean
+    endereco?: boolean
+    responsavelNome?: boolean
+    responsavelEmail?: boolean
+    responsavelTelefone?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    users?: boolean | Tenant$usersArgs<ExtArgs>
+    activityLogs?: boolean | Tenant$activityLogsArgs<ExtArgs>
+    emailDomains?: boolean | Tenant$emailDomainsArgs<ExtArgs>
+    _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tenant"]>
+
+  export type TenantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantCode?: boolean
+    nome?: boolean
+    cidade?: boolean
+    estado?: boolean
+    cnpj?: boolean
+    plano?: boolean
+    status?: boolean
+    populacao?: boolean
+    endereco?: boolean
+    responsavelNome?: boolean
+    responsavelEmail?: boolean
+    responsavelTelefone?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["tenant"]>
+
+
+  export type TenantSelectScalar = {
+    id?: boolean
+    tenantCode?: boolean
+    nome?: boolean
+    cidade?: boolean
+    estado?: boolean
+    cnpj?: boolean
+    plano?: boolean
+    status?: boolean
+    populacao?: boolean
+    endereco?: boolean
+    responsavelNome?: boolean
+    responsavelEmail?: boolean
+    responsavelTelefone?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantCode" | "nome" | "cidade" | "estado" | "cnpj" | "plano" | "status" | "populacao" | "endereco" | "responsavelNome" | "responsavelEmail" | "responsavelTelefone" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+  export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | Tenant$usersArgs<ExtArgs>
+    activityLogs?: boolean | Tenant$activityLogsArgs<ExtArgs>
+    emailDomains?: boolean | Tenant$emailDomainsArgs<ExtArgs>
+    _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type TenantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $TenantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Tenant"
+    objects: {
+      users: Prisma.$UserPayload<ExtArgs>[]
+      activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
+      emailDomains: Prisma.$EmailDomainPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantCode: string
+      nome: string
+      cidade: string
+      estado: string
+      cnpj: string
+      plano: string | null
+      status: string | null
+      populacao: number | null
+      endereco: string | null
+      responsavelNome: string | null
+      responsavelEmail: string | null
+      responsavelTelefone: string | null
+      createdAt: Date | null
+      updatedAt: Date | null
+    }, ExtArgs["result"]["tenant"]>
+    composites: {}
+  }
+
+  type TenantGetPayload<S extends boolean | null | undefined | TenantDefaultArgs> = $Result.GetResult<Prisma.$TenantPayload, S>
+
+  type TenantCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TenantFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TenantCountAggregateInputType | true
+    }
+
+  export interface TenantDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Tenant'], meta: { name: 'Tenant' } }
+    /**
+     * Find zero or one Tenant that matches the filter.
+     * @param {TenantFindUniqueArgs} args - Arguments to find a Tenant
+     * @example
+     * // Get one Tenant
+     * const tenant = await prisma.tenant.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TenantFindUniqueArgs>(args: SelectSubset<T, TenantFindUniqueArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Tenant that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TenantFindUniqueOrThrowArgs} args - Arguments to find a Tenant
+     * @example
+     * // Get one Tenant
+     * const tenant = await prisma.tenant.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TenantFindUniqueOrThrowArgs>(args: SelectSubset<T, TenantFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Tenant that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantFindFirstArgs} args - Arguments to find a Tenant
+     * @example
+     * // Get one Tenant
+     * const tenant = await prisma.tenant.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TenantFindFirstArgs>(args?: SelectSubset<T, TenantFindFirstArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Tenant that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantFindFirstOrThrowArgs} args - Arguments to find a Tenant
+     * @example
+     * // Get one Tenant
+     * const tenant = await prisma.tenant.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TenantFindFirstOrThrowArgs>(args?: SelectSubset<T, TenantFindFirstOrThrowArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Tenants that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Tenants
+     * const tenants = await prisma.tenant.findMany()
+     * 
+     * // Get first 10 Tenants
+     * const tenants = await prisma.tenant.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tenantWithIdOnly = await prisma.tenant.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TenantFindManyArgs>(args?: SelectSubset<T, TenantFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Tenant.
+     * @param {TenantCreateArgs} args - Arguments to create a Tenant.
+     * @example
+     * // Create one Tenant
+     * const Tenant = await prisma.tenant.create({
+     *   data: {
+     *     // ... data to create a Tenant
+     *   }
+     * })
+     * 
+     */
+    create<T extends TenantCreateArgs>(args: SelectSubset<T, TenantCreateArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Tenants.
+     * @param {TenantCreateManyArgs} args - Arguments to create many Tenants.
+     * @example
+     * // Create many Tenants
+     * const tenant = await prisma.tenant.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TenantCreateManyArgs>(args?: SelectSubset<T, TenantCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Tenants and returns the data saved in the database.
+     * @param {TenantCreateManyAndReturnArgs} args - Arguments to create many Tenants.
+     * @example
+     * // Create many Tenants
+     * const tenant = await prisma.tenant.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Tenants and only return the `id`
+     * const tenantWithIdOnly = await prisma.tenant.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TenantCreateManyAndReturnArgs>(args?: SelectSubset<T, TenantCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Tenant.
+     * @param {TenantDeleteArgs} args - Arguments to delete one Tenant.
+     * @example
+     * // Delete one Tenant
+     * const Tenant = await prisma.tenant.delete({
+     *   where: {
+     *     // ... filter to delete one Tenant
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TenantDeleteArgs>(args: SelectSubset<T, TenantDeleteArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Tenant.
+     * @param {TenantUpdateArgs} args - Arguments to update one Tenant.
+     * @example
+     * // Update one Tenant
+     * const tenant = await prisma.tenant.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TenantUpdateArgs>(args: SelectSubset<T, TenantUpdateArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Tenants.
+     * @param {TenantDeleteManyArgs} args - Arguments to filter Tenants to delete.
+     * @example
+     * // Delete a few Tenants
+     * const { count } = await prisma.tenant.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TenantDeleteManyArgs>(args?: SelectSubset<T, TenantDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Tenants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Tenants
+     * const tenant = await prisma.tenant.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TenantUpdateManyArgs>(args: SelectSubset<T, TenantUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Tenant.
+     * @param {TenantUpsertArgs} args - Arguments to update or create a Tenant.
+     * @example
+     * // Update or create a Tenant
+     * const tenant = await prisma.tenant.upsert({
+     *   create: {
+     *     // ... data to create a Tenant
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Tenant we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TenantUpsertArgs>(args: SelectSubset<T, TenantUpsertArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Tenants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantCountArgs} args - Arguments to filter Tenants to count.
+     * @example
+     * // Count the number of Tenants
+     * const count = await prisma.tenant.count({
+     *   where: {
+     *     // ... the filter for the Tenants we want to count
+     *   }
+     * })
+    **/
+    count<T extends TenantCountArgs>(
+      args?: Subset<T, TenantCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TenantCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Tenant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TenantAggregateArgs>(args: Subset<T, TenantAggregateArgs>): Prisma.PrismaPromise<GetTenantAggregateType<T>>
+
+    /**
+     * Group by Tenant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TenantGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TenantGroupByArgs['orderBy'] }
+        : { orderBy?: TenantGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TenantGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTenantGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Tenant model
+   */
+  readonly fields: TenantFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Tenant.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TenantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    users<T extends Tenant$usersArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    activityLogs<T extends Tenant$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    emailDomains<T extends Tenant$emailDomainsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$emailDomainsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Tenant model
+   */
+  interface TenantFieldRefs {
+    readonly id: FieldRef<"Tenant", 'String'>
+    readonly tenantCode: FieldRef<"Tenant", 'String'>
+    readonly nome: FieldRef<"Tenant", 'String'>
+    readonly cidade: FieldRef<"Tenant", 'String'>
+    readonly estado: FieldRef<"Tenant", 'String'>
+    readonly cnpj: FieldRef<"Tenant", 'String'>
+    readonly plano: FieldRef<"Tenant", 'String'>
+    readonly status: FieldRef<"Tenant", 'String'>
+    readonly populacao: FieldRef<"Tenant", 'Int'>
+    readonly endereco: FieldRef<"Tenant", 'String'>
+    readonly responsavelNome: FieldRef<"Tenant", 'String'>
+    readonly responsavelEmail: FieldRef<"Tenant", 'String'>
+    readonly responsavelTelefone: FieldRef<"Tenant", 'String'>
+    readonly createdAt: FieldRef<"Tenant", 'DateTime'>
+    readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Tenant findUnique
+   */
+  export type TenantFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    /**
+     * Filter, which Tenant to fetch.
+     */
+    where: TenantWhereUniqueInput
+  }
+
+  /**
+   * Tenant findUniqueOrThrow
+   */
+  export type TenantFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    /**
+     * Filter, which Tenant to fetch.
+     */
+    where: TenantWhereUniqueInput
+  }
+
+  /**
+   * Tenant findFirst
+   */
+  export type TenantFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    /**
+     * Filter, which Tenant to fetch.
+     */
+    where?: TenantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Tenants to fetch.
+     */
+    orderBy?: TenantOrderByWithRelationInput | TenantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Tenants.
+     */
+    cursor?: TenantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Tenants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Tenants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Tenants.
+     */
+    distinct?: TenantScalarFieldEnum | TenantScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant findFirstOrThrow
+   */
+  export type TenantFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    /**
+     * Filter, which Tenant to fetch.
+     */
+    where?: TenantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Tenants to fetch.
+     */
+    orderBy?: TenantOrderByWithRelationInput | TenantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Tenants.
+     */
+    cursor?: TenantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Tenants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Tenants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Tenants.
+     */
+    distinct?: TenantScalarFieldEnum | TenantScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant findMany
+   */
+  export type TenantFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    /**
+     * Filter, which Tenants to fetch.
+     */
+    where?: TenantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Tenants to fetch.
+     */
+    orderBy?: TenantOrderByWithRelationInput | TenantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Tenants.
+     */
+    cursor?: TenantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Tenants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Tenants.
+     */
+    skip?: number
+    distinct?: TenantScalarFieldEnum | TenantScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant create
+   */
+  export type TenantCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Tenant.
+     */
+    data: XOR<TenantCreateInput, TenantUncheckedCreateInput>
+  }
+
+  /**
+   * Tenant createMany
+   */
+  export type TenantCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Tenants.
+     */
+    data: TenantCreateManyInput | TenantCreateManyInput[]
+  }
+
+  /**
+   * Tenant createManyAndReturn
+   */
+  export type TenantCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * The data used to create many Tenants.
+     */
+    data: TenantCreateManyInput | TenantCreateManyInput[]
+  }
+
+  /**
+   * Tenant update
+   */
+  export type TenantUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Tenant.
+     */
+    data: XOR<TenantUpdateInput, TenantUncheckedUpdateInput>
+    /**
+     * Choose, which Tenant to update.
+     */
+    where: TenantWhereUniqueInput
+  }
+
+  /**
+   * Tenant updateMany
+   */
+  export type TenantUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Tenants.
+     */
+    data: XOR<TenantUpdateManyMutationInput, TenantUncheckedUpdateManyInput>
+    /**
+     * Filter which Tenants to update
+     */
+    where?: TenantWhereInput
+  }
+
+  /**
+   * Tenant upsert
+   */
+  export type TenantUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Tenant to update in case it exists.
+     */
+    where: TenantWhereUniqueInput
+    /**
+     * In case the Tenant found by the `where` argument doesn't exist, create a new Tenant with this data.
+     */
+    create: XOR<TenantCreateInput, TenantUncheckedCreateInput>
+    /**
+     * In case the Tenant was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TenantUpdateInput, TenantUncheckedUpdateInput>
+  }
+
+  /**
+   * Tenant delete
+   */
+  export type TenantDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    /**
+     * Filter which Tenant to delete.
+     */
+    where: TenantWhereUniqueInput
+  }
+
+  /**
+   * Tenant deleteMany
+   */
+  export type TenantDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Tenants to delete
+     */
+    where?: TenantWhereInput
+  }
+
+  /**
+   * Tenant.users
+   */
+  export type Tenant$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    cursor?: UserWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.activityLogs
+   */
+  export type Tenant$activityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    where?: ActivityLogWhereInput
+    orderBy?: ActivityLogOrderByWithRelationInput | ActivityLogOrderByWithRelationInput[]
+    cursor?: ActivityLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ActivityLogScalarFieldEnum | ActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.emailDomains
+   */
+  export type Tenant$emailDomainsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    where?: EmailDomainWhereInput
+    orderBy?: EmailDomainOrderByWithRelationInput | EmailDomainOrderByWithRelationInput[]
+    cursor?: EmailDomainWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmailDomainScalarFieldEnum | EmailDomainScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant without action
+   */
+  export type TenantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model User
+   */
+
+  export type AggregateUser = {
+    _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
+    _min: UserMinAggregateOutputType | null
+    _max: UserMaxAggregateOutputType | null
+  }
+
+  export type UserAvgAggregateOutputType = {
+    failedLoginAttempts: number | null
+  }
+
+  export type UserSumAggregateOutputType = {
+    failedLoginAttempts: number | null
+  }
+
+  export type UserMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    nomeCompleto: string | null
+    email: string | null
+    passwordHash: string | null
+    role: string | null
+    status: string | null
+    avatarUrl: string | null
+    ultimoLogin: Date | null
+    failedLoginAttempts: number | null
+    lockedUntil: Date | null
+    emailVerified: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    nomeCompleto: string | null
+    email: string | null
+    passwordHash: string | null
+    role: string | null
+    status: string | null
+    avatarUrl: string | null
+    ultimoLogin: Date | null
+    failedLoginAttempts: number | null
+    lockedUntil: Date | null
+    emailVerified: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    nomeCompleto: number
+    email: number
+    passwordHash: number
+    role: number
+    status: number
+    avatarUrl: number
+    ultimoLogin: number
+    failedLoginAttempts: number
+    lockedUntil: number
+    emailVerified: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type UserAvgAggregateInputType = {
+    failedLoginAttempts?: true
+  }
+
+  export type UserSumAggregateInputType = {
+    failedLoginAttempts?: true
+  }
+
+  export type UserMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    nomeCompleto?: true
+    email?: true
+    passwordHash?: true
+    role?: true
+    status?: true
+    avatarUrl?: true
+    ultimoLogin?: true
+    failedLoginAttempts?: true
+    lockedUntil?: true
+    emailVerified?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UserMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    nomeCompleto?: true
+    email?: true
+    passwordHash?: true
+    role?: true
+    status?: true
+    avatarUrl?: true
+    ultimoLogin?: true
+    failedLoginAttempts?: true
+    lockedUntil?: true
+    emailVerified?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UserCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    nomeCompleto?: true
+    email?: true
+    passwordHash?: true
+    role?: true
+    status?: true
+    avatarUrl?: true
+    ultimoLogin?: true
+    failedLoginAttempts?: true
+    lockedUntil?: true
+    emailVerified?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type UserAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which User to aggregate.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Users
+    **/
+    _count?: true | UserCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserMaxAggregateInputType
+  }
+
+  export type GetUserAggregateType<T extends UserAggregateArgs> = {
+        [P in keyof T & keyof AggregateUser]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUser[P]>
+      : GetScalarType<T[P], AggregateUser[P]>
+  }
+
+
+
+
+  export type UserGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithAggregationInput | UserOrderByWithAggregationInput[]
+    by: UserScalarFieldEnum[] | UserScalarFieldEnum
+    having?: UserScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserCountAggregateInputType | true
+    _avg?: UserAvgAggregateInputType
+    _sum?: UserSumAggregateInputType
+    _min?: UserMinAggregateInputType
+    _max?: UserMaxAggregateInputType
+  }
+
+  export type UserGroupByOutputType = {
+    id: string
+    tenantId: string | null
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role: string
+    status: string
+    avatarUrl: string | null
+    ultimoLogin: Date | null
+    failedLoginAttempts: number | null
+    lockedUntil: Date | null
+    emailVerified: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
+    _min: UserMinAggregateOutputType | null
+    _max: UserMaxAggregateOutputType | null
+  }
+
+  type GetUserGroupByPayload<T extends UserGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserGroupByOutputType[P]>
+            : GetScalarType<T[P], UserGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    nomeCompleto?: boolean
+    email?: boolean
+    passwordHash?: boolean
+    role?: boolean
+    status?: boolean
+    avatarUrl?: boolean
+    ultimoLogin?: boolean
+    failedLoginAttempts?: boolean
+    lockedUntil?: boolean
+    emailVerified?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | User$tenantArgs<ExtArgs>
+    permissions?: boolean | User$permissionsArgs<ExtArgs>
+    grantedPermissions?: boolean | User$grantedPermissionsArgs<ExtArgs>
+    activityLogs?: boolean | User$activityLogsArgs<ExtArgs>
+    smtpUsers?: boolean | User$smtpUsersArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["user"]>
+
+  export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    nomeCompleto?: boolean
+    email?: boolean
+    passwordHash?: boolean
+    role?: boolean
+    status?: boolean
+    avatarUrl?: boolean
+    ultimoLogin?: boolean
+    failedLoginAttempts?: boolean
+    lockedUntil?: boolean
+    emailVerified?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | User$tenantArgs<ExtArgs>
+  }, ExtArgs["result"]["user"]>
+
+
+  export type UserSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    nomeCompleto?: boolean
+    email?: boolean
+    passwordHash?: boolean
+    role?: boolean
+    status?: boolean
+    avatarUrl?: boolean
+    ultimoLogin?: boolean
+    failedLoginAttempts?: boolean
+    lockedUntil?: boolean
+    emailVerified?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "nomeCompleto" | "email" | "passwordHash" | "role" | "status" | "avatarUrl" | "ultimoLogin" | "failedLoginAttempts" | "lockedUntil" | "emailVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | User$tenantArgs<ExtArgs>
+    permissions?: boolean | User$permissionsArgs<ExtArgs>
+    grantedPermissions?: boolean | User$grantedPermissionsArgs<ExtArgs>
+    activityLogs?: boolean | User$activityLogsArgs<ExtArgs>
+    smtpUsers?: boolean | User$smtpUsersArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | User$tenantArgs<ExtArgs>
+  }
+
+  export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "User"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs> | null
+      permissions: Prisma.$UserPermissionPayload<ExtArgs>[]
+      grantedPermissions: Prisma.$UserPermissionPayload<ExtArgs>[]
+      activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
+      smtpUsers: Prisma.$SmtpUserPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string | null
+      nomeCompleto: string
+      email: string
+      passwordHash: string
+      role: string
+      status: string
+      avatarUrl: string | null
+      ultimoLogin: Date | null
+      failedLoginAttempts: number | null
+      lockedUntil: Date | null
+      emailVerified: boolean | null
+      createdAt: Date | null
+      updatedAt: Date | null
+    }, ExtArgs["result"]["user"]>
+    composites: {}
+  }
+
+  type UserGetPayload<S extends boolean | null | undefined | UserDefaultArgs> = $Result.GetResult<Prisma.$UserPayload, S>
+
+  type UserCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserCountAggregateInputType | true
+    }
+
+  export interface UserDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['User'], meta: { name: 'User' } }
+    /**
+     * Find zero or one User that matches the filter.
+     * @param {UserFindUniqueArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserFindUniqueArgs>(args: SelectSubset<T, UserFindUniqueArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one User that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserFindUniqueOrThrowArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserFindUniqueOrThrowArgs>(args: SelectSubset<T, UserFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first User that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserFindFirstArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserFindFirstArgs>(args?: SelectSubset<T, UserFindFirstArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first User that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserFindFirstOrThrowArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserFindFirstOrThrowArgs>(args?: SelectSubset<T, UserFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Users that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Users
+     * const users = await prisma.user.findMany()
+     * 
+     * // Get first 10 Users
+     * const users = await prisma.user.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userWithIdOnly = await prisma.user.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserFindManyArgs>(args?: SelectSubset<T, UserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a User.
+     * @param {UserCreateArgs} args - Arguments to create a User.
+     * @example
+     * // Create one User
+     * const User = await prisma.user.create({
+     *   data: {
+     *     // ... data to create a User
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserCreateArgs>(args: SelectSubset<T, UserCreateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Users.
+     * @param {UserCreateManyArgs} args - Arguments to create many Users.
+     * @example
+     * // Create many Users
+     * const user = await prisma.user.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserCreateManyArgs>(args?: SelectSubset<T, UserCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Users and returns the data saved in the database.
+     * @param {UserCreateManyAndReturnArgs} args - Arguments to create many Users.
+     * @example
+     * // Create many Users
+     * const user = await prisma.user.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Users and only return the `id`
+     * const userWithIdOnly = await prisma.user.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserCreateManyAndReturnArgs>(args?: SelectSubset<T, UserCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a User.
+     * @param {UserDeleteArgs} args - Arguments to delete one User.
+     * @example
+     * // Delete one User
+     * const User = await prisma.user.delete({
+     *   where: {
+     *     // ... filter to delete one User
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserDeleteArgs>(args: SelectSubset<T, UserDeleteArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one User.
+     * @param {UserUpdateArgs} args - Arguments to update one User.
+     * @example
+     * // Update one User
+     * const user = await prisma.user.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserUpdateArgs>(args: SelectSubset<T, UserUpdateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Users.
+     * @param {UserDeleteManyArgs} args - Arguments to filter Users to delete.
+     * @example
+     * // Delete a few Users
+     * const { count } = await prisma.user.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserDeleteManyArgs>(args?: SelectSubset<T, UserDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Users.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Users
+     * const user = await prisma.user.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserUpdateManyArgs>(args: SelectSubset<T, UserUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one User.
+     * @param {UserUpsertArgs} args - Arguments to update or create a User.
+     * @example
+     * // Update or create a User
+     * const user = await prisma.user.upsert({
+     *   create: {
+     *     // ... data to create a User
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the User we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserUpsertArgs>(args: SelectSubset<T, UserUpsertArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Users.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserCountArgs} args - Arguments to filter Users to count.
+     * @example
+     * // Count the number of Users
+     * const count = await prisma.user.count({
+     *   where: {
+     *     // ... the filter for the Users we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserCountArgs>(
+      args?: Subset<T, UserCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a User.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserAggregateArgs>(args: Subset<T, UserAggregateArgs>): Prisma.PrismaPromise<GetUserAggregateType<T>>
+
+    /**
+     * Group by User.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserGroupByArgs['orderBy'] }
+        : { orderBy?: UserGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the User model
+   */
+  readonly fields: UserFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for User.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends User$tenantArgs<ExtArgs> = {}>(args?: Subset<T, User$tenantArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    permissions<T extends User$permissionsArgs<ExtArgs> = {}>(args?: Subset<T, User$permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    grantedPermissions<T extends User$grantedPermissionsArgs<ExtArgs> = {}>(args?: Subset<T, User$grantedPermissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    activityLogs<T extends User$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    smtpUsers<T extends User$smtpUsersArgs<ExtArgs> = {}>(args?: Subset<T, User$smtpUsersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the User model
+   */
+  interface UserFieldRefs {
+    readonly id: FieldRef<"User", 'String'>
+    readonly tenantId: FieldRef<"User", 'String'>
+    readonly nomeCompleto: FieldRef<"User", 'String'>
+    readonly email: FieldRef<"User", 'String'>
+    readonly passwordHash: FieldRef<"User", 'String'>
+    readonly role: FieldRef<"User", 'String'>
+    readonly status: FieldRef<"User", 'String'>
+    readonly avatarUrl: FieldRef<"User", 'String'>
+    readonly ultimoLogin: FieldRef<"User", 'DateTime'>
+    readonly failedLoginAttempts: FieldRef<"User", 'Int'>
+    readonly lockedUntil: FieldRef<"User", 'DateTime'>
+    readonly emailVerified: FieldRef<"User", 'Boolean'>
+    readonly createdAt: FieldRef<"User", 'DateTime'>
+    readonly updatedAt: FieldRef<"User", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * User findUnique
+   */
+  export type UserFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User findUniqueOrThrow
+   */
+  export type UserFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User findFirst
+   */
+  export type UserFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Users.
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Users.
+     */
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * User findFirstOrThrow
+   */
+  export type UserFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Users.
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Users.
+     */
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * User findMany
+   */
+  export type UserFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which Users to fetch.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Users.
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * User create
+   */
+  export type UserCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * The data needed to create a User.
+     */
+    data: XOR<UserCreateInput, UserUncheckedCreateInput>
+  }
+
+  /**
+   * User createMany
+   */
+  export type UserCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Users.
+     */
+    data: UserCreateManyInput | UserCreateManyInput[]
+  }
+
+  /**
+   * User createManyAndReturn
+   */
+  export type UserCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * The data used to create many Users.
+     */
+    data: UserCreateManyInput | UserCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * User update
+   */
+  export type UserUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * The data needed to update a User.
+     */
+    data: XOR<UserUpdateInput, UserUncheckedUpdateInput>
+    /**
+     * Choose, which User to update.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User updateMany
+   */
+  export type UserUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Users.
+     */
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyInput>
+    /**
+     * Filter which Users to update
+     */
+    where?: UserWhereInput
+  }
+
+  /**
+   * User upsert
+   */
+  export type UserUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * The filter to search for the User to update in case it exists.
+     */
+    where: UserWhereUniqueInput
+    /**
+     * In case the User found by the `where` argument doesn't exist, create a new User with this data.
+     */
+    create: XOR<UserCreateInput, UserUncheckedCreateInput>
+    /**
+     * In case the User was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserUpdateInput, UserUncheckedUpdateInput>
+  }
+
+  /**
+   * User delete
+   */
+  export type UserDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter which User to delete.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User deleteMany
+   */
+  export type UserDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Users to delete
+     */
+    where?: UserWhereInput
+  }
+
+  /**
+   * User.tenant
+   */
+  export type User$tenantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    where?: TenantWhereInput
+  }
+
+  /**
+   * User.permissions
+   */
+  export type User$permissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    where?: UserPermissionWhereInput
+    orderBy?: UserPermissionOrderByWithRelationInput | UserPermissionOrderByWithRelationInput[]
+    cursor?: UserPermissionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserPermissionScalarFieldEnum | UserPermissionScalarFieldEnum[]
+  }
+
+  /**
+   * User.grantedPermissions
+   */
+  export type User$grantedPermissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    where?: UserPermissionWhereInput
+    orderBy?: UserPermissionOrderByWithRelationInput | UserPermissionOrderByWithRelationInput[]
+    cursor?: UserPermissionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserPermissionScalarFieldEnum | UserPermissionScalarFieldEnum[]
+  }
+
+  /**
+   * User.activityLogs
+   */
+  export type User$activityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    where?: ActivityLogWhereInput
+    orderBy?: ActivityLogOrderByWithRelationInput | ActivityLogOrderByWithRelationInput[]
+    cursor?: ActivityLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ActivityLogScalarFieldEnum | ActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * User.smtpUsers
+   */
+  export type User$smtpUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+    where?: SmtpUserWhereInput
+    orderBy?: SmtpUserOrderByWithRelationInput | SmtpUserOrderByWithRelationInput[]
+    cursor?: SmtpUserWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SmtpUserScalarFieldEnum | SmtpUserScalarFieldEnum[]
+  }
+
+  /**
+   * User without action
+   */
+  export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Permission
+   */
+
+  export type AggregatePermission = {
+    _count: PermissionCountAggregateOutputType | null
+    _avg: PermissionAvgAggregateOutputType | null
+    _sum: PermissionSumAggregateOutputType | null
+    _min: PermissionMinAggregateOutputType | null
+    _max: PermissionMaxAggregateOutputType | null
+  }
+
+  export type PermissionAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type PermissionSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type PermissionMinAggregateOutputType = {
+    id: number | null
+    code: string | null
+    resource: string | null
+    action: string | null
+    description: string | null
+    createdAt: Date | null
+  }
+
+  export type PermissionMaxAggregateOutputType = {
+    id: number | null
+    code: string | null
+    resource: string | null
+    action: string | null
+    description: string | null
+    createdAt: Date | null
+  }
+
+  export type PermissionCountAggregateOutputType = {
+    id: number
+    code: number
+    resource: number
+    action: number
+    description: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type PermissionAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type PermissionSumAggregateInputType = {
+    id?: true
+  }
+
+  export type PermissionMinAggregateInputType = {
+    id?: true
+    code?: true
+    resource?: true
+    action?: true
+    description?: true
+    createdAt?: true
+  }
+
+  export type PermissionMaxAggregateInputType = {
+    id?: true
+    code?: true
+    resource?: true
+    action?: true
+    description?: true
+    createdAt?: true
+  }
+
+  export type PermissionCountAggregateInputType = {
+    id?: true
+    code?: true
+    resource?: true
+    action?: true
+    description?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type PermissionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Permission to aggregate.
+     */
+    where?: PermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Permissions to fetch.
+     */
+    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Permissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Permissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Permissions
+    **/
+    _count?: true | PermissionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PermissionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PermissionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PermissionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PermissionMaxAggregateInputType
+  }
+
+  export type GetPermissionAggregateType<T extends PermissionAggregateArgs> = {
+        [P in keyof T & keyof AggregatePermission]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePermission[P]>
+      : GetScalarType<T[P], AggregatePermission[P]>
+  }
+
+
+
+
+  export type PermissionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PermissionWhereInput
+    orderBy?: PermissionOrderByWithAggregationInput | PermissionOrderByWithAggregationInput[]
+    by: PermissionScalarFieldEnum[] | PermissionScalarFieldEnum
+    having?: PermissionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PermissionCountAggregateInputType | true
+    _avg?: PermissionAvgAggregateInputType
+    _sum?: PermissionSumAggregateInputType
+    _min?: PermissionMinAggregateInputType
+    _max?: PermissionMaxAggregateInputType
+  }
+
+  export type PermissionGroupByOutputType = {
+    id: number
+    code: string
+    resource: string
+    action: string
+    description: string | null
+    createdAt: Date | null
+    _count: PermissionCountAggregateOutputType | null
+    _avg: PermissionAvgAggregateOutputType | null
+    _sum: PermissionSumAggregateOutputType | null
+    _min: PermissionMinAggregateOutputType | null
+    _max: PermissionMaxAggregateOutputType | null
+  }
+
+  type GetPermissionGroupByPayload<T extends PermissionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PermissionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PermissionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PermissionGroupByOutputType[P]>
+            : GetScalarType<T[P], PermissionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PermissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    resource?: boolean
+    action?: boolean
+    description?: boolean
+    createdAt?: boolean
+    userPermissions?: boolean | Permission$userPermissionsArgs<ExtArgs>
+    _count?: boolean | PermissionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["permission"]>
+
+  export type PermissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    resource?: boolean
+    action?: boolean
+    description?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["permission"]>
+
+
+  export type PermissionSelectScalar = {
+    id?: boolean
+    code?: boolean
+    resource?: boolean
+    action?: boolean
+    description?: boolean
+    createdAt?: boolean
+  }
+
+  export type PermissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "resource" | "action" | "description" | "createdAt", ExtArgs["result"]["permission"]>
+  export type PermissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    userPermissions?: boolean | Permission$userPermissionsArgs<ExtArgs>
+    _count?: boolean | PermissionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type PermissionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $PermissionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Permission"
+    objects: {
+      userPermissions: Prisma.$UserPermissionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      code: string
+      resource: string
+      action: string
+      description: string | null
+      createdAt: Date | null
+    }, ExtArgs["result"]["permission"]>
+    composites: {}
+  }
+
+  type PermissionGetPayload<S extends boolean | null | undefined | PermissionDefaultArgs> = $Result.GetResult<Prisma.$PermissionPayload, S>
+
+  type PermissionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PermissionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PermissionCountAggregateInputType | true
+    }
+
+  export interface PermissionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Permission'], meta: { name: 'Permission' } }
+    /**
+     * Find zero or one Permission that matches the filter.
+     * @param {PermissionFindUniqueArgs} args - Arguments to find a Permission
+     * @example
+     * // Get one Permission
+     * const permission = await prisma.permission.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PermissionFindUniqueArgs>(args: SelectSubset<T, PermissionFindUniqueArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Permission that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PermissionFindUniqueOrThrowArgs} args - Arguments to find a Permission
+     * @example
+     * // Get one Permission
+     * const permission = await prisma.permission.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PermissionFindUniqueOrThrowArgs>(args: SelectSubset<T, PermissionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Permission that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionFindFirstArgs} args - Arguments to find a Permission
+     * @example
+     * // Get one Permission
+     * const permission = await prisma.permission.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PermissionFindFirstArgs>(args?: SelectSubset<T, PermissionFindFirstArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Permission that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionFindFirstOrThrowArgs} args - Arguments to find a Permission
+     * @example
+     * // Get one Permission
+     * const permission = await prisma.permission.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PermissionFindFirstOrThrowArgs>(args?: SelectSubset<T, PermissionFindFirstOrThrowArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Permissions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Permissions
+     * const permissions = await prisma.permission.findMany()
+     * 
+     * // Get first 10 Permissions
+     * const permissions = await prisma.permission.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const permissionWithIdOnly = await prisma.permission.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PermissionFindManyArgs>(args?: SelectSubset<T, PermissionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Permission.
+     * @param {PermissionCreateArgs} args - Arguments to create a Permission.
+     * @example
+     * // Create one Permission
+     * const Permission = await prisma.permission.create({
+     *   data: {
+     *     // ... data to create a Permission
+     *   }
+     * })
+     * 
+     */
+    create<T extends PermissionCreateArgs>(args: SelectSubset<T, PermissionCreateArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Permissions.
+     * @param {PermissionCreateManyArgs} args - Arguments to create many Permissions.
+     * @example
+     * // Create many Permissions
+     * const permission = await prisma.permission.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PermissionCreateManyArgs>(args?: SelectSubset<T, PermissionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Permissions and returns the data saved in the database.
+     * @param {PermissionCreateManyAndReturnArgs} args - Arguments to create many Permissions.
+     * @example
+     * // Create many Permissions
+     * const permission = await prisma.permission.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Permissions and only return the `id`
+     * const permissionWithIdOnly = await prisma.permission.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PermissionCreateManyAndReturnArgs>(args?: SelectSubset<T, PermissionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Permission.
+     * @param {PermissionDeleteArgs} args - Arguments to delete one Permission.
+     * @example
+     * // Delete one Permission
+     * const Permission = await prisma.permission.delete({
+     *   where: {
+     *     // ... filter to delete one Permission
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PermissionDeleteArgs>(args: SelectSubset<T, PermissionDeleteArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Permission.
+     * @param {PermissionUpdateArgs} args - Arguments to update one Permission.
+     * @example
+     * // Update one Permission
+     * const permission = await prisma.permission.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PermissionUpdateArgs>(args: SelectSubset<T, PermissionUpdateArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Permissions.
+     * @param {PermissionDeleteManyArgs} args - Arguments to filter Permissions to delete.
+     * @example
+     * // Delete a few Permissions
+     * const { count } = await prisma.permission.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PermissionDeleteManyArgs>(args?: SelectSubset<T, PermissionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Permissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Permissions
+     * const permission = await prisma.permission.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PermissionUpdateManyArgs>(args: SelectSubset<T, PermissionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Permission.
+     * @param {PermissionUpsertArgs} args - Arguments to update or create a Permission.
+     * @example
+     * // Update or create a Permission
+     * const permission = await prisma.permission.upsert({
+     *   create: {
+     *     // ... data to create a Permission
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Permission we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PermissionUpsertArgs>(args: SelectSubset<T, PermissionUpsertArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Permissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionCountArgs} args - Arguments to filter Permissions to count.
+     * @example
+     * // Count the number of Permissions
+     * const count = await prisma.permission.count({
+     *   where: {
+     *     // ... the filter for the Permissions we want to count
+     *   }
+     * })
+    **/
+    count<T extends PermissionCountArgs>(
+      args?: Subset<T, PermissionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PermissionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Permission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PermissionAggregateArgs>(args: Subset<T, PermissionAggregateArgs>): Prisma.PrismaPromise<GetPermissionAggregateType<T>>
+
+    /**
+     * Group by Permission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PermissionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PermissionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PermissionGroupByArgs['orderBy'] }
+        : { orderBy?: PermissionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PermissionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPermissionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Permission model
+   */
+  readonly fields: PermissionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Permission.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PermissionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    userPermissions<T extends Permission$userPermissionsArgs<ExtArgs> = {}>(args?: Subset<T, Permission$userPermissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Permission model
+   */
+  interface PermissionFieldRefs {
+    readonly id: FieldRef<"Permission", 'Int'>
+    readonly code: FieldRef<"Permission", 'String'>
+    readonly resource: FieldRef<"Permission", 'String'>
+    readonly action: FieldRef<"Permission", 'String'>
+    readonly description: FieldRef<"Permission", 'String'>
+    readonly createdAt: FieldRef<"Permission", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Permission findUnique
+   */
+  export type PermissionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which Permission to fetch.
+     */
+    where: PermissionWhereUniqueInput
+  }
+
+  /**
+   * Permission findUniqueOrThrow
+   */
+  export type PermissionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which Permission to fetch.
+     */
+    where: PermissionWhereUniqueInput
+  }
+
+  /**
+   * Permission findFirst
+   */
+  export type PermissionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which Permission to fetch.
+     */
+    where?: PermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Permissions to fetch.
+     */
+    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Permissions.
+     */
+    cursor?: PermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Permissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Permissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Permissions.
+     */
+    distinct?: PermissionScalarFieldEnum | PermissionScalarFieldEnum[]
+  }
+
+  /**
+   * Permission findFirstOrThrow
+   */
+  export type PermissionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which Permission to fetch.
+     */
+    where?: PermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Permissions to fetch.
+     */
+    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Permissions.
+     */
+    cursor?: PermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Permissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Permissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Permissions.
+     */
+    distinct?: PermissionScalarFieldEnum | PermissionScalarFieldEnum[]
+  }
+
+  /**
+   * Permission findMany
+   */
+  export type PermissionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which Permissions to fetch.
+     */
+    where?: PermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Permissions to fetch.
+     */
+    orderBy?: PermissionOrderByWithRelationInput | PermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Permissions.
+     */
+    cursor?: PermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Permissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Permissions.
+     */
+    skip?: number
+    distinct?: PermissionScalarFieldEnum | PermissionScalarFieldEnum[]
+  }
+
+  /**
+   * Permission create
+   */
+  export type PermissionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Permission.
+     */
+    data: XOR<PermissionCreateInput, PermissionUncheckedCreateInput>
+  }
+
+  /**
+   * Permission createMany
+   */
+  export type PermissionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Permissions.
+     */
+    data: PermissionCreateManyInput | PermissionCreateManyInput[]
+  }
+
+  /**
+   * Permission createManyAndReturn
+   */
+  export type PermissionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * The data used to create many Permissions.
+     */
+    data: PermissionCreateManyInput | PermissionCreateManyInput[]
+  }
+
+  /**
+   * Permission update
+   */
+  export type PermissionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Permission.
+     */
+    data: XOR<PermissionUpdateInput, PermissionUncheckedUpdateInput>
+    /**
+     * Choose, which Permission to update.
+     */
+    where: PermissionWhereUniqueInput
+  }
+
+  /**
+   * Permission updateMany
+   */
+  export type PermissionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Permissions.
+     */
+    data: XOR<PermissionUpdateManyMutationInput, PermissionUncheckedUpdateManyInput>
+    /**
+     * Filter which Permissions to update
+     */
+    where?: PermissionWhereInput
+  }
+
+  /**
+   * Permission upsert
+   */
+  export type PermissionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Permission to update in case it exists.
+     */
+    where: PermissionWhereUniqueInput
+    /**
+     * In case the Permission found by the `where` argument doesn't exist, create a new Permission with this data.
+     */
+    create: XOR<PermissionCreateInput, PermissionUncheckedCreateInput>
+    /**
+     * In case the Permission was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PermissionUpdateInput, PermissionUncheckedUpdateInput>
+  }
+
+  /**
+   * Permission delete
+   */
+  export type PermissionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+    /**
+     * Filter which Permission to delete.
+     */
+    where: PermissionWhereUniqueInput
+  }
+
+  /**
+   * Permission deleteMany
+   */
+  export type PermissionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Permissions to delete
+     */
+    where?: PermissionWhereInput
+  }
+
+  /**
+   * Permission.userPermissions
+   */
+  export type Permission$userPermissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    where?: UserPermissionWhereInput
+    orderBy?: UserPermissionOrderByWithRelationInput | UserPermissionOrderByWithRelationInput[]
+    cursor?: UserPermissionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserPermissionScalarFieldEnum | UserPermissionScalarFieldEnum[]
+  }
+
+  /**
+   * Permission without action
+   */
+  export type PermissionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Permission
+     */
+    select?: PermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Permission
+     */
+    omit?: PermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PermissionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserPermission
+   */
+
+  export type AggregateUserPermission = {
+    _count: UserPermissionCountAggregateOutputType | null
+    _avg: UserPermissionAvgAggregateOutputType | null
+    _sum: UserPermissionSumAggregateOutputType | null
+    _min: UserPermissionMinAggregateOutputType | null
+    _max: UserPermissionMaxAggregateOutputType | null
+  }
+
+  export type UserPermissionAvgAggregateOutputType = {
+    id: number | null
+    permissionId: number | null
+  }
+
+  export type UserPermissionSumAggregateOutputType = {
+    id: number | null
+    permissionId: number | null
+  }
+
+  export type UserPermissionMinAggregateOutputType = {
+    id: number | null
+    userId: string | null
+    permissionId: number | null
+    grantedBy: string | null
+    createdAt: Date | null
+  }
+
+  export type UserPermissionMaxAggregateOutputType = {
+    id: number | null
+    userId: string | null
+    permissionId: number | null
+    grantedBy: string | null
+    createdAt: Date | null
+  }
+
+  export type UserPermissionCountAggregateOutputType = {
+    id: number
+    userId: number
+    permissionId: number
+    grantedBy: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type UserPermissionAvgAggregateInputType = {
+    id?: true
+    permissionId?: true
+  }
+
+  export type UserPermissionSumAggregateInputType = {
+    id?: true
+    permissionId?: true
+  }
+
+  export type UserPermissionMinAggregateInputType = {
+    id?: true
+    userId?: true
+    permissionId?: true
+    grantedBy?: true
+    createdAt?: true
+  }
+
+  export type UserPermissionMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    permissionId?: true
+    grantedBy?: true
+    createdAt?: true
+  }
+
+  export type UserPermissionCountAggregateInputType = {
+    id?: true
+    userId?: true
+    permissionId?: true
+    grantedBy?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type UserPermissionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserPermission to aggregate.
+     */
+    where?: UserPermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPermissions to fetch.
+     */
+    orderBy?: UserPermissionOrderByWithRelationInput | UserPermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserPermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPermissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPermissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserPermissions
+    **/
+    _count?: true | UserPermissionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserPermissionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserPermissionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserPermissionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserPermissionMaxAggregateInputType
+  }
+
+  export type GetUserPermissionAggregateType<T extends UserPermissionAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserPermission]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserPermission[P]>
+      : GetScalarType<T[P], AggregateUserPermission[P]>
+  }
+
+
+
+
+  export type UserPermissionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserPermissionWhereInput
+    orderBy?: UserPermissionOrderByWithAggregationInput | UserPermissionOrderByWithAggregationInput[]
+    by: UserPermissionScalarFieldEnum[] | UserPermissionScalarFieldEnum
+    having?: UserPermissionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserPermissionCountAggregateInputType | true
+    _avg?: UserPermissionAvgAggregateInputType
+    _sum?: UserPermissionSumAggregateInputType
+    _min?: UserPermissionMinAggregateInputType
+    _max?: UserPermissionMaxAggregateInputType
+  }
+
+  export type UserPermissionGroupByOutputType = {
+    id: number
+    userId: string
+    permissionId: number
+    grantedBy: string | null
+    createdAt: Date | null
+    _count: UserPermissionCountAggregateOutputType | null
+    _avg: UserPermissionAvgAggregateOutputType | null
+    _sum: UserPermissionSumAggregateOutputType | null
+    _min: UserPermissionMinAggregateOutputType | null
+    _max: UserPermissionMaxAggregateOutputType | null
+  }
+
+  type GetUserPermissionGroupByPayload<T extends UserPermissionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserPermissionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserPermissionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserPermissionGroupByOutputType[P]>
+            : GetScalarType<T[P], UserPermissionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserPermissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    permissionId?: boolean
+    grantedBy?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    permission?: boolean | PermissionDefaultArgs<ExtArgs>
+    grantor?: boolean | UserPermission$grantorArgs<ExtArgs>
+  }, ExtArgs["result"]["userPermission"]>
+
+  export type UserPermissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    permissionId?: boolean
+    grantedBy?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    permission?: boolean | PermissionDefaultArgs<ExtArgs>
+    grantor?: boolean | UserPermission$grantorArgs<ExtArgs>
+  }, ExtArgs["result"]["userPermission"]>
+
+
+  export type UserPermissionSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    permissionId?: boolean
+    grantedBy?: boolean
+    createdAt?: boolean
+  }
+
+  export type UserPermissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "permissionId" | "grantedBy" | "createdAt", ExtArgs["result"]["userPermission"]>
+  export type UserPermissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    permission?: boolean | PermissionDefaultArgs<ExtArgs>
+    grantor?: boolean | UserPermission$grantorArgs<ExtArgs>
+  }
+  export type UserPermissionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    permission?: boolean | PermissionDefaultArgs<ExtArgs>
+    grantor?: boolean | UserPermission$grantorArgs<ExtArgs>
+  }
+
+  export type $UserPermissionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserPermission"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      permission: Prisma.$PermissionPayload<ExtArgs>
+      grantor: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      userId: string
+      permissionId: number
+      grantedBy: string | null
+      createdAt: Date | null
+    }, ExtArgs["result"]["userPermission"]>
+    composites: {}
+  }
+
+  type UserPermissionGetPayload<S extends boolean | null | undefined | UserPermissionDefaultArgs> = $Result.GetResult<Prisma.$UserPermissionPayload, S>
+
+  type UserPermissionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserPermissionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserPermissionCountAggregateInputType | true
+    }
+
+  export interface UserPermissionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserPermission'], meta: { name: 'UserPermission' } }
+    /**
+     * Find zero or one UserPermission that matches the filter.
+     * @param {UserPermissionFindUniqueArgs} args - Arguments to find a UserPermission
+     * @example
+     * // Get one UserPermission
+     * const userPermission = await prisma.userPermission.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserPermissionFindUniqueArgs>(args: SelectSubset<T, UserPermissionFindUniqueArgs<ExtArgs>>): Prisma__UserPermissionClient<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserPermission that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserPermissionFindUniqueOrThrowArgs} args - Arguments to find a UserPermission
+     * @example
+     * // Get one UserPermission
+     * const userPermission = await prisma.userPermission.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserPermissionFindUniqueOrThrowArgs>(args: SelectSubset<T, UserPermissionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserPermissionClient<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserPermission that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPermissionFindFirstArgs} args - Arguments to find a UserPermission
+     * @example
+     * // Get one UserPermission
+     * const userPermission = await prisma.userPermission.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserPermissionFindFirstArgs>(args?: SelectSubset<T, UserPermissionFindFirstArgs<ExtArgs>>): Prisma__UserPermissionClient<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserPermission that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPermissionFindFirstOrThrowArgs} args - Arguments to find a UserPermission
+     * @example
+     * // Get one UserPermission
+     * const userPermission = await prisma.userPermission.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserPermissionFindFirstOrThrowArgs>(args?: SelectSubset<T, UserPermissionFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserPermissionClient<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserPermissions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPermissionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserPermissions
+     * const userPermissions = await prisma.userPermission.findMany()
+     * 
+     * // Get first 10 UserPermissions
+     * const userPermissions = await prisma.userPermission.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userPermissionWithIdOnly = await prisma.userPermission.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserPermissionFindManyArgs>(args?: SelectSubset<T, UserPermissionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserPermission.
+     * @param {UserPermissionCreateArgs} args - Arguments to create a UserPermission.
+     * @example
+     * // Create one UserPermission
+     * const UserPermission = await prisma.userPermission.create({
+     *   data: {
+     *     // ... data to create a UserPermission
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserPermissionCreateArgs>(args: SelectSubset<T, UserPermissionCreateArgs<ExtArgs>>): Prisma__UserPermissionClient<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserPermissions.
+     * @param {UserPermissionCreateManyArgs} args - Arguments to create many UserPermissions.
+     * @example
+     * // Create many UserPermissions
+     * const userPermission = await prisma.userPermission.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserPermissionCreateManyArgs>(args?: SelectSubset<T, UserPermissionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserPermissions and returns the data saved in the database.
+     * @param {UserPermissionCreateManyAndReturnArgs} args - Arguments to create many UserPermissions.
+     * @example
+     * // Create many UserPermissions
+     * const userPermission = await prisma.userPermission.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserPermissions and only return the `id`
+     * const userPermissionWithIdOnly = await prisma.userPermission.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserPermissionCreateManyAndReturnArgs>(args?: SelectSubset<T, UserPermissionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserPermission.
+     * @param {UserPermissionDeleteArgs} args - Arguments to delete one UserPermission.
+     * @example
+     * // Delete one UserPermission
+     * const UserPermission = await prisma.userPermission.delete({
+     *   where: {
+     *     // ... filter to delete one UserPermission
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserPermissionDeleteArgs>(args: SelectSubset<T, UserPermissionDeleteArgs<ExtArgs>>): Prisma__UserPermissionClient<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserPermission.
+     * @param {UserPermissionUpdateArgs} args - Arguments to update one UserPermission.
+     * @example
+     * // Update one UserPermission
+     * const userPermission = await prisma.userPermission.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserPermissionUpdateArgs>(args: SelectSubset<T, UserPermissionUpdateArgs<ExtArgs>>): Prisma__UserPermissionClient<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserPermissions.
+     * @param {UserPermissionDeleteManyArgs} args - Arguments to filter UserPermissions to delete.
+     * @example
+     * // Delete a few UserPermissions
+     * const { count } = await prisma.userPermission.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserPermissionDeleteManyArgs>(args?: SelectSubset<T, UserPermissionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserPermissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPermissionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserPermissions
+     * const userPermission = await prisma.userPermission.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserPermissionUpdateManyArgs>(args: SelectSubset<T, UserPermissionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one UserPermission.
+     * @param {UserPermissionUpsertArgs} args - Arguments to update or create a UserPermission.
+     * @example
+     * // Update or create a UserPermission
+     * const userPermission = await prisma.userPermission.upsert({
+     *   create: {
+     *     // ... data to create a UserPermission
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserPermission we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserPermissionUpsertArgs>(args: SelectSubset<T, UserPermissionUpsertArgs<ExtArgs>>): Prisma__UserPermissionClient<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserPermissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPermissionCountArgs} args - Arguments to filter UserPermissions to count.
+     * @example
+     * // Count the number of UserPermissions
+     * const count = await prisma.userPermission.count({
+     *   where: {
+     *     // ... the filter for the UserPermissions we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserPermissionCountArgs>(
+      args?: Subset<T, UserPermissionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserPermissionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserPermission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPermissionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserPermissionAggregateArgs>(args: Subset<T, UserPermissionAggregateArgs>): Prisma.PrismaPromise<GetUserPermissionAggregateType<T>>
+
+    /**
+     * Group by UserPermission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPermissionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserPermissionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserPermissionGroupByArgs['orderBy'] }
+        : { orderBy?: UserPermissionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserPermissionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserPermissionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserPermission model
+   */
+  readonly fields: UserPermissionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserPermission.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserPermissionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    permission<T extends PermissionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PermissionDefaultArgs<ExtArgs>>): Prisma__PermissionClient<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    grantor<T extends UserPermission$grantorArgs<ExtArgs> = {}>(args?: Subset<T, UserPermission$grantorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserPermission model
+   */
+  interface UserPermissionFieldRefs {
+    readonly id: FieldRef<"UserPermission", 'Int'>
+    readonly userId: FieldRef<"UserPermission", 'String'>
+    readonly permissionId: FieldRef<"UserPermission", 'Int'>
+    readonly grantedBy: FieldRef<"UserPermission", 'String'>
+    readonly createdAt: FieldRef<"UserPermission", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserPermission findUnique
+   */
+  export type UserPermissionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPermission to fetch.
+     */
+    where: UserPermissionWhereUniqueInput
+  }
+
+  /**
+   * UserPermission findUniqueOrThrow
+   */
+  export type UserPermissionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPermission to fetch.
+     */
+    where: UserPermissionWhereUniqueInput
+  }
+
+  /**
+   * UserPermission findFirst
+   */
+  export type UserPermissionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPermission to fetch.
+     */
+    where?: UserPermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPermissions to fetch.
+     */
+    orderBy?: UserPermissionOrderByWithRelationInput | UserPermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserPermissions.
+     */
+    cursor?: UserPermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPermissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPermissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserPermissions.
+     */
+    distinct?: UserPermissionScalarFieldEnum | UserPermissionScalarFieldEnum[]
+  }
+
+  /**
+   * UserPermission findFirstOrThrow
+   */
+  export type UserPermissionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPermission to fetch.
+     */
+    where?: UserPermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPermissions to fetch.
+     */
+    orderBy?: UserPermissionOrderByWithRelationInput | UserPermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserPermissions.
+     */
+    cursor?: UserPermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPermissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPermissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserPermissions.
+     */
+    distinct?: UserPermissionScalarFieldEnum | UserPermissionScalarFieldEnum[]
+  }
+
+  /**
+   * UserPermission findMany
+   */
+  export type UserPermissionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPermissions to fetch.
+     */
+    where?: UserPermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPermissions to fetch.
+     */
+    orderBy?: UserPermissionOrderByWithRelationInput | UserPermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserPermissions.
+     */
+    cursor?: UserPermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPermissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPermissions.
+     */
+    skip?: number
+    distinct?: UserPermissionScalarFieldEnum | UserPermissionScalarFieldEnum[]
+  }
+
+  /**
+   * UserPermission create
+   */
+  export type UserPermissionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserPermission.
+     */
+    data: XOR<UserPermissionCreateInput, UserPermissionUncheckedCreateInput>
+  }
+
+  /**
+   * UserPermission createMany
+   */
+  export type UserPermissionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserPermissions.
+     */
+    data: UserPermissionCreateManyInput | UserPermissionCreateManyInput[]
+  }
+
+  /**
+   * UserPermission createManyAndReturn
+   */
+  export type UserPermissionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserPermissions.
+     */
+    data: UserPermissionCreateManyInput | UserPermissionCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserPermission update
+   */
+  export type UserPermissionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserPermission.
+     */
+    data: XOR<UserPermissionUpdateInput, UserPermissionUncheckedUpdateInput>
+    /**
+     * Choose, which UserPermission to update.
+     */
+    where: UserPermissionWhereUniqueInput
+  }
+
+  /**
+   * UserPermission updateMany
+   */
+  export type UserPermissionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserPermissions.
+     */
+    data: XOR<UserPermissionUpdateManyMutationInput, UserPermissionUncheckedUpdateManyInput>
+    /**
+     * Filter which UserPermissions to update
+     */
+    where?: UserPermissionWhereInput
+  }
+
+  /**
+   * UserPermission upsert
+   */
+  export type UserPermissionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserPermission to update in case it exists.
+     */
+    where: UserPermissionWhereUniqueInput
+    /**
+     * In case the UserPermission found by the `where` argument doesn't exist, create a new UserPermission with this data.
+     */
+    create: XOR<UserPermissionCreateInput, UserPermissionUncheckedCreateInput>
+    /**
+     * In case the UserPermission was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserPermissionUpdateInput, UserPermissionUncheckedUpdateInput>
+  }
+
+  /**
+   * UserPermission delete
+   */
+  export type UserPermissionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+    /**
+     * Filter which UserPermission to delete.
+     */
+    where: UserPermissionWhereUniqueInput
+  }
+
+  /**
+   * UserPermission deleteMany
+   */
+  export type UserPermissionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserPermissions to delete
+     */
+    where?: UserPermissionWhereInput
+  }
+
+  /**
+   * UserPermission.grantor
+   */
+  export type UserPermission$grantorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * UserPermission without action
+   */
+  export type UserPermissionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPermission
+     */
+    select?: UserPermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPermission
+     */
+    omit?: UserPermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPermissionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ActivityLog
+   */
+
+  export type AggregateActivityLog = {
+    _count: ActivityLogCountAggregateOutputType | null
+    _avg: ActivityLogAvgAggregateOutputType | null
+    _sum: ActivityLogSumAggregateOutputType | null
+    _min: ActivityLogMinAggregateOutputType | null
+    _max: ActivityLogMaxAggregateOutputType | null
+  }
+
+  export type ActivityLogAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type ActivityLogSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type ActivityLogMinAggregateOutputType = {
+    id: number | null
+    userId: string | null
+    tenantId: string | null
+    action: string | null
+    resource: string | null
+    resourceId: string | null
+    details: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    createdAt: Date | null
+  }
+
+  export type ActivityLogMaxAggregateOutputType = {
+    id: number | null
+    userId: string | null
+    tenantId: string | null
+    action: string | null
+    resource: string | null
+    resourceId: string | null
+    details: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    createdAt: Date | null
+  }
+
+  export type ActivityLogCountAggregateOutputType = {
+    id: number
+    userId: number
+    tenantId: number
+    action: number
+    resource: number
+    resourceId: number
+    details: number
+    ipAddress: number
+    userAgent: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ActivityLogAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type ActivityLogSumAggregateInputType = {
+    id?: true
+  }
+
+  export type ActivityLogMinAggregateInputType = {
+    id?: true
+    userId?: true
+    tenantId?: true
+    action?: true
+    resource?: true
+    resourceId?: true
+    details?: true
+    ipAddress?: true
+    userAgent?: true
+    createdAt?: true
+  }
+
+  export type ActivityLogMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    tenantId?: true
+    action?: true
+    resource?: true
+    resourceId?: true
+    details?: true
+    ipAddress?: true
+    userAgent?: true
+    createdAt?: true
+  }
+
+  export type ActivityLogCountAggregateInputType = {
+    id?: true
+    userId?: true
+    tenantId?: true
+    action?: true
+    resource?: true
+    resourceId?: true
+    details?: true
+    ipAddress?: true
+    userAgent?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ActivityLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ActivityLog to aggregate.
+     */
+    where?: ActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ActivityLogs to fetch.
+     */
+    orderBy?: ActivityLogOrderByWithRelationInput | ActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ActivityLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ActivityLogs
+    **/
+    _count?: true | ActivityLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ActivityLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ActivityLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ActivityLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ActivityLogMaxAggregateInputType
+  }
+
+  export type GetActivityLogAggregateType<T extends ActivityLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateActivityLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateActivityLog[P]>
+      : GetScalarType<T[P], AggregateActivityLog[P]>
+  }
+
+
+
+
+  export type ActivityLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ActivityLogWhereInput
+    orderBy?: ActivityLogOrderByWithAggregationInput | ActivityLogOrderByWithAggregationInput[]
+    by: ActivityLogScalarFieldEnum[] | ActivityLogScalarFieldEnum
+    having?: ActivityLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ActivityLogCountAggregateInputType | true
+    _avg?: ActivityLogAvgAggregateInputType
+    _sum?: ActivityLogSumAggregateInputType
+    _min?: ActivityLogMinAggregateInputType
+    _max?: ActivityLogMaxAggregateInputType
+  }
+
+  export type ActivityLogGroupByOutputType = {
+    id: number
+    userId: string | null
+    tenantId: string | null
+    action: string
+    resource: string | null
+    resourceId: string | null
+    details: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    createdAt: Date | null
+    _count: ActivityLogCountAggregateOutputType | null
+    _avg: ActivityLogAvgAggregateOutputType | null
+    _sum: ActivityLogSumAggregateOutputType | null
+    _min: ActivityLogMinAggregateOutputType | null
+    _max: ActivityLogMaxAggregateOutputType | null
+  }
+
+  type GetActivityLogGroupByPayload<T extends ActivityLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ActivityLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ActivityLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ActivityLogGroupByOutputType[P]>
+            : GetScalarType<T[P], ActivityLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ActivityLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    tenantId?: boolean
+    action?: boolean
+    resource?: boolean
+    resourceId?: boolean
+    details?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    createdAt?: boolean
+    user?: boolean | ActivityLog$userArgs<ExtArgs>
+    tenant?: boolean | ActivityLog$tenantArgs<ExtArgs>
+  }, ExtArgs["result"]["activityLog"]>
+
+  export type ActivityLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    tenantId?: boolean
+    action?: boolean
+    resource?: boolean
+    resourceId?: boolean
+    details?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    createdAt?: boolean
+    user?: boolean | ActivityLog$userArgs<ExtArgs>
+    tenant?: boolean | ActivityLog$tenantArgs<ExtArgs>
+  }, ExtArgs["result"]["activityLog"]>
+
+
+  export type ActivityLogSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    tenantId?: boolean
+    action?: boolean
+    resource?: boolean
+    resourceId?: boolean
+    details?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    createdAt?: boolean
+  }
+
+  export type ActivityLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "tenantId" | "action" | "resource" | "resourceId" | "details" | "ipAddress" | "userAgent" | "createdAt", ExtArgs["result"]["activityLog"]>
+  export type ActivityLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | ActivityLog$userArgs<ExtArgs>
+    tenant?: boolean | ActivityLog$tenantArgs<ExtArgs>
+  }
+  export type ActivityLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | ActivityLog$userArgs<ExtArgs>
+    tenant?: boolean | ActivityLog$tenantArgs<ExtArgs>
+  }
+
+  export type $ActivityLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ActivityLog"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+      tenant: Prisma.$TenantPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      userId: string | null
+      tenantId: string | null
+      action: string
+      resource: string | null
+      resourceId: string | null
+      details: string | null
+      ipAddress: string | null
+      userAgent: string | null
+      createdAt: Date | null
+    }, ExtArgs["result"]["activityLog"]>
+    composites: {}
+  }
+
+  type ActivityLogGetPayload<S extends boolean | null | undefined | ActivityLogDefaultArgs> = $Result.GetResult<Prisma.$ActivityLogPayload, S>
+
+  type ActivityLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ActivityLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ActivityLogCountAggregateInputType | true
+    }
+
+  export interface ActivityLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ActivityLog'], meta: { name: 'ActivityLog' } }
+    /**
+     * Find zero or one ActivityLog that matches the filter.
+     * @param {ActivityLogFindUniqueArgs} args - Arguments to find a ActivityLog
+     * @example
+     * // Get one ActivityLog
+     * const activityLog = await prisma.activityLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ActivityLogFindUniqueArgs>(args: SelectSubset<T, ActivityLogFindUniqueArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ActivityLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ActivityLogFindUniqueOrThrowArgs} args - Arguments to find a ActivityLog
+     * @example
+     * // Get one ActivityLog
+     * const activityLog = await prisma.activityLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ActivityLogFindUniqueOrThrowArgs>(args: SelectSubset<T, ActivityLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ActivityLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActivityLogFindFirstArgs} args - Arguments to find a ActivityLog
+     * @example
+     * // Get one ActivityLog
+     * const activityLog = await prisma.activityLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ActivityLogFindFirstArgs>(args?: SelectSubset<T, ActivityLogFindFirstArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ActivityLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActivityLogFindFirstOrThrowArgs} args - Arguments to find a ActivityLog
+     * @example
+     * // Get one ActivityLog
+     * const activityLog = await prisma.activityLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ActivityLogFindFirstOrThrowArgs>(args?: SelectSubset<T, ActivityLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ActivityLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActivityLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ActivityLogs
+     * const activityLogs = await prisma.activityLog.findMany()
+     * 
+     * // Get first 10 ActivityLogs
+     * const activityLogs = await prisma.activityLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const activityLogWithIdOnly = await prisma.activityLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ActivityLogFindManyArgs>(args?: SelectSubset<T, ActivityLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ActivityLog.
+     * @param {ActivityLogCreateArgs} args - Arguments to create a ActivityLog.
+     * @example
+     * // Create one ActivityLog
+     * const ActivityLog = await prisma.activityLog.create({
+     *   data: {
+     *     // ... data to create a ActivityLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends ActivityLogCreateArgs>(args: SelectSubset<T, ActivityLogCreateArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ActivityLogs.
+     * @param {ActivityLogCreateManyArgs} args - Arguments to create many ActivityLogs.
+     * @example
+     * // Create many ActivityLogs
+     * const activityLog = await prisma.activityLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ActivityLogCreateManyArgs>(args?: SelectSubset<T, ActivityLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ActivityLogs and returns the data saved in the database.
+     * @param {ActivityLogCreateManyAndReturnArgs} args - Arguments to create many ActivityLogs.
+     * @example
+     * // Create many ActivityLogs
+     * const activityLog = await prisma.activityLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ActivityLogs and only return the `id`
+     * const activityLogWithIdOnly = await prisma.activityLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ActivityLogCreateManyAndReturnArgs>(args?: SelectSubset<T, ActivityLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ActivityLog.
+     * @param {ActivityLogDeleteArgs} args - Arguments to delete one ActivityLog.
+     * @example
+     * // Delete one ActivityLog
+     * const ActivityLog = await prisma.activityLog.delete({
+     *   where: {
+     *     // ... filter to delete one ActivityLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ActivityLogDeleteArgs>(args: SelectSubset<T, ActivityLogDeleteArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ActivityLog.
+     * @param {ActivityLogUpdateArgs} args - Arguments to update one ActivityLog.
+     * @example
+     * // Update one ActivityLog
+     * const activityLog = await prisma.activityLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ActivityLogUpdateArgs>(args: SelectSubset<T, ActivityLogUpdateArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ActivityLogs.
+     * @param {ActivityLogDeleteManyArgs} args - Arguments to filter ActivityLogs to delete.
+     * @example
+     * // Delete a few ActivityLogs
+     * const { count } = await prisma.activityLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ActivityLogDeleteManyArgs>(args?: SelectSubset<T, ActivityLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ActivityLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActivityLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ActivityLogs
+     * const activityLog = await prisma.activityLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ActivityLogUpdateManyArgs>(args: SelectSubset<T, ActivityLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ActivityLog.
+     * @param {ActivityLogUpsertArgs} args - Arguments to update or create a ActivityLog.
+     * @example
+     * // Update or create a ActivityLog
+     * const activityLog = await prisma.activityLog.upsert({
+     *   create: {
+     *     // ... data to create a ActivityLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ActivityLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ActivityLogUpsertArgs>(args: SelectSubset<T, ActivityLogUpsertArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ActivityLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActivityLogCountArgs} args - Arguments to filter ActivityLogs to count.
+     * @example
+     * // Count the number of ActivityLogs
+     * const count = await prisma.activityLog.count({
+     *   where: {
+     *     // ... the filter for the ActivityLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends ActivityLogCountArgs>(
+      args?: Subset<T, ActivityLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ActivityLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ActivityLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActivityLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ActivityLogAggregateArgs>(args: Subset<T, ActivityLogAggregateArgs>): Prisma.PrismaPromise<GetActivityLogAggregateType<T>>
+
+    /**
+     * Group by ActivityLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActivityLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ActivityLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ActivityLogGroupByArgs['orderBy'] }
+        : { orderBy?: ActivityLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ActivityLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetActivityLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ActivityLog model
+   */
+  readonly fields: ActivityLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ActivityLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ActivityLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends ActivityLog$userArgs<ExtArgs> = {}>(args?: Subset<T, ActivityLog$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    tenant<T extends ActivityLog$tenantArgs<ExtArgs> = {}>(args?: Subset<T, ActivityLog$tenantArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ActivityLog model
+   */
+  interface ActivityLogFieldRefs {
+    readonly id: FieldRef<"ActivityLog", 'Int'>
+    readonly userId: FieldRef<"ActivityLog", 'String'>
+    readonly tenantId: FieldRef<"ActivityLog", 'String'>
+    readonly action: FieldRef<"ActivityLog", 'String'>
+    readonly resource: FieldRef<"ActivityLog", 'String'>
+    readonly resourceId: FieldRef<"ActivityLog", 'String'>
+    readonly details: FieldRef<"ActivityLog", 'String'>
+    readonly ipAddress: FieldRef<"ActivityLog", 'String'>
+    readonly userAgent: FieldRef<"ActivityLog", 'String'>
+    readonly createdAt: FieldRef<"ActivityLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ActivityLog findUnique
+   */
+  export type ActivityLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ActivityLog to fetch.
+     */
+    where: ActivityLogWhereUniqueInput
+  }
+
+  /**
+   * ActivityLog findUniqueOrThrow
+   */
+  export type ActivityLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ActivityLog to fetch.
+     */
+    where: ActivityLogWhereUniqueInput
+  }
+
+  /**
+   * ActivityLog findFirst
+   */
+  export type ActivityLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ActivityLog to fetch.
+     */
+    where?: ActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ActivityLogs to fetch.
+     */
+    orderBy?: ActivityLogOrderByWithRelationInput | ActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ActivityLogs.
+     */
+    cursor?: ActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ActivityLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ActivityLogs.
+     */
+    distinct?: ActivityLogScalarFieldEnum | ActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * ActivityLog findFirstOrThrow
+   */
+  export type ActivityLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ActivityLog to fetch.
+     */
+    where?: ActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ActivityLogs to fetch.
+     */
+    orderBy?: ActivityLogOrderByWithRelationInput | ActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ActivityLogs.
+     */
+    cursor?: ActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ActivityLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ActivityLogs.
+     */
+    distinct?: ActivityLogScalarFieldEnum | ActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * ActivityLog findMany
+   */
+  export type ActivityLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ActivityLogs to fetch.
+     */
+    where?: ActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ActivityLogs to fetch.
+     */
+    orderBy?: ActivityLogOrderByWithRelationInput | ActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ActivityLogs.
+     */
+    cursor?: ActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ActivityLogs.
+     */
+    skip?: number
+    distinct?: ActivityLogScalarFieldEnum | ActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * ActivityLog create
+   */
+  export type ActivityLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ActivityLog.
+     */
+    data: XOR<ActivityLogCreateInput, ActivityLogUncheckedCreateInput>
+  }
+
+  /**
+   * ActivityLog createMany
+   */
+  export type ActivityLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ActivityLogs.
+     */
+    data: ActivityLogCreateManyInput | ActivityLogCreateManyInput[]
+  }
+
+  /**
+   * ActivityLog createManyAndReturn
+   */
+  export type ActivityLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many ActivityLogs.
+     */
+    data: ActivityLogCreateManyInput | ActivityLogCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ActivityLog update
+   */
+  export type ActivityLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ActivityLog.
+     */
+    data: XOR<ActivityLogUpdateInput, ActivityLogUncheckedUpdateInput>
+    /**
+     * Choose, which ActivityLog to update.
+     */
+    where: ActivityLogWhereUniqueInput
+  }
+
+  /**
+   * ActivityLog updateMany
+   */
+  export type ActivityLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ActivityLogs.
+     */
+    data: XOR<ActivityLogUpdateManyMutationInput, ActivityLogUncheckedUpdateManyInput>
+    /**
+     * Filter which ActivityLogs to update
+     */
+    where?: ActivityLogWhereInput
+  }
+
+  /**
+   * ActivityLog upsert
+   */
+  export type ActivityLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ActivityLog to update in case it exists.
+     */
+    where: ActivityLogWhereUniqueInput
+    /**
+     * In case the ActivityLog found by the `where` argument doesn't exist, create a new ActivityLog with this data.
+     */
+    create: XOR<ActivityLogCreateInput, ActivityLogUncheckedCreateInput>
+    /**
+     * In case the ActivityLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ActivityLogUpdateInput, ActivityLogUncheckedUpdateInput>
+  }
+
+  /**
+   * ActivityLog delete
+   */
+  export type ActivityLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter which ActivityLog to delete.
+     */
+    where: ActivityLogWhereUniqueInput
+  }
+
+  /**
+   * ActivityLog deleteMany
+   */
+  export type ActivityLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ActivityLogs to delete
+     */
+    where?: ActivityLogWhereInput
+  }
+
+  /**
+   * ActivityLog.user
+   */
+  export type ActivityLog$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * ActivityLog.tenant
+   */
+  export type ActivityLog$tenantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    where?: TenantWhereInput
+  }
+
+  /**
+   * ActivityLog without action
+   */
+  export type ActivityLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLog
+     */
+    select?: ActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLog
+     */
+    omit?: ActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SmtpUser
+   */
+
+  export type AggregateSmtpUser = {
+    _count: SmtpUserCountAggregateOutputType | null
+    _avg: SmtpUserAvgAggregateOutputType | null
+    _sum: SmtpUserSumAggregateOutputType | null
+    _min: SmtpUserMinAggregateOutputType | null
+    _max: SmtpUserMaxAggregateOutputType | null
+  }
+
+  export type SmtpUserAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type SmtpUserSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type SmtpUserMinAggregateOutputType = {
+    id: number | null
+    userId: string | null
+    email: string | null
+    passwordHash: string | null
+    name: string | null
+    isVerified: boolean | null
+    isActive: boolean | null
+    isAdmin: boolean | null
+    lastLogin: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SmtpUserMaxAggregateOutputType = {
+    id: number | null
+    userId: string | null
+    email: string | null
+    passwordHash: string | null
+    name: string | null
+    isVerified: boolean | null
+    isActive: boolean | null
+    isAdmin: boolean | null
+    lastLogin: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SmtpUserCountAggregateOutputType = {
+    id: number
+    userId: number
+    email: number
+    passwordHash: number
+    name: number
+    isVerified: number
+    isActive: number
+    isAdmin: number
+    lastLogin: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SmtpUserAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type SmtpUserSumAggregateInputType = {
+    id?: true
+  }
+
+  export type SmtpUserMinAggregateInputType = {
+    id?: true
+    userId?: true
+    email?: true
+    passwordHash?: true
+    name?: true
+    isVerified?: true
+    isActive?: true
+    isAdmin?: true
+    lastLogin?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SmtpUserMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    email?: true
+    passwordHash?: true
+    name?: true
+    isVerified?: true
+    isActive?: true
+    isAdmin?: true
+    lastLogin?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SmtpUserCountAggregateInputType = {
+    id?: true
+    userId?: true
+    email?: true
+    passwordHash?: true
+    name?: true
+    isVerified?: true
+    isActive?: true
+    isAdmin?: true
+    lastLogin?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SmtpUserAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmtpUser to aggregate.
+     */
+    where?: SmtpUserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmtpUsers to fetch.
+     */
+    orderBy?: SmtpUserOrderByWithRelationInput | SmtpUserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SmtpUserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmtpUsers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmtpUsers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SmtpUsers
+    **/
+    _count?: true | SmtpUserCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SmtpUserAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SmtpUserSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SmtpUserMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SmtpUserMaxAggregateInputType
+  }
+
+  export type GetSmtpUserAggregateType<T extends SmtpUserAggregateArgs> = {
+        [P in keyof T & keyof AggregateSmtpUser]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSmtpUser[P]>
+      : GetScalarType<T[P], AggregateSmtpUser[P]>
+  }
+
+
+
+
+  export type SmtpUserGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmtpUserWhereInput
+    orderBy?: SmtpUserOrderByWithAggregationInput | SmtpUserOrderByWithAggregationInput[]
+    by: SmtpUserScalarFieldEnum[] | SmtpUserScalarFieldEnum
+    having?: SmtpUserScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SmtpUserCountAggregateInputType | true
+    _avg?: SmtpUserAvgAggregateInputType
+    _sum?: SmtpUserSumAggregateInputType
+    _min?: SmtpUserMinAggregateInputType
+    _max?: SmtpUserMaxAggregateInputType
+  }
+
+  export type SmtpUserGroupByOutputType = {
+    id: number
+    userId: string | null
+    email: string
+    passwordHash: string
+    name: string
+    isVerified: boolean
+    isActive: boolean
+    isAdmin: boolean
+    lastLogin: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: SmtpUserCountAggregateOutputType | null
+    _avg: SmtpUserAvgAggregateOutputType | null
+    _sum: SmtpUserSumAggregateOutputType | null
+    _min: SmtpUserMinAggregateOutputType | null
+    _max: SmtpUserMaxAggregateOutputType | null
+  }
+
+  type GetSmtpUserGroupByPayload<T extends SmtpUserGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SmtpUserGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SmtpUserGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SmtpUserGroupByOutputType[P]>
+            : GetScalarType<T[P], SmtpUserGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SmtpUserSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    email?: boolean
+    passwordHash?: boolean
+    name?: boolean
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | SmtpUser$userArgs<ExtArgs>
+    domains?: boolean | SmtpUser$domainsArgs<ExtArgs>
+    authAttempts?: boolean | SmtpUser$authAttemptsArgs<ExtArgs>
+    _count?: boolean | SmtpUserCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["smtpUser"]>
+
+  export type SmtpUserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    email?: boolean
+    passwordHash?: boolean
+    name?: boolean
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | SmtpUser$userArgs<ExtArgs>
+  }, ExtArgs["result"]["smtpUser"]>
+
+
+  export type SmtpUserSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    email?: boolean
+    passwordHash?: boolean
+    name?: boolean
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SmtpUserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "email" | "passwordHash" | "name" | "isVerified" | "isActive" | "isAdmin" | "lastLogin" | "createdAt" | "updatedAt", ExtArgs["result"]["smtpUser"]>
+  export type SmtpUserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | SmtpUser$userArgs<ExtArgs>
+    domains?: boolean | SmtpUser$domainsArgs<ExtArgs>
+    authAttempts?: boolean | SmtpUser$authAttemptsArgs<ExtArgs>
+    _count?: boolean | SmtpUserCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type SmtpUserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | SmtpUser$userArgs<ExtArgs>
+  }
+
+  export type $SmtpUserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SmtpUser"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+      domains: Prisma.$EmailDomainPayload<ExtArgs>[]
+      authAttempts: Prisma.$AuthAttemptPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      userId: string | null
+      email: string
+      passwordHash: string
+      name: string
+      isVerified: boolean
+      isActive: boolean
+      isAdmin: boolean
+      lastLogin: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["smtpUser"]>
+    composites: {}
+  }
+
+  type SmtpUserGetPayload<S extends boolean | null | undefined | SmtpUserDefaultArgs> = $Result.GetResult<Prisma.$SmtpUserPayload, S>
+
+  type SmtpUserCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SmtpUserFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SmtpUserCountAggregateInputType | true
+    }
+
+  export interface SmtpUserDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SmtpUser'], meta: { name: 'SmtpUser' } }
+    /**
+     * Find zero or one SmtpUser that matches the filter.
+     * @param {SmtpUserFindUniqueArgs} args - Arguments to find a SmtpUser
+     * @example
+     * // Get one SmtpUser
+     * const smtpUser = await prisma.smtpUser.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SmtpUserFindUniqueArgs>(args: SelectSubset<T, SmtpUserFindUniqueArgs<ExtArgs>>): Prisma__SmtpUserClient<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SmtpUser that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SmtpUserFindUniqueOrThrowArgs} args - Arguments to find a SmtpUser
+     * @example
+     * // Get one SmtpUser
+     * const smtpUser = await prisma.smtpUser.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SmtpUserFindUniqueOrThrowArgs>(args: SelectSubset<T, SmtpUserFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SmtpUserClient<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmtpUser that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpUserFindFirstArgs} args - Arguments to find a SmtpUser
+     * @example
+     * // Get one SmtpUser
+     * const smtpUser = await prisma.smtpUser.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SmtpUserFindFirstArgs>(args?: SelectSubset<T, SmtpUserFindFirstArgs<ExtArgs>>): Prisma__SmtpUserClient<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmtpUser that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpUserFindFirstOrThrowArgs} args - Arguments to find a SmtpUser
+     * @example
+     * // Get one SmtpUser
+     * const smtpUser = await prisma.smtpUser.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SmtpUserFindFirstOrThrowArgs>(args?: SelectSubset<T, SmtpUserFindFirstOrThrowArgs<ExtArgs>>): Prisma__SmtpUserClient<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SmtpUsers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpUserFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SmtpUsers
+     * const smtpUsers = await prisma.smtpUser.findMany()
+     * 
+     * // Get first 10 SmtpUsers
+     * const smtpUsers = await prisma.smtpUser.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const smtpUserWithIdOnly = await prisma.smtpUser.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SmtpUserFindManyArgs>(args?: SelectSubset<T, SmtpUserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SmtpUser.
+     * @param {SmtpUserCreateArgs} args - Arguments to create a SmtpUser.
+     * @example
+     * // Create one SmtpUser
+     * const SmtpUser = await prisma.smtpUser.create({
+     *   data: {
+     *     // ... data to create a SmtpUser
+     *   }
+     * })
+     * 
+     */
+    create<T extends SmtpUserCreateArgs>(args: SelectSubset<T, SmtpUserCreateArgs<ExtArgs>>): Prisma__SmtpUserClient<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SmtpUsers.
+     * @param {SmtpUserCreateManyArgs} args - Arguments to create many SmtpUsers.
+     * @example
+     * // Create many SmtpUsers
+     * const smtpUser = await prisma.smtpUser.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SmtpUserCreateManyArgs>(args?: SelectSubset<T, SmtpUserCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SmtpUsers and returns the data saved in the database.
+     * @param {SmtpUserCreateManyAndReturnArgs} args - Arguments to create many SmtpUsers.
+     * @example
+     * // Create many SmtpUsers
+     * const smtpUser = await prisma.smtpUser.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SmtpUsers and only return the `id`
+     * const smtpUserWithIdOnly = await prisma.smtpUser.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SmtpUserCreateManyAndReturnArgs>(args?: SelectSubset<T, SmtpUserCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SmtpUser.
+     * @param {SmtpUserDeleteArgs} args - Arguments to delete one SmtpUser.
+     * @example
+     * // Delete one SmtpUser
+     * const SmtpUser = await prisma.smtpUser.delete({
+     *   where: {
+     *     // ... filter to delete one SmtpUser
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SmtpUserDeleteArgs>(args: SelectSubset<T, SmtpUserDeleteArgs<ExtArgs>>): Prisma__SmtpUserClient<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SmtpUser.
+     * @param {SmtpUserUpdateArgs} args - Arguments to update one SmtpUser.
+     * @example
+     * // Update one SmtpUser
+     * const smtpUser = await prisma.smtpUser.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SmtpUserUpdateArgs>(args: SelectSubset<T, SmtpUserUpdateArgs<ExtArgs>>): Prisma__SmtpUserClient<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SmtpUsers.
+     * @param {SmtpUserDeleteManyArgs} args - Arguments to filter SmtpUsers to delete.
+     * @example
+     * // Delete a few SmtpUsers
+     * const { count } = await prisma.smtpUser.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SmtpUserDeleteManyArgs>(args?: SelectSubset<T, SmtpUserDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SmtpUsers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpUserUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SmtpUsers
+     * const smtpUser = await prisma.smtpUser.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SmtpUserUpdateManyArgs>(args: SelectSubset<T, SmtpUserUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SmtpUser.
+     * @param {SmtpUserUpsertArgs} args - Arguments to update or create a SmtpUser.
+     * @example
+     * // Update or create a SmtpUser
+     * const smtpUser = await prisma.smtpUser.upsert({
+     *   create: {
+     *     // ... data to create a SmtpUser
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SmtpUser we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SmtpUserUpsertArgs>(args: SelectSubset<T, SmtpUserUpsertArgs<ExtArgs>>): Prisma__SmtpUserClient<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SmtpUsers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpUserCountArgs} args - Arguments to filter SmtpUsers to count.
+     * @example
+     * // Count the number of SmtpUsers
+     * const count = await prisma.smtpUser.count({
+     *   where: {
+     *     // ... the filter for the SmtpUsers we want to count
+     *   }
+     * })
+    **/
+    count<T extends SmtpUserCountArgs>(
+      args?: Subset<T, SmtpUserCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SmtpUserCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SmtpUser.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpUserAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SmtpUserAggregateArgs>(args: Subset<T, SmtpUserAggregateArgs>): Prisma.PrismaPromise<GetSmtpUserAggregateType<T>>
+
+    /**
+     * Group by SmtpUser.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpUserGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SmtpUserGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SmtpUserGroupByArgs['orderBy'] }
+        : { orderBy?: SmtpUserGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SmtpUserGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSmtpUserGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SmtpUser model
+   */
+  readonly fields: SmtpUserFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SmtpUser.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SmtpUserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends SmtpUser$userArgs<ExtArgs> = {}>(args?: Subset<T, SmtpUser$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    domains<T extends SmtpUser$domainsArgs<ExtArgs> = {}>(args?: Subset<T, SmtpUser$domainsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    authAttempts<T extends SmtpUser$authAttemptsArgs<ExtArgs> = {}>(args?: Subset<T, SmtpUser$authAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuthAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SmtpUser model
+   */
+  interface SmtpUserFieldRefs {
+    readonly id: FieldRef<"SmtpUser", 'Int'>
+    readonly userId: FieldRef<"SmtpUser", 'String'>
+    readonly email: FieldRef<"SmtpUser", 'String'>
+    readonly passwordHash: FieldRef<"SmtpUser", 'String'>
+    readonly name: FieldRef<"SmtpUser", 'String'>
+    readonly isVerified: FieldRef<"SmtpUser", 'Boolean'>
+    readonly isActive: FieldRef<"SmtpUser", 'Boolean'>
+    readonly isAdmin: FieldRef<"SmtpUser", 'Boolean'>
+    readonly lastLogin: FieldRef<"SmtpUser", 'DateTime'>
+    readonly createdAt: FieldRef<"SmtpUser", 'DateTime'>
+    readonly updatedAt: FieldRef<"SmtpUser", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SmtpUser findUnique
+   */
+  export type SmtpUserFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+    /**
+     * Filter, which SmtpUser to fetch.
+     */
+    where: SmtpUserWhereUniqueInput
+  }
+
+  /**
+   * SmtpUser findUniqueOrThrow
+   */
+  export type SmtpUserFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+    /**
+     * Filter, which SmtpUser to fetch.
+     */
+    where: SmtpUserWhereUniqueInput
+  }
+
+  /**
+   * SmtpUser findFirst
+   */
+  export type SmtpUserFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+    /**
+     * Filter, which SmtpUser to fetch.
+     */
+    where?: SmtpUserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmtpUsers to fetch.
+     */
+    orderBy?: SmtpUserOrderByWithRelationInput | SmtpUserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmtpUsers.
+     */
+    cursor?: SmtpUserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmtpUsers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmtpUsers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmtpUsers.
+     */
+    distinct?: SmtpUserScalarFieldEnum | SmtpUserScalarFieldEnum[]
+  }
+
+  /**
+   * SmtpUser findFirstOrThrow
+   */
+  export type SmtpUserFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+    /**
+     * Filter, which SmtpUser to fetch.
+     */
+    where?: SmtpUserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmtpUsers to fetch.
+     */
+    orderBy?: SmtpUserOrderByWithRelationInput | SmtpUserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmtpUsers.
+     */
+    cursor?: SmtpUserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmtpUsers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmtpUsers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmtpUsers.
+     */
+    distinct?: SmtpUserScalarFieldEnum | SmtpUserScalarFieldEnum[]
+  }
+
+  /**
+   * SmtpUser findMany
+   */
+  export type SmtpUserFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+    /**
+     * Filter, which SmtpUsers to fetch.
+     */
+    where?: SmtpUserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmtpUsers to fetch.
+     */
+    orderBy?: SmtpUserOrderByWithRelationInput | SmtpUserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SmtpUsers.
+     */
+    cursor?: SmtpUserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmtpUsers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmtpUsers.
+     */
+    skip?: number
+    distinct?: SmtpUserScalarFieldEnum | SmtpUserScalarFieldEnum[]
+  }
+
+  /**
+   * SmtpUser create
+   */
+  export type SmtpUserCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SmtpUser.
+     */
+    data: XOR<SmtpUserCreateInput, SmtpUserUncheckedCreateInput>
+  }
+
+  /**
+   * SmtpUser createMany
+   */
+  export type SmtpUserCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SmtpUsers.
+     */
+    data: SmtpUserCreateManyInput | SmtpUserCreateManyInput[]
+  }
+
+  /**
+   * SmtpUser createManyAndReturn
+   */
+  export type SmtpUserCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * The data used to create many SmtpUsers.
+     */
+    data: SmtpUserCreateManyInput | SmtpUserCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SmtpUser update
+   */
+  export type SmtpUserUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SmtpUser.
+     */
+    data: XOR<SmtpUserUpdateInput, SmtpUserUncheckedUpdateInput>
+    /**
+     * Choose, which SmtpUser to update.
+     */
+    where: SmtpUserWhereUniqueInput
+  }
+
+  /**
+   * SmtpUser updateMany
+   */
+  export type SmtpUserUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SmtpUsers.
+     */
+    data: XOR<SmtpUserUpdateManyMutationInput, SmtpUserUncheckedUpdateManyInput>
+    /**
+     * Filter which SmtpUsers to update
+     */
+    where?: SmtpUserWhereInput
+  }
+
+  /**
+   * SmtpUser upsert
+   */
+  export type SmtpUserUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SmtpUser to update in case it exists.
+     */
+    where: SmtpUserWhereUniqueInput
+    /**
+     * In case the SmtpUser found by the `where` argument doesn't exist, create a new SmtpUser with this data.
+     */
+    create: XOR<SmtpUserCreateInput, SmtpUserUncheckedCreateInput>
+    /**
+     * In case the SmtpUser was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SmtpUserUpdateInput, SmtpUserUncheckedUpdateInput>
+  }
+
+  /**
+   * SmtpUser delete
+   */
+  export type SmtpUserDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+    /**
+     * Filter which SmtpUser to delete.
+     */
+    where: SmtpUserWhereUniqueInput
+  }
+
+  /**
+   * SmtpUser deleteMany
+   */
+  export type SmtpUserDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmtpUsers to delete
+     */
+    where?: SmtpUserWhereInput
+  }
+
+  /**
+   * SmtpUser.user
+   */
+  export type SmtpUser$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * SmtpUser.domains
+   */
+  export type SmtpUser$domainsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    where?: EmailDomainWhereInput
+    orderBy?: EmailDomainOrderByWithRelationInput | EmailDomainOrderByWithRelationInput[]
+    cursor?: EmailDomainWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmailDomainScalarFieldEnum | EmailDomainScalarFieldEnum[]
+  }
+
+  /**
+   * SmtpUser.authAttempts
+   */
+  export type SmtpUser$authAttemptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptInclude<ExtArgs> | null
+    where?: AuthAttemptWhereInput
+    orderBy?: AuthAttemptOrderByWithRelationInput | AuthAttemptOrderByWithRelationInput[]
+    cursor?: AuthAttemptWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AuthAttemptScalarFieldEnum | AuthAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * SmtpUser without action
+   */
+  export type SmtpUserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EmailDomain
+   */
+
+  export type AggregateEmailDomain = {
+    _count: EmailDomainCountAggregateOutputType | null
+    _avg: EmailDomainAvgAggregateOutputType | null
+    _sum: EmailDomainSumAggregateOutputType | null
+    _min: EmailDomainMinAggregateOutputType | null
+    _max: EmailDomainMaxAggregateOutputType | null
+  }
+
+  export type EmailDomainAvgAggregateOutputType = {
+    id: number | null
+    smtpUserId: number | null
+  }
+
+  export type EmailDomainSumAggregateOutputType = {
+    id: number | null
+    smtpUserId: number | null
+  }
+
+  export type EmailDomainMinAggregateOutputType = {
+    id: number | null
+    tenantId: string | null
+    smtpUserId: number | null
+    domainName: string | null
+    isVerified: boolean | null
+    verificationToken: string | null
+    verifiedAt: Date | null
+    verificationMethod: string | null
+    dkimEnabled: boolean | null
+    spfEnabled: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailDomainMaxAggregateOutputType = {
+    id: number | null
+    tenantId: string | null
+    smtpUserId: number | null
+    domainName: string | null
+    isVerified: boolean | null
+    verificationToken: string | null
+    verifiedAt: Date | null
+    verificationMethod: string | null
+    dkimEnabled: boolean | null
+    spfEnabled: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailDomainCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    smtpUserId: number
+    domainName: number
+    isVerified: number
+    verificationToken: number
+    verifiedAt: number
+    verificationMethod: number
+    dkimEnabled: number
+    spfEnabled: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EmailDomainAvgAggregateInputType = {
+    id?: true
+    smtpUserId?: true
+  }
+
+  export type EmailDomainSumAggregateInputType = {
+    id?: true
+    smtpUserId?: true
+  }
+
+  export type EmailDomainMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    smtpUserId?: true
+    domainName?: true
+    isVerified?: true
+    verificationToken?: true
+    verifiedAt?: true
+    verificationMethod?: true
+    dkimEnabled?: true
+    spfEnabled?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailDomainMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    smtpUserId?: true
+    domainName?: true
+    isVerified?: true
+    verificationToken?: true
+    verifiedAt?: true
+    verificationMethod?: true
+    dkimEnabled?: true
+    spfEnabled?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailDomainCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    smtpUserId?: true
+    domainName?: true
+    isVerified?: true
+    verificationToken?: true
+    verifiedAt?: true
+    verificationMethod?: true
+    dkimEnabled?: true
+    spfEnabled?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EmailDomainAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailDomain to aggregate.
+     */
+    where?: EmailDomainWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailDomains to fetch.
+     */
+    orderBy?: EmailDomainOrderByWithRelationInput | EmailDomainOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmailDomainWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailDomains from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailDomains.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmailDomains
+    **/
+    _count?: true | EmailDomainCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EmailDomainAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EmailDomainSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmailDomainMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmailDomainMaxAggregateInputType
+  }
+
+  export type GetEmailDomainAggregateType<T extends EmailDomainAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmailDomain]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmailDomain[P]>
+      : GetScalarType<T[P], AggregateEmailDomain[P]>
+  }
+
+
+
+
+  export type EmailDomainGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailDomainWhereInput
+    orderBy?: EmailDomainOrderByWithAggregationInput | EmailDomainOrderByWithAggregationInput[]
+    by: EmailDomainScalarFieldEnum[] | EmailDomainScalarFieldEnum
+    having?: EmailDomainScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmailDomainCountAggregateInputType | true
+    _avg?: EmailDomainAvgAggregateInputType
+    _sum?: EmailDomainSumAggregateInputType
+    _min?: EmailDomainMinAggregateInputType
+    _max?: EmailDomainMaxAggregateInputType
+  }
+
+  export type EmailDomainGroupByOutputType = {
+    id: number
+    tenantId: string | null
+    smtpUserId: number
+    domainName: string
+    isVerified: boolean
+    verificationToken: string | null
+    verifiedAt: Date | null
+    verificationMethod: string | null
+    dkimEnabled: boolean
+    spfEnabled: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: EmailDomainCountAggregateOutputType | null
+    _avg: EmailDomainAvgAggregateOutputType | null
+    _sum: EmailDomainSumAggregateOutputType | null
+    _min: EmailDomainMinAggregateOutputType | null
+    _max: EmailDomainMaxAggregateOutputType | null
+  }
+
+  type GetEmailDomainGroupByPayload<T extends EmailDomainGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmailDomainGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmailDomainGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmailDomainGroupByOutputType[P]>
+            : GetScalarType<T[P], EmailDomainGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmailDomainSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    smtpUserId?: boolean
+    domainName?: boolean
+    isVerified?: boolean
+    verificationToken?: boolean
+    verifiedAt?: boolean
+    verificationMethod?: boolean
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | EmailDomain$tenantArgs<ExtArgs>
+    smtpUser?: boolean | SmtpUserDefaultArgs<ExtArgs>
+    dkimKeys?: boolean | EmailDomain$dkimKeysArgs<ExtArgs>
+    emails?: boolean | EmailDomain$emailsArgs<ExtArgs>
+    _count?: boolean | EmailDomainCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["emailDomain"]>
+
+  export type EmailDomainSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    smtpUserId?: boolean
+    domainName?: boolean
+    isVerified?: boolean
+    verificationToken?: boolean
+    verifiedAt?: boolean
+    verificationMethod?: boolean
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | EmailDomain$tenantArgs<ExtArgs>
+    smtpUser?: boolean | SmtpUserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["emailDomain"]>
+
+
+  export type EmailDomainSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    smtpUserId?: boolean
+    domainName?: boolean
+    isVerified?: boolean
+    verificationToken?: boolean
+    verifiedAt?: boolean
+    verificationMethod?: boolean
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EmailDomainOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "smtpUserId" | "domainName" | "isVerified" | "verificationToken" | "verifiedAt" | "verificationMethod" | "dkimEnabled" | "spfEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["emailDomain"]>
+  export type EmailDomainInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | EmailDomain$tenantArgs<ExtArgs>
+    smtpUser?: boolean | SmtpUserDefaultArgs<ExtArgs>
+    dkimKeys?: boolean | EmailDomain$dkimKeysArgs<ExtArgs>
+    emails?: boolean | EmailDomain$emailsArgs<ExtArgs>
+    _count?: boolean | EmailDomainCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type EmailDomainIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | EmailDomain$tenantArgs<ExtArgs>
+    smtpUser?: boolean | SmtpUserDefaultArgs<ExtArgs>
+  }
+
+  export type $EmailDomainPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmailDomain"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs> | null
+      smtpUser: Prisma.$SmtpUserPayload<ExtArgs>
+      dkimKeys: Prisma.$DkimKeyPayload<ExtArgs>[]
+      emails: Prisma.$EmailPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      tenantId: string | null
+      smtpUserId: number
+      domainName: string
+      isVerified: boolean
+      verificationToken: string | null
+      verifiedAt: Date | null
+      verificationMethod: string | null
+      dkimEnabled: boolean
+      spfEnabled: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["emailDomain"]>
+    composites: {}
+  }
+
+  type EmailDomainGetPayload<S extends boolean | null | undefined | EmailDomainDefaultArgs> = $Result.GetResult<Prisma.$EmailDomainPayload, S>
+
+  type EmailDomainCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmailDomainFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmailDomainCountAggregateInputType | true
+    }
+
+  export interface EmailDomainDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmailDomain'], meta: { name: 'EmailDomain' } }
+    /**
+     * Find zero or one EmailDomain that matches the filter.
+     * @param {EmailDomainFindUniqueArgs} args - Arguments to find a EmailDomain
+     * @example
+     * // Get one EmailDomain
+     * const emailDomain = await prisma.emailDomain.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmailDomainFindUniqueArgs>(args: SelectSubset<T, EmailDomainFindUniqueArgs<ExtArgs>>): Prisma__EmailDomainClient<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmailDomain that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmailDomainFindUniqueOrThrowArgs} args - Arguments to find a EmailDomain
+     * @example
+     * // Get one EmailDomain
+     * const emailDomain = await prisma.emailDomain.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmailDomainFindUniqueOrThrowArgs>(args: SelectSubset<T, EmailDomainFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmailDomainClient<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailDomain that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDomainFindFirstArgs} args - Arguments to find a EmailDomain
+     * @example
+     * // Get one EmailDomain
+     * const emailDomain = await prisma.emailDomain.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmailDomainFindFirstArgs>(args?: SelectSubset<T, EmailDomainFindFirstArgs<ExtArgs>>): Prisma__EmailDomainClient<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailDomain that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDomainFindFirstOrThrowArgs} args - Arguments to find a EmailDomain
+     * @example
+     * // Get one EmailDomain
+     * const emailDomain = await prisma.emailDomain.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmailDomainFindFirstOrThrowArgs>(args?: SelectSubset<T, EmailDomainFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmailDomainClient<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmailDomains that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDomainFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmailDomains
+     * const emailDomains = await prisma.emailDomain.findMany()
+     * 
+     * // Get first 10 EmailDomains
+     * const emailDomains = await prisma.emailDomain.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const emailDomainWithIdOnly = await prisma.emailDomain.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmailDomainFindManyArgs>(args?: SelectSubset<T, EmailDomainFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmailDomain.
+     * @param {EmailDomainCreateArgs} args - Arguments to create a EmailDomain.
+     * @example
+     * // Create one EmailDomain
+     * const EmailDomain = await prisma.emailDomain.create({
+     *   data: {
+     *     // ... data to create a EmailDomain
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmailDomainCreateArgs>(args: SelectSubset<T, EmailDomainCreateArgs<ExtArgs>>): Prisma__EmailDomainClient<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmailDomains.
+     * @param {EmailDomainCreateManyArgs} args - Arguments to create many EmailDomains.
+     * @example
+     * // Create many EmailDomains
+     * const emailDomain = await prisma.emailDomain.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmailDomainCreateManyArgs>(args?: SelectSubset<T, EmailDomainCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmailDomains and returns the data saved in the database.
+     * @param {EmailDomainCreateManyAndReturnArgs} args - Arguments to create many EmailDomains.
+     * @example
+     * // Create many EmailDomains
+     * const emailDomain = await prisma.emailDomain.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmailDomains and only return the `id`
+     * const emailDomainWithIdOnly = await prisma.emailDomain.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmailDomainCreateManyAndReturnArgs>(args?: SelectSubset<T, EmailDomainCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmailDomain.
+     * @param {EmailDomainDeleteArgs} args - Arguments to delete one EmailDomain.
+     * @example
+     * // Delete one EmailDomain
+     * const EmailDomain = await prisma.emailDomain.delete({
+     *   where: {
+     *     // ... filter to delete one EmailDomain
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmailDomainDeleteArgs>(args: SelectSubset<T, EmailDomainDeleteArgs<ExtArgs>>): Prisma__EmailDomainClient<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmailDomain.
+     * @param {EmailDomainUpdateArgs} args - Arguments to update one EmailDomain.
+     * @example
+     * // Update one EmailDomain
+     * const emailDomain = await prisma.emailDomain.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmailDomainUpdateArgs>(args: SelectSubset<T, EmailDomainUpdateArgs<ExtArgs>>): Prisma__EmailDomainClient<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmailDomains.
+     * @param {EmailDomainDeleteManyArgs} args - Arguments to filter EmailDomains to delete.
+     * @example
+     * // Delete a few EmailDomains
+     * const { count } = await prisma.emailDomain.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmailDomainDeleteManyArgs>(args?: SelectSubset<T, EmailDomainDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailDomains.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDomainUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmailDomains
+     * const emailDomain = await prisma.emailDomain.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmailDomainUpdateManyArgs>(args: SelectSubset<T, EmailDomainUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one EmailDomain.
+     * @param {EmailDomainUpsertArgs} args - Arguments to update or create a EmailDomain.
+     * @example
+     * // Update or create a EmailDomain
+     * const emailDomain = await prisma.emailDomain.upsert({
+     *   create: {
+     *     // ... data to create a EmailDomain
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmailDomain we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmailDomainUpsertArgs>(args: SelectSubset<T, EmailDomainUpsertArgs<ExtArgs>>): Prisma__EmailDomainClient<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmailDomains.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDomainCountArgs} args - Arguments to filter EmailDomains to count.
+     * @example
+     * // Count the number of EmailDomains
+     * const count = await prisma.emailDomain.count({
+     *   where: {
+     *     // ... the filter for the EmailDomains we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmailDomainCountArgs>(
+      args?: Subset<T, EmailDomainCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmailDomainCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmailDomain.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDomainAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmailDomainAggregateArgs>(args: Subset<T, EmailDomainAggregateArgs>): Prisma.PrismaPromise<GetEmailDomainAggregateType<T>>
+
+    /**
+     * Group by EmailDomain.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDomainGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmailDomainGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmailDomainGroupByArgs['orderBy'] }
+        : { orderBy?: EmailDomainGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmailDomainGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmailDomainGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmailDomain model
+   */
+  readonly fields: EmailDomainFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmailDomain.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmailDomainClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends EmailDomain$tenantArgs<ExtArgs> = {}>(args?: Subset<T, EmailDomain$tenantArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    smtpUser<T extends SmtpUserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SmtpUserDefaultArgs<ExtArgs>>): Prisma__SmtpUserClient<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    dkimKeys<T extends EmailDomain$dkimKeysArgs<ExtArgs> = {}>(args?: Subset<T, EmailDomain$dkimKeysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DkimKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    emails<T extends EmailDomain$emailsArgs<ExtArgs> = {}>(args?: Subset<T, EmailDomain$emailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmailDomain model
+   */
+  interface EmailDomainFieldRefs {
+    readonly id: FieldRef<"EmailDomain", 'Int'>
+    readonly tenantId: FieldRef<"EmailDomain", 'String'>
+    readonly smtpUserId: FieldRef<"EmailDomain", 'Int'>
+    readonly domainName: FieldRef<"EmailDomain", 'String'>
+    readonly isVerified: FieldRef<"EmailDomain", 'Boolean'>
+    readonly verificationToken: FieldRef<"EmailDomain", 'String'>
+    readonly verifiedAt: FieldRef<"EmailDomain", 'DateTime'>
+    readonly verificationMethod: FieldRef<"EmailDomain", 'String'>
+    readonly dkimEnabled: FieldRef<"EmailDomain", 'Boolean'>
+    readonly spfEnabled: FieldRef<"EmailDomain", 'Boolean'>
+    readonly createdAt: FieldRef<"EmailDomain", 'DateTime'>
+    readonly updatedAt: FieldRef<"EmailDomain", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmailDomain findUnique
+   */
+  export type EmailDomainFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailDomain to fetch.
+     */
+    where: EmailDomainWhereUniqueInput
+  }
+
+  /**
+   * EmailDomain findUniqueOrThrow
+   */
+  export type EmailDomainFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailDomain to fetch.
+     */
+    where: EmailDomainWhereUniqueInput
+  }
+
+  /**
+   * EmailDomain findFirst
+   */
+  export type EmailDomainFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailDomain to fetch.
+     */
+    where?: EmailDomainWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailDomains to fetch.
+     */
+    orderBy?: EmailDomainOrderByWithRelationInput | EmailDomainOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailDomains.
+     */
+    cursor?: EmailDomainWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailDomains from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailDomains.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailDomains.
+     */
+    distinct?: EmailDomainScalarFieldEnum | EmailDomainScalarFieldEnum[]
+  }
+
+  /**
+   * EmailDomain findFirstOrThrow
+   */
+  export type EmailDomainFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailDomain to fetch.
+     */
+    where?: EmailDomainWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailDomains to fetch.
+     */
+    orderBy?: EmailDomainOrderByWithRelationInput | EmailDomainOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailDomains.
+     */
+    cursor?: EmailDomainWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailDomains from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailDomains.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailDomains.
+     */
+    distinct?: EmailDomainScalarFieldEnum | EmailDomainScalarFieldEnum[]
+  }
+
+  /**
+   * EmailDomain findMany
+   */
+  export type EmailDomainFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailDomains to fetch.
+     */
+    where?: EmailDomainWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailDomains to fetch.
+     */
+    orderBy?: EmailDomainOrderByWithRelationInput | EmailDomainOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmailDomains.
+     */
+    cursor?: EmailDomainWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailDomains from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailDomains.
+     */
+    skip?: number
+    distinct?: EmailDomainScalarFieldEnum | EmailDomainScalarFieldEnum[]
+  }
+
+  /**
+   * EmailDomain create
+   */
+  export type EmailDomainCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EmailDomain.
+     */
+    data: XOR<EmailDomainCreateInput, EmailDomainUncheckedCreateInput>
+  }
+
+  /**
+   * EmailDomain createMany
+   */
+  export type EmailDomainCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmailDomains.
+     */
+    data: EmailDomainCreateManyInput | EmailDomainCreateManyInput[]
+  }
+
+  /**
+   * EmailDomain createManyAndReturn
+   */
+  export type EmailDomainCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmailDomains.
+     */
+    data: EmailDomainCreateManyInput | EmailDomainCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmailDomain update
+   */
+  export type EmailDomainUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EmailDomain.
+     */
+    data: XOR<EmailDomainUpdateInput, EmailDomainUncheckedUpdateInput>
+    /**
+     * Choose, which EmailDomain to update.
+     */
+    where: EmailDomainWhereUniqueInput
+  }
+
+  /**
+   * EmailDomain updateMany
+   */
+  export type EmailDomainUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmailDomains.
+     */
+    data: XOR<EmailDomainUpdateManyMutationInput, EmailDomainUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailDomains to update
+     */
+    where?: EmailDomainWhereInput
+  }
+
+  /**
+   * EmailDomain upsert
+   */
+  export type EmailDomainUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EmailDomain to update in case it exists.
+     */
+    where: EmailDomainWhereUniqueInput
+    /**
+     * In case the EmailDomain found by the `where` argument doesn't exist, create a new EmailDomain with this data.
+     */
+    create: XOR<EmailDomainCreateInput, EmailDomainUncheckedCreateInput>
+    /**
+     * In case the EmailDomain was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmailDomainUpdateInput, EmailDomainUncheckedUpdateInput>
+  }
+
+  /**
+   * EmailDomain delete
+   */
+  export type EmailDomainDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    /**
+     * Filter which EmailDomain to delete.
+     */
+    where: EmailDomainWhereUniqueInput
+  }
+
+  /**
+   * EmailDomain deleteMany
+   */
+  export type EmailDomainDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailDomains to delete
+     */
+    where?: EmailDomainWhereInput
+  }
+
+  /**
+   * EmailDomain.tenant
+   */
+  export type EmailDomain$tenantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    where?: TenantWhereInput
+  }
+
+  /**
+   * EmailDomain.dkimKeys
+   */
+  export type EmailDomain$dkimKeysArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyInclude<ExtArgs> | null
+    where?: DkimKeyWhereInput
+    orderBy?: DkimKeyOrderByWithRelationInput | DkimKeyOrderByWithRelationInput[]
+    cursor?: DkimKeyWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DkimKeyScalarFieldEnum | DkimKeyScalarFieldEnum[]
+  }
+
+  /**
+   * EmailDomain.emails
+   */
+  export type EmailDomain$emailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailInclude<ExtArgs> | null
+    where?: EmailWhereInput
+    orderBy?: EmailOrderByWithRelationInput | EmailOrderByWithRelationInput[]
+    cursor?: EmailWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmailScalarFieldEnum | EmailScalarFieldEnum[]
+  }
+
+  /**
+   * EmailDomain without action
+   */
+  export type EmailDomainDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DkimKey
+   */
+
+  export type AggregateDkimKey = {
+    _count: DkimKeyCountAggregateOutputType | null
+    _avg: DkimKeyAvgAggregateOutputType | null
+    _sum: DkimKeySumAggregateOutputType | null
+    _min: DkimKeyMinAggregateOutputType | null
+    _max: DkimKeyMaxAggregateOutputType | null
+  }
+
+  export type DkimKeyAvgAggregateOutputType = {
+    id: number | null
+    domainId: number | null
+    keySize: number | null
+  }
+
+  export type DkimKeySumAggregateOutputType = {
+    id: number | null
+    domainId: number | null
+    keySize: number | null
+  }
+
+  export type DkimKeyMinAggregateOutputType = {
+    id: number | null
+    domainId: number | null
+    selector: string | null
+    privateKey: string | null
+    publicKey: string | null
+    algorithm: string | null
+    canonicalization: string | null
+    keySize: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DkimKeyMaxAggregateOutputType = {
+    id: number | null
+    domainId: number | null
+    selector: string | null
+    privateKey: string | null
+    publicKey: string | null
+    algorithm: string | null
+    canonicalization: string | null
+    keySize: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DkimKeyCountAggregateOutputType = {
+    id: number
+    domainId: number
+    selector: number
+    privateKey: number
+    publicKey: number
+    algorithm: number
+    canonicalization: number
+    keySize: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DkimKeyAvgAggregateInputType = {
+    id?: true
+    domainId?: true
+    keySize?: true
+  }
+
+  export type DkimKeySumAggregateInputType = {
+    id?: true
+    domainId?: true
+    keySize?: true
+  }
+
+  export type DkimKeyMinAggregateInputType = {
+    id?: true
+    domainId?: true
+    selector?: true
+    privateKey?: true
+    publicKey?: true
+    algorithm?: true
+    canonicalization?: true
+    keySize?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DkimKeyMaxAggregateInputType = {
+    id?: true
+    domainId?: true
+    selector?: true
+    privateKey?: true
+    publicKey?: true
+    algorithm?: true
+    canonicalization?: true
+    keySize?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DkimKeyCountAggregateInputType = {
+    id?: true
+    domainId?: true
+    selector?: true
+    privateKey?: true
+    publicKey?: true
+    algorithm?: true
+    canonicalization?: true
+    keySize?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DkimKeyAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DkimKey to aggregate.
+     */
+    where?: DkimKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DkimKeys to fetch.
+     */
+    orderBy?: DkimKeyOrderByWithRelationInput | DkimKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DkimKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DkimKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DkimKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DkimKeys
+    **/
+    _count?: true | DkimKeyCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DkimKeyAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DkimKeySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DkimKeyMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DkimKeyMaxAggregateInputType
+  }
+
+  export type GetDkimKeyAggregateType<T extends DkimKeyAggregateArgs> = {
+        [P in keyof T & keyof AggregateDkimKey]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDkimKey[P]>
+      : GetScalarType<T[P], AggregateDkimKey[P]>
+  }
+
+
+
+
+  export type DkimKeyGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DkimKeyWhereInput
+    orderBy?: DkimKeyOrderByWithAggregationInput | DkimKeyOrderByWithAggregationInput[]
+    by: DkimKeyScalarFieldEnum[] | DkimKeyScalarFieldEnum
+    having?: DkimKeyScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DkimKeyCountAggregateInputType | true
+    _avg?: DkimKeyAvgAggregateInputType
+    _sum?: DkimKeySumAggregateInputType
+    _min?: DkimKeyMinAggregateInputType
+    _max?: DkimKeyMaxAggregateInputType
+  }
+
+  export type DkimKeyGroupByOutputType = {
+    id: number
+    domainId: number
+    selector: string
+    privateKey: string
+    publicKey: string
+    algorithm: string
+    canonicalization: string
+    keySize: number
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: DkimKeyCountAggregateOutputType | null
+    _avg: DkimKeyAvgAggregateOutputType | null
+    _sum: DkimKeySumAggregateOutputType | null
+    _min: DkimKeyMinAggregateOutputType | null
+    _max: DkimKeyMaxAggregateOutputType | null
+  }
+
+  type GetDkimKeyGroupByPayload<T extends DkimKeyGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DkimKeyGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DkimKeyGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DkimKeyGroupByOutputType[P]>
+            : GetScalarType<T[P], DkimKeyGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DkimKeySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    domainId?: boolean
+    selector?: boolean
+    privateKey?: boolean
+    publicKey?: boolean
+    algorithm?: boolean
+    canonicalization?: boolean
+    keySize?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    domain?: boolean | EmailDomainDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dkimKey"]>
+
+  export type DkimKeySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    domainId?: boolean
+    selector?: boolean
+    privateKey?: boolean
+    publicKey?: boolean
+    algorithm?: boolean
+    canonicalization?: boolean
+    keySize?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    domain?: boolean | EmailDomainDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dkimKey"]>
+
+
+  export type DkimKeySelectScalar = {
+    id?: boolean
+    domainId?: boolean
+    selector?: boolean
+    privateKey?: boolean
+    publicKey?: boolean
+    algorithm?: boolean
+    canonicalization?: boolean
+    keySize?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DkimKeyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "domainId" | "selector" | "privateKey" | "publicKey" | "algorithm" | "canonicalization" | "keySize" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["dkimKey"]>
+  export type DkimKeyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    domain?: boolean | EmailDomainDefaultArgs<ExtArgs>
+  }
+  export type DkimKeyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    domain?: boolean | EmailDomainDefaultArgs<ExtArgs>
+  }
+
+  export type $DkimKeyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DkimKey"
+    objects: {
+      domain: Prisma.$EmailDomainPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      domainId: number
+      selector: string
+      privateKey: string
+      publicKey: string
+      algorithm: string
+      canonicalization: string
+      keySize: number
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["dkimKey"]>
+    composites: {}
+  }
+
+  type DkimKeyGetPayload<S extends boolean | null | undefined | DkimKeyDefaultArgs> = $Result.GetResult<Prisma.$DkimKeyPayload, S>
+
+  type DkimKeyCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DkimKeyFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DkimKeyCountAggregateInputType | true
+    }
+
+  export interface DkimKeyDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DkimKey'], meta: { name: 'DkimKey' } }
+    /**
+     * Find zero or one DkimKey that matches the filter.
+     * @param {DkimKeyFindUniqueArgs} args - Arguments to find a DkimKey
+     * @example
+     * // Get one DkimKey
+     * const dkimKey = await prisma.dkimKey.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DkimKeyFindUniqueArgs>(args: SelectSubset<T, DkimKeyFindUniqueArgs<ExtArgs>>): Prisma__DkimKeyClient<$Result.GetResult<Prisma.$DkimKeyPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DkimKey that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DkimKeyFindUniqueOrThrowArgs} args - Arguments to find a DkimKey
+     * @example
+     * // Get one DkimKey
+     * const dkimKey = await prisma.dkimKey.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DkimKeyFindUniqueOrThrowArgs>(args: SelectSubset<T, DkimKeyFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DkimKeyClient<$Result.GetResult<Prisma.$DkimKeyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DkimKey that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DkimKeyFindFirstArgs} args - Arguments to find a DkimKey
+     * @example
+     * // Get one DkimKey
+     * const dkimKey = await prisma.dkimKey.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DkimKeyFindFirstArgs>(args?: SelectSubset<T, DkimKeyFindFirstArgs<ExtArgs>>): Prisma__DkimKeyClient<$Result.GetResult<Prisma.$DkimKeyPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DkimKey that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DkimKeyFindFirstOrThrowArgs} args - Arguments to find a DkimKey
+     * @example
+     * // Get one DkimKey
+     * const dkimKey = await prisma.dkimKey.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DkimKeyFindFirstOrThrowArgs>(args?: SelectSubset<T, DkimKeyFindFirstOrThrowArgs<ExtArgs>>): Prisma__DkimKeyClient<$Result.GetResult<Prisma.$DkimKeyPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DkimKeys that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DkimKeyFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DkimKeys
+     * const dkimKeys = await prisma.dkimKey.findMany()
+     * 
+     * // Get first 10 DkimKeys
+     * const dkimKeys = await prisma.dkimKey.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dkimKeyWithIdOnly = await prisma.dkimKey.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DkimKeyFindManyArgs>(args?: SelectSubset<T, DkimKeyFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DkimKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DkimKey.
+     * @param {DkimKeyCreateArgs} args - Arguments to create a DkimKey.
+     * @example
+     * // Create one DkimKey
+     * const DkimKey = await prisma.dkimKey.create({
+     *   data: {
+     *     // ... data to create a DkimKey
+     *   }
+     * })
+     * 
+     */
+    create<T extends DkimKeyCreateArgs>(args: SelectSubset<T, DkimKeyCreateArgs<ExtArgs>>): Prisma__DkimKeyClient<$Result.GetResult<Prisma.$DkimKeyPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DkimKeys.
+     * @param {DkimKeyCreateManyArgs} args - Arguments to create many DkimKeys.
+     * @example
+     * // Create many DkimKeys
+     * const dkimKey = await prisma.dkimKey.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DkimKeyCreateManyArgs>(args?: SelectSubset<T, DkimKeyCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DkimKeys and returns the data saved in the database.
+     * @param {DkimKeyCreateManyAndReturnArgs} args - Arguments to create many DkimKeys.
+     * @example
+     * // Create many DkimKeys
+     * const dkimKey = await prisma.dkimKey.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DkimKeys and only return the `id`
+     * const dkimKeyWithIdOnly = await prisma.dkimKey.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DkimKeyCreateManyAndReturnArgs>(args?: SelectSubset<T, DkimKeyCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DkimKeyPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DkimKey.
+     * @param {DkimKeyDeleteArgs} args - Arguments to delete one DkimKey.
+     * @example
+     * // Delete one DkimKey
+     * const DkimKey = await prisma.dkimKey.delete({
+     *   where: {
+     *     // ... filter to delete one DkimKey
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DkimKeyDeleteArgs>(args: SelectSubset<T, DkimKeyDeleteArgs<ExtArgs>>): Prisma__DkimKeyClient<$Result.GetResult<Prisma.$DkimKeyPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DkimKey.
+     * @param {DkimKeyUpdateArgs} args - Arguments to update one DkimKey.
+     * @example
+     * // Update one DkimKey
+     * const dkimKey = await prisma.dkimKey.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DkimKeyUpdateArgs>(args: SelectSubset<T, DkimKeyUpdateArgs<ExtArgs>>): Prisma__DkimKeyClient<$Result.GetResult<Prisma.$DkimKeyPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DkimKeys.
+     * @param {DkimKeyDeleteManyArgs} args - Arguments to filter DkimKeys to delete.
+     * @example
+     * // Delete a few DkimKeys
+     * const { count } = await prisma.dkimKey.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DkimKeyDeleteManyArgs>(args?: SelectSubset<T, DkimKeyDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DkimKeys.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DkimKeyUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DkimKeys
+     * const dkimKey = await prisma.dkimKey.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DkimKeyUpdateManyArgs>(args: SelectSubset<T, DkimKeyUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DkimKey.
+     * @param {DkimKeyUpsertArgs} args - Arguments to update or create a DkimKey.
+     * @example
+     * // Update or create a DkimKey
+     * const dkimKey = await prisma.dkimKey.upsert({
+     *   create: {
+     *     // ... data to create a DkimKey
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DkimKey we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DkimKeyUpsertArgs>(args: SelectSubset<T, DkimKeyUpsertArgs<ExtArgs>>): Prisma__DkimKeyClient<$Result.GetResult<Prisma.$DkimKeyPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DkimKeys.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DkimKeyCountArgs} args - Arguments to filter DkimKeys to count.
+     * @example
+     * // Count the number of DkimKeys
+     * const count = await prisma.dkimKey.count({
+     *   where: {
+     *     // ... the filter for the DkimKeys we want to count
+     *   }
+     * })
+    **/
+    count<T extends DkimKeyCountArgs>(
+      args?: Subset<T, DkimKeyCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DkimKeyCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DkimKey.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DkimKeyAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DkimKeyAggregateArgs>(args: Subset<T, DkimKeyAggregateArgs>): Prisma.PrismaPromise<GetDkimKeyAggregateType<T>>
+
+    /**
+     * Group by DkimKey.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DkimKeyGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DkimKeyGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DkimKeyGroupByArgs['orderBy'] }
+        : { orderBy?: DkimKeyGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DkimKeyGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDkimKeyGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DkimKey model
+   */
+  readonly fields: DkimKeyFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DkimKey.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DkimKeyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    domain<T extends EmailDomainDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmailDomainDefaultArgs<ExtArgs>>): Prisma__EmailDomainClient<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DkimKey model
+   */
+  interface DkimKeyFieldRefs {
+    readonly id: FieldRef<"DkimKey", 'Int'>
+    readonly domainId: FieldRef<"DkimKey", 'Int'>
+    readonly selector: FieldRef<"DkimKey", 'String'>
+    readonly privateKey: FieldRef<"DkimKey", 'String'>
+    readonly publicKey: FieldRef<"DkimKey", 'String'>
+    readonly algorithm: FieldRef<"DkimKey", 'String'>
+    readonly canonicalization: FieldRef<"DkimKey", 'String'>
+    readonly keySize: FieldRef<"DkimKey", 'Int'>
+    readonly isActive: FieldRef<"DkimKey", 'Boolean'>
+    readonly createdAt: FieldRef<"DkimKey", 'DateTime'>
+    readonly updatedAt: FieldRef<"DkimKey", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DkimKey findUnique
+   */
+  export type DkimKeyFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which DkimKey to fetch.
+     */
+    where: DkimKeyWhereUniqueInput
+  }
+
+  /**
+   * DkimKey findUniqueOrThrow
+   */
+  export type DkimKeyFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which DkimKey to fetch.
+     */
+    where: DkimKeyWhereUniqueInput
+  }
+
+  /**
+   * DkimKey findFirst
+   */
+  export type DkimKeyFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which DkimKey to fetch.
+     */
+    where?: DkimKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DkimKeys to fetch.
+     */
+    orderBy?: DkimKeyOrderByWithRelationInput | DkimKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DkimKeys.
+     */
+    cursor?: DkimKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DkimKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DkimKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DkimKeys.
+     */
+    distinct?: DkimKeyScalarFieldEnum | DkimKeyScalarFieldEnum[]
+  }
+
+  /**
+   * DkimKey findFirstOrThrow
+   */
+  export type DkimKeyFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which DkimKey to fetch.
+     */
+    where?: DkimKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DkimKeys to fetch.
+     */
+    orderBy?: DkimKeyOrderByWithRelationInput | DkimKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DkimKeys.
+     */
+    cursor?: DkimKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DkimKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DkimKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DkimKeys.
+     */
+    distinct?: DkimKeyScalarFieldEnum | DkimKeyScalarFieldEnum[]
+  }
+
+  /**
+   * DkimKey findMany
+   */
+  export type DkimKeyFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which DkimKeys to fetch.
+     */
+    where?: DkimKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DkimKeys to fetch.
+     */
+    orderBy?: DkimKeyOrderByWithRelationInput | DkimKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DkimKeys.
+     */
+    cursor?: DkimKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DkimKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DkimKeys.
+     */
+    skip?: number
+    distinct?: DkimKeyScalarFieldEnum | DkimKeyScalarFieldEnum[]
+  }
+
+  /**
+   * DkimKey create
+   */
+  export type DkimKeyCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DkimKey.
+     */
+    data: XOR<DkimKeyCreateInput, DkimKeyUncheckedCreateInput>
+  }
+
+  /**
+   * DkimKey createMany
+   */
+  export type DkimKeyCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DkimKeys.
+     */
+    data: DkimKeyCreateManyInput | DkimKeyCreateManyInput[]
+  }
+
+  /**
+   * DkimKey createManyAndReturn
+   */
+  export type DkimKeyCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * The data used to create many DkimKeys.
+     */
+    data: DkimKeyCreateManyInput | DkimKeyCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DkimKey update
+   */
+  export type DkimKeyUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DkimKey.
+     */
+    data: XOR<DkimKeyUpdateInput, DkimKeyUncheckedUpdateInput>
+    /**
+     * Choose, which DkimKey to update.
+     */
+    where: DkimKeyWhereUniqueInput
+  }
+
+  /**
+   * DkimKey updateMany
+   */
+  export type DkimKeyUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DkimKeys.
+     */
+    data: XOR<DkimKeyUpdateManyMutationInput, DkimKeyUncheckedUpdateManyInput>
+    /**
+     * Filter which DkimKeys to update
+     */
+    where?: DkimKeyWhereInput
+  }
+
+  /**
+   * DkimKey upsert
+   */
+  export type DkimKeyUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DkimKey to update in case it exists.
+     */
+    where: DkimKeyWhereUniqueInput
+    /**
+     * In case the DkimKey found by the `where` argument doesn't exist, create a new DkimKey with this data.
+     */
+    create: XOR<DkimKeyCreateInput, DkimKeyUncheckedCreateInput>
+    /**
+     * In case the DkimKey was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DkimKeyUpdateInput, DkimKeyUncheckedUpdateInput>
+  }
+
+  /**
+   * DkimKey delete
+   */
+  export type DkimKeyDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyInclude<ExtArgs> | null
+    /**
+     * Filter which DkimKey to delete.
+     */
+    where: DkimKeyWhereUniqueInput
+  }
+
+  /**
+   * DkimKey deleteMany
+   */
+  export type DkimKeyDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DkimKeys to delete
+     */
+    where?: DkimKeyWhereInput
+  }
+
+  /**
+   * DkimKey without action
+   */
+  export type DkimKeyDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DkimKey
+     */
+    select?: DkimKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DkimKey
+     */
+    omit?: DkimKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DkimKeyInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Email
+   */
+
+  export type AggregateEmail = {
+    _count: EmailCountAggregateOutputType | null
+    _avg: EmailAvgAggregateOutputType | null
+    _sum: EmailSumAggregateOutputType | null
+    _min: EmailMinAggregateOutputType | null
+    _max: EmailMaxAggregateOutputType | null
+  }
+
+  export type EmailAvgAggregateOutputType = {
+    id: number | null
+    domainId: number | null
+    attempts: number | null
+  }
+
+  export type EmailSumAggregateOutputType = {
+    id: number | null
+    domainId: number | null
+    attempts: number | null
+  }
+
+  export type EmailMinAggregateOutputType = {
+    id: number | null
+    messageId: string | null
+    domainId: number | null
+    fromEmail: string | null
+    toEmail: string | null
+    subject: string | null
+    htmlContent: string | null
+    textContent: string | null
+    status: string | null
+    direction: string | null
+    sentAt: Date | null
+    deliveredAt: Date | null
+    mxServer: string | null
+    errorMessage: string | null
+    attempts: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailMaxAggregateOutputType = {
+    id: number | null
+    messageId: string | null
+    domainId: number | null
+    fromEmail: string | null
+    toEmail: string | null
+    subject: string | null
+    htmlContent: string | null
+    textContent: string | null
+    status: string | null
+    direction: string | null
+    sentAt: Date | null
+    deliveredAt: Date | null
+    mxServer: string | null
+    errorMessage: string | null
+    attempts: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailCountAggregateOutputType = {
+    id: number
+    messageId: number
+    domainId: number
+    fromEmail: number
+    toEmail: number
+    subject: number
+    htmlContent: number
+    textContent: number
+    status: number
+    direction: number
+    sentAt: number
+    deliveredAt: number
+    mxServer: number
+    errorMessage: number
+    attempts: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EmailAvgAggregateInputType = {
+    id?: true
+    domainId?: true
+    attempts?: true
+  }
+
+  export type EmailSumAggregateInputType = {
+    id?: true
+    domainId?: true
+    attempts?: true
+  }
+
+  export type EmailMinAggregateInputType = {
+    id?: true
+    messageId?: true
+    domainId?: true
+    fromEmail?: true
+    toEmail?: true
+    subject?: true
+    htmlContent?: true
+    textContent?: true
+    status?: true
+    direction?: true
+    sentAt?: true
+    deliveredAt?: true
+    mxServer?: true
+    errorMessage?: true
+    attempts?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailMaxAggregateInputType = {
+    id?: true
+    messageId?: true
+    domainId?: true
+    fromEmail?: true
+    toEmail?: true
+    subject?: true
+    htmlContent?: true
+    textContent?: true
+    status?: true
+    direction?: true
+    sentAt?: true
+    deliveredAt?: true
+    mxServer?: true
+    errorMessage?: true
+    attempts?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailCountAggregateInputType = {
+    id?: true
+    messageId?: true
+    domainId?: true
+    fromEmail?: true
+    toEmail?: true
+    subject?: true
+    htmlContent?: true
+    textContent?: true
+    status?: true
+    direction?: true
+    sentAt?: true
+    deliveredAt?: true
+    mxServer?: true
+    errorMessage?: true
+    attempts?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EmailAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Email to aggregate.
+     */
+    where?: EmailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Emails to fetch.
+     */
+    orderBy?: EmailOrderByWithRelationInput | EmailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Emails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Emails.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Emails
+    **/
+    _count?: true | EmailCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EmailAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EmailSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmailMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmailMaxAggregateInputType
+  }
+
+  export type GetEmailAggregateType<T extends EmailAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmail]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmail[P]>
+      : GetScalarType<T[P], AggregateEmail[P]>
+  }
+
+
+
+
+  export type EmailGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailWhereInput
+    orderBy?: EmailOrderByWithAggregationInput | EmailOrderByWithAggregationInput[]
+    by: EmailScalarFieldEnum[] | EmailScalarFieldEnum
+    having?: EmailScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmailCountAggregateInputType | true
+    _avg?: EmailAvgAggregateInputType
+    _sum?: EmailSumAggregateInputType
+    _min?: EmailMinAggregateInputType
+    _max?: EmailMaxAggregateInputType
+  }
+
+  export type EmailGroupByOutputType = {
+    id: number
+    messageId: string
+    domainId: number | null
+    fromEmail: string
+    toEmail: string
+    subject: string
+    htmlContent: string | null
+    textContent: string | null
+    status: string
+    direction: string
+    sentAt: Date | null
+    deliveredAt: Date | null
+    mxServer: string | null
+    errorMessage: string | null
+    attempts: number
+    createdAt: Date
+    updatedAt: Date
+    _count: EmailCountAggregateOutputType | null
+    _avg: EmailAvgAggregateOutputType | null
+    _sum: EmailSumAggregateOutputType | null
+    _min: EmailMinAggregateOutputType | null
+    _max: EmailMaxAggregateOutputType | null
+  }
+
+  type GetEmailGroupByPayload<T extends EmailGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmailGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmailGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmailGroupByOutputType[P]>
+            : GetScalarType<T[P], EmailGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmailSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    messageId?: boolean
+    domainId?: boolean
+    fromEmail?: boolean
+    toEmail?: boolean
+    subject?: boolean
+    htmlContent?: boolean
+    textContent?: boolean
+    status?: boolean
+    direction?: boolean
+    sentAt?: boolean
+    deliveredAt?: boolean
+    mxServer?: boolean
+    errorMessage?: boolean
+    attempts?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    domain?: boolean | Email$domainArgs<ExtArgs>
+  }, ExtArgs["result"]["email"]>
+
+  export type EmailSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    messageId?: boolean
+    domainId?: boolean
+    fromEmail?: boolean
+    toEmail?: boolean
+    subject?: boolean
+    htmlContent?: boolean
+    textContent?: boolean
+    status?: boolean
+    direction?: boolean
+    sentAt?: boolean
+    deliveredAt?: boolean
+    mxServer?: boolean
+    errorMessage?: boolean
+    attempts?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    domain?: boolean | Email$domainArgs<ExtArgs>
+  }, ExtArgs["result"]["email"]>
+
+
+  export type EmailSelectScalar = {
+    id?: boolean
+    messageId?: boolean
+    domainId?: boolean
+    fromEmail?: boolean
+    toEmail?: boolean
+    subject?: boolean
+    htmlContent?: boolean
+    textContent?: boolean
+    status?: boolean
+    direction?: boolean
+    sentAt?: boolean
+    deliveredAt?: boolean
+    mxServer?: boolean
+    errorMessage?: boolean
+    attempts?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EmailOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "messageId" | "domainId" | "fromEmail" | "toEmail" | "subject" | "htmlContent" | "textContent" | "status" | "direction" | "sentAt" | "deliveredAt" | "mxServer" | "errorMessage" | "attempts" | "createdAt" | "updatedAt", ExtArgs["result"]["email"]>
+  export type EmailInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    domain?: boolean | Email$domainArgs<ExtArgs>
+  }
+  export type EmailIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    domain?: boolean | Email$domainArgs<ExtArgs>
+  }
+
+  export type $EmailPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Email"
+    objects: {
+      domain: Prisma.$EmailDomainPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      messageId: string
+      domainId: number | null
+      fromEmail: string
+      toEmail: string
+      subject: string
+      htmlContent: string | null
+      textContent: string | null
+      status: string
+      direction: string
+      sentAt: Date | null
+      deliveredAt: Date | null
+      mxServer: string | null
+      errorMessage: string | null
+      attempts: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["email"]>
+    composites: {}
+  }
+
+  type EmailGetPayload<S extends boolean | null | undefined | EmailDefaultArgs> = $Result.GetResult<Prisma.$EmailPayload, S>
+
+  type EmailCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmailFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmailCountAggregateInputType | true
+    }
+
+  export interface EmailDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Email'], meta: { name: 'Email' } }
+    /**
+     * Find zero or one Email that matches the filter.
+     * @param {EmailFindUniqueArgs} args - Arguments to find a Email
+     * @example
+     * // Get one Email
+     * const email = await prisma.email.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmailFindUniqueArgs>(args: SelectSubset<T, EmailFindUniqueArgs<ExtArgs>>): Prisma__EmailClient<$Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Email that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmailFindUniqueOrThrowArgs} args - Arguments to find a Email
+     * @example
+     * // Get one Email
+     * const email = await prisma.email.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmailFindUniqueOrThrowArgs>(args: SelectSubset<T, EmailFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmailClient<$Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Email that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailFindFirstArgs} args - Arguments to find a Email
+     * @example
+     * // Get one Email
+     * const email = await prisma.email.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmailFindFirstArgs>(args?: SelectSubset<T, EmailFindFirstArgs<ExtArgs>>): Prisma__EmailClient<$Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Email that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailFindFirstOrThrowArgs} args - Arguments to find a Email
+     * @example
+     * // Get one Email
+     * const email = await prisma.email.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmailFindFirstOrThrowArgs>(args?: SelectSubset<T, EmailFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmailClient<$Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Emails that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Emails
+     * const emails = await prisma.email.findMany()
+     * 
+     * // Get first 10 Emails
+     * const emails = await prisma.email.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const emailWithIdOnly = await prisma.email.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmailFindManyArgs>(args?: SelectSubset<T, EmailFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Email.
+     * @param {EmailCreateArgs} args - Arguments to create a Email.
+     * @example
+     * // Create one Email
+     * const Email = await prisma.email.create({
+     *   data: {
+     *     // ... data to create a Email
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmailCreateArgs>(args: SelectSubset<T, EmailCreateArgs<ExtArgs>>): Prisma__EmailClient<$Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Emails.
+     * @param {EmailCreateManyArgs} args - Arguments to create many Emails.
+     * @example
+     * // Create many Emails
+     * const email = await prisma.email.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmailCreateManyArgs>(args?: SelectSubset<T, EmailCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Emails and returns the data saved in the database.
+     * @param {EmailCreateManyAndReturnArgs} args - Arguments to create many Emails.
+     * @example
+     * // Create many Emails
+     * const email = await prisma.email.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Emails and only return the `id`
+     * const emailWithIdOnly = await prisma.email.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmailCreateManyAndReturnArgs>(args?: SelectSubset<T, EmailCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Email.
+     * @param {EmailDeleteArgs} args - Arguments to delete one Email.
+     * @example
+     * // Delete one Email
+     * const Email = await prisma.email.delete({
+     *   where: {
+     *     // ... filter to delete one Email
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmailDeleteArgs>(args: SelectSubset<T, EmailDeleteArgs<ExtArgs>>): Prisma__EmailClient<$Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Email.
+     * @param {EmailUpdateArgs} args - Arguments to update one Email.
+     * @example
+     * // Update one Email
+     * const email = await prisma.email.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmailUpdateArgs>(args: SelectSubset<T, EmailUpdateArgs<ExtArgs>>): Prisma__EmailClient<$Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Emails.
+     * @param {EmailDeleteManyArgs} args - Arguments to filter Emails to delete.
+     * @example
+     * // Delete a few Emails
+     * const { count } = await prisma.email.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmailDeleteManyArgs>(args?: SelectSubset<T, EmailDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Emails.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Emails
+     * const email = await prisma.email.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmailUpdateManyArgs>(args: SelectSubset<T, EmailUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Email.
+     * @param {EmailUpsertArgs} args - Arguments to update or create a Email.
+     * @example
+     * // Update or create a Email
+     * const email = await prisma.email.upsert({
+     *   create: {
+     *     // ... data to create a Email
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Email we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmailUpsertArgs>(args: SelectSubset<T, EmailUpsertArgs<ExtArgs>>): Prisma__EmailClient<$Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Emails.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailCountArgs} args - Arguments to filter Emails to count.
+     * @example
+     * // Count the number of Emails
+     * const count = await prisma.email.count({
+     *   where: {
+     *     // ... the filter for the Emails we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmailCountArgs>(
+      args?: Subset<T, EmailCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmailCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Email.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmailAggregateArgs>(args: Subset<T, EmailAggregateArgs>): Prisma.PrismaPromise<GetEmailAggregateType<T>>
+
+    /**
+     * Group by Email.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmailGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmailGroupByArgs['orderBy'] }
+        : { orderBy?: EmailGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmailGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmailGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Email model
+   */
+  readonly fields: EmailFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Email.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmailClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    domain<T extends Email$domainArgs<ExtArgs> = {}>(args?: Subset<T, Email$domainArgs<ExtArgs>>): Prisma__EmailDomainClient<$Result.GetResult<Prisma.$EmailDomainPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Email model
+   */
+  interface EmailFieldRefs {
+    readonly id: FieldRef<"Email", 'Int'>
+    readonly messageId: FieldRef<"Email", 'String'>
+    readonly domainId: FieldRef<"Email", 'Int'>
+    readonly fromEmail: FieldRef<"Email", 'String'>
+    readonly toEmail: FieldRef<"Email", 'String'>
+    readonly subject: FieldRef<"Email", 'String'>
+    readonly htmlContent: FieldRef<"Email", 'String'>
+    readonly textContent: FieldRef<"Email", 'String'>
+    readonly status: FieldRef<"Email", 'String'>
+    readonly direction: FieldRef<"Email", 'String'>
+    readonly sentAt: FieldRef<"Email", 'DateTime'>
+    readonly deliveredAt: FieldRef<"Email", 'DateTime'>
+    readonly mxServer: FieldRef<"Email", 'String'>
+    readonly errorMessage: FieldRef<"Email", 'String'>
+    readonly attempts: FieldRef<"Email", 'Int'>
+    readonly createdAt: FieldRef<"Email", 'DateTime'>
+    readonly updatedAt: FieldRef<"Email", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Email findUnique
+   */
+  export type EmailFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailInclude<ExtArgs> | null
+    /**
+     * Filter, which Email to fetch.
+     */
+    where: EmailWhereUniqueInput
+  }
+
+  /**
+   * Email findUniqueOrThrow
+   */
+  export type EmailFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailInclude<ExtArgs> | null
+    /**
+     * Filter, which Email to fetch.
+     */
+    where: EmailWhereUniqueInput
+  }
+
+  /**
+   * Email findFirst
+   */
+  export type EmailFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailInclude<ExtArgs> | null
+    /**
+     * Filter, which Email to fetch.
+     */
+    where?: EmailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Emails to fetch.
+     */
+    orderBy?: EmailOrderByWithRelationInput | EmailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Emails.
+     */
+    cursor?: EmailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Emails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Emails.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Emails.
+     */
+    distinct?: EmailScalarFieldEnum | EmailScalarFieldEnum[]
+  }
+
+  /**
+   * Email findFirstOrThrow
+   */
+  export type EmailFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailInclude<ExtArgs> | null
+    /**
+     * Filter, which Email to fetch.
+     */
+    where?: EmailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Emails to fetch.
+     */
+    orderBy?: EmailOrderByWithRelationInput | EmailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Emails.
+     */
+    cursor?: EmailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Emails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Emails.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Emails.
+     */
+    distinct?: EmailScalarFieldEnum | EmailScalarFieldEnum[]
+  }
+
+  /**
+   * Email findMany
+   */
+  export type EmailFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailInclude<ExtArgs> | null
+    /**
+     * Filter, which Emails to fetch.
+     */
+    where?: EmailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Emails to fetch.
+     */
+    orderBy?: EmailOrderByWithRelationInput | EmailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Emails.
+     */
+    cursor?: EmailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Emails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Emails.
+     */
+    skip?: number
+    distinct?: EmailScalarFieldEnum | EmailScalarFieldEnum[]
+  }
+
+  /**
+   * Email create
+   */
+  export type EmailCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Email.
+     */
+    data: XOR<EmailCreateInput, EmailUncheckedCreateInput>
+  }
+
+  /**
+   * Email createMany
+   */
+  export type EmailCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Emails.
+     */
+    data: EmailCreateManyInput | EmailCreateManyInput[]
+  }
+
+  /**
+   * Email createManyAndReturn
+   */
+  export type EmailCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * The data used to create many Emails.
+     */
+    data: EmailCreateManyInput | EmailCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Email update
+   */
+  export type EmailUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Email.
+     */
+    data: XOR<EmailUpdateInput, EmailUncheckedUpdateInput>
+    /**
+     * Choose, which Email to update.
+     */
+    where: EmailWhereUniqueInput
+  }
+
+  /**
+   * Email updateMany
+   */
+  export type EmailUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Emails.
+     */
+    data: XOR<EmailUpdateManyMutationInput, EmailUncheckedUpdateManyInput>
+    /**
+     * Filter which Emails to update
+     */
+    where?: EmailWhereInput
+  }
+
+  /**
+   * Email upsert
+   */
+  export type EmailUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Email to update in case it exists.
+     */
+    where: EmailWhereUniqueInput
+    /**
+     * In case the Email found by the `where` argument doesn't exist, create a new Email with this data.
+     */
+    create: XOR<EmailCreateInput, EmailUncheckedCreateInput>
+    /**
+     * In case the Email was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmailUpdateInput, EmailUncheckedUpdateInput>
+  }
+
+  /**
+   * Email delete
+   */
+  export type EmailDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailInclude<ExtArgs> | null
+    /**
+     * Filter which Email to delete.
+     */
+    where: EmailWhereUniqueInput
+  }
+
+  /**
+   * Email deleteMany
+   */
+  export type EmailDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Emails to delete
+     */
+    where?: EmailWhereInput
+  }
+
+  /**
+   * Email.domain
+   */
+  export type Email$domainArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDomain
+     */
+    select?: EmailDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDomain
+     */
+    omit?: EmailDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDomainInclude<ExtArgs> | null
+    where?: EmailDomainWhereInput
+  }
+
+  /**
+   * Email without action
+   */
+  export type EmailDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Email
+     */
+    select?: EmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Email
+     */
+    omit?: EmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SmtpConnection
+   */
+
+  export type AggregateSmtpConnection = {
+    _count: SmtpConnectionCountAggregateOutputType | null
+    _avg: SmtpConnectionAvgAggregateOutputType | null
+    _sum: SmtpConnectionSumAggregateOutputType | null
+    _min: SmtpConnectionMinAggregateOutputType | null
+    _max: SmtpConnectionMaxAggregateOutputType | null
+  }
+
+  export type SmtpConnectionAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type SmtpConnectionSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type SmtpConnectionMinAggregateOutputType = {
+    id: number | null
+    remoteAddress: string | null
+    hostname: string | null
+    serverType: string | null
+    status: string | null
+    rejectReason: string | null
+    createdAt: Date | null
+  }
+
+  export type SmtpConnectionMaxAggregateOutputType = {
+    id: number | null
+    remoteAddress: string | null
+    hostname: string | null
+    serverType: string | null
+    status: string | null
+    rejectReason: string | null
+    createdAt: Date | null
+  }
+
+  export type SmtpConnectionCountAggregateOutputType = {
+    id: number
+    remoteAddress: number
+    hostname: number
+    serverType: number
+    status: number
+    rejectReason: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type SmtpConnectionAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type SmtpConnectionSumAggregateInputType = {
+    id?: true
+  }
+
+  export type SmtpConnectionMinAggregateInputType = {
+    id?: true
+    remoteAddress?: true
+    hostname?: true
+    serverType?: true
+    status?: true
+    rejectReason?: true
+    createdAt?: true
+  }
+
+  export type SmtpConnectionMaxAggregateInputType = {
+    id?: true
+    remoteAddress?: true
+    hostname?: true
+    serverType?: true
+    status?: true
+    rejectReason?: true
+    createdAt?: true
+  }
+
+  export type SmtpConnectionCountAggregateInputType = {
+    id?: true
+    remoteAddress?: true
+    hostname?: true
+    serverType?: true
+    status?: true
+    rejectReason?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type SmtpConnectionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmtpConnection to aggregate.
+     */
+    where?: SmtpConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmtpConnections to fetch.
+     */
+    orderBy?: SmtpConnectionOrderByWithRelationInput | SmtpConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SmtpConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmtpConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmtpConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SmtpConnections
+    **/
+    _count?: true | SmtpConnectionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SmtpConnectionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SmtpConnectionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SmtpConnectionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SmtpConnectionMaxAggregateInputType
+  }
+
+  export type GetSmtpConnectionAggregateType<T extends SmtpConnectionAggregateArgs> = {
+        [P in keyof T & keyof AggregateSmtpConnection]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSmtpConnection[P]>
+      : GetScalarType<T[P], AggregateSmtpConnection[P]>
+  }
+
+
+
+
+  export type SmtpConnectionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmtpConnectionWhereInput
+    orderBy?: SmtpConnectionOrderByWithAggregationInput | SmtpConnectionOrderByWithAggregationInput[]
+    by: SmtpConnectionScalarFieldEnum[] | SmtpConnectionScalarFieldEnum
+    having?: SmtpConnectionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SmtpConnectionCountAggregateInputType | true
+    _avg?: SmtpConnectionAvgAggregateInputType
+    _sum?: SmtpConnectionSumAggregateInputType
+    _min?: SmtpConnectionMinAggregateInputType
+    _max?: SmtpConnectionMaxAggregateInputType
+  }
+
+  export type SmtpConnectionGroupByOutputType = {
+    id: number
+    remoteAddress: string
+    hostname: string | null
+    serverType: string
+    status: string
+    rejectReason: string | null
+    createdAt: Date
+    _count: SmtpConnectionCountAggregateOutputType | null
+    _avg: SmtpConnectionAvgAggregateOutputType | null
+    _sum: SmtpConnectionSumAggregateOutputType | null
+    _min: SmtpConnectionMinAggregateOutputType | null
+    _max: SmtpConnectionMaxAggregateOutputType | null
+  }
+
+  type GetSmtpConnectionGroupByPayload<T extends SmtpConnectionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SmtpConnectionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SmtpConnectionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SmtpConnectionGroupByOutputType[P]>
+            : GetScalarType<T[P], SmtpConnectionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SmtpConnectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    remoteAddress?: boolean
+    hostname?: boolean
+    serverType?: boolean
+    status?: boolean
+    rejectReason?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["smtpConnection"]>
+
+  export type SmtpConnectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    remoteAddress?: boolean
+    hostname?: boolean
+    serverType?: boolean
+    status?: boolean
+    rejectReason?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["smtpConnection"]>
+
+
+  export type SmtpConnectionSelectScalar = {
+    id?: boolean
+    remoteAddress?: boolean
+    hostname?: boolean
+    serverType?: boolean
+    status?: boolean
+    rejectReason?: boolean
+    createdAt?: boolean
+  }
+
+  export type SmtpConnectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "remoteAddress" | "hostname" | "serverType" | "status" | "rejectReason" | "createdAt", ExtArgs["result"]["smtpConnection"]>
+
+  export type $SmtpConnectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SmtpConnection"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      remoteAddress: string
+      hostname: string | null
+      serverType: string
+      status: string
+      rejectReason: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["smtpConnection"]>
+    composites: {}
+  }
+
+  type SmtpConnectionGetPayload<S extends boolean | null | undefined | SmtpConnectionDefaultArgs> = $Result.GetResult<Prisma.$SmtpConnectionPayload, S>
+
+  type SmtpConnectionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SmtpConnectionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SmtpConnectionCountAggregateInputType | true
+    }
+
+  export interface SmtpConnectionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SmtpConnection'], meta: { name: 'SmtpConnection' } }
+    /**
+     * Find zero or one SmtpConnection that matches the filter.
+     * @param {SmtpConnectionFindUniqueArgs} args - Arguments to find a SmtpConnection
+     * @example
+     * // Get one SmtpConnection
+     * const smtpConnection = await prisma.smtpConnection.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SmtpConnectionFindUniqueArgs>(args: SelectSubset<T, SmtpConnectionFindUniqueArgs<ExtArgs>>): Prisma__SmtpConnectionClient<$Result.GetResult<Prisma.$SmtpConnectionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SmtpConnection that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SmtpConnectionFindUniqueOrThrowArgs} args - Arguments to find a SmtpConnection
+     * @example
+     * // Get one SmtpConnection
+     * const smtpConnection = await prisma.smtpConnection.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SmtpConnectionFindUniqueOrThrowArgs>(args: SelectSubset<T, SmtpConnectionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SmtpConnectionClient<$Result.GetResult<Prisma.$SmtpConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmtpConnection that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpConnectionFindFirstArgs} args - Arguments to find a SmtpConnection
+     * @example
+     * // Get one SmtpConnection
+     * const smtpConnection = await prisma.smtpConnection.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SmtpConnectionFindFirstArgs>(args?: SelectSubset<T, SmtpConnectionFindFirstArgs<ExtArgs>>): Prisma__SmtpConnectionClient<$Result.GetResult<Prisma.$SmtpConnectionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmtpConnection that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpConnectionFindFirstOrThrowArgs} args - Arguments to find a SmtpConnection
+     * @example
+     * // Get one SmtpConnection
+     * const smtpConnection = await prisma.smtpConnection.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SmtpConnectionFindFirstOrThrowArgs>(args?: SelectSubset<T, SmtpConnectionFindFirstOrThrowArgs<ExtArgs>>): Prisma__SmtpConnectionClient<$Result.GetResult<Prisma.$SmtpConnectionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SmtpConnections that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpConnectionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SmtpConnections
+     * const smtpConnections = await prisma.smtpConnection.findMany()
+     * 
+     * // Get first 10 SmtpConnections
+     * const smtpConnections = await prisma.smtpConnection.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const smtpConnectionWithIdOnly = await prisma.smtpConnection.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SmtpConnectionFindManyArgs>(args?: SelectSubset<T, SmtpConnectionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmtpConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SmtpConnection.
+     * @param {SmtpConnectionCreateArgs} args - Arguments to create a SmtpConnection.
+     * @example
+     * // Create one SmtpConnection
+     * const SmtpConnection = await prisma.smtpConnection.create({
+     *   data: {
+     *     // ... data to create a SmtpConnection
+     *   }
+     * })
+     * 
+     */
+    create<T extends SmtpConnectionCreateArgs>(args: SelectSubset<T, SmtpConnectionCreateArgs<ExtArgs>>): Prisma__SmtpConnectionClient<$Result.GetResult<Prisma.$SmtpConnectionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SmtpConnections.
+     * @param {SmtpConnectionCreateManyArgs} args - Arguments to create many SmtpConnections.
+     * @example
+     * // Create many SmtpConnections
+     * const smtpConnection = await prisma.smtpConnection.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SmtpConnectionCreateManyArgs>(args?: SelectSubset<T, SmtpConnectionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SmtpConnections and returns the data saved in the database.
+     * @param {SmtpConnectionCreateManyAndReturnArgs} args - Arguments to create many SmtpConnections.
+     * @example
+     * // Create many SmtpConnections
+     * const smtpConnection = await prisma.smtpConnection.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SmtpConnections and only return the `id`
+     * const smtpConnectionWithIdOnly = await prisma.smtpConnection.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SmtpConnectionCreateManyAndReturnArgs>(args?: SelectSubset<T, SmtpConnectionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmtpConnectionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SmtpConnection.
+     * @param {SmtpConnectionDeleteArgs} args - Arguments to delete one SmtpConnection.
+     * @example
+     * // Delete one SmtpConnection
+     * const SmtpConnection = await prisma.smtpConnection.delete({
+     *   where: {
+     *     // ... filter to delete one SmtpConnection
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SmtpConnectionDeleteArgs>(args: SelectSubset<T, SmtpConnectionDeleteArgs<ExtArgs>>): Prisma__SmtpConnectionClient<$Result.GetResult<Prisma.$SmtpConnectionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SmtpConnection.
+     * @param {SmtpConnectionUpdateArgs} args - Arguments to update one SmtpConnection.
+     * @example
+     * // Update one SmtpConnection
+     * const smtpConnection = await prisma.smtpConnection.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SmtpConnectionUpdateArgs>(args: SelectSubset<T, SmtpConnectionUpdateArgs<ExtArgs>>): Prisma__SmtpConnectionClient<$Result.GetResult<Prisma.$SmtpConnectionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SmtpConnections.
+     * @param {SmtpConnectionDeleteManyArgs} args - Arguments to filter SmtpConnections to delete.
+     * @example
+     * // Delete a few SmtpConnections
+     * const { count } = await prisma.smtpConnection.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SmtpConnectionDeleteManyArgs>(args?: SelectSubset<T, SmtpConnectionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SmtpConnections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpConnectionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SmtpConnections
+     * const smtpConnection = await prisma.smtpConnection.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SmtpConnectionUpdateManyArgs>(args: SelectSubset<T, SmtpConnectionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SmtpConnection.
+     * @param {SmtpConnectionUpsertArgs} args - Arguments to update or create a SmtpConnection.
+     * @example
+     * // Update or create a SmtpConnection
+     * const smtpConnection = await prisma.smtpConnection.upsert({
+     *   create: {
+     *     // ... data to create a SmtpConnection
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SmtpConnection we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SmtpConnectionUpsertArgs>(args: SelectSubset<T, SmtpConnectionUpsertArgs<ExtArgs>>): Prisma__SmtpConnectionClient<$Result.GetResult<Prisma.$SmtpConnectionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SmtpConnections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpConnectionCountArgs} args - Arguments to filter SmtpConnections to count.
+     * @example
+     * // Count the number of SmtpConnections
+     * const count = await prisma.smtpConnection.count({
+     *   where: {
+     *     // ... the filter for the SmtpConnections we want to count
+     *   }
+     * })
+    **/
+    count<T extends SmtpConnectionCountArgs>(
+      args?: Subset<T, SmtpConnectionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SmtpConnectionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SmtpConnection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpConnectionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SmtpConnectionAggregateArgs>(args: Subset<T, SmtpConnectionAggregateArgs>): Prisma.PrismaPromise<GetSmtpConnectionAggregateType<T>>
+
+    /**
+     * Group by SmtpConnection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmtpConnectionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SmtpConnectionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SmtpConnectionGroupByArgs['orderBy'] }
+        : { orderBy?: SmtpConnectionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SmtpConnectionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSmtpConnectionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SmtpConnection model
+   */
+  readonly fields: SmtpConnectionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SmtpConnection.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SmtpConnectionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SmtpConnection model
+   */
+  interface SmtpConnectionFieldRefs {
+    readonly id: FieldRef<"SmtpConnection", 'Int'>
+    readonly remoteAddress: FieldRef<"SmtpConnection", 'String'>
+    readonly hostname: FieldRef<"SmtpConnection", 'String'>
+    readonly serverType: FieldRef<"SmtpConnection", 'String'>
+    readonly status: FieldRef<"SmtpConnection", 'String'>
+    readonly rejectReason: FieldRef<"SmtpConnection", 'String'>
+    readonly createdAt: FieldRef<"SmtpConnection", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SmtpConnection findUnique
+   */
+  export type SmtpConnectionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpConnection
+     */
+    select?: SmtpConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpConnection
+     */
+    omit?: SmtpConnectionOmit<ExtArgs> | null
+    /**
+     * Filter, which SmtpConnection to fetch.
+     */
+    where: SmtpConnectionWhereUniqueInput
+  }
+
+  /**
+   * SmtpConnection findUniqueOrThrow
+   */
+  export type SmtpConnectionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpConnection
+     */
+    select?: SmtpConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpConnection
+     */
+    omit?: SmtpConnectionOmit<ExtArgs> | null
+    /**
+     * Filter, which SmtpConnection to fetch.
+     */
+    where: SmtpConnectionWhereUniqueInput
+  }
+
+  /**
+   * SmtpConnection findFirst
+   */
+  export type SmtpConnectionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpConnection
+     */
+    select?: SmtpConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpConnection
+     */
+    omit?: SmtpConnectionOmit<ExtArgs> | null
+    /**
+     * Filter, which SmtpConnection to fetch.
+     */
+    where?: SmtpConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmtpConnections to fetch.
+     */
+    orderBy?: SmtpConnectionOrderByWithRelationInput | SmtpConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmtpConnections.
+     */
+    cursor?: SmtpConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmtpConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmtpConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmtpConnections.
+     */
+    distinct?: SmtpConnectionScalarFieldEnum | SmtpConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * SmtpConnection findFirstOrThrow
+   */
+  export type SmtpConnectionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpConnection
+     */
+    select?: SmtpConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpConnection
+     */
+    omit?: SmtpConnectionOmit<ExtArgs> | null
+    /**
+     * Filter, which SmtpConnection to fetch.
+     */
+    where?: SmtpConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmtpConnections to fetch.
+     */
+    orderBy?: SmtpConnectionOrderByWithRelationInput | SmtpConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmtpConnections.
+     */
+    cursor?: SmtpConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmtpConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmtpConnections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmtpConnections.
+     */
+    distinct?: SmtpConnectionScalarFieldEnum | SmtpConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * SmtpConnection findMany
+   */
+  export type SmtpConnectionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpConnection
+     */
+    select?: SmtpConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpConnection
+     */
+    omit?: SmtpConnectionOmit<ExtArgs> | null
+    /**
+     * Filter, which SmtpConnections to fetch.
+     */
+    where?: SmtpConnectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmtpConnections to fetch.
+     */
+    orderBy?: SmtpConnectionOrderByWithRelationInput | SmtpConnectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SmtpConnections.
+     */
+    cursor?: SmtpConnectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmtpConnections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmtpConnections.
+     */
+    skip?: number
+    distinct?: SmtpConnectionScalarFieldEnum | SmtpConnectionScalarFieldEnum[]
+  }
+
+  /**
+   * SmtpConnection create
+   */
+  export type SmtpConnectionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpConnection
+     */
+    select?: SmtpConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpConnection
+     */
+    omit?: SmtpConnectionOmit<ExtArgs> | null
+    /**
+     * The data needed to create a SmtpConnection.
+     */
+    data: XOR<SmtpConnectionCreateInput, SmtpConnectionUncheckedCreateInput>
+  }
+
+  /**
+   * SmtpConnection createMany
+   */
+  export type SmtpConnectionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SmtpConnections.
+     */
+    data: SmtpConnectionCreateManyInput | SmtpConnectionCreateManyInput[]
+  }
+
+  /**
+   * SmtpConnection createManyAndReturn
+   */
+  export type SmtpConnectionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpConnection
+     */
+    select?: SmtpConnectionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpConnection
+     */
+    omit?: SmtpConnectionOmit<ExtArgs> | null
+    /**
+     * The data used to create many SmtpConnections.
+     */
+    data: SmtpConnectionCreateManyInput | SmtpConnectionCreateManyInput[]
+  }
+
+  /**
+   * SmtpConnection update
+   */
+  export type SmtpConnectionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpConnection
+     */
+    select?: SmtpConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpConnection
+     */
+    omit?: SmtpConnectionOmit<ExtArgs> | null
+    /**
+     * The data needed to update a SmtpConnection.
+     */
+    data: XOR<SmtpConnectionUpdateInput, SmtpConnectionUncheckedUpdateInput>
+    /**
+     * Choose, which SmtpConnection to update.
+     */
+    where: SmtpConnectionWhereUniqueInput
+  }
+
+  /**
+   * SmtpConnection updateMany
+   */
+  export type SmtpConnectionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SmtpConnections.
+     */
+    data: XOR<SmtpConnectionUpdateManyMutationInput, SmtpConnectionUncheckedUpdateManyInput>
+    /**
+     * Filter which SmtpConnections to update
+     */
+    where?: SmtpConnectionWhereInput
+  }
+
+  /**
+   * SmtpConnection upsert
+   */
+  export type SmtpConnectionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpConnection
+     */
+    select?: SmtpConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpConnection
+     */
+    omit?: SmtpConnectionOmit<ExtArgs> | null
+    /**
+     * The filter to search for the SmtpConnection to update in case it exists.
+     */
+    where: SmtpConnectionWhereUniqueInput
+    /**
+     * In case the SmtpConnection found by the `where` argument doesn't exist, create a new SmtpConnection with this data.
+     */
+    create: XOR<SmtpConnectionCreateInput, SmtpConnectionUncheckedCreateInput>
+    /**
+     * In case the SmtpConnection was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SmtpConnectionUpdateInput, SmtpConnectionUncheckedUpdateInput>
+  }
+
+  /**
+   * SmtpConnection delete
+   */
+  export type SmtpConnectionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpConnection
+     */
+    select?: SmtpConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpConnection
+     */
+    omit?: SmtpConnectionOmit<ExtArgs> | null
+    /**
+     * Filter which SmtpConnection to delete.
+     */
+    where: SmtpConnectionWhereUniqueInput
+  }
+
+  /**
+   * SmtpConnection deleteMany
+   */
+  export type SmtpConnectionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmtpConnections to delete
+     */
+    where?: SmtpConnectionWhereInput
+  }
+
+  /**
+   * SmtpConnection without action
+   */
+  export type SmtpConnectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpConnection
+     */
+    select?: SmtpConnectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpConnection
+     */
+    omit?: SmtpConnectionOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AuthAttempt
+   */
+
+  export type AggregateAuthAttempt = {
+    _count: AuthAttemptCountAggregateOutputType | null
+    _avg: AuthAttemptAvgAggregateOutputType | null
+    _sum: AuthAttemptSumAggregateOutputType | null
+    _min: AuthAttemptMinAggregateOutputType | null
+    _max: AuthAttemptMaxAggregateOutputType | null
+  }
+
+  export type AuthAttemptAvgAggregateOutputType = {
+    id: number | null
+    smtpUserId: number | null
+  }
+
+  export type AuthAttemptSumAggregateOutputType = {
+    id: number | null
+    smtpUserId: number | null
+  }
+
+  export type AuthAttemptMinAggregateOutputType = {
+    id: number | null
+    smtpUserId: number | null
+    username: string | null
+    remoteAddress: string | null
+    success: boolean | null
+    createdAt: Date | null
+  }
+
+  export type AuthAttemptMaxAggregateOutputType = {
+    id: number | null
+    smtpUserId: number | null
+    username: string | null
+    remoteAddress: string | null
+    success: boolean | null
+    createdAt: Date | null
+  }
+
+  export type AuthAttemptCountAggregateOutputType = {
+    id: number
+    smtpUserId: number
+    username: number
+    remoteAddress: number
+    success: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AuthAttemptAvgAggregateInputType = {
+    id?: true
+    smtpUserId?: true
+  }
+
+  export type AuthAttemptSumAggregateInputType = {
+    id?: true
+    smtpUserId?: true
+  }
+
+  export type AuthAttemptMinAggregateInputType = {
+    id?: true
+    smtpUserId?: true
+    username?: true
+    remoteAddress?: true
+    success?: true
+    createdAt?: true
+  }
+
+  export type AuthAttemptMaxAggregateInputType = {
+    id?: true
+    smtpUserId?: true
+    username?: true
+    remoteAddress?: true
+    success?: true
+    createdAt?: true
+  }
+
+  export type AuthAttemptCountAggregateInputType = {
+    id?: true
+    smtpUserId?: true
+    username?: true
+    remoteAddress?: true
+    success?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AuthAttemptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuthAttempt to aggregate.
+     */
+    where?: AuthAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuthAttempts to fetch.
+     */
+    orderBy?: AuthAttemptOrderByWithRelationInput | AuthAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AuthAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuthAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuthAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AuthAttempts
+    **/
+    _count?: true | AuthAttemptCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AuthAttemptAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AuthAttemptSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AuthAttemptMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AuthAttemptMaxAggregateInputType
+  }
+
+  export type GetAuthAttemptAggregateType<T extends AuthAttemptAggregateArgs> = {
+        [P in keyof T & keyof AggregateAuthAttempt]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAuthAttempt[P]>
+      : GetScalarType<T[P], AggregateAuthAttempt[P]>
+  }
+
+
+
+
+  export type AuthAttemptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuthAttemptWhereInput
+    orderBy?: AuthAttemptOrderByWithAggregationInput | AuthAttemptOrderByWithAggregationInput[]
+    by: AuthAttemptScalarFieldEnum[] | AuthAttemptScalarFieldEnum
+    having?: AuthAttemptScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AuthAttemptCountAggregateInputType | true
+    _avg?: AuthAttemptAvgAggregateInputType
+    _sum?: AuthAttemptSumAggregateInputType
+    _min?: AuthAttemptMinAggregateInputType
+    _max?: AuthAttemptMaxAggregateInputType
+  }
+
+  export type AuthAttemptGroupByOutputType = {
+    id: number
+    smtpUserId: number | null
+    username: string
+    remoteAddress: string
+    success: boolean
+    createdAt: Date
+    _count: AuthAttemptCountAggregateOutputType | null
+    _avg: AuthAttemptAvgAggregateOutputType | null
+    _sum: AuthAttemptSumAggregateOutputType | null
+    _min: AuthAttemptMinAggregateOutputType | null
+    _max: AuthAttemptMaxAggregateOutputType | null
+  }
+
+  type GetAuthAttemptGroupByPayload<T extends AuthAttemptGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AuthAttemptGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AuthAttemptGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AuthAttemptGroupByOutputType[P]>
+            : GetScalarType<T[P], AuthAttemptGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AuthAttemptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    smtpUserId?: boolean
+    username?: boolean
+    remoteAddress?: boolean
+    success?: boolean
+    createdAt?: boolean
+    smtpUser?: boolean | AuthAttempt$smtpUserArgs<ExtArgs>
+  }, ExtArgs["result"]["authAttempt"]>
+
+  export type AuthAttemptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    smtpUserId?: boolean
+    username?: boolean
+    remoteAddress?: boolean
+    success?: boolean
+    createdAt?: boolean
+    smtpUser?: boolean | AuthAttempt$smtpUserArgs<ExtArgs>
+  }, ExtArgs["result"]["authAttempt"]>
+
+
+  export type AuthAttemptSelectScalar = {
+    id?: boolean
+    smtpUserId?: boolean
+    username?: boolean
+    remoteAddress?: boolean
+    success?: boolean
+    createdAt?: boolean
+  }
+
+  export type AuthAttemptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "smtpUserId" | "username" | "remoteAddress" | "success" | "createdAt", ExtArgs["result"]["authAttempt"]>
+  export type AuthAttemptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    smtpUser?: boolean | AuthAttempt$smtpUserArgs<ExtArgs>
+  }
+  export type AuthAttemptIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    smtpUser?: boolean | AuthAttempt$smtpUserArgs<ExtArgs>
+  }
+
+  export type $AuthAttemptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AuthAttempt"
+    objects: {
+      smtpUser: Prisma.$SmtpUserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      smtpUserId: number | null
+      username: string
+      remoteAddress: string
+      success: boolean
+      createdAt: Date
+    }, ExtArgs["result"]["authAttempt"]>
+    composites: {}
+  }
+
+  type AuthAttemptGetPayload<S extends boolean | null | undefined | AuthAttemptDefaultArgs> = $Result.GetResult<Prisma.$AuthAttemptPayload, S>
+
+  type AuthAttemptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AuthAttemptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AuthAttemptCountAggregateInputType | true
+    }
+
+  export interface AuthAttemptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AuthAttempt'], meta: { name: 'AuthAttempt' } }
+    /**
+     * Find zero or one AuthAttempt that matches the filter.
+     * @param {AuthAttemptFindUniqueArgs} args - Arguments to find a AuthAttempt
+     * @example
+     * // Get one AuthAttempt
+     * const authAttempt = await prisma.authAttempt.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AuthAttemptFindUniqueArgs>(args: SelectSubset<T, AuthAttemptFindUniqueArgs<ExtArgs>>): Prisma__AuthAttemptClient<$Result.GetResult<Prisma.$AuthAttemptPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AuthAttempt that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AuthAttemptFindUniqueOrThrowArgs} args - Arguments to find a AuthAttempt
+     * @example
+     * // Get one AuthAttempt
+     * const authAttempt = await prisma.authAttempt.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AuthAttemptFindUniqueOrThrowArgs>(args: SelectSubset<T, AuthAttemptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AuthAttemptClient<$Result.GetResult<Prisma.$AuthAttemptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AuthAttempt that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuthAttemptFindFirstArgs} args - Arguments to find a AuthAttempt
+     * @example
+     * // Get one AuthAttempt
+     * const authAttempt = await prisma.authAttempt.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AuthAttemptFindFirstArgs>(args?: SelectSubset<T, AuthAttemptFindFirstArgs<ExtArgs>>): Prisma__AuthAttemptClient<$Result.GetResult<Prisma.$AuthAttemptPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AuthAttempt that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuthAttemptFindFirstOrThrowArgs} args - Arguments to find a AuthAttempt
+     * @example
+     * // Get one AuthAttempt
+     * const authAttempt = await prisma.authAttempt.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AuthAttemptFindFirstOrThrowArgs>(args?: SelectSubset<T, AuthAttemptFindFirstOrThrowArgs<ExtArgs>>): Prisma__AuthAttemptClient<$Result.GetResult<Prisma.$AuthAttemptPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AuthAttempts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuthAttemptFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AuthAttempts
+     * const authAttempts = await prisma.authAttempt.findMany()
+     * 
+     * // Get first 10 AuthAttempts
+     * const authAttempts = await prisma.authAttempt.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const authAttemptWithIdOnly = await prisma.authAttempt.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AuthAttemptFindManyArgs>(args?: SelectSubset<T, AuthAttemptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuthAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AuthAttempt.
+     * @param {AuthAttemptCreateArgs} args - Arguments to create a AuthAttempt.
+     * @example
+     * // Create one AuthAttempt
+     * const AuthAttempt = await prisma.authAttempt.create({
+     *   data: {
+     *     // ... data to create a AuthAttempt
+     *   }
+     * })
+     * 
+     */
+    create<T extends AuthAttemptCreateArgs>(args: SelectSubset<T, AuthAttemptCreateArgs<ExtArgs>>): Prisma__AuthAttemptClient<$Result.GetResult<Prisma.$AuthAttemptPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AuthAttempts.
+     * @param {AuthAttemptCreateManyArgs} args - Arguments to create many AuthAttempts.
+     * @example
+     * // Create many AuthAttempts
+     * const authAttempt = await prisma.authAttempt.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AuthAttemptCreateManyArgs>(args?: SelectSubset<T, AuthAttemptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AuthAttempts and returns the data saved in the database.
+     * @param {AuthAttemptCreateManyAndReturnArgs} args - Arguments to create many AuthAttempts.
+     * @example
+     * // Create many AuthAttempts
+     * const authAttempt = await prisma.authAttempt.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AuthAttempts and only return the `id`
+     * const authAttemptWithIdOnly = await prisma.authAttempt.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AuthAttemptCreateManyAndReturnArgs>(args?: SelectSubset<T, AuthAttemptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuthAttemptPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AuthAttempt.
+     * @param {AuthAttemptDeleteArgs} args - Arguments to delete one AuthAttempt.
+     * @example
+     * // Delete one AuthAttempt
+     * const AuthAttempt = await prisma.authAttempt.delete({
+     *   where: {
+     *     // ... filter to delete one AuthAttempt
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AuthAttemptDeleteArgs>(args: SelectSubset<T, AuthAttemptDeleteArgs<ExtArgs>>): Prisma__AuthAttemptClient<$Result.GetResult<Prisma.$AuthAttemptPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AuthAttempt.
+     * @param {AuthAttemptUpdateArgs} args - Arguments to update one AuthAttempt.
+     * @example
+     * // Update one AuthAttempt
+     * const authAttempt = await prisma.authAttempt.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AuthAttemptUpdateArgs>(args: SelectSubset<T, AuthAttemptUpdateArgs<ExtArgs>>): Prisma__AuthAttemptClient<$Result.GetResult<Prisma.$AuthAttemptPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AuthAttempts.
+     * @param {AuthAttemptDeleteManyArgs} args - Arguments to filter AuthAttempts to delete.
+     * @example
+     * // Delete a few AuthAttempts
+     * const { count } = await prisma.authAttempt.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AuthAttemptDeleteManyArgs>(args?: SelectSubset<T, AuthAttemptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AuthAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuthAttemptUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AuthAttempts
+     * const authAttempt = await prisma.authAttempt.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AuthAttemptUpdateManyArgs>(args: SelectSubset<T, AuthAttemptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AuthAttempt.
+     * @param {AuthAttemptUpsertArgs} args - Arguments to update or create a AuthAttempt.
+     * @example
+     * // Update or create a AuthAttempt
+     * const authAttempt = await prisma.authAttempt.upsert({
+     *   create: {
+     *     // ... data to create a AuthAttempt
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AuthAttempt we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AuthAttemptUpsertArgs>(args: SelectSubset<T, AuthAttemptUpsertArgs<ExtArgs>>): Prisma__AuthAttemptClient<$Result.GetResult<Prisma.$AuthAttemptPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AuthAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuthAttemptCountArgs} args - Arguments to filter AuthAttempts to count.
+     * @example
+     * // Count the number of AuthAttempts
+     * const count = await prisma.authAttempt.count({
+     *   where: {
+     *     // ... the filter for the AuthAttempts we want to count
+     *   }
+     * })
+    **/
+    count<T extends AuthAttemptCountArgs>(
+      args?: Subset<T, AuthAttemptCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AuthAttemptCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AuthAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuthAttemptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AuthAttemptAggregateArgs>(args: Subset<T, AuthAttemptAggregateArgs>): Prisma.PrismaPromise<GetAuthAttemptAggregateType<T>>
+
+    /**
+     * Group by AuthAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuthAttemptGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AuthAttemptGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AuthAttemptGroupByArgs['orderBy'] }
+        : { orderBy?: AuthAttemptGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AuthAttemptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAuthAttemptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AuthAttempt model
+   */
+  readonly fields: AuthAttemptFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AuthAttempt.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AuthAttemptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    smtpUser<T extends AuthAttempt$smtpUserArgs<ExtArgs> = {}>(args?: Subset<T, AuthAttempt$smtpUserArgs<ExtArgs>>): Prisma__SmtpUserClient<$Result.GetResult<Prisma.$SmtpUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AuthAttempt model
+   */
+  interface AuthAttemptFieldRefs {
+    readonly id: FieldRef<"AuthAttempt", 'Int'>
+    readonly smtpUserId: FieldRef<"AuthAttempt", 'Int'>
+    readonly username: FieldRef<"AuthAttempt", 'String'>
+    readonly remoteAddress: FieldRef<"AuthAttempt", 'String'>
+    readonly success: FieldRef<"AuthAttempt", 'Boolean'>
+    readonly createdAt: FieldRef<"AuthAttempt", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AuthAttempt findUnique
+   */
+  export type AuthAttemptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which AuthAttempt to fetch.
+     */
+    where: AuthAttemptWhereUniqueInput
+  }
+
+  /**
+   * AuthAttempt findUniqueOrThrow
+   */
+  export type AuthAttemptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which AuthAttempt to fetch.
+     */
+    where: AuthAttemptWhereUniqueInput
+  }
+
+  /**
+   * AuthAttempt findFirst
+   */
+  export type AuthAttemptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which AuthAttempt to fetch.
+     */
+    where?: AuthAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuthAttempts to fetch.
+     */
+    orderBy?: AuthAttemptOrderByWithRelationInput | AuthAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuthAttempts.
+     */
+    cursor?: AuthAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuthAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuthAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuthAttempts.
+     */
+    distinct?: AuthAttemptScalarFieldEnum | AuthAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * AuthAttempt findFirstOrThrow
+   */
+  export type AuthAttemptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which AuthAttempt to fetch.
+     */
+    where?: AuthAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuthAttempts to fetch.
+     */
+    orderBy?: AuthAttemptOrderByWithRelationInput | AuthAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuthAttempts.
+     */
+    cursor?: AuthAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuthAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuthAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuthAttempts.
+     */
+    distinct?: AuthAttemptScalarFieldEnum | AuthAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * AuthAttempt findMany
+   */
+  export type AuthAttemptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which AuthAttempts to fetch.
+     */
+    where?: AuthAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuthAttempts to fetch.
+     */
+    orderBy?: AuthAttemptOrderByWithRelationInput | AuthAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AuthAttempts.
+     */
+    cursor?: AuthAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuthAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuthAttempts.
+     */
+    skip?: number
+    distinct?: AuthAttemptScalarFieldEnum | AuthAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * AuthAttempt create
+   */
+  export type AuthAttemptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AuthAttempt.
+     */
+    data: XOR<AuthAttemptCreateInput, AuthAttemptUncheckedCreateInput>
+  }
+
+  /**
+   * AuthAttempt createMany
+   */
+  export type AuthAttemptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AuthAttempts.
+     */
+    data: AuthAttemptCreateManyInput | AuthAttemptCreateManyInput[]
+  }
+
+  /**
+   * AuthAttempt createManyAndReturn
+   */
+  export type AuthAttemptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * The data used to create many AuthAttempts.
+     */
+    data: AuthAttemptCreateManyInput | AuthAttemptCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AuthAttempt update
+   */
+  export type AuthAttemptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AuthAttempt.
+     */
+    data: XOR<AuthAttemptUpdateInput, AuthAttemptUncheckedUpdateInput>
+    /**
+     * Choose, which AuthAttempt to update.
+     */
+    where: AuthAttemptWhereUniqueInput
+  }
+
+  /**
+   * AuthAttempt updateMany
+   */
+  export type AuthAttemptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AuthAttempts.
+     */
+    data: XOR<AuthAttemptUpdateManyMutationInput, AuthAttemptUncheckedUpdateManyInput>
+    /**
+     * Filter which AuthAttempts to update
+     */
+    where?: AuthAttemptWhereInput
+  }
+
+  /**
+   * AuthAttempt upsert
+   */
+  export type AuthAttemptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AuthAttempt to update in case it exists.
+     */
+    where: AuthAttemptWhereUniqueInput
+    /**
+     * In case the AuthAttempt found by the `where` argument doesn't exist, create a new AuthAttempt with this data.
+     */
+    create: XOR<AuthAttemptCreateInput, AuthAttemptUncheckedCreateInput>
+    /**
+     * In case the AuthAttempt was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AuthAttemptUpdateInput, AuthAttemptUncheckedUpdateInput>
+  }
+
+  /**
+   * AuthAttempt delete
+   */
+  export type AuthAttemptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptInclude<ExtArgs> | null
+    /**
+     * Filter which AuthAttempt to delete.
+     */
+    where: AuthAttemptWhereUniqueInput
+  }
+
+  /**
+   * AuthAttempt deleteMany
+   */
+  export type AuthAttemptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuthAttempts to delete
+     */
+    where?: AuthAttemptWhereInput
+  }
+
+  /**
+   * AuthAttempt.smtpUser
+   */
+  export type AuthAttempt$smtpUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmtpUser
+     */
+    select?: SmtpUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmtpUser
+     */
+    omit?: SmtpUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmtpUserInclude<ExtArgs> | null
+    where?: SmtpUserWhereInput
+  }
+
+  /**
+   * AuthAttempt without action
+   */
+  export type AuthAttemptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuthAttempt
+     */
+    select?: AuthAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuthAttempt
+     */
+    omit?: AuthAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuthAttemptInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Enums
+   */
+
+  export const TransactionIsolationLevel: {
+    Serializable: 'Serializable'
+  };
+
+  export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+  export const TenantScalarFieldEnum: {
+    id: 'id',
+    tenantCode: 'tenantCode',
+    nome: 'nome',
+    cidade: 'cidade',
+    estado: 'estado',
+    cnpj: 'cnpj',
+    plano: 'plano',
+    status: 'status',
+    populacao: 'populacao',
+    endereco: 'endereco',
+    responsavelNome: 'responsavelNome',
+    responsavelEmail: 'responsavelEmail',
+    responsavelTelefone: 'responsavelTelefone',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
+
+
+  export const UserScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    nomeCompleto: 'nomeCompleto',
+    email: 'email',
+    passwordHash: 'passwordHash',
+    role: 'role',
+    status: 'status',
+    avatarUrl: 'avatarUrl',
+    ultimoLogin: 'ultimoLogin',
+    failedLoginAttempts: 'failedLoginAttempts',
+    lockedUntil: 'lockedUntil',
+    emailVerified: 'emailVerified',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+  export const PermissionScalarFieldEnum: {
+    id: 'id',
+    code: 'code',
+    resource: 'resource',
+    action: 'action',
+    description: 'description',
+    createdAt: 'createdAt'
+  };
+
+  export type PermissionScalarFieldEnum = (typeof PermissionScalarFieldEnum)[keyof typeof PermissionScalarFieldEnum]
+
+
+  export const UserPermissionScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    permissionId: 'permissionId',
+    grantedBy: 'grantedBy',
+    createdAt: 'createdAt'
+  };
+
+  export type UserPermissionScalarFieldEnum = (typeof UserPermissionScalarFieldEnum)[keyof typeof UserPermissionScalarFieldEnum]
+
+
+  export const ActivityLogScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    tenantId: 'tenantId',
+    action: 'action',
+    resource: 'resource',
+    resourceId: 'resourceId',
+    details: 'details',
+    ipAddress: 'ipAddress',
+    userAgent: 'userAgent',
+    createdAt: 'createdAt'
+  };
+
+  export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
+
+
+  export const SmtpUserScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    email: 'email',
+    passwordHash: 'passwordHash',
+    name: 'name',
+    isVerified: 'isVerified',
+    isActive: 'isActive',
+    isAdmin: 'isAdmin',
+    lastLogin: 'lastLogin',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SmtpUserScalarFieldEnum = (typeof SmtpUserScalarFieldEnum)[keyof typeof SmtpUserScalarFieldEnum]
+
+
+  export const EmailDomainScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    smtpUserId: 'smtpUserId',
+    domainName: 'domainName',
+    isVerified: 'isVerified',
+    verificationToken: 'verificationToken',
+    verifiedAt: 'verifiedAt',
+    verificationMethod: 'verificationMethod',
+    dkimEnabled: 'dkimEnabled',
+    spfEnabled: 'spfEnabled',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EmailDomainScalarFieldEnum = (typeof EmailDomainScalarFieldEnum)[keyof typeof EmailDomainScalarFieldEnum]
+
+
+  export const DkimKeyScalarFieldEnum: {
+    id: 'id',
+    domainId: 'domainId',
+    selector: 'selector',
+    privateKey: 'privateKey',
+    publicKey: 'publicKey',
+    algorithm: 'algorithm',
+    canonicalization: 'canonicalization',
+    keySize: 'keySize',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DkimKeyScalarFieldEnum = (typeof DkimKeyScalarFieldEnum)[keyof typeof DkimKeyScalarFieldEnum]
+
+
+  export const EmailScalarFieldEnum: {
+    id: 'id',
+    messageId: 'messageId',
+    domainId: 'domainId',
+    fromEmail: 'fromEmail',
+    toEmail: 'toEmail',
+    subject: 'subject',
+    htmlContent: 'htmlContent',
+    textContent: 'textContent',
+    status: 'status',
+    direction: 'direction',
+    sentAt: 'sentAt',
+    deliveredAt: 'deliveredAt',
+    mxServer: 'mxServer',
+    errorMessage: 'errorMessage',
+    attempts: 'attempts',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EmailScalarFieldEnum = (typeof EmailScalarFieldEnum)[keyof typeof EmailScalarFieldEnum]
+
+
+  export const SmtpConnectionScalarFieldEnum: {
+    id: 'id',
+    remoteAddress: 'remoteAddress',
+    hostname: 'hostname',
+    serverType: 'serverType',
+    status: 'status',
+    rejectReason: 'rejectReason',
+    createdAt: 'createdAt'
+  };
+
+  export type SmtpConnectionScalarFieldEnum = (typeof SmtpConnectionScalarFieldEnum)[keyof typeof SmtpConnectionScalarFieldEnum]
+
+
+  export const AuthAttemptScalarFieldEnum: {
+    id: 'id',
+    smtpUserId: 'smtpUserId',
+    username: 'username',
+    remoteAddress: 'remoteAddress',
+    success: 'success',
+    createdAt: 'createdAt'
+  };
+
+  export type AuthAttemptScalarFieldEnum = (typeof AuthAttemptScalarFieldEnum)[keyof typeof AuthAttemptScalarFieldEnum]
+
+
+  export const SortOrder: {
+    asc: 'asc',
+    desc: 'desc'
+  };
+
+  export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  /**
+   * Field references
+   */
+
+
+  /**
+   * Reference to a field of type 'String'
+   */
+  export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime'
+   */
+  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+  /**
+   * Deep Input Types
+   */
+
+
+  export type TenantWhereInput = {
+    AND?: TenantWhereInput | TenantWhereInput[]
+    OR?: TenantWhereInput[]
+    NOT?: TenantWhereInput | TenantWhereInput[]
+    id?: StringFilter<"Tenant"> | string
+    tenantCode?: StringFilter<"Tenant"> | string
+    nome?: StringFilter<"Tenant"> | string
+    cidade?: StringFilter<"Tenant"> | string
+    estado?: StringFilter<"Tenant"> | string
+    cnpj?: StringFilter<"Tenant"> | string
+    plano?: StringNullableFilter<"Tenant"> | string | null
+    status?: StringNullableFilter<"Tenant"> | string | null
+    populacao?: IntNullableFilter<"Tenant"> | number | null
+    endereco?: StringNullableFilter<"Tenant"> | string | null
+    responsavelNome?: StringNullableFilter<"Tenant"> | string | null
+    responsavelEmail?: StringNullableFilter<"Tenant"> | string | null
+    responsavelTelefone?: StringNullableFilter<"Tenant"> | string | null
+    createdAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    updatedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    users?: UserListRelationFilter
+    activityLogs?: ActivityLogListRelationFilter
+    emailDomains?: EmailDomainListRelationFilter
+  }
+
+  export type TenantOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantCode?: SortOrder
+    nome?: SortOrder
+    cidade?: SortOrder
+    estado?: SortOrder
+    cnpj?: SortOrder
+    plano?: SortOrderInput | SortOrder
+    status?: SortOrderInput | SortOrder
+    populacao?: SortOrderInput | SortOrder
+    endereco?: SortOrderInput | SortOrder
+    responsavelNome?: SortOrderInput | SortOrder
+    responsavelEmail?: SortOrderInput | SortOrder
+    responsavelTelefone?: SortOrderInput | SortOrder
+    createdAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    users?: UserOrderByRelationAggregateInput
+    activityLogs?: ActivityLogOrderByRelationAggregateInput
+    emailDomains?: EmailDomainOrderByRelationAggregateInput
+  }
+
+  export type TenantWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenantCode?: string
+    cnpj?: string
+    AND?: TenantWhereInput | TenantWhereInput[]
+    OR?: TenantWhereInput[]
+    NOT?: TenantWhereInput | TenantWhereInput[]
+    nome?: StringFilter<"Tenant"> | string
+    cidade?: StringFilter<"Tenant"> | string
+    estado?: StringFilter<"Tenant"> | string
+    plano?: StringNullableFilter<"Tenant"> | string | null
+    status?: StringNullableFilter<"Tenant"> | string | null
+    populacao?: IntNullableFilter<"Tenant"> | number | null
+    endereco?: StringNullableFilter<"Tenant"> | string | null
+    responsavelNome?: StringNullableFilter<"Tenant"> | string | null
+    responsavelEmail?: StringNullableFilter<"Tenant"> | string | null
+    responsavelTelefone?: StringNullableFilter<"Tenant"> | string | null
+    createdAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    updatedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    users?: UserListRelationFilter
+    activityLogs?: ActivityLogListRelationFilter
+    emailDomains?: EmailDomainListRelationFilter
+  }, "id" | "tenantCode" | "cnpj">
+
+  export type TenantOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantCode?: SortOrder
+    nome?: SortOrder
+    cidade?: SortOrder
+    estado?: SortOrder
+    cnpj?: SortOrder
+    plano?: SortOrderInput | SortOrder
+    status?: SortOrderInput | SortOrder
+    populacao?: SortOrderInput | SortOrder
+    endereco?: SortOrderInput | SortOrder
+    responsavelNome?: SortOrderInput | SortOrder
+    responsavelEmail?: SortOrderInput | SortOrder
+    responsavelTelefone?: SortOrderInput | SortOrder
+    createdAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    _count?: TenantCountOrderByAggregateInput
+    _avg?: TenantAvgOrderByAggregateInput
+    _max?: TenantMaxOrderByAggregateInput
+    _min?: TenantMinOrderByAggregateInput
+    _sum?: TenantSumOrderByAggregateInput
+  }
+
+  export type TenantScalarWhereWithAggregatesInput = {
+    AND?: TenantScalarWhereWithAggregatesInput | TenantScalarWhereWithAggregatesInput[]
+    OR?: TenantScalarWhereWithAggregatesInput[]
+    NOT?: TenantScalarWhereWithAggregatesInput | TenantScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Tenant"> | string
+    tenantCode?: StringWithAggregatesFilter<"Tenant"> | string
+    nome?: StringWithAggregatesFilter<"Tenant"> | string
+    cidade?: StringWithAggregatesFilter<"Tenant"> | string
+    estado?: StringWithAggregatesFilter<"Tenant"> | string
+    cnpj?: StringWithAggregatesFilter<"Tenant"> | string
+    plano?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    status?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    populacao?: IntNullableWithAggregatesFilter<"Tenant"> | number | null
+    endereco?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    responsavelNome?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    responsavelEmail?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    responsavelTelefone?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    createdAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+  }
+
+  export type UserWhereInput = {
+    AND?: UserWhereInput | UserWhereInput[]
+    OR?: UserWhereInput[]
+    NOT?: UserWhereInput | UserWhereInput[]
+    id?: StringFilter<"User"> | string
+    tenantId?: StringNullableFilter<"User"> | string | null
+    nomeCompleto?: StringFilter<"User"> | string
+    email?: StringFilter<"User"> | string
+    passwordHash?: StringFilter<"User"> | string
+    role?: StringFilter<"User"> | string
+    status?: StringFilter<"User"> | string
+    avatarUrl?: StringNullableFilter<"User"> | string | null
+    ultimoLogin?: DateTimeNullableFilter<"User"> | Date | string | null
+    failedLoginAttempts?: IntNullableFilter<"User"> | number | null
+    lockedUntil?: DateTimeNullableFilter<"User"> | Date | string | null
+    emailVerified?: BoolNullableFilter<"User"> | boolean | null
+    createdAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    updatedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    tenant?: XOR<TenantNullableRelationFilter, TenantWhereInput> | null
+    permissions?: UserPermissionListRelationFilter
+    grantedPermissions?: UserPermissionListRelationFilter
+    activityLogs?: ActivityLogListRelationFilter
+    smtpUsers?: SmtpUserListRelationFilter
+  }
+
+  export type UserOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    nomeCompleto?: SortOrder
+    email?: SortOrder
+    passwordHash?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
+    ultimoLogin?: SortOrderInput | SortOrder
+    failedLoginAttempts?: SortOrderInput | SortOrder
+    lockedUntil?: SortOrderInput | SortOrder
+    emailVerified?: SortOrderInput | SortOrder
+    createdAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    permissions?: UserPermissionOrderByRelationAggregateInput
+    grantedPermissions?: UserPermissionOrderByRelationAggregateInput
+    activityLogs?: ActivityLogOrderByRelationAggregateInput
+    smtpUsers?: SmtpUserOrderByRelationAggregateInput
+  }
+
+  export type UserWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    email?: string
+    AND?: UserWhereInput | UserWhereInput[]
+    OR?: UserWhereInput[]
+    NOT?: UserWhereInput | UserWhereInput[]
+    tenantId?: StringNullableFilter<"User"> | string | null
+    nomeCompleto?: StringFilter<"User"> | string
+    passwordHash?: StringFilter<"User"> | string
+    role?: StringFilter<"User"> | string
+    status?: StringFilter<"User"> | string
+    avatarUrl?: StringNullableFilter<"User"> | string | null
+    ultimoLogin?: DateTimeNullableFilter<"User"> | Date | string | null
+    failedLoginAttempts?: IntNullableFilter<"User"> | number | null
+    lockedUntil?: DateTimeNullableFilter<"User"> | Date | string | null
+    emailVerified?: BoolNullableFilter<"User"> | boolean | null
+    createdAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    updatedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    tenant?: XOR<TenantNullableRelationFilter, TenantWhereInput> | null
+    permissions?: UserPermissionListRelationFilter
+    grantedPermissions?: UserPermissionListRelationFilter
+    activityLogs?: ActivityLogListRelationFilter
+    smtpUsers?: SmtpUserListRelationFilter
+  }, "id" | "email">
+
+  export type UserOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    nomeCompleto?: SortOrder
+    email?: SortOrder
+    passwordHash?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
+    ultimoLogin?: SortOrderInput | SortOrder
+    failedLoginAttempts?: SortOrderInput | SortOrder
+    lockedUntil?: SortOrderInput | SortOrder
+    emailVerified?: SortOrderInput | SortOrder
+    createdAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    _count?: UserCountOrderByAggregateInput
+    _avg?: UserAvgOrderByAggregateInput
+    _max?: UserMaxOrderByAggregateInput
+    _min?: UserMinOrderByAggregateInput
+    _sum?: UserSumOrderByAggregateInput
+  }
+
+  export type UserScalarWhereWithAggregatesInput = {
+    AND?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
+    OR?: UserScalarWhereWithAggregatesInput[]
+    NOT?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"User"> | string
+    tenantId?: StringNullableWithAggregatesFilter<"User"> | string | null
+    nomeCompleto?: StringWithAggregatesFilter<"User"> | string
+    email?: StringWithAggregatesFilter<"User"> | string
+    passwordHash?: StringWithAggregatesFilter<"User"> | string
+    role?: StringWithAggregatesFilter<"User"> | string
+    status?: StringWithAggregatesFilter<"User"> | string
+    avatarUrl?: StringNullableWithAggregatesFilter<"User"> | string | null
+    ultimoLogin?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    failedLoginAttempts?: IntNullableWithAggregatesFilter<"User"> | number | null
+    lockedUntil?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    emailVerified?: BoolNullableWithAggregatesFilter<"User"> | boolean | null
+    createdAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  }
+
+  export type PermissionWhereInput = {
+    AND?: PermissionWhereInput | PermissionWhereInput[]
+    OR?: PermissionWhereInput[]
+    NOT?: PermissionWhereInput | PermissionWhereInput[]
+    id?: IntFilter<"Permission"> | number
+    code?: StringFilter<"Permission"> | string
+    resource?: StringFilter<"Permission"> | string
+    action?: StringFilter<"Permission"> | string
+    description?: StringNullableFilter<"Permission"> | string | null
+    createdAt?: DateTimeNullableFilter<"Permission"> | Date | string | null
+    userPermissions?: UserPermissionListRelationFilter
+  }
+
+  export type PermissionOrderByWithRelationInput = {
+    id?: SortOrder
+    code?: SortOrder
+    resource?: SortOrder
+    action?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrderInput | SortOrder
+    userPermissions?: UserPermissionOrderByRelationAggregateInput
+  }
+
+  export type PermissionWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    code?: string
+    AND?: PermissionWhereInput | PermissionWhereInput[]
+    OR?: PermissionWhereInput[]
+    NOT?: PermissionWhereInput | PermissionWhereInput[]
+    resource?: StringFilter<"Permission"> | string
+    action?: StringFilter<"Permission"> | string
+    description?: StringNullableFilter<"Permission"> | string | null
+    createdAt?: DateTimeNullableFilter<"Permission"> | Date | string | null
+    userPermissions?: UserPermissionListRelationFilter
+  }, "id" | "code">
+
+  export type PermissionOrderByWithAggregationInput = {
+    id?: SortOrder
+    code?: SortOrder
+    resource?: SortOrder
+    action?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrderInput | SortOrder
+    _count?: PermissionCountOrderByAggregateInput
+    _avg?: PermissionAvgOrderByAggregateInput
+    _max?: PermissionMaxOrderByAggregateInput
+    _min?: PermissionMinOrderByAggregateInput
+    _sum?: PermissionSumOrderByAggregateInput
+  }
+
+  export type PermissionScalarWhereWithAggregatesInput = {
+    AND?: PermissionScalarWhereWithAggregatesInput | PermissionScalarWhereWithAggregatesInput[]
+    OR?: PermissionScalarWhereWithAggregatesInput[]
+    NOT?: PermissionScalarWhereWithAggregatesInput | PermissionScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Permission"> | number
+    code?: StringWithAggregatesFilter<"Permission"> | string
+    resource?: StringWithAggregatesFilter<"Permission"> | string
+    action?: StringWithAggregatesFilter<"Permission"> | string
+    description?: StringNullableWithAggregatesFilter<"Permission"> | string | null
+    createdAt?: DateTimeNullableWithAggregatesFilter<"Permission"> | Date | string | null
+  }
+
+  export type UserPermissionWhereInput = {
+    AND?: UserPermissionWhereInput | UserPermissionWhereInput[]
+    OR?: UserPermissionWhereInput[]
+    NOT?: UserPermissionWhereInput | UserPermissionWhereInput[]
+    id?: IntFilter<"UserPermission"> | number
+    userId?: StringFilter<"UserPermission"> | string
+    permissionId?: IntFilter<"UserPermission"> | number
+    grantedBy?: StringNullableFilter<"UserPermission"> | string | null
+    createdAt?: DateTimeNullableFilter<"UserPermission"> | Date | string | null
+    user?: XOR<UserRelationFilter, UserWhereInput>
+    permission?: XOR<PermissionRelationFilter, PermissionWhereInput>
+    grantor?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+  }
+
+  export type UserPermissionOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    permissionId?: SortOrder
+    grantedBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+    permission?: PermissionOrderByWithRelationInput
+    grantor?: UserOrderByWithRelationInput
+  }
+
+  export type UserPermissionWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    userId_permissionId?: UserPermissionUserIdPermissionIdCompoundUniqueInput
+    AND?: UserPermissionWhereInput | UserPermissionWhereInput[]
+    OR?: UserPermissionWhereInput[]
+    NOT?: UserPermissionWhereInput | UserPermissionWhereInput[]
+    userId?: StringFilter<"UserPermission"> | string
+    permissionId?: IntFilter<"UserPermission"> | number
+    grantedBy?: StringNullableFilter<"UserPermission"> | string | null
+    createdAt?: DateTimeNullableFilter<"UserPermission"> | Date | string | null
+    user?: XOR<UserRelationFilter, UserWhereInput>
+    permission?: XOR<PermissionRelationFilter, PermissionWhereInput>
+    grantor?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+  }, "id" | "userId_permissionId">
+
+  export type UserPermissionOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    permissionId?: SortOrder
+    grantedBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrderInput | SortOrder
+    _count?: UserPermissionCountOrderByAggregateInput
+    _avg?: UserPermissionAvgOrderByAggregateInput
+    _max?: UserPermissionMaxOrderByAggregateInput
+    _min?: UserPermissionMinOrderByAggregateInput
+    _sum?: UserPermissionSumOrderByAggregateInput
+  }
+
+  export type UserPermissionScalarWhereWithAggregatesInput = {
+    AND?: UserPermissionScalarWhereWithAggregatesInput | UserPermissionScalarWhereWithAggregatesInput[]
+    OR?: UserPermissionScalarWhereWithAggregatesInput[]
+    NOT?: UserPermissionScalarWhereWithAggregatesInput | UserPermissionScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"UserPermission"> | number
+    userId?: StringWithAggregatesFilter<"UserPermission"> | string
+    permissionId?: IntWithAggregatesFilter<"UserPermission"> | number
+    grantedBy?: StringNullableWithAggregatesFilter<"UserPermission"> | string | null
+    createdAt?: DateTimeNullableWithAggregatesFilter<"UserPermission"> | Date | string | null
+  }
+
+  export type ActivityLogWhereInput = {
+    AND?: ActivityLogWhereInput | ActivityLogWhereInput[]
+    OR?: ActivityLogWhereInput[]
+    NOT?: ActivityLogWhereInput | ActivityLogWhereInput[]
+    id?: IntFilter<"ActivityLog"> | number
+    userId?: StringNullableFilter<"ActivityLog"> | string | null
+    tenantId?: StringNullableFilter<"ActivityLog"> | string | null
+    action?: StringFilter<"ActivityLog"> | string
+    resource?: StringNullableFilter<"ActivityLog"> | string | null
+    resourceId?: StringNullableFilter<"ActivityLog"> | string | null
+    details?: StringNullableFilter<"ActivityLog"> | string | null
+    ipAddress?: StringNullableFilter<"ActivityLog"> | string | null
+    userAgent?: StringNullableFilter<"ActivityLog"> | string | null
+    createdAt?: DateTimeNullableFilter<"ActivityLog"> | Date | string | null
+    user?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    tenant?: XOR<TenantNullableRelationFilter, TenantWhereInput> | null
+  }
+
+  export type ActivityLogOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    action?: SortOrder
+    resource?: SortOrderInput | SortOrder
+    resourceId?: SortOrderInput | SortOrder
+    details?: SortOrderInput | SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    createdAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+    tenant?: TenantOrderByWithRelationInput
+  }
+
+  export type ActivityLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: ActivityLogWhereInput | ActivityLogWhereInput[]
+    OR?: ActivityLogWhereInput[]
+    NOT?: ActivityLogWhereInput | ActivityLogWhereInput[]
+    userId?: StringNullableFilter<"ActivityLog"> | string | null
+    tenantId?: StringNullableFilter<"ActivityLog"> | string | null
+    action?: StringFilter<"ActivityLog"> | string
+    resource?: StringNullableFilter<"ActivityLog"> | string | null
+    resourceId?: StringNullableFilter<"ActivityLog"> | string | null
+    details?: StringNullableFilter<"ActivityLog"> | string | null
+    ipAddress?: StringNullableFilter<"ActivityLog"> | string | null
+    userAgent?: StringNullableFilter<"ActivityLog"> | string | null
+    createdAt?: DateTimeNullableFilter<"ActivityLog"> | Date | string | null
+    user?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    tenant?: XOR<TenantNullableRelationFilter, TenantWhereInput> | null
+  }, "id">
+
+  export type ActivityLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    action?: SortOrder
+    resource?: SortOrderInput | SortOrder
+    resourceId?: SortOrderInput | SortOrder
+    details?: SortOrderInput | SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    createdAt?: SortOrderInput | SortOrder
+    _count?: ActivityLogCountOrderByAggregateInput
+    _avg?: ActivityLogAvgOrderByAggregateInput
+    _max?: ActivityLogMaxOrderByAggregateInput
+    _min?: ActivityLogMinOrderByAggregateInput
+    _sum?: ActivityLogSumOrderByAggregateInput
+  }
+
+  export type ActivityLogScalarWhereWithAggregatesInput = {
+    AND?: ActivityLogScalarWhereWithAggregatesInput | ActivityLogScalarWhereWithAggregatesInput[]
+    OR?: ActivityLogScalarWhereWithAggregatesInput[]
+    NOT?: ActivityLogScalarWhereWithAggregatesInput | ActivityLogScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"ActivityLog"> | number
+    userId?: StringNullableWithAggregatesFilter<"ActivityLog"> | string | null
+    tenantId?: StringNullableWithAggregatesFilter<"ActivityLog"> | string | null
+    action?: StringWithAggregatesFilter<"ActivityLog"> | string
+    resource?: StringNullableWithAggregatesFilter<"ActivityLog"> | string | null
+    resourceId?: StringNullableWithAggregatesFilter<"ActivityLog"> | string | null
+    details?: StringNullableWithAggregatesFilter<"ActivityLog"> | string | null
+    ipAddress?: StringNullableWithAggregatesFilter<"ActivityLog"> | string | null
+    userAgent?: StringNullableWithAggregatesFilter<"ActivityLog"> | string | null
+    createdAt?: DateTimeNullableWithAggregatesFilter<"ActivityLog"> | Date | string | null
+  }
+
+  export type SmtpUserWhereInput = {
+    AND?: SmtpUserWhereInput | SmtpUserWhereInput[]
+    OR?: SmtpUserWhereInput[]
+    NOT?: SmtpUserWhereInput | SmtpUserWhereInput[]
+    id?: IntFilter<"SmtpUser"> | number
+    userId?: StringNullableFilter<"SmtpUser"> | string | null
+    email?: StringFilter<"SmtpUser"> | string
+    passwordHash?: StringFilter<"SmtpUser"> | string
+    name?: StringFilter<"SmtpUser"> | string
+    isVerified?: BoolFilter<"SmtpUser"> | boolean
+    isActive?: BoolFilter<"SmtpUser"> | boolean
+    isAdmin?: BoolFilter<"SmtpUser"> | boolean
+    lastLogin?: DateTimeNullableFilter<"SmtpUser"> | Date | string | null
+    createdAt?: DateTimeFilter<"SmtpUser"> | Date | string
+    updatedAt?: DateTimeFilter<"SmtpUser"> | Date | string
+    user?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    domains?: EmailDomainListRelationFilter
+    authAttempts?: AuthAttemptListRelationFilter
+  }
+
+  export type SmtpUserOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    email?: SortOrder
+    passwordHash?: SortOrder
+    name?: SortOrder
+    isVerified?: SortOrder
+    isActive?: SortOrder
+    isAdmin?: SortOrder
+    lastLogin?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    domains?: EmailDomainOrderByRelationAggregateInput
+    authAttempts?: AuthAttemptOrderByRelationAggregateInput
+  }
+
+  export type SmtpUserWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    email?: string
+    AND?: SmtpUserWhereInput | SmtpUserWhereInput[]
+    OR?: SmtpUserWhereInput[]
+    NOT?: SmtpUserWhereInput | SmtpUserWhereInput[]
+    userId?: StringNullableFilter<"SmtpUser"> | string | null
+    passwordHash?: StringFilter<"SmtpUser"> | string
+    name?: StringFilter<"SmtpUser"> | string
+    isVerified?: BoolFilter<"SmtpUser"> | boolean
+    isActive?: BoolFilter<"SmtpUser"> | boolean
+    isAdmin?: BoolFilter<"SmtpUser"> | boolean
+    lastLogin?: DateTimeNullableFilter<"SmtpUser"> | Date | string | null
+    createdAt?: DateTimeFilter<"SmtpUser"> | Date | string
+    updatedAt?: DateTimeFilter<"SmtpUser"> | Date | string
+    user?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    domains?: EmailDomainListRelationFilter
+    authAttempts?: AuthAttemptListRelationFilter
+  }, "id" | "email">
+
+  export type SmtpUserOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    email?: SortOrder
+    passwordHash?: SortOrder
+    name?: SortOrder
+    isVerified?: SortOrder
+    isActive?: SortOrder
+    isAdmin?: SortOrder
+    lastLogin?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SmtpUserCountOrderByAggregateInput
+    _avg?: SmtpUserAvgOrderByAggregateInput
+    _max?: SmtpUserMaxOrderByAggregateInput
+    _min?: SmtpUserMinOrderByAggregateInput
+    _sum?: SmtpUserSumOrderByAggregateInput
+  }
+
+  export type SmtpUserScalarWhereWithAggregatesInput = {
+    AND?: SmtpUserScalarWhereWithAggregatesInput | SmtpUserScalarWhereWithAggregatesInput[]
+    OR?: SmtpUserScalarWhereWithAggregatesInput[]
+    NOT?: SmtpUserScalarWhereWithAggregatesInput | SmtpUserScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"SmtpUser"> | number
+    userId?: StringNullableWithAggregatesFilter<"SmtpUser"> | string | null
+    email?: StringWithAggregatesFilter<"SmtpUser"> | string
+    passwordHash?: StringWithAggregatesFilter<"SmtpUser"> | string
+    name?: StringWithAggregatesFilter<"SmtpUser"> | string
+    isVerified?: BoolWithAggregatesFilter<"SmtpUser"> | boolean
+    isActive?: BoolWithAggregatesFilter<"SmtpUser"> | boolean
+    isAdmin?: BoolWithAggregatesFilter<"SmtpUser"> | boolean
+    lastLogin?: DateTimeNullableWithAggregatesFilter<"SmtpUser"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SmtpUser"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SmtpUser"> | Date | string
+  }
+
+  export type EmailDomainWhereInput = {
+    AND?: EmailDomainWhereInput | EmailDomainWhereInput[]
+    OR?: EmailDomainWhereInput[]
+    NOT?: EmailDomainWhereInput | EmailDomainWhereInput[]
+    id?: IntFilter<"EmailDomain"> | number
+    tenantId?: StringNullableFilter<"EmailDomain"> | string | null
+    smtpUserId?: IntFilter<"EmailDomain"> | number
+    domainName?: StringFilter<"EmailDomain"> | string
+    isVerified?: BoolFilter<"EmailDomain"> | boolean
+    verificationToken?: StringNullableFilter<"EmailDomain"> | string | null
+    verifiedAt?: DateTimeNullableFilter<"EmailDomain"> | Date | string | null
+    verificationMethod?: StringNullableFilter<"EmailDomain"> | string | null
+    dkimEnabled?: BoolFilter<"EmailDomain"> | boolean
+    spfEnabled?: BoolFilter<"EmailDomain"> | boolean
+    createdAt?: DateTimeFilter<"EmailDomain"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailDomain"> | Date | string
+    tenant?: XOR<TenantNullableRelationFilter, TenantWhereInput> | null
+    smtpUser?: XOR<SmtpUserRelationFilter, SmtpUserWhereInput>
+    dkimKeys?: DkimKeyListRelationFilter
+    emails?: EmailListRelationFilter
+  }
+
+  export type EmailDomainOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    smtpUserId?: SortOrder
+    domainName?: SortOrder
+    isVerified?: SortOrder
+    verificationToken?: SortOrderInput | SortOrder
+    verifiedAt?: SortOrderInput | SortOrder
+    verificationMethod?: SortOrderInput | SortOrder
+    dkimEnabled?: SortOrder
+    spfEnabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    smtpUser?: SmtpUserOrderByWithRelationInput
+    dkimKeys?: DkimKeyOrderByRelationAggregateInput
+    emails?: EmailOrderByRelationAggregateInput
+  }
+
+  export type EmailDomainWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    domainName?: string
+    AND?: EmailDomainWhereInput | EmailDomainWhereInput[]
+    OR?: EmailDomainWhereInput[]
+    NOT?: EmailDomainWhereInput | EmailDomainWhereInput[]
+    tenantId?: StringNullableFilter<"EmailDomain"> | string | null
+    smtpUserId?: IntFilter<"EmailDomain"> | number
+    isVerified?: BoolFilter<"EmailDomain"> | boolean
+    verificationToken?: StringNullableFilter<"EmailDomain"> | string | null
+    verifiedAt?: DateTimeNullableFilter<"EmailDomain"> | Date | string | null
+    verificationMethod?: StringNullableFilter<"EmailDomain"> | string | null
+    dkimEnabled?: BoolFilter<"EmailDomain"> | boolean
+    spfEnabled?: BoolFilter<"EmailDomain"> | boolean
+    createdAt?: DateTimeFilter<"EmailDomain"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailDomain"> | Date | string
+    tenant?: XOR<TenantNullableRelationFilter, TenantWhereInput> | null
+    smtpUser?: XOR<SmtpUserRelationFilter, SmtpUserWhereInput>
+    dkimKeys?: DkimKeyListRelationFilter
+    emails?: EmailListRelationFilter
+  }, "id" | "domainName">
+
+  export type EmailDomainOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    smtpUserId?: SortOrder
+    domainName?: SortOrder
+    isVerified?: SortOrder
+    verificationToken?: SortOrderInput | SortOrder
+    verifiedAt?: SortOrderInput | SortOrder
+    verificationMethod?: SortOrderInput | SortOrder
+    dkimEnabled?: SortOrder
+    spfEnabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EmailDomainCountOrderByAggregateInput
+    _avg?: EmailDomainAvgOrderByAggregateInput
+    _max?: EmailDomainMaxOrderByAggregateInput
+    _min?: EmailDomainMinOrderByAggregateInput
+    _sum?: EmailDomainSumOrderByAggregateInput
+  }
+
+  export type EmailDomainScalarWhereWithAggregatesInput = {
+    AND?: EmailDomainScalarWhereWithAggregatesInput | EmailDomainScalarWhereWithAggregatesInput[]
+    OR?: EmailDomainScalarWhereWithAggregatesInput[]
+    NOT?: EmailDomainScalarWhereWithAggregatesInput | EmailDomainScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"EmailDomain"> | number
+    tenantId?: StringNullableWithAggregatesFilter<"EmailDomain"> | string | null
+    smtpUserId?: IntWithAggregatesFilter<"EmailDomain"> | number
+    domainName?: StringWithAggregatesFilter<"EmailDomain"> | string
+    isVerified?: BoolWithAggregatesFilter<"EmailDomain"> | boolean
+    verificationToken?: StringNullableWithAggregatesFilter<"EmailDomain"> | string | null
+    verifiedAt?: DateTimeNullableWithAggregatesFilter<"EmailDomain"> | Date | string | null
+    verificationMethod?: StringNullableWithAggregatesFilter<"EmailDomain"> | string | null
+    dkimEnabled?: BoolWithAggregatesFilter<"EmailDomain"> | boolean
+    spfEnabled?: BoolWithAggregatesFilter<"EmailDomain"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"EmailDomain"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EmailDomain"> | Date | string
+  }
+
+  export type DkimKeyWhereInput = {
+    AND?: DkimKeyWhereInput | DkimKeyWhereInput[]
+    OR?: DkimKeyWhereInput[]
+    NOT?: DkimKeyWhereInput | DkimKeyWhereInput[]
+    id?: IntFilter<"DkimKey"> | number
+    domainId?: IntFilter<"DkimKey"> | number
+    selector?: StringFilter<"DkimKey"> | string
+    privateKey?: StringFilter<"DkimKey"> | string
+    publicKey?: StringFilter<"DkimKey"> | string
+    algorithm?: StringFilter<"DkimKey"> | string
+    canonicalization?: StringFilter<"DkimKey"> | string
+    keySize?: IntFilter<"DkimKey"> | number
+    isActive?: BoolFilter<"DkimKey"> | boolean
+    createdAt?: DateTimeFilter<"DkimKey"> | Date | string
+    updatedAt?: DateTimeFilter<"DkimKey"> | Date | string
+    domain?: XOR<EmailDomainRelationFilter, EmailDomainWhereInput>
+  }
+
+  export type DkimKeyOrderByWithRelationInput = {
+    id?: SortOrder
+    domainId?: SortOrder
+    selector?: SortOrder
+    privateKey?: SortOrder
+    publicKey?: SortOrder
+    algorithm?: SortOrder
+    canonicalization?: SortOrder
+    keySize?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    domain?: EmailDomainOrderByWithRelationInput
+  }
+
+  export type DkimKeyWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    domainId_selector?: DkimKeyDomainIdSelectorCompoundUniqueInput
+    AND?: DkimKeyWhereInput | DkimKeyWhereInput[]
+    OR?: DkimKeyWhereInput[]
+    NOT?: DkimKeyWhereInput | DkimKeyWhereInput[]
+    domainId?: IntFilter<"DkimKey"> | number
+    selector?: StringFilter<"DkimKey"> | string
+    privateKey?: StringFilter<"DkimKey"> | string
+    publicKey?: StringFilter<"DkimKey"> | string
+    algorithm?: StringFilter<"DkimKey"> | string
+    canonicalization?: StringFilter<"DkimKey"> | string
+    keySize?: IntFilter<"DkimKey"> | number
+    isActive?: BoolFilter<"DkimKey"> | boolean
+    createdAt?: DateTimeFilter<"DkimKey"> | Date | string
+    updatedAt?: DateTimeFilter<"DkimKey"> | Date | string
+    domain?: XOR<EmailDomainRelationFilter, EmailDomainWhereInput>
+  }, "id" | "domainId_selector">
+
+  export type DkimKeyOrderByWithAggregationInput = {
+    id?: SortOrder
+    domainId?: SortOrder
+    selector?: SortOrder
+    privateKey?: SortOrder
+    publicKey?: SortOrder
+    algorithm?: SortOrder
+    canonicalization?: SortOrder
+    keySize?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DkimKeyCountOrderByAggregateInput
+    _avg?: DkimKeyAvgOrderByAggregateInput
+    _max?: DkimKeyMaxOrderByAggregateInput
+    _min?: DkimKeyMinOrderByAggregateInput
+    _sum?: DkimKeySumOrderByAggregateInput
+  }
+
+  export type DkimKeyScalarWhereWithAggregatesInput = {
+    AND?: DkimKeyScalarWhereWithAggregatesInput | DkimKeyScalarWhereWithAggregatesInput[]
+    OR?: DkimKeyScalarWhereWithAggregatesInput[]
+    NOT?: DkimKeyScalarWhereWithAggregatesInput | DkimKeyScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"DkimKey"> | number
+    domainId?: IntWithAggregatesFilter<"DkimKey"> | number
+    selector?: StringWithAggregatesFilter<"DkimKey"> | string
+    privateKey?: StringWithAggregatesFilter<"DkimKey"> | string
+    publicKey?: StringWithAggregatesFilter<"DkimKey"> | string
+    algorithm?: StringWithAggregatesFilter<"DkimKey"> | string
+    canonicalization?: StringWithAggregatesFilter<"DkimKey"> | string
+    keySize?: IntWithAggregatesFilter<"DkimKey"> | number
+    isActive?: BoolWithAggregatesFilter<"DkimKey"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"DkimKey"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DkimKey"> | Date | string
+  }
+
+  export type EmailWhereInput = {
+    AND?: EmailWhereInput | EmailWhereInput[]
+    OR?: EmailWhereInput[]
+    NOT?: EmailWhereInput | EmailWhereInput[]
+    id?: IntFilter<"Email"> | number
+    messageId?: StringFilter<"Email"> | string
+    domainId?: IntNullableFilter<"Email"> | number | null
+    fromEmail?: StringFilter<"Email"> | string
+    toEmail?: StringFilter<"Email"> | string
+    subject?: StringFilter<"Email"> | string
+    htmlContent?: StringNullableFilter<"Email"> | string | null
+    textContent?: StringNullableFilter<"Email"> | string | null
+    status?: StringFilter<"Email"> | string
+    direction?: StringFilter<"Email"> | string
+    sentAt?: DateTimeNullableFilter<"Email"> | Date | string | null
+    deliveredAt?: DateTimeNullableFilter<"Email"> | Date | string | null
+    mxServer?: StringNullableFilter<"Email"> | string | null
+    errorMessage?: StringNullableFilter<"Email"> | string | null
+    attempts?: IntFilter<"Email"> | number
+    createdAt?: DateTimeFilter<"Email"> | Date | string
+    updatedAt?: DateTimeFilter<"Email"> | Date | string
+    domain?: XOR<EmailDomainNullableRelationFilter, EmailDomainWhereInput> | null
+  }
+
+  export type EmailOrderByWithRelationInput = {
+    id?: SortOrder
+    messageId?: SortOrder
+    domainId?: SortOrderInput | SortOrder
+    fromEmail?: SortOrder
+    toEmail?: SortOrder
+    subject?: SortOrder
+    htmlContent?: SortOrderInput | SortOrder
+    textContent?: SortOrderInput | SortOrder
+    status?: SortOrder
+    direction?: SortOrder
+    sentAt?: SortOrderInput | SortOrder
+    deliveredAt?: SortOrderInput | SortOrder
+    mxServer?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    attempts?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    domain?: EmailDomainOrderByWithRelationInput
+  }
+
+  export type EmailWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    messageId?: string
+    AND?: EmailWhereInput | EmailWhereInput[]
+    OR?: EmailWhereInput[]
+    NOT?: EmailWhereInput | EmailWhereInput[]
+    domainId?: IntNullableFilter<"Email"> | number | null
+    fromEmail?: StringFilter<"Email"> | string
+    toEmail?: StringFilter<"Email"> | string
+    subject?: StringFilter<"Email"> | string
+    htmlContent?: StringNullableFilter<"Email"> | string | null
+    textContent?: StringNullableFilter<"Email"> | string | null
+    status?: StringFilter<"Email"> | string
+    direction?: StringFilter<"Email"> | string
+    sentAt?: DateTimeNullableFilter<"Email"> | Date | string | null
+    deliveredAt?: DateTimeNullableFilter<"Email"> | Date | string | null
+    mxServer?: StringNullableFilter<"Email"> | string | null
+    errorMessage?: StringNullableFilter<"Email"> | string | null
+    attempts?: IntFilter<"Email"> | number
+    createdAt?: DateTimeFilter<"Email"> | Date | string
+    updatedAt?: DateTimeFilter<"Email"> | Date | string
+    domain?: XOR<EmailDomainNullableRelationFilter, EmailDomainWhereInput> | null
+  }, "id" | "messageId">
+
+  export type EmailOrderByWithAggregationInput = {
+    id?: SortOrder
+    messageId?: SortOrder
+    domainId?: SortOrderInput | SortOrder
+    fromEmail?: SortOrder
+    toEmail?: SortOrder
+    subject?: SortOrder
+    htmlContent?: SortOrderInput | SortOrder
+    textContent?: SortOrderInput | SortOrder
+    status?: SortOrder
+    direction?: SortOrder
+    sentAt?: SortOrderInput | SortOrder
+    deliveredAt?: SortOrderInput | SortOrder
+    mxServer?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    attempts?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EmailCountOrderByAggregateInput
+    _avg?: EmailAvgOrderByAggregateInput
+    _max?: EmailMaxOrderByAggregateInput
+    _min?: EmailMinOrderByAggregateInput
+    _sum?: EmailSumOrderByAggregateInput
+  }
+
+  export type EmailScalarWhereWithAggregatesInput = {
+    AND?: EmailScalarWhereWithAggregatesInput | EmailScalarWhereWithAggregatesInput[]
+    OR?: EmailScalarWhereWithAggregatesInput[]
+    NOT?: EmailScalarWhereWithAggregatesInput | EmailScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Email"> | number
+    messageId?: StringWithAggregatesFilter<"Email"> | string
+    domainId?: IntNullableWithAggregatesFilter<"Email"> | number | null
+    fromEmail?: StringWithAggregatesFilter<"Email"> | string
+    toEmail?: StringWithAggregatesFilter<"Email"> | string
+    subject?: StringWithAggregatesFilter<"Email"> | string
+    htmlContent?: StringNullableWithAggregatesFilter<"Email"> | string | null
+    textContent?: StringNullableWithAggregatesFilter<"Email"> | string | null
+    status?: StringWithAggregatesFilter<"Email"> | string
+    direction?: StringWithAggregatesFilter<"Email"> | string
+    sentAt?: DateTimeNullableWithAggregatesFilter<"Email"> | Date | string | null
+    deliveredAt?: DateTimeNullableWithAggregatesFilter<"Email"> | Date | string | null
+    mxServer?: StringNullableWithAggregatesFilter<"Email"> | string | null
+    errorMessage?: StringNullableWithAggregatesFilter<"Email"> | string | null
+    attempts?: IntWithAggregatesFilter<"Email"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"Email"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Email"> | Date | string
+  }
+
+  export type SmtpConnectionWhereInput = {
+    AND?: SmtpConnectionWhereInput | SmtpConnectionWhereInput[]
+    OR?: SmtpConnectionWhereInput[]
+    NOT?: SmtpConnectionWhereInput | SmtpConnectionWhereInput[]
+    id?: IntFilter<"SmtpConnection"> | number
+    remoteAddress?: StringFilter<"SmtpConnection"> | string
+    hostname?: StringNullableFilter<"SmtpConnection"> | string | null
+    serverType?: StringFilter<"SmtpConnection"> | string
+    status?: StringFilter<"SmtpConnection"> | string
+    rejectReason?: StringNullableFilter<"SmtpConnection"> | string | null
+    createdAt?: DateTimeFilter<"SmtpConnection"> | Date | string
+  }
+
+  export type SmtpConnectionOrderByWithRelationInput = {
+    id?: SortOrder
+    remoteAddress?: SortOrder
+    hostname?: SortOrderInput | SortOrder
+    serverType?: SortOrder
+    status?: SortOrder
+    rejectReason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmtpConnectionWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: SmtpConnectionWhereInput | SmtpConnectionWhereInput[]
+    OR?: SmtpConnectionWhereInput[]
+    NOT?: SmtpConnectionWhereInput | SmtpConnectionWhereInput[]
+    remoteAddress?: StringFilter<"SmtpConnection"> | string
+    hostname?: StringNullableFilter<"SmtpConnection"> | string | null
+    serverType?: StringFilter<"SmtpConnection"> | string
+    status?: StringFilter<"SmtpConnection"> | string
+    rejectReason?: StringNullableFilter<"SmtpConnection"> | string | null
+    createdAt?: DateTimeFilter<"SmtpConnection"> | Date | string
+  }, "id">
+
+  export type SmtpConnectionOrderByWithAggregationInput = {
+    id?: SortOrder
+    remoteAddress?: SortOrder
+    hostname?: SortOrderInput | SortOrder
+    serverType?: SortOrder
+    status?: SortOrder
+    rejectReason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: SmtpConnectionCountOrderByAggregateInput
+    _avg?: SmtpConnectionAvgOrderByAggregateInput
+    _max?: SmtpConnectionMaxOrderByAggregateInput
+    _min?: SmtpConnectionMinOrderByAggregateInput
+    _sum?: SmtpConnectionSumOrderByAggregateInput
+  }
+
+  export type SmtpConnectionScalarWhereWithAggregatesInput = {
+    AND?: SmtpConnectionScalarWhereWithAggregatesInput | SmtpConnectionScalarWhereWithAggregatesInput[]
+    OR?: SmtpConnectionScalarWhereWithAggregatesInput[]
+    NOT?: SmtpConnectionScalarWhereWithAggregatesInput | SmtpConnectionScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"SmtpConnection"> | number
+    remoteAddress?: StringWithAggregatesFilter<"SmtpConnection"> | string
+    hostname?: StringNullableWithAggregatesFilter<"SmtpConnection"> | string | null
+    serverType?: StringWithAggregatesFilter<"SmtpConnection"> | string
+    status?: StringWithAggregatesFilter<"SmtpConnection"> | string
+    rejectReason?: StringNullableWithAggregatesFilter<"SmtpConnection"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SmtpConnection"> | Date | string
+  }
+
+  export type AuthAttemptWhereInput = {
+    AND?: AuthAttemptWhereInput | AuthAttemptWhereInput[]
+    OR?: AuthAttemptWhereInput[]
+    NOT?: AuthAttemptWhereInput | AuthAttemptWhereInput[]
+    id?: IntFilter<"AuthAttempt"> | number
+    smtpUserId?: IntNullableFilter<"AuthAttempt"> | number | null
+    username?: StringFilter<"AuthAttempt"> | string
+    remoteAddress?: StringFilter<"AuthAttempt"> | string
+    success?: BoolFilter<"AuthAttempt"> | boolean
+    createdAt?: DateTimeFilter<"AuthAttempt"> | Date | string
+    smtpUser?: XOR<SmtpUserNullableRelationFilter, SmtpUserWhereInput> | null
+  }
+
+  export type AuthAttemptOrderByWithRelationInput = {
+    id?: SortOrder
+    smtpUserId?: SortOrderInput | SortOrder
+    username?: SortOrder
+    remoteAddress?: SortOrder
+    success?: SortOrder
+    createdAt?: SortOrder
+    smtpUser?: SmtpUserOrderByWithRelationInput
+  }
+
+  export type AuthAttemptWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: AuthAttemptWhereInput | AuthAttemptWhereInput[]
+    OR?: AuthAttemptWhereInput[]
+    NOT?: AuthAttemptWhereInput | AuthAttemptWhereInput[]
+    smtpUserId?: IntNullableFilter<"AuthAttempt"> | number | null
+    username?: StringFilter<"AuthAttempt"> | string
+    remoteAddress?: StringFilter<"AuthAttempt"> | string
+    success?: BoolFilter<"AuthAttempt"> | boolean
+    createdAt?: DateTimeFilter<"AuthAttempt"> | Date | string
+    smtpUser?: XOR<SmtpUserNullableRelationFilter, SmtpUserWhereInput> | null
+  }, "id">
+
+  export type AuthAttemptOrderByWithAggregationInput = {
+    id?: SortOrder
+    smtpUserId?: SortOrderInput | SortOrder
+    username?: SortOrder
+    remoteAddress?: SortOrder
+    success?: SortOrder
+    createdAt?: SortOrder
+    _count?: AuthAttemptCountOrderByAggregateInput
+    _avg?: AuthAttemptAvgOrderByAggregateInput
+    _max?: AuthAttemptMaxOrderByAggregateInput
+    _min?: AuthAttemptMinOrderByAggregateInput
+    _sum?: AuthAttemptSumOrderByAggregateInput
+  }
+
+  export type AuthAttemptScalarWhereWithAggregatesInput = {
+    AND?: AuthAttemptScalarWhereWithAggregatesInput | AuthAttemptScalarWhereWithAggregatesInput[]
+    OR?: AuthAttemptScalarWhereWithAggregatesInput[]
+    NOT?: AuthAttemptScalarWhereWithAggregatesInput | AuthAttemptScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"AuthAttempt"> | number
+    smtpUserId?: IntNullableWithAggregatesFilter<"AuthAttempt"> | number | null
+    username?: StringWithAggregatesFilter<"AuthAttempt"> | string
+    remoteAddress?: StringWithAggregatesFilter<"AuthAttempt"> | string
+    success?: BoolWithAggregatesFilter<"AuthAttempt"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"AuthAttempt"> | Date | string
+  }
+
+  export type TenantCreateInput = {
+    id: string
+    tenantCode: string
+    nome: string
+    cidade: string
+    estado: string
+    cnpj: string
+    plano?: string | null
+    status?: string | null
+    populacao?: number | null
+    endereco?: string | null
+    responsavelNome?: string | null
+    responsavelEmail?: string | null
+    responsavelTelefone?: string | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    users?: UserCreateNestedManyWithoutTenantInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutTenantInput
+    emailDomains?: EmailDomainCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateInput = {
+    id: string
+    tenantCode: string
+    nome: string
+    cidade: string
+    estado: string
+    cnpj: string
+    plano?: string | null
+    status?: string | null
+    populacao?: number | null
+    endereco?: string | null
+    responsavelNome?: string | null
+    responsavelEmail?: string | null
+    responsavelTelefone?: string | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTenantInput
+    emailDomains?: EmailDomainUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantCode?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cidade?: StringFieldUpdateOperationsInput | string
+    estado?: StringFieldUpdateOperationsInput | string
+    cnpj?: StringFieldUpdateOperationsInput | string
+    plano?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    populacao?: NullableIntFieldUpdateOperationsInput | number | null
+    endereco?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelNome?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelTelefone?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    users?: UserUpdateManyWithoutTenantNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutTenantNestedInput
+    emailDomains?: EmailDomainUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantCode?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cidade?: StringFieldUpdateOperationsInput | string
+    estado?: StringFieldUpdateOperationsInput | string
+    cnpj?: StringFieldUpdateOperationsInput | string
+    plano?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    populacao?: NullableIntFieldUpdateOperationsInput | number | null
+    endereco?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelNome?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelTelefone?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutTenantNestedInput
+    emailDomains?: EmailDomainUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantCreateManyInput = {
+    id: string
+    tenantCode: string
+    nome: string
+    cidade: string
+    estado: string
+    cnpj: string
+    plano?: string | null
+    status?: string | null
+    populacao?: number | null
+    endereco?: string | null
+    responsavelNome?: string | null
+    responsavelEmail?: string | null
+    responsavelTelefone?: string | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+  }
+
+  export type TenantUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantCode?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cidade?: StringFieldUpdateOperationsInput | string
+    estado?: StringFieldUpdateOperationsInput | string
+    cnpj?: StringFieldUpdateOperationsInput | string
+    plano?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    populacao?: NullableIntFieldUpdateOperationsInput | number | null
+    endereco?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelNome?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelTelefone?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type TenantUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantCode?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cidade?: StringFieldUpdateOperationsInput | string
+    estado?: StringFieldUpdateOperationsInput | string
+    cnpj?: StringFieldUpdateOperationsInput | string
+    plano?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    populacao?: NullableIntFieldUpdateOperationsInput | number | null
+    endereco?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelNome?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelTelefone?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserCreateInput = {
+    id: string
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    tenant?: TenantCreateNestedOneWithoutUsersInput
+    permissions?: UserPermissionCreateNestedManyWithoutUserInput
+    grantedPermissions?: UserPermissionCreateNestedManyWithoutGrantorInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    smtpUsers?: SmtpUserCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateInput = {
+    id: string
+    tenantId?: string | null
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    permissions?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
+    grantedPermissions?: UserPermissionUncheckedCreateNestedManyWithoutGrantorInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    smtpUsers?: SmtpUserUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tenant?: TenantUpdateOneWithoutUsersNestedInput
+    permissions?: UserPermissionUpdateManyWithoutUserNestedInput
+    grantedPermissions?: UserPermissionUpdateManyWithoutGrantorNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    smtpUsers?: SmtpUserUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+    grantedPermissions?: UserPermissionUncheckedUpdateManyWithoutGrantorNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    smtpUsers?: SmtpUserUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateManyInput = {
+    id: string
+    tenantId?: string | null
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+  }
+
+  export type UserUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type PermissionCreateInput = {
+    code: string
+    resource: string
+    action: string
+    description?: string | null
+    createdAt?: Date | string | null
+    userPermissions?: UserPermissionCreateNestedManyWithoutPermissionInput
+  }
+
+  export type PermissionUncheckedCreateInput = {
+    id?: number
+    code: string
+    resource: string
+    action: string
+    description?: string | null
+    createdAt?: Date | string | null
+    userPermissions?: UserPermissionUncheckedCreateNestedManyWithoutPermissionInput
+  }
+
+  export type PermissionUpdateInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    resource?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    userPermissions?: UserPermissionUpdateManyWithoutPermissionNestedInput
+  }
+
+  export type PermissionUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    code?: StringFieldUpdateOperationsInput | string
+    resource?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    userPermissions?: UserPermissionUncheckedUpdateManyWithoutPermissionNestedInput
+  }
+
+  export type PermissionCreateManyInput = {
+    id?: number
+    code: string
+    resource: string
+    action: string
+    description?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type PermissionUpdateManyMutationInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    resource?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type PermissionUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    code?: StringFieldUpdateOperationsInput | string
+    resource?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserPermissionCreateInput = {
+    createdAt?: Date | string | null
+    user: UserCreateNestedOneWithoutPermissionsInput
+    permission: PermissionCreateNestedOneWithoutUserPermissionsInput
+    grantor?: UserCreateNestedOneWithoutGrantedPermissionsInput
+  }
+
+  export type UserPermissionUncheckedCreateInput = {
+    id?: number
+    userId: string
+    permissionId: number
+    grantedBy?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type UserPermissionUpdateInput = {
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutPermissionsNestedInput
+    permission?: PermissionUpdateOneRequiredWithoutUserPermissionsNestedInput
+    grantor?: UserUpdateOneWithoutGrantedPermissionsNestedInput
+  }
+
+  export type UserPermissionUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: StringFieldUpdateOperationsInput | string
+    permissionId?: IntFieldUpdateOperationsInput | number
+    grantedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserPermissionCreateManyInput = {
+    id?: number
+    userId: string
+    permissionId: number
+    grantedBy?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type UserPermissionUpdateManyMutationInput = {
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserPermissionUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: StringFieldUpdateOperationsInput | string
+    permissionId?: IntFieldUpdateOperationsInput | number
+    grantedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ActivityLogCreateInput = {
+    action: string
+    resource?: string | null
+    resourceId?: string | null
+    details?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string | null
+    user?: UserCreateNestedOneWithoutActivityLogsInput
+    tenant?: TenantCreateNestedOneWithoutActivityLogsInput
+  }
+
+  export type ActivityLogUncheckedCreateInput = {
+    id?: number
+    userId?: string | null
+    tenantId?: string | null
+    action: string
+    resource?: string | null
+    resourceId?: string | null
+    details?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type ActivityLogUpdateInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    resource?: NullableStringFieldUpdateOperationsInput | string | null
+    resourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneWithoutActivityLogsNestedInput
+    tenant?: TenantUpdateOneWithoutActivityLogsNestedInput
+  }
+
+  export type ActivityLogUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    resource?: NullableStringFieldUpdateOperationsInput | string | null
+    resourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ActivityLogCreateManyInput = {
+    id?: number
+    userId?: string | null
+    tenantId?: string | null
+    action: string
+    resource?: string | null
+    resourceId?: string | null
+    details?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type ActivityLogUpdateManyMutationInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    resource?: NullableStringFieldUpdateOperationsInput | string | null
+    resourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ActivityLogUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    resource?: NullableStringFieldUpdateOperationsInput | string | null
+    resourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SmtpUserCreateInput = {
+    email: string
+    passwordHash: string
+    name: string
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutSmtpUsersInput
+    domains?: EmailDomainCreateNestedManyWithoutSmtpUserInput
+    authAttempts?: AuthAttemptCreateNestedManyWithoutSmtpUserInput
+  }
+
+  export type SmtpUserUncheckedCreateInput = {
+    id?: number
+    userId?: string | null
+    email: string
+    passwordHash: string
+    name: string
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    domains?: EmailDomainUncheckedCreateNestedManyWithoutSmtpUserInput
+    authAttempts?: AuthAttemptUncheckedCreateNestedManyWithoutSmtpUserInput
+  }
+
+  export type SmtpUserUpdateInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isAdmin?: BoolFieldUpdateOperationsInput | boolean
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutSmtpUsersNestedInput
+    domains?: EmailDomainUpdateManyWithoutSmtpUserNestedInput
+    authAttempts?: AuthAttemptUpdateManyWithoutSmtpUserNestedInput
+  }
+
+  export type SmtpUserUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isAdmin?: BoolFieldUpdateOperationsInput | boolean
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    domains?: EmailDomainUncheckedUpdateManyWithoutSmtpUserNestedInput
+    authAttempts?: AuthAttemptUncheckedUpdateManyWithoutSmtpUserNestedInput
+  }
+
+  export type SmtpUserCreateManyInput = {
+    id?: number
+    userId?: string | null
+    email: string
+    passwordHash: string
+    name: string
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SmtpUserUpdateManyMutationInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isAdmin?: BoolFieldUpdateOperationsInput | boolean
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmtpUserUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isAdmin?: BoolFieldUpdateOperationsInput | boolean
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailDomainCreateInput = {
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant?: TenantCreateNestedOneWithoutEmailDomainsInput
+    smtpUser: SmtpUserCreateNestedOneWithoutDomainsInput
+    dkimKeys?: DkimKeyCreateNestedManyWithoutDomainInput
+    emails?: EmailCreateNestedManyWithoutDomainInput
+  }
+
+  export type EmailDomainUncheckedCreateInput = {
+    id?: number
+    tenantId?: string | null
+    smtpUserId: number
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dkimKeys?: DkimKeyUncheckedCreateNestedManyWithoutDomainInput
+    emails?: EmailUncheckedCreateNestedManyWithoutDomainInput
+  }
+
+  export type EmailDomainUpdateInput = {
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneWithoutEmailDomainsNestedInput
+    smtpUser?: SmtpUserUpdateOneRequiredWithoutDomainsNestedInput
+    dkimKeys?: DkimKeyUpdateManyWithoutDomainNestedInput
+    emails?: EmailUpdateManyWithoutDomainNestedInput
+  }
+
+  export type EmailDomainUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpUserId?: IntFieldUpdateOperationsInput | number
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dkimKeys?: DkimKeyUncheckedUpdateManyWithoutDomainNestedInput
+    emails?: EmailUncheckedUpdateManyWithoutDomainNestedInput
+  }
+
+  export type EmailDomainCreateManyInput = {
+    id?: number
+    tenantId?: string | null
+    smtpUserId: number
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailDomainUpdateManyMutationInput = {
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailDomainUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpUserId?: IntFieldUpdateOperationsInput | number
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DkimKeyCreateInput = {
+    selector: string
+    privateKey: string
+    publicKey: string
+    algorithm?: string
+    canonicalization?: string
+    keySize?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    domain: EmailDomainCreateNestedOneWithoutDkimKeysInput
+  }
+
+  export type DkimKeyUncheckedCreateInput = {
+    id?: number
+    domainId: number
+    selector: string
+    privateKey: string
+    publicKey: string
+    algorithm?: string
+    canonicalization?: string
+    keySize?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DkimKeyUpdateInput = {
+    selector?: StringFieldUpdateOperationsInput | string
+    privateKey?: StringFieldUpdateOperationsInput | string
+    publicKey?: StringFieldUpdateOperationsInput | string
+    algorithm?: StringFieldUpdateOperationsInput | string
+    canonicalization?: StringFieldUpdateOperationsInput | string
+    keySize?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    domain?: EmailDomainUpdateOneRequiredWithoutDkimKeysNestedInput
+  }
+
+  export type DkimKeyUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    domainId?: IntFieldUpdateOperationsInput | number
+    selector?: StringFieldUpdateOperationsInput | string
+    privateKey?: StringFieldUpdateOperationsInput | string
+    publicKey?: StringFieldUpdateOperationsInput | string
+    algorithm?: StringFieldUpdateOperationsInput | string
+    canonicalization?: StringFieldUpdateOperationsInput | string
+    keySize?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DkimKeyCreateManyInput = {
+    id?: number
+    domainId: number
+    selector: string
+    privateKey: string
+    publicKey: string
+    algorithm?: string
+    canonicalization?: string
+    keySize?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DkimKeyUpdateManyMutationInput = {
+    selector?: StringFieldUpdateOperationsInput | string
+    privateKey?: StringFieldUpdateOperationsInput | string
+    publicKey?: StringFieldUpdateOperationsInput | string
+    algorithm?: StringFieldUpdateOperationsInput | string
+    canonicalization?: StringFieldUpdateOperationsInput | string
+    keySize?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DkimKeyUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    domainId?: IntFieldUpdateOperationsInput | number
+    selector?: StringFieldUpdateOperationsInput | string
+    privateKey?: StringFieldUpdateOperationsInput | string
+    publicKey?: StringFieldUpdateOperationsInput | string
+    algorithm?: StringFieldUpdateOperationsInput | string
+    canonicalization?: StringFieldUpdateOperationsInput | string
+    keySize?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailCreateInput = {
+    messageId: string
+    fromEmail: string
+    toEmail: string
+    subject: string
+    htmlContent?: string | null
+    textContent?: string | null
+    status?: string
+    direction: string
+    sentAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    mxServer?: string | null
+    errorMessage?: string | null
+    attempts?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    domain?: EmailDomainCreateNestedOneWithoutEmailsInput
+  }
+
+  export type EmailUncheckedCreateInput = {
+    id?: number
+    messageId: string
+    domainId?: number | null
+    fromEmail: string
+    toEmail: string
+    subject: string
+    htmlContent?: string | null
+    textContent?: string | null
+    status?: string
+    direction: string
+    sentAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    mxServer?: string | null
+    errorMessage?: string | null
+    attempts?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailUpdateInput = {
+    messageId?: StringFieldUpdateOperationsInput | string
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    toEmail?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    htmlContent?: NullableStringFieldUpdateOperationsInput | string | null
+    textContent?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mxServer?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    domain?: EmailDomainUpdateOneWithoutEmailsNestedInput
+  }
+
+  export type EmailUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    messageId?: StringFieldUpdateOperationsInput | string
+    domainId?: NullableIntFieldUpdateOperationsInput | number | null
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    toEmail?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    htmlContent?: NullableStringFieldUpdateOperationsInput | string | null
+    textContent?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mxServer?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailCreateManyInput = {
+    id?: number
+    messageId: string
+    domainId?: number | null
+    fromEmail: string
+    toEmail: string
+    subject: string
+    htmlContent?: string | null
+    textContent?: string | null
+    status?: string
+    direction: string
+    sentAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    mxServer?: string | null
+    errorMessage?: string | null
+    attempts?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailUpdateManyMutationInput = {
+    messageId?: StringFieldUpdateOperationsInput | string
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    toEmail?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    htmlContent?: NullableStringFieldUpdateOperationsInput | string | null
+    textContent?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mxServer?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    messageId?: StringFieldUpdateOperationsInput | string
+    domainId?: NullableIntFieldUpdateOperationsInput | number | null
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    toEmail?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    htmlContent?: NullableStringFieldUpdateOperationsInput | string | null
+    textContent?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mxServer?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmtpConnectionCreateInput = {
+    remoteAddress: string
+    hostname?: string | null
+    serverType: string
+    status: string
+    rejectReason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmtpConnectionUncheckedCreateInput = {
+    id?: number
+    remoteAddress: string
+    hostname?: string | null
+    serverType: string
+    status: string
+    rejectReason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmtpConnectionUpdateInput = {
+    remoteAddress?: StringFieldUpdateOperationsInput | string
+    hostname?: NullableStringFieldUpdateOperationsInput | string | null
+    serverType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmtpConnectionUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    remoteAddress?: StringFieldUpdateOperationsInput | string
+    hostname?: NullableStringFieldUpdateOperationsInput | string | null
+    serverType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmtpConnectionCreateManyInput = {
+    id?: number
+    remoteAddress: string
+    hostname?: string | null
+    serverType: string
+    status: string
+    rejectReason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmtpConnectionUpdateManyMutationInput = {
+    remoteAddress?: StringFieldUpdateOperationsInput | string
+    hostname?: NullableStringFieldUpdateOperationsInput | string | null
+    serverType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmtpConnectionUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    remoteAddress?: StringFieldUpdateOperationsInput | string
+    hostname?: NullableStringFieldUpdateOperationsInput | string | null
+    serverType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuthAttemptCreateInput = {
+    username: string
+    remoteAddress: string
+    success: boolean
+    createdAt?: Date | string
+    smtpUser?: SmtpUserCreateNestedOneWithoutAuthAttemptsInput
+  }
+
+  export type AuthAttemptUncheckedCreateInput = {
+    id?: number
+    smtpUserId?: number | null
+    username: string
+    remoteAddress: string
+    success: boolean
+    createdAt?: Date | string
+  }
+
+  export type AuthAttemptUpdateInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    remoteAddress?: StringFieldUpdateOperationsInput | string
+    success?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    smtpUser?: SmtpUserUpdateOneWithoutAuthAttemptsNestedInput
+  }
+
+  export type AuthAttemptUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    smtpUserId?: NullableIntFieldUpdateOperationsInput | number | null
+    username?: StringFieldUpdateOperationsInput | string
+    remoteAddress?: StringFieldUpdateOperationsInput | string
+    success?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuthAttemptCreateManyInput = {
+    id?: number
+    smtpUserId?: number | null
+    username: string
+    remoteAddress: string
+    success: boolean
+    createdAt?: Date | string
+  }
+
+  export type AuthAttemptUpdateManyMutationInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    remoteAddress?: StringFieldUpdateOperationsInput | string
+    success?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuthAttemptUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    smtpUserId?: NullableIntFieldUpdateOperationsInput | number | null
+    username?: StringFieldUpdateOperationsInput | string
+    remoteAddress?: StringFieldUpdateOperationsInput | string
+    success?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StringFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[]
+    notIn?: string[]
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringFilter<$PrismaModel> | string
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type UserListRelationFilter = {
+    every?: UserWhereInput
+    some?: UserWhereInput
+    none?: UserWhereInput
+  }
+
+  export type ActivityLogListRelationFilter = {
+    every?: ActivityLogWhereInput
+    some?: ActivityLogWhereInput
+    none?: ActivityLogWhereInput
+  }
+
+  export type EmailDomainListRelationFilter = {
+    every?: EmailDomainWhereInput
+    some?: EmailDomainWhereInput
+    none?: EmailDomainWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
+  export type UserOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ActivityLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EmailDomainOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TenantCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantCode?: SortOrder
+    nome?: SortOrder
+    cidade?: SortOrder
+    estado?: SortOrder
+    cnpj?: SortOrder
+    plano?: SortOrder
+    status?: SortOrder
+    populacao?: SortOrder
+    endereco?: SortOrder
+    responsavelNome?: SortOrder
+    responsavelEmail?: SortOrder
+    responsavelTelefone?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantAvgOrderByAggregateInput = {
+    populacao?: SortOrder
+  }
+
+  export type TenantMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantCode?: SortOrder
+    nome?: SortOrder
+    cidade?: SortOrder
+    estado?: SortOrder
+    cnpj?: SortOrder
+    plano?: SortOrder
+    status?: SortOrder
+    populacao?: SortOrder
+    endereco?: SortOrder
+    responsavelNome?: SortOrder
+    responsavelEmail?: SortOrder
+    responsavelTelefone?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantCode?: SortOrder
+    nome?: SortOrder
+    cidade?: SortOrder
+    estado?: SortOrder
+    cnpj?: SortOrder
+    plano?: SortOrder
+    status?: SortOrder
+    populacao?: SortOrder
+    endereco?: SortOrder
+    responsavelNome?: SortOrder
+    responsavelEmail?: SortOrder
+    responsavelTelefone?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantSumOrderByAggregateInput = {
+    populacao?: SortOrder
+  }
+
+  export type StringWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[]
+    notIn?: string[]
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type BoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type TenantNullableRelationFilter = {
+    is?: TenantWhereInput | null
+    isNot?: TenantWhereInput | null
+  }
+
+  export type UserPermissionListRelationFilter = {
+    every?: UserPermissionWhereInput
+    some?: UserPermissionWhereInput
+    none?: UserPermissionWhereInput
+  }
+
+  export type SmtpUserListRelationFilter = {
+    every?: SmtpUserWhereInput
+    some?: SmtpUserWhereInput
+    none?: SmtpUserWhereInput
+  }
+
+  export type UserPermissionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SmtpUserOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type UserCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    nomeCompleto?: SortOrder
+    email?: SortOrder
+    passwordHash?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    avatarUrl?: SortOrder
+    ultimoLogin?: SortOrder
+    failedLoginAttempts?: SortOrder
+    lockedUntil?: SortOrder
+    emailVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserAvgOrderByAggregateInput = {
+    failedLoginAttempts?: SortOrder
+  }
+
+  export type UserMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    nomeCompleto?: SortOrder
+    email?: SortOrder
+    passwordHash?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    avatarUrl?: SortOrder
+    ultimoLogin?: SortOrder
+    failedLoginAttempts?: SortOrder
+    lockedUntil?: SortOrder
+    emailVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    nomeCompleto?: SortOrder
+    email?: SortOrder
+    passwordHash?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    avatarUrl?: SortOrder
+    ultimoLogin?: SortOrder
+    failedLoginAttempts?: SortOrder
+    lockedUntil?: SortOrder
+    emailVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserSumOrderByAggregateInput = {
+    failedLoginAttempts?: SortOrder
+  }
+
+  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type PermissionCountOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    resource?: SortOrder
+    action?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PermissionAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type PermissionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    resource?: SortOrder
+    action?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PermissionMinOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    resource?: SortOrder
+    action?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PermissionSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type UserRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type PermissionRelationFilter = {
+    is?: PermissionWhereInput
+    isNot?: PermissionWhereInput
+  }
+
+  export type UserNullableRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type UserPermissionUserIdPermissionIdCompoundUniqueInput = {
+    userId: string
+    permissionId: number
+  }
+
+  export type UserPermissionCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    permissionId?: SortOrder
+    grantedBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserPermissionAvgOrderByAggregateInput = {
+    id?: SortOrder
+    permissionId?: SortOrder
+  }
+
+  export type UserPermissionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    permissionId?: SortOrder
+    grantedBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserPermissionMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    permissionId?: SortOrder
+    grantedBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserPermissionSumOrderByAggregateInput = {
+    id?: SortOrder
+    permissionId?: SortOrder
+  }
+
+  export type ActivityLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    action?: SortOrder
+    resource?: SortOrder
+    resourceId?: SortOrder
+    details?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ActivityLogAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type ActivityLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    action?: SortOrder
+    resource?: SortOrder
+    resourceId?: SortOrder
+    details?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ActivityLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    action?: SortOrder
+    resource?: SortOrder
+    resourceId?: SortOrder
+    details?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ActivityLogSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type AuthAttemptListRelationFilter = {
+    every?: AuthAttemptWhereInput
+    some?: AuthAttemptWhereInput
+    none?: AuthAttemptWhereInput
+  }
+
+  export type AuthAttemptOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SmtpUserCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    passwordHash?: SortOrder
+    name?: SortOrder
+    isVerified?: SortOrder
+    isActive?: SortOrder
+    isAdmin?: SortOrder
+    lastLogin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SmtpUserAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type SmtpUserMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    passwordHash?: SortOrder
+    name?: SortOrder
+    isVerified?: SortOrder
+    isActive?: SortOrder
+    isAdmin?: SortOrder
+    lastLogin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SmtpUserMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    passwordHash?: SortOrder
+    name?: SortOrder
+    isVerified?: SortOrder
+    isActive?: SortOrder
+    isAdmin?: SortOrder
+    lastLogin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SmtpUserSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type SmtpUserRelationFilter = {
+    is?: SmtpUserWhereInput
+    isNot?: SmtpUserWhereInput
+  }
+
+  export type DkimKeyListRelationFilter = {
+    every?: DkimKeyWhereInput
+    some?: DkimKeyWhereInput
+    none?: DkimKeyWhereInput
+  }
+
+  export type EmailListRelationFilter = {
+    every?: EmailWhereInput
+    some?: EmailWhereInput
+    none?: EmailWhereInput
+  }
+
+  export type DkimKeyOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EmailOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EmailDomainCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    smtpUserId?: SortOrder
+    domainName?: SortOrder
+    isVerified?: SortOrder
+    verificationToken?: SortOrder
+    verifiedAt?: SortOrder
+    verificationMethod?: SortOrder
+    dkimEnabled?: SortOrder
+    spfEnabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailDomainAvgOrderByAggregateInput = {
+    id?: SortOrder
+    smtpUserId?: SortOrder
+  }
+
+  export type EmailDomainMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    smtpUserId?: SortOrder
+    domainName?: SortOrder
+    isVerified?: SortOrder
+    verificationToken?: SortOrder
+    verifiedAt?: SortOrder
+    verificationMethod?: SortOrder
+    dkimEnabled?: SortOrder
+    spfEnabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailDomainMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    smtpUserId?: SortOrder
+    domainName?: SortOrder
+    isVerified?: SortOrder
+    verificationToken?: SortOrder
+    verifiedAt?: SortOrder
+    verificationMethod?: SortOrder
+    dkimEnabled?: SortOrder
+    spfEnabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailDomainSumOrderByAggregateInput = {
+    id?: SortOrder
+    smtpUserId?: SortOrder
+  }
+
+  export type EmailDomainRelationFilter = {
+    is?: EmailDomainWhereInput
+    isNot?: EmailDomainWhereInput
+  }
+
+  export type DkimKeyDomainIdSelectorCompoundUniqueInput = {
+    domainId: number
+    selector: string
+  }
+
+  export type DkimKeyCountOrderByAggregateInput = {
+    id?: SortOrder
+    domainId?: SortOrder
+    selector?: SortOrder
+    privateKey?: SortOrder
+    publicKey?: SortOrder
+    algorithm?: SortOrder
+    canonicalization?: SortOrder
+    keySize?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DkimKeyAvgOrderByAggregateInput = {
+    id?: SortOrder
+    domainId?: SortOrder
+    keySize?: SortOrder
+  }
+
+  export type DkimKeyMaxOrderByAggregateInput = {
+    id?: SortOrder
+    domainId?: SortOrder
+    selector?: SortOrder
+    privateKey?: SortOrder
+    publicKey?: SortOrder
+    algorithm?: SortOrder
+    canonicalization?: SortOrder
+    keySize?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DkimKeyMinOrderByAggregateInput = {
+    id?: SortOrder
+    domainId?: SortOrder
+    selector?: SortOrder
+    privateKey?: SortOrder
+    publicKey?: SortOrder
+    algorithm?: SortOrder
+    canonicalization?: SortOrder
+    keySize?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DkimKeySumOrderByAggregateInput = {
+    id?: SortOrder
+    domainId?: SortOrder
+    keySize?: SortOrder
+  }
+
+  export type EmailDomainNullableRelationFilter = {
+    is?: EmailDomainWhereInput | null
+    isNot?: EmailDomainWhereInput | null
+  }
+
+  export type EmailCountOrderByAggregateInput = {
+    id?: SortOrder
+    messageId?: SortOrder
+    domainId?: SortOrder
+    fromEmail?: SortOrder
+    toEmail?: SortOrder
+    subject?: SortOrder
+    htmlContent?: SortOrder
+    textContent?: SortOrder
+    status?: SortOrder
+    direction?: SortOrder
+    sentAt?: SortOrder
+    deliveredAt?: SortOrder
+    mxServer?: SortOrder
+    errorMessage?: SortOrder
+    attempts?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailAvgOrderByAggregateInput = {
+    id?: SortOrder
+    domainId?: SortOrder
+    attempts?: SortOrder
+  }
+
+  export type EmailMaxOrderByAggregateInput = {
+    id?: SortOrder
+    messageId?: SortOrder
+    domainId?: SortOrder
+    fromEmail?: SortOrder
+    toEmail?: SortOrder
+    subject?: SortOrder
+    htmlContent?: SortOrder
+    textContent?: SortOrder
+    status?: SortOrder
+    direction?: SortOrder
+    sentAt?: SortOrder
+    deliveredAt?: SortOrder
+    mxServer?: SortOrder
+    errorMessage?: SortOrder
+    attempts?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailMinOrderByAggregateInput = {
+    id?: SortOrder
+    messageId?: SortOrder
+    domainId?: SortOrder
+    fromEmail?: SortOrder
+    toEmail?: SortOrder
+    subject?: SortOrder
+    htmlContent?: SortOrder
+    textContent?: SortOrder
+    status?: SortOrder
+    direction?: SortOrder
+    sentAt?: SortOrder
+    deliveredAt?: SortOrder
+    mxServer?: SortOrder
+    errorMessage?: SortOrder
+    attempts?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailSumOrderByAggregateInput = {
+    id?: SortOrder
+    domainId?: SortOrder
+    attempts?: SortOrder
+  }
+
+  export type SmtpConnectionCountOrderByAggregateInput = {
+    id?: SortOrder
+    remoteAddress?: SortOrder
+    hostname?: SortOrder
+    serverType?: SortOrder
+    status?: SortOrder
+    rejectReason?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmtpConnectionAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type SmtpConnectionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    remoteAddress?: SortOrder
+    hostname?: SortOrder
+    serverType?: SortOrder
+    status?: SortOrder
+    rejectReason?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmtpConnectionMinOrderByAggregateInput = {
+    id?: SortOrder
+    remoteAddress?: SortOrder
+    hostname?: SortOrder
+    serverType?: SortOrder
+    status?: SortOrder
+    rejectReason?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmtpConnectionSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type SmtpUserNullableRelationFilter = {
+    is?: SmtpUserWhereInput | null
+    isNot?: SmtpUserWhereInput | null
+  }
+
+  export type AuthAttemptCountOrderByAggregateInput = {
+    id?: SortOrder
+    smtpUserId?: SortOrder
+    username?: SortOrder
+    remoteAddress?: SortOrder
+    success?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AuthAttemptAvgOrderByAggregateInput = {
+    id?: SortOrder
+    smtpUserId?: SortOrder
+  }
+
+  export type AuthAttemptMaxOrderByAggregateInput = {
+    id?: SortOrder
+    smtpUserId?: SortOrder
+    username?: SortOrder
+    remoteAddress?: SortOrder
+    success?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AuthAttemptMinOrderByAggregateInput = {
+    id?: SortOrder
+    smtpUserId?: SortOrder
+    username?: SortOrder
+    remoteAddress?: SortOrder
+    success?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AuthAttemptSumOrderByAggregateInput = {
+    id?: SortOrder
+    smtpUserId?: SortOrder
+  }
+
+  export type UserCreateNestedManyWithoutTenantInput = {
+    create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
+    createMany?: UserCreateManyTenantInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type ActivityLogCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ActivityLogCreateWithoutTenantInput, ActivityLogUncheckedCreateWithoutTenantInput> | ActivityLogCreateWithoutTenantInput[] | ActivityLogUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutTenantInput | ActivityLogCreateOrConnectWithoutTenantInput[]
+    createMany?: ActivityLogCreateManyTenantInputEnvelope
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+  }
+
+  export type EmailDomainCreateNestedManyWithoutTenantInput = {
+    create?: XOR<EmailDomainCreateWithoutTenantInput, EmailDomainUncheckedCreateWithoutTenantInput> | EmailDomainCreateWithoutTenantInput[] | EmailDomainUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutTenantInput | EmailDomainCreateOrConnectWithoutTenantInput[]
+    createMany?: EmailDomainCreateManyTenantInputEnvelope
+    connect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+  }
+
+  export type UserUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
+    createMany?: UserCreateManyTenantInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type ActivityLogUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ActivityLogCreateWithoutTenantInput, ActivityLogUncheckedCreateWithoutTenantInput> | ActivityLogCreateWithoutTenantInput[] | ActivityLogUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutTenantInput | ActivityLogCreateOrConnectWithoutTenantInput[]
+    createMany?: ActivityLogCreateManyTenantInputEnvelope
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+  }
+
+  export type EmailDomainUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<EmailDomainCreateWithoutTenantInput, EmailDomainUncheckedCreateWithoutTenantInput> | EmailDomainCreateWithoutTenantInput[] | EmailDomainUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutTenantInput | EmailDomainCreateOrConnectWithoutTenantInput[]
+    createMany?: EmailDomainCreateManyTenantInputEnvelope
+    connect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+  }
+
+  export type StringFieldUpdateOperationsInput = {
+    set?: string
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type UserUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutTenantInput | UserUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: UserCreateManyTenantInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutTenantInput | UserUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutTenantInput | UserUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type ActivityLogUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ActivityLogCreateWithoutTenantInput, ActivityLogUncheckedCreateWithoutTenantInput> | ActivityLogCreateWithoutTenantInput[] | ActivityLogUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutTenantInput | ActivityLogCreateOrConnectWithoutTenantInput[]
+    upsert?: ActivityLogUpsertWithWhereUniqueWithoutTenantInput | ActivityLogUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ActivityLogCreateManyTenantInputEnvelope
+    set?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    disconnect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    delete?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    update?: ActivityLogUpdateWithWhereUniqueWithoutTenantInput | ActivityLogUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ActivityLogUpdateManyWithWhereWithoutTenantInput | ActivityLogUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ActivityLogScalarWhereInput | ActivityLogScalarWhereInput[]
+  }
+
+  export type EmailDomainUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<EmailDomainCreateWithoutTenantInput, EmailDomainUncheckedCreateWithoutTenantInput> | EmailDomainCreateWithoutTenantInput[] | EmailDomainUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutTenantInput | EmailDomainCreateOrConnectWithoutTenantInput[]
+    upsert?: EmailDomainUpsertWithWhereUniqueWithoutTenantInput | EmailDomainUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: EmailDomainCreateManyTenantInputEnvelope
+    set?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    disconnect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    delete?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    connect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    update?: EmailDomainUpdateWithWhereUniqueWithoutTenantInput | EmailDomainUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: EmailDomainUpdateManyWithWhereWithoutTenantInput | EmailDomainUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: EmailDomainScalarWhereInput | EmailDomainScalarWhereInput[]
+  }
+
+  export type UserUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutTenantInput | UserUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: UserCreateManyTenantInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutTenantInput | UserUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutTenantInput | UserUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type ActivityLogUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ActivityLogCreateWithoutTenantInput, ActivityLogUncheckedCreateWithoutTenantInput> | ActivityLogCreateWithoutTenantInput[] | ActivityLogUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutTenantInput | ActivityLogCreateOrConnectWithoutTenantInput[]
+    upsert?: ActivityLogUpsertWithWhereUniqueWithoutTenantInput | ActivityLogUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ActivityLogCreateManyTenantInputEnvelope
+    set?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    disconnect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    delete?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    update?: ActivityLogUpdateWithWhereUniqueWithoutTenantInput | ActivityLogUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ActivityLogUpdateManyWithWhereWithoutTenantInput | ActivityLogUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ActivityLogScalarWhereInput | ActivityLogScalarWhereInput[]
+  }
+
+  export type EmailDomainUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<EmailDomainCreateWithoutTenantInput, EmailDomainUncheckedCreateWithoutTenantInput> | EmailDomainCreateWithoutTenantInput[] | EmailDomainUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutTenantInput | EmailDomainCreateOrConnectWithoutTenantInput[]
+    upsert?: EmailDomainUpsertWithWhereUniqueWithoutTenantInput | EmailDomainUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: EmailDomainCreateManyTenantInputEnvelope
+    set?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    disconnect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    delete?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    connect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    update?: EmailDomainUpdateWithWhereUniqueWithoutTenantInput | EmailDomainUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: EmailDomainUpdateManyWithWhereWithoutTenantInput | EmailDomainUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: EmailDomainScalarWhereInput | EmailDomainScalarWhereInput[]
+  }
+
+  export type TenantCreateNestedOneWithoutUsersInput = {
+    create?: XOR<TenantCreateWithoutUsersInput, TenantUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutUsersInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type UserPermissionCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserPermissionCreateWithoutUserInput, UserPermissionUncheckedCreateWithoutUserInput> | UserPermissionCreateWithoutUserInput[] | UserPermissionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutUserInput | UserPermissionCreateOrConnectWithoutUserInput[]
+    createMany?: UserPermissionCreateManyUserInputEnvelope
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+  }
+
+  export type UserPermissionCreateNestedManyWithoutGrantorInput = {
+    create?: XOR<UserPermissionCreateWithoutGrantorInput, UserPermissionUncheckedCreateWithoutGrantorInput> | UserPermissionCreateWithoutGrantorInput[] | UserPermissionUncheckedCreateWithoutGrantorInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutGrantorInput | UserPermissionCreateOrConnectWithoutGrantorInput[]
+    createMany?: UserPermissionCreateManyGrantorInputEnvelope
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+  }
+
+  export type ActivityLogCreateNestedManyWithoutUserInput = {
+    create?: XOR<ActivityLogCreateWithoutUserInput, ActivityLogUncheckedCreateWithoutUserInput> | ActivityLogCreateWithoutUserInput[] | ActivityLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutUserInput | ActivityLogCreateOrConnectWithoutUserInput[]
+    createMany?: ActivityLogCreateManyUserInputEnvelope
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+  }
+
+  export type SmtpUserCreateNestedManyWithoutUserInput = {
+    create?: XOR<SmtpUserCreateWithoutUserInput, SmtpUserUncheckedCreateWithoutUserInput> | SmtpUserCreateWithoutUserInput[] | SmtpUserUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SmtpUserCreateOrConnectWithoutUserInput | SmtpUserCreateOrConnectWithoutUserInput[]
+    createMany?: SmtpUserCreateManyUserInputEnvelope
+    connect?: SmtpUserWhereUniqueInput | SmtpUserWhereUniqueInput[]
+  }
+
+  export type UserPermissionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserPermissionCreateWithoutUserInput, UserPermissionUncheckedCreateWithoutUserInput> | UserPermissionCreateWithoutUserInput[] | UserPermissionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutUserInput | UserPermissionCreateOrConnectWithoutUserInput[]
+    createMany?: UserPermissionCreateManyUserInputEnvelope
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+  }
+
+  export type UserPermissionUncheckedCreateNestedManyWithoutGrantorInput = {
+    create?: XOR<UserPermissionCreateWithoutGrantorInput, UserPermissionUncheckedCreateWithoutGrantorInput> | UserPermissionCreateWithoutGrantorInput[] | UserPermissionUncheckedCreateWithoutGrantorInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutGrantorInput | UserPermissionCreateOrConnectWithoutGrantorInput[]
+    createMany?: UserPermissionCreateManyGrantorInputEnvelope
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+  }
+
+  export type ActivityLogUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<ActivityLogCreateWithoutUserInput, ActivityLogUncheckedCreateWithoutUserInput> | ActivityLogCreateWithoutUserInput[] | ActivityLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutUserInput | ActivityLogCreateOrConnectWithoutUserInput[]
+    createMany?: ActivityLogCreateManyUserInputEnvelope
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+  }
+
+  export type SmtpUserUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<SmtpUserCreateWithoutUserInput, SmtpUserUncheckedCreateWithoutUserInput> | SmtpUserCreateWithoutUserInput[] | SmtpUserUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SmtpUserCreateOrConnectWithoutUserInput | SmtpUserCreateOrConnectWithoutUserInput[]
+    createMany?: SmtpUserCreateManyUserInputEnvelope
+    connect?: SmtpUserWhereUniqueInput | SmtpUserWhereUniqueInput[]
+  }
+
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
+  }
+
+  export type TenantUpdateOneWithoutUsersNestedInput = {
+    create?: XOR<TenantCreateWithoutUsersInput, TenantUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutUsersInput
+    upsert?: TenantUpsertWithoutUsersInput
+    disconnect?: TenantWhereInput | boolean
+    delete?: TenantWhereInput | boolean
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutUsersInput, TenantUpdateWithoutUsersInput>, TenantUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type UserPermissionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserPermissionCreateWithoutUserInput, UserPermissionUncheckedCreateWithoutUserInput> | UserPermissionCreateWithoutUserInput[] | UserPermissionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutUserInput | UserPermissionCreateOrConnectWithoutUserInput[]
+    upsert?: UserPermissionUpsertWithWhereUniqueWithoutUserInput | UserPermissionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserPermissionCreateManyUserInputEnvelope
+    set?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    disconnect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    delete?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    update?: UserPermissionUpdateWithWhereUniqueWithoutUserInput | UserPermissionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserPermissionUpdateManyWithWhereWithoutUserInput | UserPermissionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserPermissionScalarWhereInput | UserPermissionScalarWhereInput[]
+  }
+
+  export type UserPermissionUpdateManyWithoutGrantorNestedInput = {
+    create?: XOR<UserPermissionCreateWithoutGrantorInput, UserPermissionUncheckedCreateWithoutGrantorInput> | UserPermissionCreateWithoutGrantorInput[] | UserPermissionUncheckedCreateWithoutGrantorInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutGrantorInput | UserPermissionCreateOrConnectWithoutGrantorInput[]
+    upsert?: UserPermissionUpsertWithWhereUniqueWithoutGrantorInput | UserPermissionUpsertWithWhereUniqueWithoutGrantorInput[]
+    createMany?: UserPermissionCreateManyGrantorInputEnvelope
+    set?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    disconnect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    delete?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    update?: UserPermissionUpdateWithWhereUniqueWithoutGrantorInput | UserPermissionUpdateWithWhereUniqueWithoutGrantorInput[]
+    updateMany?: UserPermissionUpdateManyWithWhereWithoutGrantorInput | UserPermissionUpdateManyWithWhereWithoutGrantorInput[]
+    deleteMany?: UserPermissionScalarWhereInput | UserPermissionScalarWhereInput[]
+  }
+
+  export type ActivityLogUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ActivityLogCreateWithoutUserInput, ActivityLogUncheckedCreateWithoutUserInput> | ActivityLogCreateWithoutUserInput[] | ActivityLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutUserInput | ActivityLogCreateOrConnectWithoutUserInput[]
+    upsert?: ActivityLogUpsertWithWhereUniqueWithoutUserInput | ActivityLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ActivityLogCreateManyUserInputEnvelope
+    set?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    disconnect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    delete?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    update?: ActivityLogUpdateWithWhereUniqueWithoutUserInput | ActivityLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ActivityLogUpdateManyWithWhereWithoutUserInput | ActivityLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ActivityLogScalarWhereInput | ActivityLogScalarWhereInput[]
+  }
+
+  export type SmtpUserUpdateManyWithoutUserNestedInput = {
+    create?: XOR<SmtpUserCreateWithoutUserInput, SmtpUserUncheckedCreateWithoutUserInput> | SmtpUserCreateWithoutUserInput[] | SmtpUserUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SmtpUserCreateOrConnectWithoutUserInput | SmtpUserCreateOrConnectWithoutUserInput[]
+    upsert?: SmtpUserUpsertWithWhereUniqueWithoutUserInput | SmtpUserUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: SmtpUserCreateManyUserInputEnvelope
+    set?: SmtpUserWhereUniqueInput | SmtpUserWhereUniqueInput[]
+    disconnect?: SmtpUserWhereUniqueInput | SmtpUserWhereUniqueInput[]
+    delete?: SmtpUserWhereUniqueInput | SmtpUserWhereUniqueInput[]
+    connect?: SmtpUserWhereUniqueInput | SmtpUserWhereUniqueInput[]
+    update?: SmtpUserUpdateWithWhereUniqueWithoutUserInput | SmtpUserUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SmtpUserUpdateManyWithWhereWithoutUserInput | SmtpUserUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SmtpUserScalarWhereInput | SmtpUserScalarWhereInput[]
+  }
+
+  export type UserPermissionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserPermissionCreateWithoutUserInput, UserPermissionUncheckedCreateWithoutUserInput> | UserPermissionCreateWithoutUserInput[] | UserPermissionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutUserInput | UserPermissionCreateOrConnectWithoutUserInput[]
+    upsert?: UserPermissionUpsertWithWhereUniqueWithoutUserInput | UserPermissionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserPermissionCreateManyUserInputEnvelope
+    set?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    disconnect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    delete?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    update?: UserPermissionUpdateWithWhereUniqueWithoutUserInput | UserPermissionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserPermissionUpdateManyWithWhereWithoutUserInput | UserPermissionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserPermissionScalarWhereInput | UserPermissionScalarWhereInput[]
+  }
+
+  export type UserPermissionUncheckedUpdateManyWithoutGrantorNestedInput = {
+    create?: XOR<UserPermissionCreateWithoutGrantorInput, UserPermissionUncheckedCreateWithoutGrantorInput> | UserPermissionCreateWithoutGrantorInput[] | UserPermissionUncheckedCreateWithoutGrantorInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutGrantorInput | UserPermissionCreateOrConnectWithoutGrantorInput[]
+    upsert?: UserPermissionUpsertWithWhereUniqueWithoutGrantorInput | UserPermissionUpsertWithWhereUniqueWithoutGrantorInput[]
+    createMany?: UserPermissionCreateManyGrantorInputEnvelope
+    set?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    disconnect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    delete?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    update?: UserPermissionUpdateWithWhereUniqueWithoutGrantorInput | UserPermissionUpdateWithWhereUniqueWithoutGrantorInput[]
+    updateMany?: UserPermissionUpdateManyWithWhereWithoutGrantorInput | UserPermissionUpdateManyWithWhereWithoutGrantorInput[]
+    deleteMany?: UserPermissionScalarWhereInput | UserPermissionScalarWhereInput[]
+  }
+
+  export type ActivityLogUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ActivityLogCreateWithoutUserInput, ActivityLogUncheckedCreateWithoutUserInput> | ActivityLogCreateWithoutUserInput[] | ActivityLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ActivityLogCreateOrConnectWithoutUserInput | ActivityLogCreateOrConnectWithoutUserInput[]
+    upsert?: ActivityLogUpsertWithWhereUniqueWithoutUserInput | ActivityLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ActivityLogCreateManyUserInputEnvelope
+    set?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    disconnect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    delete?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    connect?: ActivityLogWhereUniqueInput | ActivityLogWhereUniqueInput[]
+    update?: ActivityLogUpdateWithWhereUniqueWithoutUserInput | ActivityLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ActivityLogUpdateManyWithWhereWithoutUserInput | ActivityLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ActivityLogScalarWhereInput | ActivityLogScalarWhereInput[]
+  }
+
+  export type SmtpUserUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<SmtpUserCreateWithoutUserInput, SmtpUserUncheckedCreateWithoutUserInput> | SmtpUserCreateWithoutUserInput[] | SmtpUserUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SmtpUserCreateOrConnectWithoutUserInput | SmtpUserCreateOrConnectWithoutUserInput[]
+    upsert?: SmtpUserUpsertWithWhereUniqueWithoutUserInput | SmtpUserUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: SmtpUserCreateManyUserInputEnvelope
+    set?: SmtpUserWhereUniqueInput | SmtpUserWhereUniqueInput[]
+    disconnect?: SmtpUserWhereUniqueInput | SmtpUserWhereUniqueInput[]
+    delete?: SmtpUserWhereUniqueInput | SmtpUserWhereUniqueInput[]
+    connect?: SmtpUserWhereUniqueInput | SmtpUserWhereUniqueInput[]
+    update?: SmtpUserUpdateWithWhereUniqueWithoutUserInput | SmtpUserUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SmtpUserUpdateManyWithWhereWithoutUserInput | SmtpUserUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SmtpUserScalarWhereInput | SmtpUserScalarWhereInput[]
+  }
+
+  export type UserPermissionCreateNestedManyWithoutPermissionInput = {
+    create?: XOR<UserPermissionCreateWithoutPermissionInput, UserPermissionUncheckedCreateWithoutPermissionInput> | UserPermissionCreateWithoutPermissionInput[] | UserPermissionUncheckedCreateWithoutPermissionInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutPermissionInput | UserPermissionCreateOrConnectWithoutPermissionInput[]
+    createMany?: UserPermissionCreateManyPermissionInputEnvelope
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+  }
+
+  export type UserPermissionUncheckedCreateNestedManyWithoutPermissionInput = {
+    create?: XOR<UserPermissionCreateWithoutPermissionInput, UserPermissionUncheckedCreateWithoutPermissionInput> | UserPermissionCreateWithoutPermissionInput[] | UserPermissionUncheckedCreateWithoutPermissionInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutPermissionInput | UserPermissionCreateOrConnectWithoutPermissionInput[]
+    createMany?: UserPermissionCreateManyPermissionInputEnvelope
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+  }
+
+  export type UserPermissionUpdateManyWithoutPermissionNestedInput = {
+    create?: XOR<UserPermissionCreateWithoutPermissionInput, UserPermissionUncheckedCreateWithoutPermissionInput> | UserPermissionCreateWithoutPermissionInput[] | UserPermissionUncheckedCreateWithoutPermissionInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutPermissionInput | UserPermissionCreateOrConnectWithoutPermissionInput[]
+    upsert?: UserPermissionUpsertWithWhereUniqueWithoutPermissionInput | UserPermissionUpsertWithWhereUniqueWithoutPermissionInput[]
+    createMany?: UserPermissionCreateManyPermissionInputEnvelope
+    set?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    disconnect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    delete?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    update?: UserPermissionUpdateWithWhereUniqueWithoutPermissionInput | UserPermissionUpdateWithWhereUniqueWithoutPermissionInput[]
+    updateMany?: UserPermissionUpdateManyWithWhereWithoutPermissionInput | UserPermissionUpdateManyWithWhereWithoutPermissionInput[]
+    deleteMany?: UserPermissionScalarWhereInput | UserPermissionScalarWhereInput[]
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type UserPermissionUncheckedUpdateManyWithoutPermissionNestedInput = {
+    create?: XOR<UserPermissionCreateWithoutPermissionInput, UserPermissionUncheckedCreateWithoutPermissionInput> | UserPermissionCreateWithoutPermissionInput[] | UserPermissionUncheckedCreateWithoutPermissionInput[]
+    connectOrCreate?: UserPermissionCreateOrConnectWithoutPermissionInput | UserPermissionCreateOrConnectWithoutPermissionInput[]
+    upsert?: UserPermissionUpsertWithWhereUniqueWithoutPermissionInput | UserPermissionUpsertWithWhereUniqueWithoutPermissionInput[]
+    createMany?: UserPermissionCreateManyPermissionInputEnvelope
+    set?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    disconnect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    delete?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    connect?: UserPermissionWhereUniqueInput | UserPermissionWhereUniqueInput[]
+    update?: UserPermissionUpdateWithWhereUniqueWithoutPermissionInput | UserPermissionUpdateWithWhereUniqueWithoutPermissionInput[]
+    updateMany?: UserPermissionUpdateManyWithWhereWithoutPermissionInput | UserPermissionUpdateManyWithWhereWithoutPermissionInput[]
+    deleteMany?: UserPermissionScalarWhereInput | UserPermissionScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutPermissionsInput = {
+    create?: XOR<UserCreateWithoutPermissionsInput, UserUncheckedCreateWithoutPermissionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPermissionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type PermissionCreateNestedOneWithoutUserPermissionsInput = {
+    create?: XOR<PermissionCreateWithoutUserPermissionsInput, PermissionUncheckedCreateWithoutUserPermissionsInput>
+    connectOrCreate?: PermissionCreateOrConnectWithoutUserPermissionsInput
+    connect?: PermissionWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutGrantedPermissionsInput = {
+    create?: XOR<UserCreateWithoutGrantedPermissionsInput, UserUncheckedCreateWithoutGrantedPermissionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutGrantedPermissionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutPermissionsNestedInput = {
+    create?: XOR<UserCreateWithoutPermissionsInput, UserUncheckedCreateWithoutPermissionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPermissionsInput
+    upsert?: UserUpsertWithoutPermissionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPermissionsInput, UserUpdateWithoutPermissionsInput>, UserUncheckedUpdateWithoutPermissionsInput>
+  }
+
+  export type PermissionUpdateOneRequiredWithoutUserPermissionsNestedInput = {
+    create?: XOR<PermissionCreateWithoutUserPermissionsInput, PermissionUncheckedCreateWithoutUserPermissionsInput>
+    connectOrCreate?: PermissionCreateOrConnectWithoutUserPermissionsInput
+    upsert?: PermissionUpsertWithoutUserPermissionsInput
+    connect?: PermissionWhereUniqueInput
+    update?: XOR<XOR<PermissionUpdateToOneWithWhereWithoutUserPermissionsInput, PermissionUpdateWithoutUserPermissionsInput>, PermissionUncheckedUpdateWithoutUserPermissionsInput>
+  }
+
+  export type UserUpdateOneWithoutGrantedPermissionsNestedInput = {
+    create?: XOR<UserCreateWithoutGrantedPermissionsInput, UserUncheckedCreateWithoutGrantedPermissionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutGrantedPermissionsInput
+    upsert?: UserUpsertWithoutGrantedPermissionsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutGrantedPermissionsInput, UserUpdateWithoutGrantedPermissionsInput>, UserUncheckedUpdateWithoutGrantedPermissionsInput>
+  }
+
+  export type UserCreateNestedOneWithoutActivityLogsInput = {
+    create?: XOR<UserCreateWithoutActivityLogsInput, UserUncheckedCreateWithoutActivityLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutActivityLogsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type TenantCreateNestedOneWithoutActivityLogsInput = {
+    create?: XOR<TenantCreateWithoutActivityLogsInput, TenantUncheckedCreateWithoutActivityLogsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutActivityLogsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutActivityLogsNestedInput = {
+    create?: XOR<UserCreateWithoutActivityLogsInput, UserUncheckedCreateWithoutActivityLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutActivityLogsInput
+    upsert?: UserUpsertWithoutActivityLogsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutActivityLogsInput, UserUpdateWithoutActivityLogsInput>, UserUncheckedUpdateWithoutActivityLogsInput>
+  }
+
+  export type TenantUpdateOneWithoutActivityLogsNestedInput = {
+    create?: XOR<TenantCreateWithoutActivityLogsInput, TenantUncheckedCreateWithoutActivityLogsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutActivityLogsInput
+    upsert?: TenantUpsertWithoutActivityLogsInput
+    disconnect?: TenantWhereInput | boolean
+    delete?: TenantWhereInput | boolean
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutActivityLogsInput, TenantUpdateWithoutActivityLogsInput>, TenantUncheckedUpdateWithoutActivityLogsInput>
+  }
+
+  export type UserCreateNestedOneWithoutSmtpUsersInput = {
+    create?: XOR<UserCreateWithoutSmtpUsersInput, UserUncheckedCreateWithoutSmtpUsersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSmtpUsersInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EmailDomainCreateNestedManyWithoutSmtpUserInput = {
+    create?: XOR<EmailDomainCreateWithoutSmtpUserInput, EmailDomainUncheckedCreateWithoutSmtpUserInput> | EmailDomainCreateWithoutSmtpUserInput[] | EmailDomainUncheckedCreateWithoutSmtpUserInput[]
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutSmtpUserInput | EmailDomainCreateOrConnectWithoutSmtpUserInput[]
+    createMany?: EmailDomainCreateManySmtpUserInputEnvelope
+    connect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+  }
+
+  export type AuthAttemptCreateNestedManyWithoutSmtpUserInput = {
+    create?: XOR<AuthAttemptCreateWithoutSmtpUserInput, AuthAttemptUncheckedCreateWithoutSmtpUserInput> | AuthAttemptCreateWithoutSmtpUserInput[] | AuthAttemptUncheckedCreateWithoutSmtpUserInput[]
+    connectOrCreate?: AuthAttemptCreateOrConnectWithoutSmtpUserInput | AuthAttemptCreateOrConnectWithoutSmtpUserInput[]
+    createMany?: AuthAttemptCreateManySmtpUserInputEnvelope
+    connect?: AuthAttemptWhereUniqueInput | AuthAttemptWhereUniqueInput[]
+  }
+
+  export type EmailDomainUncheckedCreateNestedManyWithoutSmtpUserInput = {
+    create?: XOR<EmailDomainCreateWithoutSmtpUserInput, EmailDomainUncheckedCreateWithoutSmtpUserInput> | EmailDomainCreateWithoutSmtpUserInput[] | EmailDomainUncheckedCreateWithoutSmtpUserInput[]
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutSmtpUserInput | EmailDomainCreateOrConnectWithoutSmtpUserInput[]
+    createMany?: EmailDomainCreateManySmtpUserInputEnvelope
+    connect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+  }
+
+  export type AuthAttemptUncheckedCreateNestedManyWithoutSmtpUserInput = {
+    create?: XOR<AuthAttemptCreateWithoutSmtpUserInput, AuthAttemptUncheckedCreateWithoutSmtpUserInput> | AuthAttemptCreateWithoutSmtpUserInput[] | AuthAttemptUncheckedCreateWithoutSmtpUserInput[]
+    connectOrCreate?: AuthAttemptCreateOrConnectWithoutSmtpUserInput | AuthAttemptCreateOrConnectWithoutSmtpUserInput[]
+    createMany?: AuthAttemptCreateManySmtpUserInputEnvelope
+    connect?: AuthAttemptWhereUniqueInput | AuthAttemptWhereUniqueInput[]
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
+  }
+
+  export type UserUpdateOneWithoutSmtpUsersNestedInput = {
+    create?: XOR<UserCreateWithoutSmtpUsersInput, UserUncheckedCreateWithoutSmtpUsersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSmtpUsersInput
+    upsert?: UserUpsertWithoutSmtpUsersInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSmtpUsersInput, UserUpdateWithoutSmtpUsersInput>, UserUncheckedUpdateWithoutSmtpUsersInput>
+  }
+
+  export type EmailDomainUpdateManyWithoutSmtpUserNestedInput = {
+    create?: XOR<EmailDomainCreateWithoutSmtpUserInput, EmailDomainUncheckedCreateWithoutSmtpUserInput> | EmailDomainCreateWithoutSmtpUserInput[] | EmailDomainUncheckedCreateWithoutSmtpUserInput[]
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutSmtpUserInput | EmailDomainCreateOrConnectWithoutSmtpUserInput[]
+    upsert?: EmailDomainUpsertWithWhereUniqueWithoutSmtpUserInput | EmailDomainUpsertWithWhereUniqueWithoutSmtpUserInput[]
+    createMany?: EmailDomainCreateManySmtpUserInputEnvelope
+    set?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    disconnect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    delete?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    connect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    update?: EmailDomainUpdateWithWhereUniqueWithoutSmtpUserInput | EmailDomainUpdateWithWhereUniqueWithoutSmtpUserInput[]
+    updateMany?: EmailDomainUpdateManyWithWhereWithoutSmtpUserInput | EmailDomainUpdateManyWithWhereWithoutSmtpUserInput[]
+    deleteMany?: EmailDomainScalarWhereInput | EmailDomainScalarWhereInput[]
+  }
+
+  export type AuthAttemptUpdateManyWithoutSmtpUserNestedInput = {
+    create?: XOR<AuthAttemptCreateWithoutSmtpUserInput, AuthAttemptUncheckedCreateWithoutSmtpUserInput> | AuthAttemptCreateWithoutSmtpUserInput[] | AuthAttemptUncheckedCreateWithoutSmtpUserInput[]
+    connectOrCreate?: AuthAttemptCreateOrConnectWithoutSmtpUserInput | AuthAttemptCreateOrConnectWithoutSmtpUserInput[]
+    upsert?: AuthAttemptUpsertWithWhereUniqueWithoutSmtpUserInput | AuthAttemptUpsertWithWhereUniqueWithoutSmtpUserInput[]
+    createMany?: AuthAttemptCreateManySmtpUserInputEnvelope
+    set?: AuthAttemptWhereUniqueInput | AuthAttemptWhereUniqueInput[]
+    disconnect?: AuthAttemptWhereUniqueInput | AuthAttemptWhereUniqueInput[]
+    delete?: AuthAttemptWhereUniqueInput | AuthAttemptWhereUniqueInput[]
+    connect?: AuthAttemptWhereUniqueInput | AuthAttemptWhereUniqueInput[]
+    update?: AuthAttemptUpdateWithWhereUniqueWithoutSmtpUserInput | AuthAttemptUpdateWithWhereUniqueWithoutSmtpUserInput[]
+    updateMany?: AuthAttemptUpdateManyWithWhereWithoutSmtpUserInput | AuthAttemptUpdateManyWithWhereWithoutSmtpUserInput[]
+    deleteMany?: AuthAttemptScalarWhereInput | AuthAttemptScalarWhereInput[]
+  }
+
+  export type EmailDomainUncheckedUpdateManyWithoutSmtpUserNestedInput = {
+    create?: XOR<EmailDomainCreateWithoutSmtpUserInput, EmailDomainUncheckedCreateWithoutSmtpUserInput> | EmailDomainCreateWithoutSmtpUserInput[] | EmailDomainUncheckedCreateWithoutSmtpUserInput[]
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutSmtpUserInput | EmailDomainCreateOrConnectWithoutSmtpUserInput[]
+    upsert?: EmailDomainUpsertWithWhereUniqueWithoutSmtpUserInput | EmailDomainUpsertWithWhereUniqueWithoutSmtpUserInput[]
+    createMany?: EmailDomainCreateManySmtpUserInputEnvelope
+    set?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    disconnect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    delete?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    connect?: EmailDomainWhereUniqueInput | EmailDomainWhereUniqueInput[]
+    update?: EmailDomainUpdateWithWhereUniqueWithoutSmtpUserInput | EmailDomainUpdateWithWhereUniqueWithoutSmtpUserInput[]
+    updateMany?: EmailDomainUpdateManyWithWhereWithoutSmtpUserInput | EmailDomainUpdateManyWithWhereWithoutSmtpUserInput[]
+    deleteMany?: EmailDomainScalarWhereInput | EmailDomainScalarWhereInput[]
+  }
+
+  export type AuthAttemptUncheckedUpdateManyWithoutSmtpUserNestedInput = {
+    create?: XOR<AuthAttemptCreateWithoutSmtpUserInput, AuthAttemptUncheckedCreateWithoutSmtpUserInput> | AuthAttemptCreateWithoutSmtpUserInput[] | AuthAttemptUncheckedCreateWithoutSmtpUserInput[]
+    connectOrCreate?: AuthAttemptCreateOrConnectWithoutSmtpUserInput | AuthAttemptCreateOrConnectWithoutSmtpUserInput[]
+    upsert?: AuthAttemptUpsertWithWhereUniqueWithoutSmtpUserInput | AuthAttemptUpsertWithWhereUniqueWithoutSmtpUserInput[]
+    createMany?: AuthAttemptCreateManySmtpUserInputEnvelope
+    set?: AuthAttemptWhereUniqueInput | AuthAttemptWhereUniqueInput[]
+    disconnect?: AuthAttemptWhereUniqueInput | AuthAttemptWhereUniqueInput[]
+    delete?: AuthAttemptWhereUniqueInput | AuthAttemptWhereUniqueInput[]
+    connect?: AuthAttemptWhereUniqueInput | AuthAttemptWhereUniqueInput[]
+    update?: AuthAttemptUpdateWithWhereUniqueWithoutSmtpUserInput | AuthAttemptUpdateWithWhereUniqueWithoutSmtpUserInput[]
+    updateMany?: AuthAttemptUpdateManyWithWhereWithoutSmtpUserInput | AuthAttemptUpdateManyWithWhereWithoutSmtpUserInput[]
+    deleteMany?: AuthAttemptScalarWhereInput | AuthAttemptScalarWhereInput[]
+  }
+
+  export type TenantCreateNestedOneWithoutEmailDomainsInput = {
+    create?: XOR<TenantCreateWithoutEmailDomainsInput, TenantUncheckedCreateWithoutEmailDomainsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutEmailDomainsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type SmtpUserCreateNestedOneWithoutDomainsInput = {
+    create?: XOR<SmtpUserCreateWithoutDomainsInput, SmtpUserUncheckedCreateWithoutDomainsInput>
+    connectOrCreate?: SmtpUserCreateOrConnectWithoutDomainsInput
+    connect?: SmtpUserWhereUniqueInput
+  }
+
+  export type DkimKeyCreateNestedManyWithoutDomainInput = {
+    create?: XOR<DkimKeyCreateWithoutDomainInput, DkimKeyUncheckedCreateWithoutDomainInput> | DkimKeyCreateWithoutDomainInput[] | DkimKeyUncheckedCreateWithoutDomainInput[]
+    connectOrCreate?: DkimKeyCreateOrConnectWithoutDomainInput | DkimKeyCreateOrConnectWithoutDomainInput[]
+    createMany?: DkimKeyCreateManyDomainInputEnvelope
+    connect?: DkimKeyWhereUniqueInput | DkimKeyWhereUniqueInput[]
+  }
+
+  export type EmailCreateNestedManyWithoutDomainInput = {
+    create?: XOR<EmailCreateWithoutDomainInput, EmailUncheckedCreateWithoutDomainInput> | EmailCreateWithoutDomainInput[] | EmailUncheckedCreateWithoutDomainInput[]
+    connectOrCreate?: EmailCreateOrConnectWithoutDomainInput | EmailCreateOrConnectWithoutDomainInput[]
+    createMany?: EmailCreateManyDomainInputEnvelope
+    connect?: EmailWhereUniqueInput | EmailWhereUniqueInput[]
+  }
+
+  export type DkimKeyUncheckedCreateNestedManyWithoutDomainInput = {
+    create?: XOR<DkimKeyCreateWithoutDomainInput, DkimKeyUncheckedCreateWithoutDomainInput> | DkimKeyCreateWithoutDomainInput[] | DkimKeyUncheckedCreateWithoutDomainInput[]
+    connectOrCreate?: DkimKeyCreateOrConnectWithoutDomainInput | DkimKeyCreateOrConnectWithoutDomainInput[]
+    createMany?: DkimKeyCreateManyDomainInputEnvelope
+    connect?: DkimKeyWhereUniqueInput | DkimKeyWhereUniqueInput[]
+  }
+
+  export type EmailUncheckedCreateNestedManyWithoutDomainInput = {
+    create?: XOR<EmailCreateWithoutDomainInput, EmailUncheckedCreateWithoutDomainInput> | EmailCreateWithoutDomainInput[] | EmailUncheckedCreateWithoutDomainInput[]
+    connectOrCreate?: EmailCreateOrConnectWithoutDomainInput | EmailCreateOrConnectWithoutDomainInput[]
+    createMany?: EmailCreateManyDomainInputEnvelope
+    connect?: EmailWhereUniqueInput | EmailWhereUniqueInput[]
+  }
+
+  export type TenantUpdateOneWithoutEmailDomainsNestedInput = {
+    create?: XOR<TenantCreateWithoutEmailDomainsInput, TenantUncheckedCreateWithoutEmailDomainsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutEmailDomainsInput
+    upsert?: TenantUpsertWithoutEmailDomainsInput
+    disconnect?: TenantWhereInput | boolean
+    delete?: TenantWhereInput | boolean
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutEmailDomainsInput, TenantUpdateWithoutEmailDomainsInput>, TenantUncheckedUpdateWithoutEmailDomainsInput>
+  }
+
+  export type SmtpUserUpdateOneRequiredWithoutDomainsNestedInput = {
+    create?: XOR<SmtpUserCreateWithoutDomainsInput, SmtpUserUncheckedCreateWithoutDomainsInput>
+    connectOrCreate?: SmtpUserCreateOrConnectWithoutDomainsInput
+    upsert?: SmtpUserUpsertWithoutDomainsInput
+    connect?: SmtpUserWhereUniqueInput
+    update?: XOR<XOR<SmtpUserUpdateToOneWithWhereWithoutDomainsInput, SmtpUserUpdateWithoutDomainsInput>, SmtpUserUncheckedUpdateWithoutDomainsInput>
+  }
+
+  export type DkimKeyUpdateManyWithoutDomainNestedInput = {
+    create?: XOR<DkimKeyCreateWithoutDomainInput, DkimKeyUncheckedCreateWithoutDomainInput> | DkimKeyCreateWithoutDomainInput[] | DkimKeyUncheckedCreateWithoutDomainInput[]
+    connectOrCreate?: DkimKeyCreateOrConnectWithoutDomainInput | DkimKeyCreateOrConnectWithoutDomainInput[]
+    upsert?: DkimKeyUpsertWithWhereUniqueWithoutDomainInput | DkimKeyUpsertWithWhereUniqueWithoutDomainInput[]
+    createMany?: DkimKeyCreateManyDomainInputEnvelope
+    set?: DkimKeyWhereUniqueInput | DkimKeyWhereUniqueInput[]
+    disconnect?: DkimKeyWhereUniqueInput | DkimKeyWhereUniqueInput[]
+    delete?: DkimKeyWhereUniqueInput | DkimKeyWhereUniqueInput[]
+    connect?: DkimKeyWhereUniqueInput | DkimKeyWhereUniqueInput[]
+    update?: DkimKeyUpdateWithWhereUniqueWithoutDomainInput | DkimKeyUpdateWithWhereUniqueWithoutDomainInput[]
+    updateMany?: DkimKeyUpdateManyWithWhereWithoutDomainInput | DkimKeyUpdateManyWithWhereWithoutDomainInput[]
+    deleteMany?: DkimKeyScalarWhereInput | DkimKeyScalarWhereInput[]
+  }
+
+  export type EmailUpdateManyWithoutDomainNestedInput = {
+    create?: XOR<EmailCreateWithoutDomainInput, EmailUncheckedCreateWithoutDomainInput> | EmailCreateWithoutDomainInput[] | EmailUncheckedCreateWithoutDomainInput[]
+    connectOrCreate?: EmailCreateOrConnectWithoutDomainInput | EmailCreateOrConnectWithoutDomainInput[]
+    upsert?: EmailUpsertWithWhereUniqueWithoutDomainInput | EmailUpsertWithWhereUniqueWithoutDomainInput[]
+    createMany?: EmailCreateManyDomainInputEnvelope
+    set?: EmailWhereUniqueInput | EmailWhereUniqueInput[]
+    disconnect?: EmailWhereUniqueInput | EmailWhereUniqueInput[]
+    delete?: EmailWhereUniqueInput | EmailWhereUniqueInput[]
+    connect?: EmailWhereUniqueInput | EmailWhereUniqueInput[]
+    update?: EmailUpdateWithWhereUniqueWithoutDomainInput | EmailUpdateWithWhereUniqueWithoutDomainInput[]
+    updateMany?: EmailUpdateManyWithWhereWithoutDomainInput | EmailUpdateManyWithWhereWithoutDomainInput[]
+    deleteMany?: EmailScalarWhereInput | EmailScalarWhereInput[]
+  }
+
+  export type DkimKeyUncheckedUpdateManyWithoutDomainNestedInput = {
+    create?: XOR<DkimKeyCreateWithoutDomainInput, DkimKeyUncheckedCreateWithoutDomainInput> | DkimKeyCreateWithoutDomainInput[] | DkimKeyUncheckedCreateWithoutDomainInput[]
+    connectOrCreate?: DkimKeyCreateOrConnectWithoutDomainInput | DkimKeyCreateOrConnectWithoutDomainInput[]
+    upsert?: DkimKeyUpsertWithWhereUniqueWithoutDomainInput | DkimKeyUpsertWithWhereUniqueWithoutDomainInput[]
+    createMany?: DkimKeyCreateManyDomainInputEnvelope
+    set?: DkimKeyWhereUniqueInput | DkimKeyWhereUniqueInput[]
+    disconnect?: DkimKeyWhereUniqueInput | DkimKeyWhereUniqueInput[]
+    delete?: DkimKeyWhereUniqueInput | DkimKeyWhereUniqueInput[]
+    connect?: DkimKeyWhereUniqueInput | DkimKeyWhereUniqueInput[]
+    update?: DkimKeyUpdateWithWhereUniqueWithoutDomainInput | DkimKeyUpdateWithWhereUniqueWithoutDomainInput[]
+    updateMany?: DkimKeyUpdateManyWithWhereWithoutDomainInput | DkimKeyUpdateManyWithWhereWithoutDomainInput[]
+    deleteMany?: DkimKeyScalarWhereInput | DkimKeyScalarWhereInput[]
+  }
+
+  export type EmailUncheckedUpdateManyWithoutDomainNestedInput = {
+    create?: XOR<EmailCreateWithoutDomainInput, EmailUncheckedCreateWithoutDomainInput> | EmailCreateWithoutDomainInput[] | EmailUncheckedCreateWithoutDomainInput[]
+    connectOrCreate?: EmailCreateOrConnectWithoutDomainInput | EmailCreateOrConnectWithoutDomainInput[]
+    upsert?: EmailUpsertWithWhereUniqueWithoutDomainInput | EmailUpsertWithWhereUniqueWithoutDomainInput[]
+    createMany?: EmailCreateManyDomainInputEnvelope
+    set?: EmailWhereUniqueInput | EmailWhereUniqueInput[]
+    disconnect?: EmailWhereUniqueInput | EmailWhereUniqueInput[]
+    delete?: EmailWhereUniqueInput | EmailWhereUniqueInput[]
+    connect?: EmailWhereUniqueInput | EmailWhereUniqueInput[]
+    update?: EmailUpdateWithWhereUniqueWithoutDomainInput | EmailUpdateWithWhereUniqueWithoutDomainInput[]
+    updateMany?: EmailUpdateManyWithWhereWithoutDomainInput | EmailUpdateManyWithWhereWithoutDomainInput[]
+    deleteMany?: EmailScalarWhereInput | EmailScalarWhereInput[]
+  }
+
+  export type EmailDomainCreateNestedOneWithoutDkimKeysInput = {
+    create?: XOR<EmailDomainCreateWithoutDkimKeysInput, EmailDomainUncheckedCreateWithoutDkimKeysInput>
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutDkimKeysInput
+    connect?: EmailDomainWhereUniqueInput
+  }
+
+  export type EmailDomainUpdateOneRequiredWithoutDkimKeysNestedInput = {
+    create?: XOR<EmailDomainCreateWithoutDkimKeysInput, EmailDomainUncheckedCreateWithoutDkimKeysInput>
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutDkimKeysInput
+    upsert?: EmailDomainUpsertWithoutDkimKeysInput
+    connect?: EmailDomainWhereUniqueInput
+    update?: XOR<XOR<EmailDomainUpdateToOneWithWhereWithoutDkimKeysInput, EmailDomainUpdateWithoutDkimKeysInput>, EmailDomainUncheckedUpdateWithoutDkimKeysInput>
+  }
+
+  export type EmailDomainCreateNestedOneWithoutEmailsInput = {
+    create?: XOR<EmailDomainCreateWithoutEmailsInput, EmailDomainUncheckedCreateWithoutEmailsInput>
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutEmailsInput
+    connect?: EmailDomainWhereUniqueInput
+  }
+
+  export type EmailDomainUpdateOneWithoutEmailsNestedInput = {
+    create?: XOR<EmailDomainCreateWithoutEmailsInput, EmailDomainUncheckedCreateWithoutEmailsInput>
+    connectOrCreate?: EmailDomainCreateOrConnectWithoutEmailsInput
+    upsert?: EmailDomainUpsertWithoutEmailsInput
+    disconnect?: EmailDomainWhereInput | boolean
+    delete?: EmailDomainWhereInput | boolean
+    connect?: EmailDomainWhereUniqueInput
+    update?: XOR<XOR<EmailDomainUpdateToOneWithWhereWithoutEmailsInput, EmailDomainUpdateWithoutEmailsInput>, EmailDomainUncheckedUpdateWithoutEmailsInput>
+  }
+
+  export type SmtpUserCreateNestedOneWithoutAuthAttemptsInput = {
+    create?: XOR<SmtpUserCreateWithoutAuthAttemptsInput, SmtpUserUncheckedCreateWithoutAuthAttemptsInput>
+    connectOrCreate?: SmtpUserCreateOrConnectWithoutAuthAttemptsInput
+    connect?: SmtpUserWhereUniqueInput
+  }
+
+  export type SmtpUserUpdateOneWithoutAuthAttemptsNestedInput = {
+    create?: XOR<SmtpUserCreateWithoutAuthAttemptsInput, SmtpUserUncheckedCreateWithoutAuthAttemptsInput>
+    connectOrCreate?: SmtpUserCreateOrConnectWithoutAuthAttemptsInput
+    upsert?: SmtpUserUpsertWithoutAuthAttemptsInput
+    disconnect?: SmtpUserWhereInput | boolean
+    delete?: SmtpUserWhereInput | boolean
+    connect?: SmtpUserWhereUniqueInput
+    update?: XOR<XOR<SmtpUserUpdateToOneWithWhereWithoutAuthAttemptsInput, SmtpUserUpdateWithoutAuthAttemptsInput>, SmtpUserUncheckedUpdateWithoutAuthAttemptsInput>
+  }
+
+  export type NestedStringFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[]
+    notIn?: string[]
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringFilter<$PrismaModel> | string
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[]
+    notIn?: string[]
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedBoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type UserCreateWithoutTenantInput = {
+    id: string
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    permissions?: UserPermissionCreateNestedManyWithoutUserInput
+    grantedPermissions?: UserPermissionCreateNestedManyWithoutGrantorInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    smtpUsers?: SmtpUserCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutTenantInput = {
+    id: string
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    permissions?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
+    grantedPermissions?: UserPermissionUncheckedCreateNestedManyWithoutGrantorInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    smtpUsers?: SmtpUserUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutTenantInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput>
+  }
+
+  export type UserCreateManyTenantInputEnvelope = {
+    data: UserCreateManyTenantInput | UserCreateManyTenantInput[]
+  }
+
+  export type ActivityLogCreateWithoutTenantInput = {
+    action: string
+    resource?: string | null
+    resourceId?: string | null
+    details?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string | null
+    user?: UserCreateNestedOneWithoutActivityLogsInput
+  }
+
+  export type ActivityLogUncheckedCreateWithoutTenantInput = {
+    id?: number
+    userId?: string | null
+    action: string
+    resource?: string | null
+    resourceId?: string | null
+    details?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type ActivityLogCreateOrConnectWithoutTenantInput = {
+    where: ActivityLogWhereUniqueInput
+    create: XOR<ActivityLogCreateWithoutTenantInput, ActivityLogUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ActivityLogCreateManyTenantInputEnvelope = {
+    data: ActivityLogCreateManyTenantInput | ActivityLogCreateManyTenantInput[]
+  }
+
+  export type EmailDomainCreateWithoutTenantInput = {
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    smtpUser: SmtpUserCreateNestedOneWithoutDomainsInput
+    dkimKeys?: DkimKeyCreateNestedManyWithoutDomainInput
+    emails?: EmailCreateNestedManyWithoutDomainInput
+  }
+
+  export type EmailDomainUncheckedCreateWithoutTenantInput = {
+    id?: number
+    smtpUserId: number
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dkimKeys?: DkimKeyUncheckedCreateNestedManyWithoutDomainInput
+    emails?: EmailUncheckedCreateNestedManyWithoutDomainInput
+  }
+
+  export type EmailDomainCreateOrConnectWithoutTenantInput = {
+    where: EmailDomainWhereUniqueInput
+    create: XOR<EmailDomainCreateWithoutTenantInput, EmailDomainUncheckedCreateWithoutTenantInput>
+  }
+
+  export type EmailDomainCreateManyTenantInputEnvelope = {
+    data: EmailDomainCreateManyTenantInput | EmailDomainCreateManyTenantInput[]
+  }
+
+  export type UserUpsertWithWhereUniqueWithoutTenantInput = {
+    where: UserWhereUniqueInput
+    update: XOR<UserUpdateWithoutTenantInput, UserUncheckedUpdateWithoutTenantInput>
+    create: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput>
+  }
+
+  export type UserUpdateWithWhereUniqueWithoutTenantInput = {
+    where: UserWhereUniqueInput
+    data: XOR<UserUpdateWithoutTenantInput, UserUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type UserUpdateManyWithWhereWithoutTenantInput = {
+    where: UserScalarWhereInput
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type UserScalarWhereInput = {
+    AND?: UserScalarWhereInput | UserScalarWhereInput[]
+    OR?: UserScalarWhereInput[]
+    NOT?: UserScalarWhereInput | UserScalarWhereInput[]
+    id?: StringFilter<"User"> | string
+    tenantId?: StringNullableFilter<"User"> | string | null
+    nomeCompleto?: StringFilter<"User"> | string
+    email?: StringFilter<"User"> | string
+    passwordHash?: StringFilter<"User"> | string
+    role?: StringFilter<"User"> | string
+    status?: StringFilter<"User"> | string
+    avatarUrl?: StringNullableFilter<"User"> | string | null
+    ultimoLogin?: DateTimeNullableFilter<"User"> | Date | string | null
+    failedLoginAttempts?: IntNullableFilter<"User"> | number | null
+    lockedUntil?: DateTimeNullableFilter<"User"> | Date | string | null
+    emailVerified?: BoolNullableFilter<"User"> | boolean | null
+    createdAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    updatedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+  }
+
+  export type ActivityLogUpsertWithWhereUniqueWithoutTenantInput = {
+    where: ActivityLogWhereUniqueInput
+    update: XOR<ActivityLogUpdateWithoutTenantInput, ActivityLogUncheckedUpdateWithoutTenantInput>
+    create: XOR<ActivityLogCreateWithoutTenantInput, ActivityLogUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ActivityLogUpdateWithWhereUniqueWithoutTenantInput = {
+    where: ActivityLogWhereUniqueInput
+    data: XOR<ActivityLogUpdateWithoutTenantInput, ActivityLogUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type ActivityLogUpdateManyWithWhereWithoutTenantInput = {
+    where: ActivityLogScalarWhereInput
+    data: XOR<ActivityLogUpdateManyMutationInput, ActivityLogUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type ActivityLogScalarWhereInput = {
+    AND?: ActivityLogScalarWhereInput | ActivityLogScalarWhereInput[]
+    OR?: ActivityLogScalarWhereInput[]
+    NOT?: ActivityLogScalarWhereInput | ActivityLogScalarWhereInput[]
+    id?: IntFilter<"ActivityLog"> | number
+    userId?: StringNullableFilter<"ActivityLog"> | string | null
+    tenantId?: StringNullableFilter<"ActivityLog"> | string | null
+    action?: StringFilter<"ActivityLog"> | string
+    resource?: StringNullableFilter<"ActivityLog"> | string | null
+    resourceId?: StringNullableFilter<"ActivityLog"> | string | null
+    details?: StringNullableFilter<"ActivityLog"> | string | null
+    ipAddress?: StringNullableFilter<"ActivityLog"> | string | null
+    userAgent?: StringNullableFilter<"ActivityLog"> | string | null
+    createdAt?: DateTimeNullableFilter<"ActivityLog"> | Date | string | null
+  }
+
+  export type EmailDomainUpsertWithWhereUniqueWithoutTenantInput = {
+    where: EmailDomainWhereUniqueInput
+    update: XOR<EmailDomainUpdateWithoutTenantInput, EmailDomainUncheckedUpdateWithoutTenantInput>
+    create: XOR<EmailDomainCreateWithoutTenantInput, EmailDomainUncheckedCreateWithoutTenantInput>
+  }
+
+  export type EmailDomainUpdateWithWhereUniqueWithoutTenantInput = {
+    where: EmailDomainWhereUniqueInput
+    data: XOR<EmailDomainUpdateWithoutTenantInput, EmailDomainUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type EmailDomainUpdateManyWithWhereWithoutTenantInput = {
+    where: EmailDomainScalarWhereInput
+    data: XOR<EmailDomainUpdateManyMutationInput, EmailDomainUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type EmailDomainScalarWhereInput = {
+    AND?: EmailDomainScalarWhereInput | EmailDomainScalarWhereInput[]
+    OR?: EmailDomainScalarWhereInput[]
+    NOT?: EmailDomainScalarWhereInput | EmailDomainScalarWhereInput[]
+    id?: IntFilter<"EmailDomain"> | number
+    tenantId?: StringNullableFilter<"EmailDomain"> | string | null
+    smtpUserId?: IntFilter<"EmailDomain"> | number
+    domainName?: StringFilter<"EmailDomain"> | string
+    isVerified?: BoolFilter<"EmailDomain"> | boolean
+    verificationToken?: StringNullableFilter<"EmailDomain"> | string | null
+    verifiedAt?: DateTimeNullableFilter<"EmailDomain"> | Date | string | null
+    verificationMethod?: StringNullableFilter<"EmailDomain"> | string | null
+    dkimEnabled?: BoolFilter<"EmailDomain"> | boolean
+    spfEnabled?: BoolFilter<"EmailDomain"> | boolean
+    createdAt?: DateTimeFilter<"EmailDomain"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailDomain"> | Date | string
+  }
+
+  export type TenantCreateWithoutUsersInput = {
+    id: string
+    tenantCode: string
+    nome: string
+    cidade: string
+    estado: string
+    cnpj: string
+    plano?: string | null
+    status?: string | null
+    populacao?: number | null
+    endereco?: string | null
+    responsavelNome?: string | null
+    responsavelEmail?: string | null
+    responsavelTelefone?: string | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    activityLogs?: ActivityLogCreateNestedManyWithoutTenantInput
+    emailDomains?: EmailDomainCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutUsersInput = {
+    id: string
+    tenantCode: string
+    nome: string
+    cidade: string
+    estado: string
+    cnpj: string
+    plano?: string | null
+    status?: string | null
+    populacao?: number | null
+    endereco?: string | null
+    responsavelNome?: string | null
+    responsavelEmail?: string | null
+    responsavelTelefone?: string | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTenantInput
+    emailDomains?: EmailDomainUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutUsersInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutUsersInput, TenantUncheckedCreateWithoutUsersInput>
+  }
+
+  export type UserPermissionCreateWithoutUserInput = {
+    createdAt?: Date | string | null
+    permission: PermissionCreateNestedOneWithoutUserPermissionsInput
+    grantor?: UserCreateNestedOneWithoutGrantedPermissionsInput
+  }
+
+  export type UserPermissionUncheckedCreateWithoutUserInput = {
+    id?: number
+    permissionId: number
+    grantedBy?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type UserPermissionCreateOrConnectWithoutUserInput = {
+    where: UserPermissionWhereUniqueInput
+    create: XOR<UserPermissionCreateWithoutUserInput, UserPermissionUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserPermissionCreateManyUserInputEnvelope = {
+    data: UserPermissionCreateManyUserInput | UserPermissionCreateManyUserInput[]
+  }
+
+  export type UserPermissionCreateWithoutGrantorInput = {
+    createdAt?: Date | string | null
+    user: UserCreateNestedOneWithoutPermissionsInput
+    permission: PermissionCreateNestedOneWithoutUserPermissionsInput
+  }
+
+  export type UserPermissionUncheckedCreateWithoutGrantorInput = {
+    id?: number
+    userId: string
+    permissionId: number
+    createdAt?: Date | string | null
+  }
+
+  export type UserPermissionCreateOrConnectWithoutGrantorInput = {
+    where: UserPermissionWhereUniqueInput
+    create: XOR<UserPermissionCreateWithoutGrantorInput, UserPermissionUncheckedCreateWithoutGrantorInput>
+  }
+
+  export type UserPermissionCreateManyGrantorInputEnvelope = {
+    data: UserPermissionCreateManyGrantorInput | UserPermissionCreateManyGrantorInput[]
+  }
+
+  export type ActivityLogCreateWithoutUserInput = {
+    action: string
+    resource?: string | null
+    resourceId?: string | null
+    details?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string | null
+    tenant?: TenantCreateNestedOneWithoutActivityLogsInput
+  }
+
+  export type ActivityLogUncheckedCreateWithoutUserInput = {
+    id?: number
+    tenantId?: string | null
+    action: string
+    resource?: string | null
+    resourceId?: string | null
+    details?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type ActivityLogCreateOrConnectWithoutUserInput = {
+    where: ActivityLogWhereUniqueInput
+    create: XOR<ActivityLogCreateWithoutUserInput, ActivityLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type ActivityLogCreateManyUserInputEnvelope = {
+    data: ActivityLogCreateManyUserInput | ActivityLogCreateManyUserInput[]
+  }
+
+  export type SmtpUserCreateWithoutUserInput = {
+    email: string
+    passwordHash: string
+    name: string
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    domains?: EmailDomainCreateNestedManyWithoutSmtpUserInput
+    authAttempts?: AuthAttemptCreateNestedManyWithoutSmtpUserInput
+  }
+
+  export type SmtpUserUncheckedCreateWithoutUserInput = {
+    id?: number
+    email: string
+    passwordHash: string
+    name: string
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    domains?: EmailDomainUncheckedCreateNestedManyWithoutSmtpUserInput
+    authAttempts?: AuthAttemptUncheckedCreateNestedManyWithoutSmtpUserInput
+  }
+
+  export type SmtpUserCreateOrConnectWithoutUserInput = {
+    where: SmtpUserWhereUniqueInput
+    create: XOR<SmtpUserCreateWithoutUserInput, SmtpUserUncheckedCreateWithoutUserInput>
+  }
+
+  export type SmtpUserCreateManyUserInputEnvelope = {
+    data: SmtpUserCreateManyUserInput | SmtpUserCreateManyUserInput[]
+  }
+
+  export type TenantUpsertWithoutUsersInput = {
+    update: XOR<TenantUpdateWithoutUsersInput, TenantUncheckedUpdateWithoutUsersInput>
+    create: XOR<TenantCreateWithoutUsersInput, TenantUncheckedCreateWithoutUsersInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutUsersInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutUsersInput, TenantUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type TenantUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantCode?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cidade?: StringFieldUpdateOperationsInput | string
+    estado?: StringFieldUpdateOperationsInput | string
+    cnpj?: StringFieldUpdateOperationsInput | string
+    plano?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    populacao?: NullableIntFieldUpdateOperationsInput | number | null
+    endereco?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelNome?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelTelefone?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activityLogs?: ActivityLogUpdateManyWithoutTenantNestedInput
+    emailDomains?: EmailDomainUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantCode?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cidade?: StringFieldUpdateOperationsInput | string
+    estado?: StringFieldUpdateOperationsInput | string
+    cnpj?: StringFieldUpdateOperationsInput | string
+    plano?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    populacao?: NullableIntFieldUpdateOperationsInput | number | null
+    endereco?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelNome?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelTelefone?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutTenantNestedInput
+    emailDomains?: EmailDomainUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type UserPermissionUpsertWithWhereUniqueWithoutUserInput = {
+    where: UserPermissionWhereUniqueInput
+    update: XOR<UserPermissionUpdateWithoutUserInput, UserPermissionUncheckedUpdateWithoutUserInput>
+    create: XOR<UserPermissionCreateWithoutUserInput, UserPermissionUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserPermissionUpdateWithWhereUniqueWithoutUserInput = {
+    where: UserPermissionWhereUniqueInput
+    data: XOR<UserPermissionUpdateWithoutUserInput, UserPermissionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserPermissionUpdateManyWithWhereWithoutUserInput = {
+    where: UserPermissionScalarWhereInput
+    data: XOR<UserPermissionUpdateManyMutationInput, UserPermissionUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type UserPermissionScalarWhereInput = {
+    AND?: UserPermissionScalarWhereInput | UserPermissionScalarWhereInput[]
+    OR?: UserPermissionScalarWhereInput[]
+    NOT?: UserPermissionScalarWhereInput | UserPermissionScalarWhereInput[]
+    id?: IntFilter<"UserPermission"> | number
+    userId?: StringFilter<"UserPermission"> | string
+    permissionId?: IntFilter<"UserPermission"> | number
+    grantedBy?: StringNullableFilter<"UserPermission"> | string | null
+    createdAt?: DateTimeNullableFilter<"UserPermission"> | Date | string | null
+  }
+
+  export type UserPermissionUpsertWithWhereUniqueWithoutGrantorInput = {
+    where: UserPermissionWhereUniqueInput
+    update: XOR<UserPermissionUpdateWithoutGrantorInput, UserPermissionUncheckedUpdateWithoutGrantorInput>
+    create: XOR<UserPermissionCreateWithoutGrantorInput, UserPermissionUncheckedCreateWithoutGrantorInput>
+  }
+
+  export type UserPermissionUpdateWithWhereUniqueWithoutGrantorInput = {
+    where: UserPermissionWhereUniqueInput
+    data: XOR<UserPermissionUpdateWithoutGrantorInput, UserPermissionUncheckedUpdateWithoutGrantorInput>
+  }
+
+  export type UserPermissionUpdateManyWithWhereWithoutGrantorInput = {
+    where: UserPermissionScalarWhereInput
+    data: XOR<UserPermissionUpdateManyMutationInput, UserPermissionUncheckedUpdateManyWithoutGrantorInput>
+  }
+
+  export type ActivityLogUpsertWithWhereUniqueWithoutUserInput = {
+    where: ActivityLogWhereUniqueInput
+    update: XOR<ActivityLogUpdateWithoutUserInput, ActivityLogUncheckedUpdateWithoutUserInput>
+    create: XOR<ActivityLogCreateWithoutUserInput, ActivityLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type ActivityLogUpdateWithWhereUniqueWithoutUserInput = {
+    where: ActivityLogWhereUniqueInput
+    data: XOR<ActivityLogUpdateWithoutUserInput, ActivityLogUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ActivityLogUpdateManyWithWhereWithoutUserInput = {
+    where: ActivityLogScalarWhereInput
+    data: XOR<ActivityLogUpdateManyMutationInput, ActivityLogUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type SmtpUserUpsertWithWhereUniqueWithoutUserInput = {
+    where: SmtpUserWhereUniqueInput
+    update: XOR<SmtpUserUpdateWithoutUserInput, SmtpUserUncheckedUpdateWithoutUserInput>
+    create: XOR<SmtpUserCreateWithoutUserInput, SmtpUserUncheckedCreateWithoutUserInput>
+  }
+
+  export type SmtpUserUpdateWithWhereUniqueWithoutUserInput = {
+    where: SmtpUserWhereUniqueInput
+    data: XOR<SmtpUserUpdateWithoutUserInput, SmtpUserUncheckedUpdateWithoutUserInput>
+  }
+
+  export type SmtpUserUpdateManyWithWhereWithoutUserInput = {
+    where: SmtpUserScalarWhereInput
+    data: XOR<SmtpUserUpdateManyMutationInput, SmtpUserUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type SmtpUserScalarWhereInput = {
+    AND?: SmtpUserScalarWhereInput | SmtpUserScalarWhereInput[]
+    OR?: SmtpUserScalarWhereInput[]
+    NOT?: SmtpUserScalarWhereInput | SmtpUserScalarWhereInput[]
+    id?: IntFilter<"SmtpUser"> | number
+    userId?: StringNullableFilter<"SmtpUser"> | string | null
+    email?: StringFilter<"SmtpUser"> | string
+    passwordHash?: StringFilter<"SmtpUser"> | string
+    name?: StringFilter<"SmtpUser"> | string
+    isVerified?: BoolFilter<"SmtpUser"> | boolean
+    isActive?: BoolFilter<"SmtpUser"> | boolean
+    isAdmin?: BoolFilter<"SmtpUser"> | boolean
+    lastLogin?: DateTimeNullableFilter<"SmtpUser"> | Date | string | null
+    createdAt?: DateTimeFilter<"SmtpUser"> | Date | string
+    updatedAt?: DateTimeFilter<"SmtpUser"> | Date | string
+  }
+
+  export type UserPermissionCreateWithoutPermissionInput = {
+    createdAt?: Date | string | null
+    user: UserCreateNestedOneWithoutPermissionsInput
+    grantor?: UserCreateNestedOneWithoutGrantedPermissionsInput
+  }
+
+  export type UserPermissionUncheckedCreateWithoutPermissionInput = {
+    id?: number
+    userId: string
+    grantedBy?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type UserPermissionCreateOrConnectWithoutPermissionInput = {
+    where: UserPermissionWhereUniqueInput
+    create: XOR<UserPermissionCreateWithoutPermissionInput, UserPermissionUncheckedCreateWithoutPermissionInput>
+  }
+
+  export type UserPermissionCreateManyPermissionInputEnvelope = {
+    data: UserPermissionCreateManyPermissionInput | UserPermissionCreateManyPermissionInput[]
+  }
+
+  export type UserPermissionUpsertWithWhereUniqueWithoutPermissionInput = {
+    where: UserPermissionWhereUniqueInput
+    update: XOR<UserPermissionUpdateWithoutPermissionInput, UserPermissionUncheckedUpdateWithoutPermissionInput>
+    create: XOR<UserPermissionCreateWithoutPermissionInput, UserPermissionUncheckedCreateWithoutPermissionInput>
+  }
+
+  export type UserPermissionUpdateWithWhereUniqueWithoutPermissionInput = {
+    where: UserPermissionWhereUniqueInput
+    data: XOR<UserPermissionUpdateWithoutPermissionInput, UserPermissionUncheckedUpdateWithoutPermissionInput>
+  }
+
+  export type UserPermissionUpdateManyWithWhereWithoutPermissionInput = {
+    where: UserPermissionScalarWhereInput
+    data: XOR<UserPermissionUpdateManyMutationInput, UserPermissionUncheckedUpdateManyWithoutPermissionInput>
+  }
+
+  export type UserCreateWithoutPermissionsInput = {
+    id: string
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    tenant?: TenantCreateNestedOneWithoutUsersInput
+    grantedPermissions?: UserPermissionCreateNestedManyWithoutGrantorInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    smtpUsers?: SmtpUserCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutPermissionsInput = {
+    id: string
+    tenantId?: string | null
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    grantedPermissions?: UserPermissionUncheckedCreateNestedManyWithoutGrantorInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    smtpUsers?: SmtpUserUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutPermissionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutPermissionsInput, UserUncheckedCreateWithoutPermissionsInput>
+  }
+
+  export type PermissionCreateWithoutUserPermissionsInput = {
+    code: string
+    resource: string
+    action: string
+    description?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type PermissionUncheckedCreateWithoutUserPermissionsInput = {
+    id?: number
+    code: string
+    resource: string
+    action: string
+    description?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type PermissionCreateOrConnectWithoutUserPermissionsInput = {
+    where: PermissionWhereUniqueInput
+    create: XOR<PermissionCreateWithoutUserPermissionsInput, PermissionUncheckedCreateWithoutUserPermissionsInput>
+  }
+
+  export type UserCreateWithoutGrantedPermissionsInput = {
+    id: string
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    tenant?: TenantCreateNestedOneWithoutUsersInput
+    permissions?: UserPermissionCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    smtpUsers?: SmtpUserCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutGrantedPermissionsInput = {
+    id: string
+    tenantId?: string | null
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    permissions?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    smtpUsers?: SmtpUserUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutGrantedPermissionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutGrantedPermissionsInput, UserUncheckedCreateWithoutGrantedPermissionsInput>
+  }
+
+  export type UserUpsertWithoutPermissionsInput = {
+    update: XOR<UserUpdateWithoutPermissionsInput, UserUncheckedUpdateWithoutPermissionsInput>
+    create: XOR<UserCreateWithoutPermissionsInput, UserUncheckedCreateWithoutPermissionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutPermissionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutPermissionsInput, UserUncheckedUpdateWithoutPermissionsInput>
+  }
+
+  export type UserUpdateWithoutPermissionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tenant?: TenantUpdateOneWithoutUsersNestedInput
+    grantedPermissions?: UserPermissionUpdateManyWithoutGrantorNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    smtpUsers?: SmtpUserUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutPermissionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    grantedPermissions?: UserPermissionUncheckedUpdateManyWithoutGrantorNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    smtpUsers?: SmtpUserUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type PermissionUpsertWithoutUserPermissionsInput = {
+    update: XOR<PermissionUpdateWithoutUserPermissionsInput, PermissionUncheckedUpdateWithoutUserPermissionsInput>
+    create: XOR<PermissionCreateWithoutUserPermissionsInput, PermissionUncheckedCreateWithoutUserPermissionsInput>
+    where?: PermissionWhereInput
+  }
+
+  export type PermissionUpdateToOneWithWhereWithoutUserPermissionsInput = {
+    where?: PermissionWhereInput
+    data: XOR<PermissionUpdateWithoutUserPermissionsInput, PermissionUncheckedUpdateWithoutUserPermissionsInput>
+  }
+
+  export type PermissionUpdateWithoutUserPermissionsInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    resource?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type PermissionUncheckedUpdateWithoutUserPermissionsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    code?: StringFieldUpdateOperationsInput | string
+    resource?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserUpsertWithoutGrantedPermissionsInput = {
+    update: XOR<UserUpdateWithoutGrantedPermissionsInput, UserUncheckedUpdateWithoutGrantedPermissionsInput>
+    create: XOR<UserCreateWithoutGrantedPermissionsInput, UserUncheckedCreateWithoutGrantedPermissionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutGrantedPermissionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutGrantedPermissionsInput, UserUncheckedUpdateWithoutGrantedPermissionsInput>
+  }
+
+  export type UserUpdateWithoutGrantedPermissionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tenant?: TenantUpdateOneWithoutUsersNestedInput
+    permissions?: UserPermissionUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    smtpUsers?: SmtpUserUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutGrantedPermissionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    smtpUsers?: SmtpUserUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutActivityLogsInput = {
+    id: string
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    tenant?: TenantCreateNestedOneWithoutUsersInput
+    permissions?: UserPermissionCreateNestedManyWithoutUserInput
+    grantedPermissions?: UserPermissionCreateNestedManyWithoutGrantorInput
+    smtpUsers?: SmtpUserCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutActivityLogsInput = {
+    id: string
+    tenantId?: string | null
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    permissions?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
+    grantedPermissions?: UserPermissionUncheckedCreateNestedManyWithoutGrantorInput
+    smtpUsers?: SmtpUserUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutActivityLogsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutActivityLogsInput, UserUncheckedCreateWithoutActivityLogsInput>
+  }
+
+  export type TenantCreateWithoutActivityLogsInput = {
+    id: string
+    tenantCode: string
+    nome: string
+    cidade: string
+    estado: string
+    cnpj: string
+    plano?: string | null
+    status?: string | null
+    populacao?: number | null
+    endereco?: string | null
+    responsavelNome?: string | null
+    responsavelEmail?: string | null
+    responsavelTelefone?: string | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    users?: UserCreateNestedManyWithoutTenantInput
+    emailDomains?: EmailDomainCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutActivityLogsInput = {
+    id: string
+    tenantCode: string
+    nome: string
+    cidade: string
+    estado: string
+    cnpj: string
+    plano?: string | null
+    status?: string | null
+    populacao?: number | null
+    endereco?: string | null
+    responsavelNome?: string | null
+    responsavelEmail?: string | null
+    responsavelTelefone?: string | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    emailDomains?: EmailDomainUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutActivityLogsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutActivityLogsInput, TenantUncheckedCreateWithoutActivityLogsInput>
+  }
+
+  export type UserUpsertWithoutActivityLogsInput = {
+    update: XOR<UserUpdateWithoutActivityLogsInput, UserUncheckedUpdateWithoutActivityLogsInput>
+    create: XOR<UserCreateWithoutActivityLogsInput, UserUncheckedCreateWithoutActivityLogsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutActivityLogsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutActivityLogsInput, UserUncheckedUpdateWithoutActivityLogsInput>
+  }
+
+  export type UserUpdateWithoutActivityLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tenant?: TenantUpdateOneWithoutUsersNestedInput
+    permissions?: UserPermissionUpdateManyWithoutUserNestedInput
+    grantedPermissions?: UserPermissionUpdateManyWithoutGrantorNestedInput
+    smtpUsers?: SmtpUserUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutActivityLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+    grantedPermissions?: UserPermissionUncheckedUpdateManyWithoutGrantorNestedInput
+    smtpUsers?: SmtpUserUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type TenantUpsertWithoutActivityLogsInput = {
+    update: XOR<TenantUpdateWithoutActivityLogsInput, TenantUncheckedUpdateWithoutActivityLogsInput>
+    create: XOR<TenantCreateWithoutActivityLogsInput, TenantUncheckedCreateWithoutActivityLogsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutActivityLogsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutActivityLogsInput, TenantUncheckedUpdateWithoutActivityLogsInput>
+  }
+
+  export type TenantUpdateWithoutActivityLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantCode?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cidade?: StringFieldUpdateOperationsInput | string
+    estado?: StringFieldUpdateOperationsInput | string
+    cnpj?: StringFieldUpdateOperationsInput | string
+    plano?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    populacao?: NullableIntFieldUpdateOperationsInput | number | null
+    endereco?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelNome?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelTelefone?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    users?: UserUpdateManyWithoutTenantNestedInput
+    emailDomains?: EmailDomainUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutActivityLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantCode?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cidade?: StringFieldUpdateOperationsInput | string
+    estado?: StringFieldUpdateOperationsInput | string
+    cnpj?: StringFieldUpdateOperationsInput | string
+    plano?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    populacao?: NullableIntFieldUpdateOperationsInput | number | null
+    endereco?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelNome?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelTelefone?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    emailDomains?: EmailDomainUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type UserCreateWithoutSmtpUsersInput = {
+    id: string
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    tenant?: TenantCreateNestedOneWithoutUsersInput
+    permissions?: UserPermissionCreateNestedManyWithoutUserInput
+    grantedPermissions?: UserPermissionCreateNestedManyWithoutGrantorInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSmtpUsersInput = {
+    id: string
+    tenantId?: string | null
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    permissions?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
+    grantedPermissions?: UserPermissionUncheckedCreateNestedManyWithoutGrantorInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSmtpUsersInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSmtpUsersInput, UserUncheckedCreateWithoutSmtpUsersInput>
+  }
+
+  export type EmailDomainCreateWithoutSmtpUserInput = {
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant?: TenantCreateNestedOneWithoutEmailDomainsInput
+    dkimKeys?: DkimKeyCreateNestedManyWithoutDomainInput
+    emails?: EmailCreateNestedManyWithoutDomainInput
+  }
+
+  export type EmailDomainUncheckedCreateWithoutSmtpUserInput = {
+    id?: number
+    tenantId?: string | null
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dkimKeys?: DkimKeyUncheckedCreateNestedManyWithoutDomainInput
+    emails?: EmailUncheckedCreateNestedManyWithoutDomainInput
+  }
+
+  export type EmailDomainCreateOrConnectWithoutSmtpUserInput = {
+    where: EmailDomainWhereUniqueInput
+    create: XOR<EmailDomainCreateWithoutSmtpUserInput, EmailDomainUncheckedCreateWithoutSmtpUserInput>
+  }
+
+  export type EmailDomainCreateManySmtpUserInputEnvelope = {
+    data: EmailDomainCreateManySmtpUserInput | EmailDomainCreateManySmtpUserInput[]
+  }
+
+  export type AuthAttemptCreateWithoutSmtpUserInput = {
+    username: string
+    remoteAddress: string
+    success: boolean
+    createdAt?: Date | string
+  }
+
+  export type AuthAttemptUncheckedCreateWithoutSmtpUserInput = {
+    id?: number
+    username: string
+    remoteAddress: string
+    success: boolean
+    createdAt?: Date | string
+  }
+
+  export type AuthAttemptCreateOrConnectWithoutSmtpUserInput = {
+    where: AuthAttemptWhereUniqueInput
+    create: XOR<AuthAttemptCreateWithoutSmtpUserInput, AuthAttemptUncheckedCreateWithoutSmtpUserInput>
+  }
+
+  export type AuthAttemptCreateManySmtpUserInputEnvelope = {
+    data: AuthAttemptCreateManySmtpUserInput | AuthAttemptCreateManySmtpUserInput[]
+  }
+
+  export type UserUpsertWithoutSmtpUsersInput = {
+    update: XOR<UserUpdateWithoutSmtpUsersInput, UserUncheckedUpdateWithoutSmtpUsersInput>
+    create: XOR<UserCreateWithoutSmtpUsersInput, UserUncheckedCreateWithoutSmtpUsersInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSmtpUsersInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSmtpUsersInput, UserUncheckedUpdateWithoutSmtpUsersInput>
+  }
+
+  export type UserUpdateWithoutSmtpUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tenant?: TenantUpdateOneWithoutUsersNestedInput
+    permissions?: UserPermissionUpdateManyWithoutUserNestedInput
+    grantedPermissions?: UserPermissionUpdateManyWithoutGrantorNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSmtpUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+    grantedPermissions?: UserPermissionUncheckedUpdateManyWithoutGrantorNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type EmailDomainUpsertWithWhereUniqueWithoutSmtpUserInput = {
+    where: EmailDomainWhereUniqueInput
+    update: XOR<EmailDomainUpdateWithoutSmtpUserInput, EmailDomainUncheckedUpdateWithoutSmtpUserInput>
+    create: XOR<EmailDomainCreateWithoutSmtpUserInput, EmailDomainUncheckedCreateWithoutSmtpUserInput>
+  }
+
+  export type EmailDomainUpdateWithWhereUniqueWithoutSmtpUserInput = {
+    where: EmailDomainWhereUniqueInput
+    data: XOR<EmailDomainUpdateWithoutSmtpUserInput, EmailDomainUncheckedUpdateWithoutSmtpUserInput>
+  }
+
+  export type EmailDomainUpdateManyWithWhereWithoutSmtpUserInput = {
+    where: EmailDomainScalarWhereInput
+    data: XOR<EmailDomainUpdateManyMutationInput, EmailDomainUncheckedUpdateManyWithoutSmtpUserInput>
+  }
+
+  export type AuthAttemptUpsertWithWhereUniqueWithoutSmtpUserInput = {
+    where: AuthAttemptWhereUniqueInput
+    update: XOR<AuthAttemptUpdateWithoutSmtpUserInput, AuthAttemptUncheckedUpdateWithoutSmtpUserInput>
+    create: XOR<AuthAttemptCreateWithoutSmtpUserInput, AuthAttemptUncheckedCreateWithoutSmtpUserInput>
+  }
+
+  export type AuthAttemptUpdateWithWhereUniqueWithoutSmtpUserInput = {
+    where: AuthAttemptWhereUniqueInput
+    data: XOR<AuthAttemptUpdateWithoutSmtpUserInput, AuthAttemptUncheckedUpdateWithoutSmtpUserInput>
+  }
+
+  export type AuthAttemptUpdateManyWithWhereWithoutSmtpUserInput = {
+    where: AuthAttemptScalarWhereInput
+    data: XOR<AuthAttemptUpdateManyMutationInput, AuthAttemptUncheckedUpdateManyWithoutSmtpUserInput>
+  }
+
+  export type AuthAttemptScalarWhereInput = {
+    AND?: AuthAttemptScalarWhereInput | AuthAttemptScalarWhereInput[]
+    OR?: AuthAttemptScalarWhereInput[]
+    NOT?: AuthAttemptScalarWhereInput | AuthAttemptScalarWhereInput[]
+    id?: IntFilter<"AuthAttempt"> | number
+    smtpUserId?: IntNullableFilter<"AuthAttempt"> | number | null
+    username?: StringFilter<"AuthAttempt"> | string
+    remoteAddress?: StringFilter<"AuthAttempt"> | string
+    success?: BoolFilter<"AuthAttempt"> | boolean
+    createdAt?: DateTimeFilter<"AuthAttempt"> | Date | string
+  }
+
+  export type TenantCreateWithoutEmailDomainsInput = {
+    id: string
+    tenantCode: string
+    nome: string
+    cidade: string
+    estado: string
+    cnpj: string
+    plano?: string | null
+    status?: string | null
+    populacao?: number | null
+    endereco?: string | null
+    responsavelNome?: string | null
+    responsavelEmail?: string | null
+    responsavelTelefone?: string | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    users?: UserCreateNestedManyWithoutTenantInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutEmailDomainsInput = {
+    id: string
+    tenantCode: string
+    nome: string
+    cidade: string
+    estado: string
+    cnpj: string
+    plano?: string | null
+    status?: string | null
+    populacao?: number | null
+    endereco?: string | null
+    responsavelNome?: string | null
+    responsavelEmail?: string | null
+    responsavelTelefone?: string | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutEmailDomainsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutEmailDomainsInput, TenantUncheckedCreateWithoutEmailDomainsInput>
+  }
+
+  export type SmtpUserCreateWithoutDomainsInput = {
+    email: string
+    passwordHash: string
+    name: string
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutSmtpUsersInput
+    authAttempts?: AuthAttemptCreateNestedManyWithoutSmtpUserInput
+  }
+
+  export type SmtpUserUncheckedCreateWithoutDomainsInput = {
+    id?: number
+    userId?: string | null
+    email: string
+    passwordHash: string
+    name: string
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    authAttempts?: AuthAttemptUncheckedCreateNestedManyWithoutSmtpUserInput
+  }
+
+  export type SmtpUserCreateOrConnectWithoutDomainsInput = {
+    where: SmtpUserWhereUniqueInput
+    create: XOR<SmtpUserCreateWithoutDomainsInput, SmtpUserUncheckedCreateWithoutDomainsInput>
+  }
+
+  export type DkimKeyCreateWithoutDomainInput = {
+    selector: string
+    privateKey: string
+    publicKey: string
+    algorithm?: string
+    canonicalization?: string
+    keySize?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DkimKeyUncheckedCreateWithoutDomainInput = {
+    id?: number
+    selector: string
+    privateKey: string
+    publicKey: string
+    algorithm?: string
+    canonicalization?: string
+    keySize?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DkimKeyCreateOrConnectWithoutDomainInput = {
+    where: DkimKeyWhereUniqueInput
+    create: XOR<DkimKeyCreateWithoutDomainInput, DkimKeyUncheckedCreateWithoutDomainInput>
+  }
+
+  export type DkimKeyCreateManyDomainInputEnvelope = {
+    data: DkimKeyCreateManyDomainInput | DkimKeyCreateManyDomainInput[]
+  }
+
+  export type EmailCreateWithoutDomainInput = {
+    messageId: string
+    fromEmail: string
+    toEmail: string
+    subject: string
+    htmlContent?: string | null
+    textContent?: string | null
+    status?: string
+    direction: string
+    sentAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    mxServer?: string | null
+    errorMessage?: string | null
+    attempts?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailUncheckedCreateWithoutDomainInput = {
+    id?: number
+    messageId: string
+    fromEmail: string
+    toEmail: string
+    subject: string
+    htmlContent?: string | null
+    textContent?: string | null
+    status?: string
+    direction: string
+    sentAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    mxServer?: string | null
+    errorMessage?: string | null
+    attempts?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailCreateOrConnectWithoutDomainInput = {
+    where: EmailWhereUniqueInput
+    create: XOR<EmailCreateWithoutDomainInput, EmailUncheckedCreateWithoutDomainInput>
+  }
+
+  export type EmailCreateManyDomainInputEnvelope = {
+    data: EmailCreateManyDomainInput | EmailCreateManyDomainInput[]
+  }
+
+  export type TenantUpsertWithoutEmailDomainsInput = {
+    update: XOR<TenantUpdateWithoutEmailDomainsInput, TenantUncheckedUpdateWithoutEmailDomainsInput>
+    create: XOR<TenantCreateWithoutEmailDomainsInput, TenantUncheckedCreateWithoutEmailDomainsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutEmailDomainsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutEmailDomainsInput, TenantUncheckedUpdateWithoutEmailDomainsInput>
+  }
+
+  export type TenantUpdateWithoutEmailDomainsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantCode?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cidade?: StringFieldUpdateOperationsInput | string
+    estado?: StringFieldUpdateOperationsInput | string
+    cnpj?: StringFieldUpdateOperationsInput | string
+    plano?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    populacao?: NullableIntFieldUpdateOperationsInput | number | null
+    endereco?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelNome?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelTelefone?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    users?: UserUpdateManyWithoutTenantNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutEmailDomainsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantCode?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cidade?: StringFieldUpdateOperationsInput | string
+    estado?: StringFieldUpdateOperationsInput | string
+    cnpj?: StringFieldUpdateOperationsInput | string
+    plano?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    populacao?: NullableIntFieldUpdateOperationsInput | number | null
+    endereco?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelNome?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavelTelefone?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type SmtpUserUpsertWithoutDomainsInput = {
+    update: XOR<SmtpUserUpdateWithoutDomainsInput, SmtpUserUncheckedUpdateWithoutDomainsInput>
+    create: XOR<SmtpUserCreateWithoutDomainsInput, SmtpUserUncheckedCreateWithoutDomainsInput>
+    where?: SmtpUserWhereInput
+  }
+
+  export type SmtpUserUpdateToOneWithWhereWithoutDomainsInput = {
+    where?: SmtpUserWhereInput
+    data: XOR<SmtpUserUpdateWithoutDomainsInput, SmtpUserUncheckedUpdateWithoutDomainsInput>
+  }
+
+  export type SmtpUserUpdateWithoutDomainsInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isAdmin?: BoolFieldUpdateOperationsInput | boolean
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutSmtpUsersNestedInput
+    authAttempts?: AuthAttemptUpdateManyWithoutSmtpUserNestedInput
+  }
+
+  export type SmtpUserUncheckedUpdateWithoutDomainsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isAdmin?: BoolFieldUpdateOperationsInput | boolean
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    authAttempts?: AuthAttemptUncheckedUpdateManyWithoutSmtpUserNestedInput
+  }
+
+  export type DkimKeyUpsertWithWhereUniqueWithoutDomainInput = {
+    where: DkimKeyWhereUniqueInput
+    update: XOR<DkimKeyUpdateWithoutDomainInput, DkimKeyUncheckedUpdateWithoutDomainInput>
+    create: XOR<DkimKeyCreateWithoutDomainInput, DkimKeyUncheckedCreateWithoutDomainInput>
+  }
+
+  export type DkimKeyUpdateWithWhereUniqueWithoutDomainInput = {
+    where: DkimKeyWhereUniqueInput
+    data: XOR<DkimKeyUpdateWithoutDomainInput, DkimKeyUncheckedUpdateWithoutDomainInput>
+  }
+
+  export type DkimKeyUpdateManyWithWhereWithoutDomainInput = {
+    where: DkimKeyScalarWhereInput
+    data: XOR<DkimKeyUpdateManyMutationInput, DkimKeyUncheckedUpdateManyWithoutDomainInput>
+  }
+
+  export type DkimKeyScalarWhereInput = {
+    AND?: DkimKeyScalarWhereInput | DkimKeyScalarWhereInput[]
+    OR?: DkimKeyScalarWhereInput[]
+    NOT?: DkimKeyScalarWhereInput | DkimKeyScalarWhereInput[]
+    id?: IntFilter<"DkimKey"> | number
+    domainId?: IntFilter<"DkimKey"> | number
+    selector?: StringFilter<"DkimKey"> | string
+    privateKey?: StringFilter<"DkimKey"> | string
+    publicKey?: StringFilter<"DkimKey"> | string
+    algorithm?: StringFilter<"DkimKey"> | string
+    canonicalization?: StringFilter<"DkimKey"> | string
+    keySize?: IntFilter<"DkimKey"> | number
+    isActive?: BoolFilter<"DkimKey"> | boolean
+    createdAt?: DateTimeFilter<"DkimKey"> | Date | string
+    updatedAt?: DateTimeFilter<"DkimKey"> | Date | string
+  }
+
+  export type EmailUpsertWithWhereUniqueWithoutDomainInput = {
+    where: EmailWhereUniqueInput
+    update: XOR<EmailUpdateWithoutDomainInput, EmailUncheckedUpdateWithoutDomainInput>
+    create: XOR<EmailCreateWithoutDomainInput, EmailUncheckedCreateWithoutDomainInput>
+  }
+
+  export type EmailUpdateWithWhereUniqueWithoutDomainInput = {
+    where: EmailWhereUniqueInput
+    data: XOR<EmailUpdateWithoutDomainInput, EmailUncheckedUpdateWithoutDomainInput>
+  }
+
+  export type EmailUpdateManyWithWhereWithoutDomainInput = {
+    where: EmailScalarWhereInput
+    data: XOR<EmailUpdateManyMutationInput, EmailUncheckedUpdateManyWithoutDomainInput>
+  }
+
+  export type EmailScalarWhereInput = {
+    AND?: EmailScalarWhereInput | EmailScalarWhereInput[]
+    OR?: EmailScalarWhereInput[]
+    NOT?: EmailScalarWhereInput | EmailScalarWhereInput[]
+    id?: IntFilter<"Email"> | number
+    messageId?: StringFilter<"Email"> | string
+    domainId?: IntNullableFilter<"Email"> | number | null
+    fromEmail?: StringFilter<"Email"> | string
+    toEmail?: StringFilter<"Email"> | string
+    subject?: StringFilter<"Email"> | string
+    htmlContent?: StringNullableFilter<"Email"> | string | null
+    textContent?: StringNullableFilter<"Email"> | string | null
+    status?: StringFilter<"Email"> | string
+    direction?: StringFilter<"Email"> | string
+    sentAt?: DateTimeNullableFilter<"Email"> | Date | string | null
+    deliveredAt?: DateTimeNullableFilter<"Email"> | Date | string | null
+    mxServer?: StringNullableFilter<"Email"> | string | null
+    errorMessage?: StringNullableFilter<"Email"> | string | null
+    attempts?: IntFilter<"Email"> | number
+    createdAt?: DateTimeFilter<"Email"> | Date | string
+    updatedAt?: DateTimeFilter<"Email"> | Date | string
+  }
+
+  export type EmailDomainCreateWithoutDkimKeysInput = {
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant?: TenantCreateNestedOneWithoutEmailDomainsInput
+    smtpUser: SmtpUserCreateNestedOneWithoutDomainsInput
+    emails?: EmailCreateNestedManyWithoutDomainInput
+  }
+
+  export type EmailDomainUncheckedCreateWithoutDkimKeysInput = {
+    id?: number
+    tenantId?: string | null
+    smtpUserId: number
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    emails?: EmailUncheckedCreateNestedManyWithoutDomainInput
+  }
+
+  export type EmailDomainCreateOrConnectWithoutDkimKeysInput = {
+    where: EmailDomainWhereUniqueInput
+    create: XOR<EmailDomainCreateWithoutDkimKeysInput, EmailDomainUncheckedCreateWithoutDkimKeysInput>
+  }
+
+  export type EmailDomainUpsertWithoutDkimKeysInput = {
+    update: XOR<EmailDomainUpdateWithoutDkimKeysInput, EmailDomainUncheckedUpdateWithoutDkimKeysInput>
+    create: XOR<EmailDomainCreateWithoutDkimKeysInput, EmailDomainUncheckedCreateWithoutDkimKeysInput>
+    where?: EmailDomainWhereInput
+  }
+
+  export type EmailDomainUpdateToOneWithWhereWithoutDkimKeysInput = {
+    where?: EmailDomainWhereInput
+    data: XOR<EmailDomainUpdateWithoutDkimKeysInput, EmailDomainUncheckedUpdateWithoutDkimKeysInput>
+  }
+
+  export type EmailDomainUpdateWithoutDkimKeysInput = {
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneWithoutEmailDomainsNestedInput
+    smtpUser?: SmtpUserUpdateOneRequiredWithoutDomainsNestedInput
+    emails?: EmailUpdateManyWithoutDomainNestedInput
+  }
+
+  export type EmailDomainUncheckedUpdateWithoutDkimKeysInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpUserId?: IntFieldUpdateOperationsInput | number
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emails?: EmailUncheckedUpdateManyWithoutDomainNestedInput
+  }
+
+  export type EmailDomainCreateWithoutEmailsInput = {
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant?: TenantCreateNestedOneWithoutEmailDomainsInput
+    smtpUser: SmtpUserCreateNestedOneWithoutDomainsInput
+    dkimKeys?: DkimKeyCreateNestedManyWithoutDomainInput
+  }
+
+  export type EmailDomainUncheckedCreateWithoutEmailsInput = {
+    id?: number
+    tenantId?: string | null
+    smtpUserId: number
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dkimKeys?: DkimKeyUncheckedCreateNestedManyWithoutDomainInput
+  }
+
+  export type EmailDomainCreateOrConnectWithoutEmailsInput = {
+    where: EmailDomainWhereUniqueInput
+    create: XOR<EmailDomainCreateWithoutEmailsInput, EmailDomainUncheckedCreateWithoutEmailsInput>
+  }
+
+  export type EmailDomainUpsertWithoutEmailsInput = {
+    update: XOR<EmailDomainUpdateWithoutEmailsInput, EmailDomainUncheckedUpdateWithoutEmailsInput>
+    create: XOR<EmailDomainCreateWithoutEmailsInput, EmailDomainUncheckedCreateWithoutEmailsInput>
+    where?: EmailDomainWhereInput
+  }
+
+  export type EmailDomainUpdateToOneWithWhereWithoutEmailsInput = {
+    where?: EmailDomainWhereInput
+    data: XOR<EmailDomainUpdateWithoutEmailsInput, EmailDomainUncheckedUpdateWithoutEmailsInput>
+  }
+
+  export type EmailDomainUpdateWithoutEmailsInput = {
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneWithoutEmailDomainsNestedInput
+    smtpUser?: SmtpUserUpdateOneRequiredWithoutDomainsNestedInput
+    dkimKeys?: DkimKeyUpdateManyWithoutDomainNestedInput
+  }
+
+  export type EmailDomainUncheckedUpdateWithoutEmailsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    smtpUserId?: IntFieldUpdateOperationsInput | number
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dkimKeys?: DkimKeyUncheckedUpdateManyWithoutDomainNestedInput
+  }
+
+  export type SmtpUserCreateWithoutAuthAttemptsInput = {
+    email: string
+    passwordHash: string
+    name: string
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutSmtpUsersInput
+    domains?: EmailDomainCreateNestedManyWithoutSmtpUserInput
+  }
+
+  export type SmtpUserUncheckedCreateWithoutAuthAttemptsInput = {
+    id?: number
+    userId?: string | null
+    email: string
+    passwordHash: string
+    name: string
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    domains?: EmailDomainUncheckedCreateNestedManyWithoutSmtpUserInput
+  }
+
+  export type SmtpUserCreateOrConnectWithoutAuthAttemptsInput = {
+    where: SmtpUserWhereUniqueInput
+    create: XOR<SmtpUserCreateWithoutAuthAttemptsInput, SmtpUserUncheckedCreateWithoutAuthAttemptsInput>
+  }
+
+  export type SmtpUserUpsertWithoutAuthAttemptsInput = {
+    update: XOR<SmtpUserUpdateWithoutAuthAttemptsInput, SmtpUserUncheckedUpdateWithoutAuthAttemptsInput>
+    create: XOR<SmtpUserCreateWithoutAuthAttemptsInput, SmtpUserUncheckedCreateWithoutAuthAttemptsInput>
+    where?: SmtpUserWhereInput
+  }
+
+  export type SmtpUserUpdateToOneWithWhereWithoutAuthAttemptsInput = {
+    where?: SmtpUserWhereInput
+    data: XOR<SmtpUserUpdateWithoutAuthAttemptsInput, SmtpUserUncheckedUpdateWithoutAuthAttemptsInput>
+  }
+
+  export type SmtpUserUpdateWithoutAuthAttemptsInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isAdmin?: BoolFieldUpdateOperationsInput | boolean
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutSmtpUsersNestedInput
+    domains?: EmailDomainUpdateManyWithoutSmtpUserNestedInput
+  }
+
+  export type SmtpUserUncheckedUpdateWithoutAuthAttemptsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isAdmin?: BoolFieldUpdateOperationsInput | boolean
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    domains?: EmailDomainUncheckedUpdateManyWithoutSmtpUserNestedInput
+  }
+
+  export type UserCreateManyTenantInput = {
+    id: string
+    nomeCompleto: string
+    email: string
+    passwordHash: string
+    role?: string
+    status?: string
+    avatarUrl?: string | null
+    ultimoLogin?: Date | string | null
+    failedLoginAttempts?: number | null
+    lockedUntil?: Date | string | null
+    emailVerified?: boolean | null
+    createdAt?: Date | string | null
+    updatedAt?: Date | string | null
+  }
+
+  export type ActivityLogCreateManyTenantInput = {
+    id?: number
+    userId?: string | null
+    action: string
+    resource?: string | null
+    resourceId?: string | null
+    details?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type EmailDomainCreateManyTenantInput = {
+    id?: number
+    smtpUserId: number
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UserUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: UserPermissionUpdateManyWithoutUserNestedInput
+    grantedPermissions?: UserPermissionUpdateManyWithoutGrantorNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    smtpUsers?: SmtpUserUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+    grantedPermissions?: UserPermissionUncheckedUpdateManyWithoutGrantorNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    smtpUsers?: SmtpUserUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeCompleto?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    ultimoLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: NullableIntFieldUpdateOperationsInput | number | null
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ActivityLogUpdateWithoutTenantInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    resource?: NullableStringFieldUpdateOperationsInput | string | null
+    resourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneWithoutActivityLogsNestedInput
+  }
+
+  export type ActivityLogUncheckedUpdateWithoutTenantInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    resource?: NullableStringFieldUpdateOperationsInput | string | null
+    resourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ActivityLogUncheckedUpdateManyWithoutTenantInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    resource?: NullableStringFieldUpdateOperationsInput | string | null
+    resourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type EmailDomainUpdateWithoutTenantInput = {
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    smtpUser?: SmtpUserUpdateOneRequiredWithoutDomainsNestedInput
+    dkimKeys?: DkimKeyUpdateManyWithoutDomainNestedInput
+    emails?: EmailUpdateManyWithoutDomainNestedInput
+  }
+
+  export type EmailDomainUncheckedUpdateWithoutTenantInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    smtpUserId?: IntFieldUpdateOperationsInput | number
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dkimKeys?: DkimKeyUncheckedUpdateManyWithoutDomainNestedInput
+    emails?: EmailUncheckedUpdateManyWithoutDomainNestedInput
+  }
+
+  export type EmailDomainUncheckedUpdateManyWithoutTenantInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    smtpUserId?: IntFieldUpdateOperationsInput | number
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPermissionCreateManyUserInput = {
+    id?: number
+    permissionId: number
+    grantedBy?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type UserPermissionCreateManyGrantorInput = {
+    id?: number
+    userId: string
+    permissionId: number
+    createdAt?: Date | string | null
+  }
+
+  export type ActivityLogCreateManyUserInput = {
+    id?: number
+    tenantId?: string | null
+    action: string
+    resource?: string | null
+    resourceId?: string | null
+    details?: string | null
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type SmtpUserCreateManyUserInput = {
+    id?: number
+    email: string
+    passwordHash: string
+    name: string
+    isVerified?: boolean
+    isActive?: boolean
+    isAdmin?: boolean
+    lastLogin?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UserPermissionUpdateWithoutUserInput = {
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permission?: PermissionUpdateOneRequiredWithoutUserPermissionsNestedInput
+    grantor?: UserUpdateOneWithoutGrantedPermissionsNestedInput
+  }
+
+  export type UserPermissionUncheckedUpdateWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    permissionId?: IntFieldUpdateOperationsInput | number
+    grantedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserPermissionUncheckedUpdateManyWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    permissionId?: IntFieldUpdateOperationsInput | number
+    grantedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserPermissionUpdateWithoutGrantorInput = {
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutPermissionsNestedInput
+    permission?: PermissionUpdateOneRequiredWithoutUserPermissionsNestedInput
+  }
+
+  export type UserPermissionUncheckedUpdateWithoutGrantorInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: StringFieldUpdateOperationsInput | string
+    permissionId?: IntFieldUpdateOperationsInput | number
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserPermissionUncheckedUpdateManyWithoutGrantorInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: StringFieldUpdateOperationsInput | string
+    permissionId?: IntFieldUpdateOperationsInput | number
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ActivityLogUpdateWithoutUserInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    resource?: NullableStringFieldUpdateOperationsInput | string | null
+    resourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tenant?: TenantUpdateOneWithoutActivityLogsNestedInput
+  }
+
+  export type ActivityLogUncheckedUpdateWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    resource?: NullableStringFieldUpdateOperationsInput | string | null
+    resourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ActivityLogUncheckedUpdateManyWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    resource?: NullableStringFieldUpdateOperationsInput | string | null
+    resourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SmtpUserUpdateWithoutUserInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isAdmin?: BoolFieldUpdateOperationsInput | boolean
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    domains?: EmailDomainUpdateManyWithoutSmtpUserNestedInput
+    authAttempts?: AuthAttemptUpdateManyWithoutSmtpUserNestedInput
+  }
+
+  export type SmtpUserUncheckedUpdateWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isAdmin?: BoolFieldUpdateOperationsInput | boolean
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    domains?: EmailDomainUncheckedUpdateManyWithoutSmtpUserNestedInput
+    authAttempts?: AuthAttemptUncheckedUpdateManyWithoutSmtpUserNestedInput
+  }
+
+  export type SmtpUserUncheckedUpdateManyWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isAdmin?: BoolFieldUpdateOperationsInput | boolean
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPermissionCreateManyPermissionInput = {
+    id?: number
+    userId: string
+    grantedBy?: string | null
+    createdAt?: Date | string | null
+  }
+
+  export type UserPermissionUpdateWithoutPermissionInput = {
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutPermissionsNestedInput
+    grantor?: UserUpdateOneWithoutGrantedPermissionsNestedInput
+  }
+
+  export type UserPermissionUncheckedUpdateWithoutPermissionInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: StringFieldUpdateOperationsInput | string
+    grantedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserPermissionUncheckedUpdateManyWithoutPermissionInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: StringFieldUpdateOperationsInput | string
+    grantedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type EmailDomainCreateManySmtpUserInput = {
+    id?: number
+    tenantId?: string | null
+    domainName: string
+    isVerified?: boolean
+    verificationToken?: string | null
+    verifiedAt?: Date | string | null
+    verificationMethod?: string | null
+    dkimEnabled?: boolean
+    spfEnabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AuthAttemptCreateManySmtpUserInput = {
+    id?: number
+    username: string
+    remoteAddress: string
+    success: boolean
+    createdAt?: Date | string
+  }
+
+  export type EmailDomainUpdateWithoutSmtpUserInput = {
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneWithoutEmailDomainsNestedInput
+    dkimKeys?: DkimKeyUpdateManyWithoutDomainNestedInput
+    emails?: EmailUpdateManyWithoutDomainNestedInput
+  }
+
+  export type EmailDomainUncheckedUpdateWithoutSmtpUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dkimKeys?: DkimKeyUncheckedUpdateManyWithoutDomainNestedInput
+    emails?: EmailUncheckedUpdateManyWithoutDomainNestedInput
+  }
+
+  export type EmailDomainUncheckedUpdateManyWithoutSmtpUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    domainName?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    dkimEnabled?: BoolFieldUpdateOperationsInput | boolean
+    spfEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuthAttemptUpdateWithoutSmtpUserInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    remoteAddress?: StringFieldUpdateOperationsInput | string
+    success?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuthAttemptUncheckedUpdateWithoutSmtpUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    remoteAddress?: StringFieldUpdateOperationsInput | string
+    success?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuthAttemptUncheckedUpdateManyWithoutSmtpUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    remoteAddress?: StringFieldUpdateOperationsInput | string
+    success?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DkimKeyCreateManyDomainInput = {
+    id?: number
+    selector: string
+    privateKey: string
+    publicKey: string
+    algorithm?: string
+    canonicalization?: string
+    keySize?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailCreateManyDomainInput = {
+    id?: number
+    messageId: string
+    fromEmail: string
+    toEmail: string
+    subject: string
+    htmlContent?: string | null
+    textContent?: string | null
+    status?: string
+    direction: string
+    sentAt?: Date | string | null
+    deliveredAt?: Date | string | null
+    mxServer?: string | null
+    errorMessage?: string | null
+    attempts?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DkimKeyUpdateWithoutDomainInput = {
+    selector?: StringFieldUpdateOperationsInput | string
+    privateKey?: StringFieldUpdateOperationsInput | string
+    publicKey?: StringFieldUpdateOperationsInput | string
+    algorithm?: StringFieldUpdateOperationsInput | string
+    canonicalization?: StringFieldUpdateOperationsInput | string
+    keySize?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DkimKeyUncheckedUpdateWithoutDomainInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    selector?: StringFieldUpdateOperationsInput | string
+    privateKey?: StringFieldUpdateOperationsInput | string
+    publicKey?: StringFieldUpdateOperationsInput | string
+    algorithm?: StringFieldUpdateOperationsInput | string
+    canonicalization?: StringFieldUpdateOperationsInput | string
+    keySize?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DkimKeyUncheckedUpdateManyWithoutDomainInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    selector?: StringFieldUpdateOperationsInput | string
+    privateKey?: StringFieldUpdateOperationsInput | string
+    publicKey?: StringFieldUpdateOperationsInput | string
+    algorithm?: StringFieldUpdateOperationsInput | string
+    canonicalization?: StringFieldUpdateOperationsInput | string
+    keySize?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailUpdateWithoutDomainInput = {
+    messageId?: StringFieldUpdateOperationsInput | string
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    toEmail?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    htmlContent?: NullableStringFieldUpdateOperationsInput | string | null
+    textContent?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mxServer?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailUncheckedUpdateWithoutDomainInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    messageId?: StringFieldUpdateOperationsInput | string
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    toEmail?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    htmlContent?: NullableStringFieldUpdateOperationsInput | string | null
+    textContent?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mxServer?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailUncheckedUpdateManyWithoutDomainInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    messageId?: StringFieldUpdateOperationsInput | string
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    toEmail?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    htmlContent?: NullableStringFieldUpdateOperationsInput | string | null
+    textContent?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mxServer?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+
+
+  /**
+   * Batch Payload for updateMany & deleteMany & createMany
+   */
+
+  export type BatchPayload = {
+    count: number
+  }
+
+  /**
+   * DMMF
+   */
+  export const dmmf: runtime.BaseDMMF
+}
