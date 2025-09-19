@@ -7,7 +7,7 @@
 
 import jwt from 'jsonwebtoken';
 import { AUTH_CONFIG } from '../config/auth.js';
-import { User } from '../models/User.js';
+import User from '../models/User.js';
 
 // ====================================================================
 // INTERFACES E TIPOS
@@ -61,7 +61,7 @@ export class JWTUtils {
       userId: user.id,
       email: user.email,
       role: user.role,
-      tenantId: user.tenant_id,
+      tenantId: user.tenantId,
       sessionId
     };
     

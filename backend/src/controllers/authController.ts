@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import { userService } from '../services/userService.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { prisma } from "../database/prisma.js";
-import { User, UserModel } from '../models/User.js';
+import User, { UserModel } from '../models/User.js';
 import { CookieManager } from '../utils/cookieManager.js';
 import { AUTH_CONFIG, isProduction } from '../config/auth.js';
 import { StructuredLogger, withRequestContext } from '../monitoring/structuredLogger.js';
@@ -59,31 +59,31 @@ class AuthController {
         StructuredLogger.security('Login attempt on inactive user', {
           ...context,
           userId: user.id,
-          tenantId: user.tenant_id,
+          tenantId: user.tenantId,
           severity: 'high',
           threat: 'account_abuse',
           source: req.ip
         });
         
-        recordAuthAttempt('failure', user.tenant_id || 'unknown', 'password');
+        recordAuthAttempt('failure', user.tenantId || 'unknown', 'password');
         return res.status(401).json({
           success: false,
           error: 'Usuário inativo ou bloqueado'
         });
       }
 
-      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+      const isValidPassword = await bcrypt.compare(password, user.passwordHash);
       if (!isValidPassword) {
         StructuredLogger.security('Failed login attempt - invalid password', {
           ...context,
           userId: user.id,
-          tenantId: user.tenant_id,
+          tenantId: user.tenantId,
           severity: 'high',
           threat: 'brute_force',
           source: req.ip
         });
         
-        recordAuthAttempt('failure', user.tenant_id || 'unknown', 'password');
+        recordAuthAttempt('failure', user.tenantId || 'unknown', 'password');
         return res.status(401).json({
           success: false,
           error: 'Credenciais inválidas'
@@ -99,7 +99,7 @@ class AuthController {
           userId: user.id, 
           email: user.email, 
           role: user.role,
-          tenant_id: user.tenant_id,
+          tenant_id: user.tenantId,
           sessionId,
           csrf: csrfToken
         },
@@ -126,11 +126,11 @@ class AuthController {
 
       // Buscar dados do tenant se existir
       let tenantData = null;
-      if (user.tenant_id) {
-        const tenant = await queryOne(
-          'SELECT id, nome, status FROM tenants WHERE id = ?',
-          [user.tenant_id]
-        );
+      if (user.tenantId) {
+        const tenant = await prisma.tenant.findUnique({
+          where: { id: user.tenantId },
+          select: { id: true, nome: true, status: true }
+        });
         if (tenant) {
           tenantData = {
             id: tenant.id,
@@ -146,7 +146,7 @@ class AuthController {
       StructuredLogger.audit('User login successful', {
         ...context,
         userId: user.id,
-        tenantId: user.tenant_id,
+        tenantId: user.tenantId,
         success: true,
         details: `Successful login for user ${user.id.substring(0, 8)}...`
       });
@@ -154,7 +154,7 @@ class AuthController {
       StructuredLogger.business('User authentication', {
         ...context,
         userId: user.id,
-        tenantId: user.tenant_id,
+        tenantId: user.tenantId,
         entityType: 'user_session',
         entityId: sessionId,
         operation: 'create'
@@ -163,12 +163,12 @@ class AuthController {
       StructuredLogger.performance('User login', {
         ...context,
         userId: user.id,
-        tenantId: user.tenant_id,
+        tenantId: user.tenantId,
         duration: loginDuration,
         threshold: 2000 // 2 segundos
       });
 
-      recordAuthAttempt('success', user.tenant_id || 'unknown', 'password');
+      recordAuthAttempt('success', user.tenantId || 'unknown', 'password');
 
       // Definir cookies seguros
       CookieManager.setAuthCookies(res, {
@@ -184,14 +184,14 @@ class AuthController {
         data: {
           user: {
             id: user.id,
-            nome_completo: user.nome_completo,
+            nome_completo: user.nomeCompleto,
             email: user.email,
             role: user.role,
             status: user.status,
-            tenant_id: user.tenant_id,
-            email_verified: user.email_verified,
-            created_at: user.created_at,
-            updated_at: user.updated_at
+            tenant_id: user.tenantId,
+            email_verified: user.emailVerified,
+            created_at: user.createdAt,
+            updated_at: user.updatedAt
           },
           // Manter tokens na response para compatibilidade com frontend atual
           // TODO: Remover após migração completa para cookies
@@ -292,7 +292,7 @@ class AuthController {
           userId: user.id, 
           email: user.email, 
           role: user.role,
-          tenant_id: user.tenant_id,
+          tenant_id: user.tenantId,
           sessionId: decoded.sessionId,
           csrf: newCsrfToken
         },

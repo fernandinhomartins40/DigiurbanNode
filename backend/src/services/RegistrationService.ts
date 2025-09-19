@@ -7,7 +7,7 @@
 
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { UserModel, User, CreateUserData } from '../models/User.js';
+import User, { UserModel, CreateUserData } from '../models/User.js';
 import { TenantModel, Tenant, CreateTenantData } from '../models/Tenant.js';
 import { ActivityService } from './ActivityService.js';
 import { JWTUtils } from '../utils/jwt.js';
@@ -20,16 +20,16 @@ import type { UserRole } from '../models/User.js';
 // ====================================================================
 
 export interface RegisterUserRequest {
-  nome_completo: string;
+  nomeCompleto: string;
   email: string;
   password: string;
-  tenant_id?: string;
-  tipo_usuario?: string;
+  tenantId?: string;
+  tipoUsuario?: string;
 }
 
 export interface RegisterUserResponse {
   success: boolean;
-  user: Omit<User, 'password_hash'>;
+  user: Omit<User, 'passwordHash'>;
   activationToken?: string;
   message: string;
 }
@@ -37,7 +37,7 @@ export interface RegisterUserResponse {
 export interface RegisterTenantRequest {
   tenantData: CreateTenantData;
   adminData: {
-    nome_completo: string;
+    nomeCompleto: string;
     email: string;
     password: string;
   };
@@ -46,7 +46,7 @@ export interface RegisterTenantRequest {
 export interface RegisterTenantResponse {
   success: boolean;
   tenant: Tenant;
-  admin: Omit<User, 'password_hash'>;
+  admin: Omit<User, 'passwordHash'>;
   message: string;
 }
 
@@ -56,7 +56,7 @@ export interface ActivateAccountRequest {
 
 export interface ActivateAccountResponse {
   success: boolean;
-  user: Omit<User, 'password_hash'>;
+  user: Omit<User, 'passwordHash'>;
   message: string;
 }
 
@@ -93,11 +93,11 @@ export class RegistrationService {
    * Registrar novo usuário (cidadão ou funcionário)
    */
   static async registerUser(request: RegisterUserRequest): Promise<RegisterUserResponse> {
-    const { nome_completo, email, password, tenant_id, tipo_usuario } = request;
+    const { nomeCompleto, email, password, tenantId, tipoUsuario } = request;
 
     try {
       // 1. Validar dados de entrada
-      await this.validateUserData({ nome_completo, email, password });
+      await this.validateUserData({ nomeCompleto, email, password });
 
       // 2. Verificar se email já existe
       const existingUser = await UserModel.findByEmail(email);
@@ -106,14 +106,14 @@ export class RegistrationService {
       }
 
       // 3. Validar tenant se fornecido
-      if (tenant_id) {
-        const tenant = await TenantModel.findById(tenant_id);
+      if (tenantId) {
+        const tenant = await TenantModel.findById(tenantId);
         if (!tenant) {
           throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND);
         }
 
         // Verificar se tenant pode adicionar mais usuários
-        const canAddUser = await TenantModel.canAddUser(tenant_id);
+        const canAddUser = await TenantModel.canAddUser(tenantId);
         if (!canAddUser) {
           throw new Error('Limite de usuários atingido para este plano');
         }
@@ -122,13 +122,13 @@ export class RegistrationService {
       // 4. Hash da senha
       const passwordHash = await bcrypt.hash(password, AUTH_CONFIG.BCRYPT_ROUNDS);
 
-      // 5. Mapear tipo_usuario para role
-      const role = this.mapTipoUsuarioToRole(tipo_usuario, tenant_id);
+      // 5. Mapear tipoUsuario para role
+      const role = this.mapTipoUsuarioToRole(tipoUsuario, tenantId);
 
       // 6. Criar dados do usuário
       const userData: CreateUserData = {
-        tenant_id: tenant_id || undefined,
-        nome_completo: nome_completo.trim(),
+        tenantId: tenantId || undefined,
+        nomeCompleto: nomeCompleto.trim(),
         email: email.toLowerCase().trim(),
         password: password, // Será hasheada no UserModel
         role: role,
@@ -144,12 +144,12 @@ export class RegistrationService {
       // 9. Registrar atividade
       await ActivityService.log({
         user_id: user.id,
-        tenant_id: user.tenant_id,
+        tenantId: user.tenantId,
         action: 'user_registered',
         resource: 'users',
         resource_id: user.id,
         details: JSON.stringify({
-          registration_type: tenant_id ? 'staff' : 'citizen',
+          registration_type: tenantId ? 'staff' : 'citizen',
           email: user.email,
           role: user.role
         })
@@ -209,8 +209,8 @@ export class RegistrationService {
 
         // Criar administrador do tenant
         const adminUserData: CreateUserData = {
-          tenant_id: tenant.id,
-          nome_completo: adminData.nome_completo.trim(),
+          tenantId: tenant.id,
+          nomeCompleto: adminData.nomeCompleto.trim(),
           email: adminData.email.toLowerCase().trim(),
           password: adminData.password,
           role: 'admin',
@@ -294,7 +294,7 @@ export class RegistrationService {
       // 6. Registrar atividade
       await ActivityService.log({
         user_id: user.id,
-        tenant_id: user.tenant_id,
+        tenantId: user.tenantId,
         action: 'account_activated',
         resource: 'users',
         resource_id: user.id,
@@ -343,7 +343,7 @@ export class RegistrationService {
       // 3. Registrar atividade
       await ActivityService.log({
         user_id: user.id,
-        tenant_id: user.tenant_id,
+        tenantId: user.tenantId,
         action: 'password_reset_requested',
         resource: 'users',
         resource_id: user.id,
@@ -406,7 +406,7 @@ export class RegistrationService {
       // 6. Registrar atividade
       await ActivityService.log({
         user_id: user.id,
-        tenant_id: user.tenant_id,
+        tenantId: user.tenantId,
         action: 'password_reset_completed',
         resource: 'users',
         resource_id: user.id,
@@ -434,16 +434,16 @@ export class RegistrationService {
    * Validar dados de usuário
    */
   private static async validateUserData(userData: {
-    nome_completo: string;
+    nomeCompleto: string;
     email: string;
     password: string;
   }): Promise<void> {
     // Nome completo
-    if (!userData.nome_completo || userData.nome_completo.trim().length < VALIDATION_CONFIG.NAME_MIN_LENGTH) {
+    if (!userData.nomeCompleto || userData.nomeCompleto.trim().length < VALIDATION_CONFIG.NAME_MIN_LENGTH) {
       throw new Error(`Nome completo deve ter pelo menos ${VALIDATION_CONFIG.NAME_MIN_LENGTH} caracteres`);
     }
 
-    if (userData.nome_completo.length > VALIDATION_CONFIG.NAME_MAX_LENGTH) {
+    if (userData.nomeCompleto.length > VALIDATION_CONFIG.NAME_MAX_LENGTH) {
       throw new Error(`Nome completo deve ter no máximo ${VALIDATION_CONFIG.NAME_MAX_LENGTH} caracteres`);
     }
 
@@ -610,7 +610,7 @@ export class RegistrationService {
       // Registrar atividade
       await ActivityService.log({
         user_id: user.id,
-        tenant_id: user.tenant_id,
+        tenantId: user.tenantId,
         action: 'activation_email_resent',
         resource: 'users',
         resource_id: user.id,
@@ -650,7 +650,7 @@ export class RegistrationService {
       // Registrar atividade
       await ActivityService.log({
         user_id: adminId,
-        tenant_id: user.tenant_id,
+        tenantId: user.tenantId,
         action: 'user_activated_by_admin',
         resource: 'users',
         resource_id: userId,
@@ -682,14 +682,14 @@ export class RegistrationService {
   }
 
   /**
-   * Mapear tipo_usuario para role
+   * Mapear tipoUsuario para role
    */
-  private static mapTipoUsuarioToRole(tipo_usuario?: string, tenant_id?: string): UserRole {
-    // Se tipo_usuario foi especificado, validar e usar
-    if (tipo_usuario) {
+  private static mapTipoUsuarioToRole(tipoUsuario?: string, tenantId?: string): UserRole {
+    // Se tipoUsuario foi especificado, validar e usar
+    if (tipoUsuario) {
       const validRoles: UserRole[] = ['super_admin', 'admin', 'manager', 'coordinator', 'user', 'guest'];
-      if (validRoles.includes(tipo_usuario as UserRole)) {
-        return tipo_usuario as UserRole;
+      if (validRoles.includes(tipoUsuario as UserRole)) {
+        return tipoUsuario as UserRole;
       }
       
       // Mapeamento de tipos legados ou descritivos
@@ -705,14 +705,14 @@ export class RegistrationService {
         'cidadao': 'guest'
       };
       
-      const normalizedType = tipo_usuario.toLowerCase().replace(/[^a-z]/g, '_');
+      const normalizedType = tipoUsuario.toLowerCase().replace(/[^a-z]/g, '_');
       if (roleMapping[normalizedType]) {
         return roleMapping[normalizedType];
       }
     }
     
     // Fallback para lógica original
-    return tenant_id ? 'user' : 'guest';
+    return tenantId ? 'user' : 'guest';
   }
 
   /**

@@ -382,7 +382,10 @@ export const validators = {
   tenant: tenantValidation,
   userUpdate: userUpdateValidation,
   id: idValidation,
-  pagination: paginationValidation
+  pagination: paginationValidation,
+  body,
+  query,
+  param
 };
 
 export default {

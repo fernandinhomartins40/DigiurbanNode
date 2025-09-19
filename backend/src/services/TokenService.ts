@@ -61,23 +61,26 @@ export class TokenService {
       const expiresAt = Date.now() + parseInt(process.env.PASSWORD_RESET_TOKEN_LIFETIME || '3600000'); // 1 hora
 
       // Invalidar tokens anteriores deste usuário
-      await execute(
-        'UPDATE password_reset_tokens SET used_at = ? WHERE user_id = ? AND used_at IS NULL',
-        [Date.now(), userId]
-      );
+      await prisma.passwordResetToken.updateMany({
+        where: {
+          user_id: userId,
+          used_at: null
+        },
+        data: {
+          used_at: new Date()
+        }
+      });
 
       // Inserir novo token
-      await execute(`
-        INSERT INTO password_reset_tokens 
-        (user_id, token, expires_at, ip_address, user_agent) 
-        VALUES (?, ?, ?, ?, ?)
-      `, [
-        userId,
-        hashedToken,
-        expiresAt,
-        metadata?.ipAddress || null,
-        metadata?.userAgent || null
-      ]);
+      await prisma.passwordResetToken.create({
+        data: {
+          user_id: userId,
+          token: hashedToken,
+          expires_at: new Date(expiresAt),
+          ip_address: metadata?.ipAddress || null,
+          user_agent: metadata?.userAgent || null
+        }
+      });
 
       return {
         token,
@@ -99,12 +102,18 @@ export class TokenService {
       const hashedToken = this.hashToken(token);
       const now = Date.now();
 
-      const tokenRecord = await execute(`
-        SELECT user_id, expires_at, used_at
-        FROM password_reset_tokens 
-        WHERE token = ? AND expires_at > ? AND used_at IS NULL
-        LIMIT 1
-      `, [hashedToken, now]) as any;
+      const tokenRecord = await prisma.passwordResetToken.findFirst({
+        where: {
+          token: hashedToken,
+          expires_at: { gt: new Date(now) },
+          used_at: null
+        },
+        select: {
+          user_id: true,
+          expires_at: true,
+          used_at: true
+        }
+      });
 
       if (!tokenRecord) {
         return {
@@ -135,13 +144,18 @@ export class TokenService {
       const hashedToken = this.hashToken(token);
       const now = Date.now();
 
-      const result = await execute(`
-        UPDATE password_reset_tokens 
-        SET used_at = ? 
-        WHERE token = ? AND expires_at > ? AND used_at IS NULL
-      `, [now, hashedToken, now]);
+      const result = await prisma.passwordResetToken.updateMany({
+        where: {
+          token: hashedToken,
+          expires_at: { gt: new Date(now) },
+          used_at: null
+        },
+        data: {
+          used_at: new Date(now)
+        }
+      });
 
-      return result && (result as any).changes > 0;
+      return result && result.count > 0;
 
     } catch (error) {
       console.error('Erro ao marcar token como usado:', error);
@@ -167,23 +181,26 @@ export class TokenService {
       const expiresAt = Date.now() + parseInt(process.env.EMAIL_VERIFICATION_TOKEN_LIFETIME || '86400000'); // 24 horas
 
       // Invalidar tokens anteriores deste usuário
-      await execute(
-        'UPDATE email_verification_tokens SET verified_at = ? WHERE user_id = ? AND verified_at IS NULL',
-        [Date.now(), userId]
-      );
+      await prisma.emailVerificationToken.updateMany({
+        where: {
+          user_id: userId,
+          verified_at: null
+        },
+        data: {
+          verified_at: new Date()
+        }
+      });
 
       // Inserir novo token
-      await execute(`
-        INSERT INTO email_verification_tokens 
-        (user_id, token, expires_at, ip_address, user_agent) 
-        VALUES (?, ?, ?, ?, ?)
-      `, [
-        userId,
-        hashedToken,
-        expiresAt,
-        metadata?.ipAddress || null,
-        metadata?.userAgent || null
-      ]);
+      await prisma.emailVerificationToken.create({
+        data: {
+          user_id: userId,
+          token: hashedToken,
+          expires_at: new Date(expiresAt),
+          ip_address: metadata?.ipAddress || null,
+          user_agent: metadata?.userAgent || null
+        }
+      });
 
       return {
         token,
@@ -205,12 +222,18 @@ export class TokenService {
       const hashedToken = this.hashToken(token);
       const now = Date.now();
 
-      const tokenRecord = await execute(`
-        SELECT user_id, expires_at, verified_at
-        FROM email_verification_tokens 
-        WHERE token = ? AND expires_at > ? AND verified_at IS NULL
-        LIMIT 1
-      `, [hashedToken, now]) as any;
+      const tokenRecord = await prisma.emailVerificationToken.findFirst({
+        where: {
+          token: hashedToken,
+          expires_at: { gt: new Date(now) },
+          verified_at: null
+        },
+        select: {
+          user_id: true,
+          expires_at: true,
+          verified_at: true
+        }
+      });
 
       if (!tokenRecord) {
         return {
@@ -241,13 +264,18 @@ export class TokenService {
       const hashedToken = this.hashToken(token);
       const now = Date.now();
 
-      const result = await execute(`
-        UPDATE email_verification_tokens 
-        SET verified_at = ? 
-        WHERE token = ? AND expires_at > ? AND verified_at IS NULL
-      `, [now, hashedToken, now]);
+      const result = await prisma.emailVerificationToken.updateMany({
+        where: {
+          token: hashedToken,
+          expires_at: { gt: new Date(now) },
+          verified_at: null
+        },
+        data: {
+          verified_at: new Date(now)
+        }
+      });
 
-      return result && (result as any).changes > 0;
+      return result && result.count > 0;
 
     } catch (error) {
       console.error('Erro ao marcar token como verificado:', error);
@@ -284,20 +312,22 @@ export class TokenService {
       const now = Date.now();
 
       // Limpar tokens de recuperação de senha expirados
-      const passwordResult = await execute(
-        'DELETE FROM password_reset_tokens WHERE expires_at < ?',
-        [now]
-      ) as any;
+      const passwordResult = await prisma.passwordResetToken.deleteMany({
+        where: {
+          expires_at: { lt: new Date(now) }
+        }
+      });
 
       // Limpar tokens de verificação de e-mail expirados
-      const emailResult = await execute(
-        'DELETE FROM email_verification_tokens WHERE expires_at < ?',
-        [now]
-      ) as any;
+      const emailResult = await prisma.emailVerificationToken.deleteMany({
+        where: {
+          expires_at: { lt: new Date(now) }
+        }
+      });
 
       return {
-        passwordResetTokens: passwordResult.changes || 0,
-        emailVerificationTokens: emailResult.changes || 0
+        passwordResetTokens: passwordResult.count || 0,
+        emailVerificationTokens: emailResult.count || 0
       };
 
     } catch (error) {
@@ -322,34 +352,40 @@ export class TokenService {
       const now = Date.now();
 
       // Tokens de recuperação ativos
-      const passwordActive = await execute(
-        'SELECT COUNT(*) as count FROM password_reset_tokens WHERE expires_at > ? AND used_at IS NULL',
-        [now]
-      ) as any;
+      const passwordActive = await prisma.passwordResetToken.count({
+        where: {
+          expires_at: { gt: new Date(now) },
+          used_at: null
+        }
+      });
 
       // Tokens de recuperação expirados
-      const passwordExpired = await execute(
-        'SELECT COUNT(*) as count FROM password_reset_tokens WHERE expires_at <= ?',
-        [now]
-      ) as any;
+      const passwordExpired = await prisma.passwordResetToken.count({
+        where: {
+          expires_at: { lte: new Date(now) }
+        }
+      });
 
       // Tokens de verificação ativos
-      const emailActive = await execute(
-        'SELECT COUNT(*) as count FROM email_verification_tokens WHERE expires_at > ? AND verified_at IS NULL',
-        [now]
-      ) as any;
+      const emailActive = await prisma.emailVerificationToken.count({
+        where: {
+          expires_at: { gt: new Date(now) },
+          verified_at: null
+        }
+      });
 
       // Tokens de verificação expirados
-      const emailExpired = await execute(
-        'SELECT COUNT(*) as count FROM email_verification_tokens WHERE expires_at <= ?',
-        [now]
-      ) as any;
+      const emailExpired = await prisma.emailVerificationToken.count({
+        where: {
+          expires_at: { lte: new Date(now) }
+        }
+      });
 
       return {
-        passwordResetActive: passwordActive.count || 0,
-        passwordResetExpired: passwordExpired.count || 0,
-        emailVerificationActive: emailActive.count || 0,
-        emailVerificationExpired: emailExpired.count || 0
+        passwordResetActive: passwordActive || 0,
+        passwordResetExpired: passwordExpired || 0,
+        emailVerificationActive: emailActive || 0,
+        emailVerificationExpired: emailExpired || 0
       };
 
     } catch (error) {
@@ -379,13 +415,24 @@ export class TokenService {
         ? 'password_reset_tokens' 
         : 'email_verification_tokens';
 
-      const count = await execute(`
-        SELECT COUNT(*) as count 
-        FROM ${tableName} 
-        WHERE user_id = ? AND created_at > ?
-      `, [userId, windowStart]) as any;
+      let count;
+      if (tokenType === 'password_reset') {
+        count = await prisma.passwordResetToken.count({
+          where: {
+            user_id: userId,
+            created_at: { gt: new Date(windowStart) }
+          }
+        });
+      } else {
+        count = await prisma.emailVerificationToken.count({
+          where: {
+            user_id: userId,
+            created_at: { gt: new Date(windowStart) }
+          }
+        });
+      }
 
-      return (count.count || 0) < maxRequests;
+      return (count || 0) < maxRequests;
 
     } catch (error) {
       console.error('Erro ao verificar rate limit de tokens:', error);

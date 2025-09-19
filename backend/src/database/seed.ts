@@ -104,17 +104,19 @@ const DEFAULT_PERMISSIONS = [
 // ====================================================================
 
 async function seedSystemConfig() {
-  console.log('🔧 Criando configurações do sistema...')
+  console.log('🔧 Configurações do sistema - modelo não implementado no schema')
+  console.log('ℹ️ Para implementar, adicione modelo SystemConfig no schema.prisma')
 
-  for (const config of SYSTEM_CONFIG) {
-    await prisma.systemConfig.upsert({
-      where: { key: config.key },
-      update: { value: config.value, description: config.description },
-      create: config
-    })
-  }
+  // TODO: Implementar modelo SystemConfig no schema quando necessário
+  // for (const config of SYSTEM_CONFIG) {
+  //   await prisma.systemConfig.upsert({
+  //     where: { key: config.key },
+  //     update: { value: config.value, description: config.description },
+  //     create: config
+  //   })
+  // }
 
-  console.log(`✅ ${SYSTEM_CONFIG.length} configurações do sistema criadas/atualizadas`)
+  console.log('⚠️ SystemConfig seed pulado - modelo não existe')
 }
 
 async function seedPermissions() {

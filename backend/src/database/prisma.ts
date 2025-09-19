@@ -17,9 +17,11 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 // ====================================================================
-// MIDDLEWARE DE LOG ESTRUTURADO
+// MIDDLEWARE DE LOG ESTRUTURADO (TEMPORARILY DISABLED)
 // ====================================================================
 
+/*
+// TODO: Update middleware to match Prisma v6 API
 const logMiddleware: Prisma.Middleware = async (params, next) => {
   const before = Date.now()
 
@@ -41,11 +43,14 @@ const logMiddleware: Prisma.Middleware = async (params, next) => {
 
   return result
 }
+*/
 
 // ====================================================================
-// MIDDLEWARE DE AUDITORIA
+// MIDDLEWARE DE AUDITORIA (TEMPORARILY DISABLED)
 // ====================================================================
 
+/*
+// TODO: Update middleware to match Prisma v6 API
 const auditMiddleware: Prisma.Middleware = async (params, next) => {
   // Capturar operações de escrita para auditoria
   const writeOperations = ['create', 'update', 'delete', 'upsert']
@@ -104,6 +109,8 @@ const softDeleteMiddleware: Prisma.Middleware = async (params, next) => {
 
   return next(params)
 }
+
+*/
 
 // ====================================================================
 // INSTÂNCIA DO CLIENTE PRISMA
@@ -299,9 +306,12 @@ export type {
   Tenant,
   Permission,
   UserPermission,
-  UserSession,
-  UserToken,
   ActivityLog,
-  SystemConfig,
+  SmtpUser,
+  EmailDomain,
+  Email,
+  SmtpConnection,
+  AuthAttempt,
+  DkimKey,
   Prisma
 } from './generated/client/index.js'

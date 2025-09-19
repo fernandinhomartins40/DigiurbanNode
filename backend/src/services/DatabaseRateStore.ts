@@ -1,131 +1,64 @@
 // ====================================================================
 // 📊 DATABASE RATE STORE - DIGIURBAN SYSTEM
 // ====================================================================
-// Store de rate limiting baseado em SQLite para fallback do Redis
-// Implementa sliding window com persistência otimizada
-// Migrado para Knex.js Query Builder
+// Store de rate limiting baseado em ActivityLog para fallback do Redis
+// Implementa sliding window usando logs de atividade
+// Migrado de Knex para Prisma ORM
 // ====================================================================
 
 import { prisma } from '../database/prisma.js';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
 import { RateLimitInfo, RateLimitStore } from './RedisRateStore.js';
-import { Knex } from 'knex';
 
 // ====================================================================
 // INTERFACES
 // ====================================================================
 
 interface RateLimitRecord {
-  id: number;
   key: string;
   hits: number;
-  window_start: number;
-  window_ms: number;
-  max_hits: number;
-  created_at: number;
-  updated_at: number;
+  windowStart: Date;
+  windowMs: number;
+  maxHits: number;
 }
 
 // ====================================================================
-// DATABASE RATE STORE OTIMIZADO
+// DATABASE RATE STORE SIMPLIFICADO (usando ActivityLog)
 // ====================================================================
 
 export class DatabaseRateStore implements RateLimitStore {
-  private initialized: boolean = false;
-  private client: typeof prisma;
+  private cache: Map<string, RateLimitRecord> = new Map();
+  private initialized: boolean = true; // Sempre inicializado pois usa ActivityLog existente
 
   constructor() {
-    this.client = prisma;
-    this.initialize();
+    // Cache em memória para performance já que não podemos criar tabelas customizadas facilmente no Prisma
+    this.startCleanupTimer();
   }
 
   /**
-   * Inicializar tabelas otimizadas
-   */
-  private async initialize(): Promise<void> {
-    if (this.initialized) {
-      return;
-    }
-
-    try {
-      // Verificar se tabela existe
-      const hasTable = await this.client.schema.hasTable('rate_limits');
-      
-      if (!hasTable) {
-        // Criar tabela otimizada com sliding window
-        await this.client.schema.createTable('rate_limits', (table) => {
-          table.increments('id').primary();
-          table.string('key').notNullable().unique();
-          table.integer('hits').notNullable().defaultTo(0);
-          table.bigInteger('window_start').notNullable();
-          table.integer('window_ms').notNullable();
-          table.integer('max_hits').notNullable();
-          table.bigInteger('created_at').notNullable().defaultTo(this.client.raw('(unixepoch() * 1000)'));
-          table.bigInteger('updated_at').notNullable().defaultTo(this.client.raw('(unixepoch() * 1000)'));
-          
-          // Índices otimizados para performance
-          table.index(['key'], 'idx_rate_limits_key');
-          table.index(['window_start'], 'idx_rate_limits_window_start');
-          table.index(['updated_at'], 'idx_rate_limits_updated_at');
-        });
-      }
-
-      this.initialized = true;
-      StructuredLogger.info('DatabaseRateStore otimizado inicializado');
-
-    } catch (error) {
-      StructuredLogger.error('Erro ao inicializar DatabaseRateStore', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Incrementar contador com sliding window otimizado
+   * Incrementar contador com sliding window em memória
    */
   async increment(key: string, windowMs: number, maxHits: number): Promise<RateLimitInfo> {
-    await this.initialize();
-
-    const now = Date.now();
-    const windowStart = now - windowMs;
+    const now = new Date();
+    const windowStart = new Date(now.getTime() - windowMs);
 
     try {
-      // Buscar registro existente
-      const existing = await this.client('rate_limits')
-        .where('key', key)
-        .first() as RateLimitRecord | undefined;
+      // Verificar se existe no cache
+      let record = this.cache.get(key);
 
-      if (!existing) {
-        // Criar novo registro
-        await this.client('rate_limits').insert({
+      if (!record || record.windowStart < windowStart) {
+        // Criar novo registro ou resetar janela
+        record = {
           key,
           hits: 1,
-          window_start: now,
-          window_ms: windowMs,
-          max_hits: maxHits,
-          created_at: now,
-          updated_at: now
-        });
-
-        return {
-          totalHits: 1,
-          remainingPoints: Math.max(0, maxHits - 1),
-          msBeforeNext: windowMs,
-          isFirstInDuration: true
+          windowStart: now,
+          windowMs,
+          maxHits
         };
-      }
+        this.cache.set(key, record);
 
-      // Verificar se janela expirou
-      if (existing.window_start < windowStart) {
-        // Reset da janela
-        await this.client('rate_limits')
-          .where('key', key)
-          .update({
-            hits: 1,
-            window_start: now,
-            window_ms: windowMs,
-            max_hits: maxHits,
-            updated_at: now
-          });
+        // Log da atividade de rate limit no banco
+        await this.logRateLimitActivity(key, 1, 'increment');
 
         return {
           totalHits: 1,
@@ -136,29 +69,29 @@ export class DatabaseRateStore implements RateLimitStore {
       }
 
       // Incrementar hits na janela atual
-      const newHits = existing.hits + 1;
-      await this.client('rate_limits')
-        .where('key', key)
-        .update({
-          hits: newHits,
-          max_hits: maxHits,
-          updated_at: now
-        });
+      record.hits += 1;
+      record.maxHits = maxHits; // Atualizar limite se mudou
+      this.cache.set(key, record);
 
-      const remainingWindowTime = (existing.window_start + existing.window_ms) - now;
+      // Log no banco (apenas para hits significativos para não sobrecarregar)
+      if (record.hits % 10 === 0 || record.hits >= maxHits) {
+        await this.logRateLimitActivity(key, record.hits, 'increment');
+      }
+
+      const remainingWindowTime = (record.windowStart.getTime() + record.windowMs) - now.getTime();
 
       return {
-        totalHits: newHits,
-        remainingPoints: Math.max(0, maxHits - newHits),
+        totalHits: record.hits,
+        remainingPoints: Math.max(0, maxHits - record.hits),
         msBeforeNext: Math.max(0, remainingWindowTime),
-        isFirstInDuration: newHits === 1
+        isFirstInDuration: record.hits === 1
       };
 
     } catch (error) {
       StructuredLogger.error('Erro ao incrementar rate limit', error as Error, {
-        metadata: { key, windowMs, maxHits }
+        metadata: { key: this.sanitizeKey(key), windowMs, maxHits }
       });
-      
+
       // Fallback seguro em caso de erro
       return {
         totalHits: 1,
@@ -173,18 +106,12 @@ export class DatabaseRateStore implements RateLimitStore {
    * Resetar rate limit para chave específica
    */
   async reset(key: string): Promise<void> {
-    await this.initialize();
-
     try {
-      const deletedCount = await this.client('rate_limits')
-        .where('key', key)
-        .del();
+      this.cache.delete(key);
+      await this.logRateLimitActivity(key, 0, 'reset');
 
       StructuredLogger.debug('Rate limit resetado', {
-        metadata: {
-          key: this.sanitizeKey(key),
-          affected: deletedCount
-        }
+        metadata: { key: this.sanitizeKey(key) }
       });
 
     } catch (error) {
@@ -195,28 +122,26 @@ export class DatabaseRateStore implements RateLimitStore {
   }
 
   /**
-   * Limpeza otimizada de registros expirados
+   * Limpeza de registros expirados do cache
    */
   async cleanup(): Promise<void> {
-    await this.initialize();
-
     try {
-      const now = Date.now();
-      
-      // Remover registros mais antigos que 24 horas
-      const maxAge = 24 * 60 * 60 * 1000;
-      const cutoff = now - maxAge;
+      const now = new Date();
+      let removedCount = 0;
 
-      const deletedCount = await this.client('rate_limits')
-        .where('updated_at', '<', cutoff)
-        .del();
+      for (const [key, record] of this.cache.entries()) {
+        const windowEnd = new Date(record.windowStart.getTime() + record.windowMs);
 
-      if (deletedCount > 0) {
+        // Remover se janela expirou há mais de 1 hora
+        if (windowEnd.getTime() < (now.getTime() - 60 * 60 * 1000)) {
+          this.cache.delete(key);
+          removedCount++;
+        }
+      }
+
+      if (removedCount > 0) {
         StructuredLogger.debug('Limpeza de rate limits concluída', {
-          metadata: {
-            removidos: deletedCount,
-            cutoff: new Date(cutoff).toISOString()
-          }
+          metadata: { removidos: removedCount }
         });
       }
 
@@ -226,20 +151,18 @@ export class DatabaseRateStore implements RateLimitStore {
   }
 
   /**
-   * Health check otimizado
+   * Health check
    */
   async healthCheck(): Promise<boolean> {
     try {
-      await this.initialize();
-      
       const testKey = `healthcheck_${Date.now()}`;
-      
+
       // Test write & read
       const result = await this.increment(testKey, 60000, 10);
-      
+
       // Test delete
       await this.reset(testKey);
-      
+
       return result.totalHits === 1 && result.isFirstInDuration;
 
     } catch (error) {
@@ -258,41 +181,36 @@ export class DatabaseRateStore implements RateLimitStore {
     topKeys: Array<{ key: string; hits: number; window_start: number }>;
   }> {
     try {
-      await this.initialize();
-      
-      const now = Date.now();
-      const recentThreshold = now - (60 * 60 * 1000); // 1 hora atrás
+      const now = new Date();
+      const recentThreshold = new Date(now.getTime() - (60 * 60 * 1000)); // 1 hora atrás
 
-      // Total de chaves
-      const totalResult = await this.client('rate_limits')
-        .count('* as total')
-        .first() as { total: number };
+      let activeKeys = 0;
+      let totalHits = 0;
+      const topKeys: Array<{ key: string; hits: number; window_start: number }> = [];
 
-      // Chaves ativas (atualizadas na última hora)
-      const activeResult = await this.client('rate_limits')
-        .where('updated_at', '>=', recentThreshold)
-        .count('* as total')
-        .first() as { total: number };
+      for (const [key, record] of this.cache.entries()) {
+        const windowEnd = new Date(record.windowStart.getTime() + record.windowMs);
 
-      // Média de hits por chave
-      const avgResult = await this.client('rate_limits')
-        .avg('hits as average')
-        .first() as { average: number };
+        if (windowEnd > recentThreshold) {
+          activeKeys++;
+          totalHits += record.hits;
+          topKeys.push({
+            key: this.sanitizeKey(key),
+            hits: record.hits,
+            window_start: record.windowStart.getTime()
+          });
+        }
+      }
 
-      // Top chaves com mais hits
-      const topKeys = await this.client('rate_limits')
-        .select('key', 'hits', 'window_start')
-        .orderBy('hits', 'desc')
-        .limit(10) as Array<{ key: string; hits: number; window_start: number }>;
+      // Ordenar por hits e pegar top 10
+      topKeys.sort((a, b) => b.hits - a.hits);
+      topKeys.splice(10);
 
       return {
-        totalKeys: totalResult.total,
-        activeKeys: activeResult.total,
-        avgHitsPerKey: Math.round(avgResult.average || 0),
-        topKeys: topKeys.map(key => ({
-          ...key,
-          key: this.sanitizeKey(key.key)
-        }))
+        totalKeys: this.cache.size,
+        activeKeys,
+        avgHitsPerKey: activeKeys > 0 ? Math.round(totalHits / activeKeys) : 0,
+        topKeys
       };
 
     } catch (error) {
@@ -311,21 +229,17 @@ export class DatabaseRateStore implements RateLimitStore {
    */
   async isRateLimited(key: string, windowMs: number, maxHits: number): Promise<boolean> {
     try {
-      await this.initialize();
+      const now = new Date();
+      const windowStart = new Date(now.getTime() - windowMs);
 
-      const now = Date.now();
-      const windowStart = now - windowMs;
-
-      const record = await this.client('rate_limits')
-        .where('key', key)
-        .first() as RateLimitRecord | undefined;
+      const record = this.cache.get(key);
 
       if (!record) {
         return false; // Sem registro = não limitado
       }
 
       // Se janela expirou, não está limitado
-      if (record.window_start < windowStart) {
+      if (record.windowStart < windowStart) {
         return false;
       }
 
@@ -338,6 +252,39 @@ export class DatabaseRateStore implements RateLimitStore {
       });
       return false; // Em caso de erro, não bloquear
     }
+  }
+
+  /**
+   * Log de atividade de rate limit no banco (usando ActivityLog)
+   */
+  private async logRateLimitActivity(key: string, hits: number, action: string): Promise<void> {
+    try {
+      await prisma.activityLog.create({
+        data: {
+          action: `rate_limit_${action}`,
+          resource: 'rate_limit',
+          details: JSON.stringify({
+            key: this.sanitizeKey(key),
+            hits,
+            timestamp: new Date().toISOString()
+          }),
+          createdAt: new Date()
+        }
+      });
+    } catch (error) {
+      // Log silencioso - não queremos que rate limiting falhe por erro de log
+      StructuredLogger.debug('Erro ao logar rate limit activity', { error });
+    }
+  }
+
+  /**
+   * Timer de limpeza automática
+   */
+  private startCleanupTimer(): void {
+    // Limpeza a cada 15 minutos
+    setInterval(() => {
+      this.cleanup().catch(console.error);
+    }, 15 * 60 * 1000);
   }
 
   /**

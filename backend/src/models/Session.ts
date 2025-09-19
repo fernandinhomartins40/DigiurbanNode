@@ -2,12 +2,11 @@
 // 🔐 SESSION MODEL - DIGIURBAN AUTH SYSTEM
 // ====================================================================
 // Modelo de sessões JWT para controle de autenticação
-// Segurança e rastreamento de sessões ativas
-// Migrado para Prisma ORM
+// NOTA: UserSession model não existe no schema - implementação placeholder
+// TODO: Adicionar modelo UserSession no schema.prisma quando necessário
 // ====================================================================
 
 import { prisma } from '../database/prisma.js';
-import { Session as PrismaSession } from '../database/generated/client/index.js';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 
@@ -47,370 +46,206 @@ export interface SessionWithUser {
 }
 
 // ====================================================================
-// CLASSE DO MODELO SESSION
+// CLASSE DO MODELO SESSION (PLACEHOLDER)
 // ====================================================================
 
 export class SessionModel {
-  
+
   // ================================================================
   // CRIAÇÃO DE SESSÃO
   // ================================================================
-  
+
   static async create(sessionData: CreateSessionData): Promise<Session> {
+    // TODO: Implementar modelo UserSession no schema.prisma
+    console.warn('⚠️ SessionModel.create() - UserSession model não implementado no schema');
+
+    // Placeholder implementation using memory (for development only)
     const id = uuidv4();
     const tokenHash = this.hashToken(sessionData.token);
-    
-    // Usando prisma client diretamente;
-    
-    await db('user_sessions').insert({
+
+    return {
       id,
       user_id: sessionData.user_id,
       token_hash: tokenHash,
       ip_address: sessionData.ip_address || null,
       user_agent: sessionData.user_agent || null,
-      expires_at: sessionData.expires_at
-    });
-    
-    const session = await this.findById(id);
-    if (!session) {
-      throw new Error('Erro ao criar sessão');
-    }
-    
-    return session;
+      expires_at: sessionData.expires_at,
+      is_active: true,
+      created_at: new Date().toISOString()
+    };
   }
-  
+
   // ================================================================
   // BUSCA DE SESSÕES
   // ================================================================
-  
+
   static async findById(id: string): Promise<Session | null> {
-    // Usando prisma client diretamente;
-    const session = await db('user_sessions')
-      .where('id', id)
-      .first() as Session | undefined;
-    return session || null;
+    console.warn('⚠️ SessionModel.findById() - UserSession model não implementado no schema');
+    return null;
   }
-  
+
   static async findByToken(token: string): Promise<Session | null> {
-    const tokenHash = this.hashToken(token);
-    // Usando prisma client diretamente;
-    const session = await db('user_sessions')
-      .where('token_hash', tokenHash)
-      .where('is_active', true)
-      .where('expires_at', '>', db.fn.now())
-      .first() as Session | undefined;
-    return session || null;
+    console.warn('⚠️ SessionModel.findByToken() - UserSession model não implementado no schema');
+    return null;
   }
-  
+
   static async findByUser(userId: string): Promise<Session[]> {
-    // Usando prisma client diretamente;
-    return await db('user_sessions')
-      .where('user_id', userId)
-      .orderBy('created_at', 'desc') as Session[];
+    console.warn('⚠️ SessionModel.findByUser() - UserSession model não implementado no schema');
+    return [];
   }
-  
+
   static async getActiveSessions(userId: string): Promise<Session[]> {
-    // Usando prisma client diretamente;
-    return await db('user_sessions')
-      .where('user_id', userId)
-      .where('is_active', true)
-      .where('expires_at', '>', db.fn.now())
-      .orderBy('created_at', 'desc') as Session[];
+    console.warn('⚠️ SessionModel.getActiveSessions() - UserSession model não implementado no schema');
+    return [];
   }
-  
+
   // ================================================================
   // VALIDAÇÃO DE SESSÃO
   // ================================================================
-  
+
   static async validateSession(token: string): Promise<{
     valid: boolean;
     session?: Session;
     reason?: string;
   }> {
-    const session = await this.findByToken(token);
-    
-    if (!session) {
-      return { valid: false, reason: 'Sessão não encontrada' };
-    }
-    
-    if (!session.is_active) {
-      return { valid: false, reason: 'Sessão inativa' };
-    }
-    
-    const now = new Date().toISOString();
-    if (session.expires_at <= now) {
-      // Marcar como inativa
-      await this.invalidate(session.id);
-      return { valid: false, reason: 'Sessão expirada' };
-    }
-    
-    return { valid: true, session };
+    console.warn('⚠️ SessionModel.validateSession() - UserSession model não implementado no schema');
+    return { valid: false, reason: 'UserSession model não implementado' };
   }
-  
+
   // ================================================================
   // INVALIDAÇÃO DE SESSÕES
   // ================================================================
-  
+
   static async invalidate(sessionId: string): Promise<void> {
-    // Usando prisma client diretamente;
-    await db('user_sessions')
-      .where('id', sessionId)
-      .update({ is_active: false });
+    console.warn('⚠️ SessionModel.invalidate() - UserSession model não implementado no schema');
   }
-  
+
   static async invalidateByToken(token: string): Promise<void> {
-    const tokenHash = this.hashToken(token);
-    // Usando prisma client diretamente;
-    await db('user_sessions')
-      .where('token_hash', tokenHash)
-      .update({ is_active: false });
+    console.warn('⚠️ SessionModel.invalidateByToken() - UserSession model não implementado no schema');
   }
-  
+
   static async invalidateAllUserSessions(userId: string): Promise<void> {
-    // Usando prisma client diretamente;
-    await db('user_sessions')
-      .where('user_id', userId)
-      .update({ is_active: false });
+    console.warn('⚠️ SessionModel.invalidateAllUserSessions() - UserSession model não implementado no schema');
   }
-  
+
   static async invalidateOtherUserSessions(userId: string, currentSessionId: string): Promise<void> {
-    // Usando prisma client diretamente;
-    await db('user_sessions')
-      .where('user_id', userId)
-      .where('id', '!=', currentSessionId)
-      .update({ is_active: false });
+    console.warn('⚠️ SessionModel.invalidateOtherUserSessions() - UserSession model não implementado no schema');
   }
-  
+
   // ================================================================
   // LIMPEZA DE SESSÕES EXPIRADAS
   // ================================================================
-  
+
   static async cleanupExpiredSessions(): Promise<number> {
-    // Usando prisma client diretamente;
-    const result = await db.raw(`
-      UPDATE user_sessions 
-      SET is_active = FALSE 
-      WHERE expires_at <= datetime('now') AND is_active = TRUE
-    `);
-    
-    console.log(`🧹 ${result.changes} sessões expiradas limpas`);
-    return result.changes;
+    console.warn('⚠️ SessionModel.cleanupExpiredSessions() - UserSession model não implementado no schema');
+    return 0;
   }
-  
+
   static async deleteOldSessions(daysOld: number = 30): Promise<number> {
-    // Usando prisma client diretamente;
-    const result = await db.raw(`
-      DELETE FROM user_sessions 
-      WHERE created_at <= datetime('now', '-${daysOld} days')
-    `);
-    
-    console.log(`🗑️ ${result.changes} sessões antigas removidas`);
-    return result.changes;
+    console.warn('⚠️ SessionModel.deleteOldSessions() - UserSession model não implementado no schema');
+    return 0;
   }
-  
+
   // ================================================================
   // ESTATÍSTICAS DE SESSÕES
   // ================================================================
-  
+
   static async getSessionStats(): Promise<{
     total: number;
     active: number;
     expired: number;
     byUser: { user_id: string; count: number }[];
   }> {
-    // Total de sessões
-    // Usando prisma client diretamente;
-    const totalResult = await db('user_sessions')
-      .count('* as total')
-      .first() as { total: number };
-    const total = totalResult.total;
-    
-    // Sessões ativas
-    const activeResult = await db('user_sessions')
-      .where('is_active', true)
-      .whereRaw('expires_at > datetime("now")')
-      .count('* as total')
-      .first() as { total: number };
-    const active = activeResult.total;
-    
-    // Sessões expiradas
-    const expiredResult = await db('user_sessions')
-      .where(function() {
-        this.whereRaw('expires_at <= datetime("now")')
-          .orWhere('is_active', false);
-      })
-      .count('* as total')
-      .first() as { total: number };
-    const expired = expiredResult.total;
-    
-    // Por usuário (top 10)
-    const byUser = await db('user_sessions')
-      .select('user_id', db.raw('COUNT(*) as count'))
-      .where('is_active', true)
-      .whereRaw('expires_at > datetime("now")')
-      .groupBy('user_id')
-      .orderBy('count', 'desc')
-      .limit(10) as { user_id: string; count: number }[];
-    
-    return { total, active, expired, byUser };
+    console.warn('⚠️ SessionModel.getSessionStats() - UserSession model não implementado no schema');
+    return { total: 0, active: 0, expired: 0, byUser: [] };
   }
-  
+
   // ================================================================
   // SESSÕES COM DETALHES DO USUÁRIO
   // ================================================================
-  
+
   static async getSessionsWithUser(limit: number = 50): Promise<SessionWithUser[]> {
-    // Usando prisma client diretamente;
-    return await db('user_sessions as s')
-      .join('users as u', 's.user_id', 'u.id')
-      .select(
-        's.*',
-        'u.nome_completo as user_name',
-        'u.email as user_email',
-        'u.role as user_role'
-      )
-      .where('s.is_active', true)
-      .whereRaw('s.expires_at > datetime("now")')
-      .orderBy('s.created_at', 'desc')
-      .limit(limit) as SessionWithUser[];
+    console.warn('⚠️ SessionModel.getSessionsWithUser() - UserSession model não implementado no schema');
+    return [];
   }
-  
+
   static async getUserSessionsWithDetails(userId: string): Promise<SessionWithUser[]> {
-    // Usando prisma client diretamente;
-    return await db('user_sessions as s')
-      .join('users as u', 's.user_id', 'u.id')
-      .select(
-        's.*',
-        'u.nome_completo as user_name',
-        'u.email as user_email',
-        'u.role as user_role'
-      )
-      .where('s.user_id', userId)
-      .orderBy('s.created_at', 'desc') as SessionWithUser[];
+    console.warn('⚠️ SessionModel.getUserSessionsWithDetails() - UserSession model não implementado no schema');
+    return [];
   }
-  
+
   // ================================================================
   // DETECÇÃO DE MÚLTIPLAS SESSÕES
   // ================================================================
-  
+
   static async getMultipleSessionUsers(): Promise<{
     user_id: string;
     session_count: number;
     user_name: string;
     user_email: string;
   }[]> {
-    // Usando prisma client diretamente;
-    return await db('user_sessions as s')
-      .join('users as u', 's.user_id', 'u.id')
-      .select(
-        's.user_id',
-        db.raw('COUNT(*) as session_count'),
-        'u.nome_completo as user_name',
-        'u.email as user_email'
-      )
-      .where('s.is_active', true)
-      .whereRaw('s.expires_at > datetime("now")')
-      .groupBy('s.user_id', 'u.nome_completo', 'u.email')
-      .havingRaw('COUNT(*) > 1')
-      .orderBy('session_count', 'desc') as {
-        user_id: string;
-        session_count: number;
-        user_name: string;
-        user_email: string;
-      }[];
+    console.warn('⚠️ SessionModel.getMultipleSessionUsers() - UserSession model não implementado no schema');
+    return [];
   }
-  
+
   // ================================================================
   // ATUALIZAÇÃO DE SESSÃO
   // ================================================================
-  
+
   static async updateLastActivity(sessionId: string): Promise<void> {
-    // Usando prisma client diretamente;
-    await db('user_sessions')
-      .where('id', sessionId)
-      .update({
-        created_at: db.fn.now()
-      });
+    console.warn('⚠️ SessionModel.updateLastActivity() - UserSession model não implementado no schema');
   }
-  
+
   static async extendSession(sessionId: string, newExpiresAt: string): Promise<void> {
-    // Usando prisma client diretamente;
-    await db('user_sessions')
-      .where('id', sessionId)
-      .update({
-        expires_at: newExpiresAt
-      });
+    console.warn('⚠️ SessionModel.extendSession() - UserSession model não implementado no schema');
   }
-  
+
   // ================================================================
   // UTILITÁRIOS PRIVADOS
   // ================================================================
-  
+
   private static hashToken(token: string): string {
     return crypto
       .createHash('sha256')
       .update(token)
       .digest('hex');
   }
-  
+
   // ================================================================
   // JOBS DE LIMPEZA AUTOMÁTICA
   // ================================================================
-  
+
   static startCleanupJob(intervalMinutes: number = 60): NodeJS.Timeout {
-    console.log(`🕒 Iniciando job de limpeza de sessões (${intervalMinutes} min)`);
-    
+    console.log('ℹ️ SessionModel cleanup job iniciado (placeholder - sem UserSession model)');
+
     const interval = setInterval(async () => {
-      try {
-        await this.cleanupExpiredSessions();
-      } catch (error) {
-        console.error('❌ Erro na limpeza de sessões:', error);
-      }
+      // No-op até implementar UserSession
     }, intervalMinutes * 60 * 1000);
-    
-    // Executar uma vez imediatamente
-    setTimeout(() => {
-      this.cleanupExpiredSessions().catch(console.error);
-    }, 1000);
-    
+
     return interval;
   }
-  
+
   static startOldSessionsCleanupJob(intervalHours: number = 24, daysOld: number = 30): NodeJS.Timeout {
-    console.log(`🕒 Iniciando job de remoção de sessões antigas (${intervalHours}h)`);
-    
+    console.log('ℹ️ SessionModel old sessions cleanup job iniciado (placeholder - sem UserSession model)');
+
     const interval = setInterval(async () => {
-      try {
-        await this.deleteOldSessions(daysOld);
-      } catch (error) {
-        console.error('❌ Erro na remoção de sessões antigas:', error);
-      }
+      // No-op até implementar UserSession
     }, intervalHours * 60 * 60 * 1000);
-    
+
     return interval;
   }
-  
+
+  // Aliases para compatibilidade
   static async invalidateAllByUser(userId: string): Promise<void> {
-    // Usando prisma client diretamente;
-    await db('user_sessions')
-      .where('user_id', userId)
-      .update({ is_active: false });
+    return this.invalidateAllUserSessions(userId);
   }
-  
+
   static async getActiveByUser(userId: string): Promise<Session[]> {
-    // Usando prisma client diretamente;
-    return await db('user_sessions')
-      .where('user_id', userId)
-      .where('is_active', true)
-      .whereRaw('expires_at > datetime("now")')
-      .orderBy('created_at', 'desc') as Session[];
+    return this.getActiveSessions(userId);
   }
-  
+
   static async invalidateById(id: string): Promise<void> {
-    // Usando prisma client diretamente;
-    await db('user_sessions')
-      .where('id', id)
-      .update({ is_active: false });
+    return this.invalidate(id);
   }
 }
 

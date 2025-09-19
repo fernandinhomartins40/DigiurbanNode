@@ -168,7 +168,7 @@ export class ActivityService {
         }
       }
 
-      return await query(sql, params) as ActivityLog[];
+      return await prisma.$queryRawUnsafe(sql, ...params) as ActivityLog[];
 
     } catch (error) {
       throw new Error(`Erro ao buscar atividades: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
@@ -210,19 +210,20 @@ export class ActivityService {
       const dateFilter = `AND created_at >= datetime('now', '-${days} days')`;
 
       // Total de atividades
-      const totalResult = await queryOne(`
-        SELECT COUNT(*) as total FROM activity_logs 
+      const totalResult = await prisma.$queryRawUnsafe(`
+        SELECT COUNT(*) as total FROM activity_logs
         ${baseWhere} ${dateFilter}
-      `, params) as { total: number };
+      `, ...params) as [{ total: number }];
+      const totalCount = Array.isArray(totalResult) ? totalResult[0] : totalResult;
 
       // Breakdown por ação
-      const actionResults = await query(`
-        SELECT action, COUNT(*) as count 
-        FROM activity_logs 
+      const actionResults = await prisma.$queryRawUnsafe(`
+        SELECT action, COUNT(*) as count
+        FROM activity_logs
         ${baseWhere} ${dateFilter}
-        GROUP BY action 
+        GROUP BY action
         ORDER BY count DESC
-      `, params) as Array<{ action: string; count: number }>;
+      `, ...params) as Array<{ action: string; count: number }>;
 
       const actionBreakdown: Record<string, number> = {};
       actionResults.forEach(result => {
@@ -230,15 +231,15 @@ export class ActivityService {
       });
 
       // Breakdown por usuário (top 10)
-      const userResults = await query(`
-        SELECT u.nome_completo as user_name, COUNT(*) as count 
+      const userResults = await prisma.$queryRawUnsafe(`
+        SELECT u.nome_completo as user_name, COUNT(*) as count
         FROM activity_logs al
         LEFT JOIN users u ON al.user_id = u.id
         ${baseWhere} ${dateFilter}
         GROUP BY al.user_id, u.nome_completo
         ORDER BY count DESC
         LIMIT 10
-      `, params) as Array<{ user_name: string; count: number }>;
+      `, ...params) as Array<{ user_name: string; count: number }>;
 
       const userBreakdown: Record<string, number> = {};
       userResults.forEach(result => {
@@ -246,13 +247,13 @@ export class ActivityService {
       });
 
       // Breakdown por resource
-      const resourceResults = await query(`
-        SELECT resource, COUNT(*) as count 
-        FROM activity_logs 
+      const resourceResults = await prisma.$queryRawUnsafe(`
+        SELECT resource, COUNT(*) as count
+        FROM activity_logs
         ${baseWhere} ${dateFilter}
-        GROUP BY resource 
+        GROUP BY resource
         ORDER BY count DESC
-      `, params) as Array<{ resource: string; count: number }>;
+      `, ...params) as Array<{ resource: string; count: number }>;
 
       const resourceBreakdown: Record<string, number> = {};
       resourceResults.forEach(result => {
@@ -260,18 +261,18 @@ export class ActivityService {
       });
 
       // Atividade diária
-      const dailyResults = await query(`
-        SELECT 
+      const dailyResults = await prisma.$queryRawUnsafe(`
+        SELECT
           DATE(created_at) as date,
           COUNT(*) as count
-        FROM activity_logs 
+        FROM activity_logs
         ${baseWhere} ${dateFilter}
         GROUP BY DATE(created_at)
         ORDER BY date DESC
-      `, params) as Array<{ date: string; count: number }>;
+      `, ...params) as Array<{ date: string; count: number }>;
 
       return {
-        totalActivities: totalResult.total,
+        totalActivities: totalCount.total,
         actionBreakdown,
         userBreakdown,
         resourceBreakdown,
@@ -313,7 +314,7 @@ export class ActivityService {
 
       sql += ` ORDER BY al.created_at DESC LIMIT 100`;
 
-      return await query(sql, params) as ActivityLog[];
+      return await prisma.$queryRawUnsafe(sql, ...params) as ActivityLog[];
 
     } catch (error) {
       throw new Error(`Erro ao buscar atividades suspeitas: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
@@ -329,14 +330,14 @@ export class ActivityService {
    */
   static async cleanupOldLogs(retentionDays: number = 90): Promise<{ deleted: number }> {
     try {
-      const result = await execute(`
-        DELETE FROM activity_logs 
+      const result = await prisma.$executeRawUnsafe(`
+        DELETE FROM activity_logs
         WHERE created_at < datetime('now', '-${retentionDays} days')
       `);
 
-      console.log(`🧹 Limpeza de logs: ${result.changes} registros removidos (>${retentionDays} dias)`);
+      console.log(`🧹 Limpeza de logs: ${result} registros removidos (>${retentionDays} dias)`);
 
-      return { deleted: result.changes || 0 };
+      return { deleted: result || 0 };
 
     } catch (error) {
       throw new Error(`Erro na limpeza de logs: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
@@ -349,7 +350,7 @@ export class ActivityService {
   static async archiveOldLogs(archiveDays: number = 365): Promise<{ archived: number }> {
     try {
       // Criar tabela de arquivo se não existir
-      await execute(`
+      await prisma.$executeRawUnsafe(`
         CREATE TABLE IF NOT EXISTS activity_logs_archive (
           id INTEGER PRIMARY KEY,
           user_id TEXT,
@@ -366,22 +367,22 @@ export class ActivityService {
       `);
 
       // Mover logs antigos para arquivo
-      const result = await execute(`
-        INSERT INTO activity_logs_archive 
+      const result = await prisma.$executeRawUnsafe(`
+        INSERT INTO activity_logs_archive
         SELECT *, CURRENT_TIMESTAMP as archived_at
-        FROM activity_logs 
+        FROM activity_logs
         WHERE created_at < datetime('now', '-${archiveDays} days')
       `);
 
       // Remover da tabela principal
-      await execute(`
-        DELETE FROM activity_logs 
+      await prisma.$executeRawUnsafe(`
+        DELETE FROM activity_logs
         WHERE created_at < datetime('now', '-${archiveDays} days')
       `);
 
-      console.log(`📦 Arquivamento de logs: ${result.changes} registros arquivados (>${archiveDays} dias)`);
+      console.log(`📦 Arquivamento de logs: ${result} registros arquivados (>${archiveDays} dias)`);
 
-      return { archived: result.changes || 0 };
+      return { archived: result || 0 };
 
     } catch (error) {
       throw new Error(`Erro no arquivamento de logs: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);

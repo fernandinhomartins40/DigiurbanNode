@@ -74,6 +74,12 @@ model User {
   // Novos relacionamentos com email
   smtpUsers SmtpUser[]
 
+  // Relacionamentos com sessões e tokens
+  userSessions            UserSession[]
+  userTokens              UserToken[]
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+
   @@index([email], map: "idx_users_email")
   @@index([tenantId], map: "idx_users_tenant")
   @@index([role], map: "idx_users_role")
@@ -278,6 +284,98 @@ model AuthAttempt {
   @@index([success])
   @@index([createdAt])
   @@map("auth_attempts")
+}
+
+// ====================================================================
+// MODELOS PARA SESSÕES E TOKENS
+// ====================================================================
+
+// Sessões de usuário
+model UserSession {
+  id        String   @id
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("user_sessions")
+}
+
+// Tokens de usuário genéricos
+model UserToken {
+  id        Int       @id @default(autoincrement())
+  userId    String    @map("user_id")
+  type      String // "refresh", "api", etc.
+  token     String    @unique
+  expiresAt DateTime? @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([type])
+  @@map("user_tokens")
+}
+
+// Configurações do sistema
+model SystemConfig {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  value       String
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([key])
+  @@index([isActive])
+  @@map("system_config")
+}
+
+// Tokens de reset de senha
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+// Tokens de verificação de email
+model EmailVerificationToken {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("email_verification_tokens")
 }
 
 // ====================================================================

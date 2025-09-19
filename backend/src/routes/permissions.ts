@@ -63,8 +63,8 @@ router.post('/check',
       const { userId, permissionCode } = req.body;
 
       // Verificar se o usuário solicitante pode consultar permissões de outros
-      const canCheckOthers = await PermissionService.hasPermission(req.user!.id, 'view_permissions');
-      
+      const canCheckOthers = await PermissionService.userHasPermission(req.user!.id, 'view_permissions');
+
       if (userId !== req.user!.id && !canCheckOthers) {
         res.status(403).json({
           success: false,
@@ -73,7 +73,7 @@ router.post('/check',
         return;
       }
 
-      const hasPermission = await PermissionService.hasPermission(userId, permissionCode);
+      const hasPermission = await PermissionService.userHasPermission(userId, permissionCode);
 
       res.json({
         success: true,
@@ -120,8 +120,8 @@ router.post('/check-multiple',
       const { userId, permissionCodes } = req.body;
 
       // Verificar se pode consultar permissões de outros
-      const canCheckOthers = await PermissionService.hasPermission(req.user!.id, 'view_permissions');
-      
+      const canCheckOthers = await PermissionService.userHasPermission(req.user!.id, 'view_permissions');
+
       if (userId !== req.user!.id && !canCheckOthers) {
         res.status(403).json({
           success: false,
@@ -131,9 +131,9 @@ router.post('/check-multiple',
       }
 
       const results: Record<string, boolean> = {};
-      
+
       for (const permissionCode of permissionCodes) {
-        results[permissionCode] = await PermissionService.hasPermission(userId, permissionCode);
+        results[permissionCode] = await PermissionService.userHasPermission(userId, permissionCode);
       }
 
       res.json({
@@ -180,8 +180,8 @@ router.post('/check-resource',
       const { userId, resource, action, tenantId } = req.body;
 
       // Verificar se pode consultar permissões de outros
-      const canCheckOthers = await PermissionService.hasPermission(req.user!.id, 'view_permissions');
-      
+      const canCheckOthers = await PermissionService.userHasPermission(req.user!.id, 'view_permissions');
+
       if (userId !== req.user!.id && !canCheckOthers) {
         res.status(403).json({
           success: false,
@@ -326,7 +326,7 @@ router.get('/user/:userId/summary',
       const { userId } = req.params;
 
       // Verificar se pode consultar permissões de outros
-      const canViewOthers = await PermissionService.hasPermission(req.user!.id, 'view_permissions');
+      const canViewOthers = await PermissionService.userHasPermission(req.user!.id, 'view_permissions');
       
       if (userId !== req.user!.id && !canViewOthers) {
         res.status(403).json({
@@ -430,7 +430,7 @@ router.post('/can-manage',
       const { managerId, targetUserId } = req.body;
 
       // Verificar se pode consultar relações de gerenciamento
-      const canView = await PermissionService.hasPermission(req.user!.id, 'view_permissions') ||
+      const canView = await PermissionService.userHasPermission(req.user!.id, 'view_permissions') ||
                      req.user!.id === managerId;
       
       if (!canView) {

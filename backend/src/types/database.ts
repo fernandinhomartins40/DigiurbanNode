@@ -1,12 +1,11 @@
 // ====================================================================
 // 🔧 TIPOS DE BANCO DE DADOS - DIGIURBAN SYSTEM
 // ====================================================================
-// Definições de tipos para Knex.js e interfaces do sistema
+// Definições de tipos para Prisma e interfaces do sistema
+// Migrado de Knex para Prisma ORM
 // ====================================================================
 
-import { Knex } from 'knex';
-
-// Tipos base do Knex.js (compatibilidade com better-sqlite3)
+// Tipos base para compatibilidade
 export interface DatabaseRunResult {
   changes?: number;
   lastInsertRowid?: number;
@@ -19,11 +18,11 @@ export interface RunResult extends DatabaseRunResult {
 }
 
 // Tipos para User
-export type UserStatus = 'ativo' | 'inativo' | 'pendente' | 'suspenso' | 'sem_vinculo';
-export type UserRole = 'admin' | 'super_admin' | 'user' | 'gestor' | 'analista' | 'auditor';
+export type UserStatus = 'ATIVO' | 'INATIVO' | 'PENDENTE' | 'SUSPENSO' | 'SEM_VINCULO';
+export type UserRole = 'ADMIN' | 'SUPER_ADMIN' | 'USER' | 'GESTOR' | 'ANALISTA' | 'AUDITOR';
 
 // Tipos para Tenant
-export type TenantStatus = 'ativo' | 'inativo' | 'suspenso';
+export type TenantStatus = 'ATIVO' | 'INATIVO' | 'SUSPENSO';
 
 // Tipos para Activity
 export interface CreateActivityData {
@@ -95,8 +94,9 @@ export const createRunResult = (result: DatabaseRunResult): RunResult => ({
   lastID: result.lastInsertRowid || result.rowCount
 });
 
-// Database instance type (Knex)
-export type DatabaseInstance = Knex;
+// Prisma types - substitui Knex
+export type PrismaTransactionClient = Parameters<Parameters<typeof import('../database/prisma.js').prisma.$transaction>[0]>[0];
 
-// Knex Transaction type for typing
-export type Transaction = Knex.Transaction;
+// Aliases para compatibilidade (eram Knex, agora são Prisma)
+export type DatabaseInstance = typeof import('../database/prisma.js').prisma;
+export type Transaction = PrismaTransactionClient;

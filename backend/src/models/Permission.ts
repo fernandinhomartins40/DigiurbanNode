@@ -3,7 +3,7 @@
 // ====================================================================
 // Modelo de permissões granulares
 // RBAC (Role-Based Access Control) completo
-// Migrado para Knex.js Query Builder
+// Migrado para Prisma ORM
 // ====================================================================
 
 import { prisma } from '../database/prisma.js';
@@ -89,123 +89,176 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Permission[]> = {
 // ====================================================================
 
 export class PermissionModel {
-  
+
   // ================================================================
   // CRIAÇÃO DE PERMISSÃO
   // ================================================================
-  
+
   static async create(permissionData: CreatePermissionData): Promise<Permission> {
     // Verificar se código já existe
     const existing = await this.findByCode(permissionData.code);
     if (existing) {
       throw new Error('Código de permissão já existe');
     }
-    
-    // Usando prisma client diretamente;
-    
-    const [id] = await db('permissions').insert({
-      code: permissionData.code,
-      resource: permissionData.resource,
-      action: permissionData.action,
-      description: permissionData.description || null
+
+    const permission = await prisma.permission.create({
+      data: {
+        code: permissionData.code,
+        resource: permissionData.resource,
+        action: permissionData.action,
+        description: permissionData.description
+      }
     });
-    
-    const permission = await this.findById(Number(id));
-    if (!permission) {
-      throw new Error('Erro ao criar permissão');
-    }
-    
-    return permission;
+
+    return {
+      id: permission.id,
+      code: permission.code,
+      resource: permission.resource,
+      action: permission.action,
+      description: permission.description || undefined,
+      created_at: permission.createdAt?.toISOString() || new Date().toISOString()
+    };
   }
-  
+
   // ================================================================
   // BUSCA DE PERMISSÕES
   // ================================================================
-  
+
   static async findById(id: number): Promise<Permission | null> {
-    // Usando prisma client diretamente;
-    const permission = await db('permissions')
-      .where('id', id)
-      .first() as Permission | undefined;
-    return permission || null;
+    const permission = await prisma.permission.findUnique({
+      where: { id }
+    });
+
+    if (!permission) return null;
+
+    return {
+      id: permission.id,
+      code: permission.code,
+      resource: permission.resource,
+      action: permission.action,
+      description: permission.description || undefined,
+      created_at: permission.createdAt?.toISOString() || new Date().toISOString()
+    };
   }
-  
+
   static async findByCode(code: string): Promise<Permission | null> {
-    // Usando prisma client diretamente;
-    const permission = await db('permissions')
-      .where('code', code)
-      .first() as Permission | undefined;
-    return permission || null;
+    const permission = await prisma.permission.findUnique({
+      where: { code }
+    });
+
+    if (!permission) return null;
+
+    return {
+      id: permission.id,
+      code: permission.code,
+      resource: permission.resource,
+      action: permission.action,
+      description: permission.description || undefined,
+      created_at: permission.createdAt?.toISOString() || new Date().toISOString()
+    };
   }
-  
+
   static async findByResource(resource: string): Promise<Permission[]> {
-    // Usando prisma client diretamente;
-    return await db('permissions')
-      .where('resource', resource)
-      .orderBy('action') as Permission[];
+    const permissions = await prisma.permission.findMany({
+      where: { resource },
+      orderBy: { action: 'asc' }
+    });
+
+    return permissions.map(permission => ({
+      id: permission.id,
+      code: permission.code,
+      resource: permission.resource,
+      action: permission.action,
+      description: permission.description || undefined,
+      created_at: permission.createdAt?.toISOString() || new Date().toISOString()
+    }));
   }
-  
+
   static async list(): Promise<Permission[]> {
-    // Usando prisma client diretamente;
-    return await db('permissions')
-      .orderBy('resource')
-      .orderBy('action') as Permission[];
+    const permissions = await prisma.permission.findMany({
+      orderBy: [
+        { resource: 'asc' },
+        { action: 'asc' }
+      ]
+    });
+
+    return permissions.map(permission => ({
+      id: permission.id,
+      code: permission.code,
+      resource: permission.resource,
+      action: permission.action,
+      description: permission.description || undefined,
+      created_at: permission.createdAt?.toISOString() || new Date().toISOString()
+    }));
   }
-  
+
   // ================================================================
   // PERMISSÕES DO USUÁRIO
   // ================================================================
-  
+
   static async getUserPermissions(userId: string): Promise<PermissionWithDetails[]> {
-    // Usando prisma client diretamente;
-    return await db('permissions as p')
-      .join('user_permissions as up', 'p.id', 'up.permission_id')
-      .select(
-        'p.*',
-        'up.granted_by',
-        'up.created_at as permission_granted_at'
-      )
-      .where('up.user_id', userId)
-      .orderBy('p.resource')
-      .orderBy('p.action') as PermissionWithDetails[];
+    const userPermissions = await prisma.userPermission.findMany({
+      where: { userId },
+      include: {
+        permission: true
+      },
+      orderBy: [
+        { permission: { resource: 'asc' } },
+        { permission: { action: 'asc' } }
+      ]
+    });
+
+    return userPermissions.map(up => ({
+      id: up.permission.id,
+      code: up.permission.code,
+      resource: up.permission.resource,
+      action: up.permission.action,
+      description: up.permission.description || undefined,
+      created_at: up.permission.createdAt?.toISOString() || new Date().toISOString(),
+      granted_by: up.grantedBy || undefined,
+      permission_granted_at: up.createdAt?.toISOString() || new Date().toISOString()
+    }));
   }
-  
+
   static async hasPermission(userId: string, permissionCode: string): Promise<boolean> {
     // Super admin sempre tem permissão
     const userRole = await this.getUserRole(userId);
     if (userRole === 'super_admin') {
       return true;
     }
-    
+
     // Verificar permissão direta
-    // Usando prisma client diretamente;
-    const result = await db('user_permissions as up')
-      .join('permissions as p', 'up.permission_id', 'p.id')
-      .where('up.user_id', userId)
-      .where('p.code', permissionCode)
-      .first();
-    if (result) {
+    const userPermission = await prisma.userPermission.findFirst({
+      where: {
+        userId,
+        permission: {
+          code: permissionCode
+        }
+      }
+    });
+
+    if (userPermission) {
       return true;
     }
-    
+
     // Verificar permissões padrão por role
     if (userRole) {
       const rolePermissions = DEFAULT_PERMISSIONS[userRole] || [];
       return rolePermissions.some(p => p.code === permissionCode);
     }
-    
+
     return false;
   }
-  
+
   static async hasResource(userId: string, resource: string, action: string): Promise<boolean> {
     const permissionCode = `${action}_${resource}`;
     return await this.hasPermission(userId, permissionCode);
   }
-  
+
   // ================================================================
   // CONCESSÃO E REVOGAÇÃO DE PERMISSÕES
   // ================================================================
-  
+
   static async grantPermission(
     userId: string,
     permissionId: number,
@@ -216,22 +269,22 @@ export class PermissionModel {
     if (!permission) {
       throw new Error('Permissão não encontrada');
     }
-    
+
     // Verificar se já foi concedida
     const existing = await this.getUserPermissionRecord(userId, permissionId);
     if (existing) {
       return; // Já concedida
     }
-    
-    // Usando prisma client diretamente;
-    
-    await db('user_permissions').insert({
-      user_id: userId,
-      permission_id: permissionId,
-      granted_by: grantedBy || null
+
+    await prisma.userPermission.create({
+      data: {
+        userId,
+        permissionId,
+        grantedBy
+      }
     });
   }
-  
+
   static async grantPermissionByCode(
     userId: string,
     permissionCode: string,
@@ -241,49 +294,49 @@ export class PermissionModel {
     if (!permission) {
       throw new Error('Permissão não encontrada');
     }
-    
+
     await this.grantPermission(userId, permission.id, grantedBy);
   }
-  
+
   static async revokePermission(userId: string, permissionId: number): Promise<void> {
-    // Usando prisma client diretamente;
-    await db('user_permissions')
-      .where('user_id', userId)
-      .where('permission_id', permissionId)
-      .del();
+    await prisma.userPermission.deleteMany({
+      where: {
+        userId,
+        permissionId
+      }
+    });
   }
-  
+
   static async revokePermissionByCode(userId: string, permissionCode: string): Promise<void> {
     const permission = await this.findByCode(permissionCode);
     if (!permission) {
       throw new Error('Permissão não encontrada');
     }
-    
+
     await this.revokePermission(userId, permission.id);
   }
-  
+
   static async revokeAllUserPermissions(userId: string): Promise<void> {
-    // Usando prisma client diretamente;
-    await db('user_permissions')
-      .where('user_id', userId)
-      .del();
+    await prisma.userPermission.deleteMany({
+      where: { userId }
+    });
   }
-  
+
   // ================================================================
   // PERMISSÕES POR ROLE
   // ================================================================
-  
+
   static async syncRolePermissions(userId: string, role: UserRole): Promise<void> {
     // Remover permissões existentes
     await this.revokeAllUserPermissions(userId);
-    
+
     // Adicionar permissões padrão da role
     const rolePermissions = this.getRolePermissions(role);
-    
+
     for (const permission of rolePermissions) {
       // Garantir que a permissão existe no banco
       let dbPermission = await this.findByCode(permission.code);
-      
+
       if (!dbPermission) {
         dbPermission = await this.create({
           code: permission.code,
@@ -292,127 +345,137 @@ export class PermissionModel {
           description: permission.description
         });
       }
-      
+
       await this.grantPermission(userId, dbPermission.id);
     }
   }
-  
+
   static getRolePermissions(role: UserRole): Permission[] {
     const permissions: Permission[] = [];
-    
+
     // Adicionar permissões hierárquicas (roles inferiores incluídas)
     const hierarchy: UserRole[] = ['guest', 'user', 'coordinator', 'manager', 'admin', 'super_admin'];
     const userLevel = hierarchy.indexOf(role);
-    
+
     for (let i = 0; i <= userLevel; i++) {
       const levelRole = hierarchy[i];
       const levelPermissions = DEFAULT_PERMISSIONS[levelRole] || [];
       permissions.push(...levelPermissions);
     }
-    
+
     // Remover duplicatas
     const uniquePermissions = permissions.filter(
-      (permission, index, self) => 
+      (permission, index, self) =>
         self.findIndex(p => p.code === permission.code) === index
     );
-    
+
     return uniquePermissions;
   }
-  
+
   // ================================================================
   // MIDDLEWARE DE VERIFICAÇÃO
   // ================================================================
-  
+
   static createPermissionChecker(permissionCode: string) {
     return async (req: any, res: any, next: any) => {
       if (!req.user) {
         return res.status(401).json({ error: 'Usuário não autenticado' });
       }
-      
+
       const hasPermission = await this.hasPermission(req.user.id, permissionCode);
       if (!hasPermission) {
-        return res.status(403).json({ 
+        return res.status(403).json({
           error: 'Permissão insuficiente',
           required: permissionCode
         });
       }
-      
+
       next();
     };
   }
-  
+
   static createResourceChecker(resource: string, action: string) {
     return async (req: any, res: any, next: any) => {
       if (!req.user) {
         return res.status(401).json({ error: 'Usuário não autenticado' });
       }
-      
+
       const hasPermission = await this.hasResource(req.user.id, resource, action);
       if (!hasPermission) {
-        return res.status(403).json({ 
+        return res.status(403).json({
           error: 'Permissão insuficiente',
           required: `${action}_${resource}`
         });
       }
-      
+
       next();
     };
   }
-  
+
   // ================================================================
   // UTILITÁRIOS PRIVADOS
   // ================================================================
-  
+
   private static async getUserPermissionRecord(
     userId: string,
     permissionId: number
   ): Promise<UserPermission | null> {
-    // Usando prisma client diretamente;
-    const record = await db('user_permissions')
-      .where('user_id', userId)
-      .where('permission_id', permissionId)
-      .first() as UserPermission | undefined;
-    return record || null;
+    const record = await prisma.userPermission.findFirst({
+      where: {
+        userId,
+        permissionId
+      }
+    });
+
+    if (!record) return null;
+
+    return {
+      id: record.id,
+      user_id: record.userId,
+      permission_id: record.permissionId,
+      granted_by: record.grantedBy || undefined,
+      created_at: record.createdAt?.toISOString() || new Date().toISOString()
+    };
   }
-  
+
   private static async getUserRole(userId: string): Promise<UserRole | null> {
-    // Usando prisma client diretamente;
-    const result = await db('users')
-      .select('role')
-      .where('id', userId)
-      .first() as { role: UserRole } | undefined;
-    return result?.role || null;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    });
+
+    return user?.role as UserRole || null;
   }
-  
+
   // ================================================================
   // INICIALIZAÇÃO DAS PERMISSÕES
   // ================================================================
-  
+
   static async initializePermissions(): Promise<void> {
     console.log('🔄 Inicializando permissões padrão...');
-    
+
     const allPermissions = new Set<string>();
-    
+
     // Coletar todas as permissões únicas
     Object.values(DEFAULT_PERMISSIONS).forEach(rolePermissions => {
       rolePermissions.forEach(permission => {
         allPermissions.add(permission.code);
       });
     });
-    
+
     // Criar permissões que não existem
     for (const permissionCode of allPermissions) {
       const existing = await this.findByCode(permissionCode);
-      
+
       if (!existing) {
         // Encontrar a permissão nos defaults para obter detalhes
         let permissionData: Permission | null = null;
-        
+
         for (const rolePermissions of Object.values(DEFAULT_PERMISSIONS)) {
           permissionData = rolePermissions.find(p => p.code === permissionCode) || null;
           if (permissionData) break;
         }
-        
+
         if (permissionData) {
           await this.create({
             code: permissionData.code,
@@ -423,7 +486,7 @@ export class PermissionModel {
         }
       }
     }
-    
+
     console.log(`✅ ${allPermissions.size} permissões inicializadas`);
   }
 }

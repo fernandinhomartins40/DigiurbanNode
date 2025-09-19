@@ -21,7 +21,7 @@ export const secureUserRoutes = Router();
 // ====================================================================
 
 const createUserValidation = [
-  validators.body('nome_completo')
+  validators.body('nomeCompleto')
     .isLength({ min: 2 })
     .withMessage('Nome completo é obrigatório'),
   validators.body('email')
@@ -31,20 +31,20 @@ const createUserValidation = [
   validators.body('senha')
     .isLength({ min: 8 })
     .withMessage('Senha deve ter pelo menos 8 caracteres'),
-  validators.body('tipo_usuario')
+  validators.body('tipoUsuario')
     .isIn(['super_admin', 'admin', 'manager', 'coordinator', 'user', 'guest'])
     .withMessage('Tipo de usuário inválido'),
-  validators.body('tenant_id')
+  validators.body('tenantId')
     .isUUID()
     .withMessage('Tenant ID deve ser um UUID válido')
 ];
 
 const updateUserValidation = [
   validators.param('userId').isUUID().withMessage('ID do usuário deve ser um UUID válido'),
-  validators.body('nome_completo').optional().isLength({ min: 2 }),
+  validators.body('nomeCompleto').optional().isLength({ min: 2 }),
   validators.body('email').optional().isEmail().normalizeEmail(),
-  validators.body('tipo_usuario').optional().isIn(['super_admin', 'admin', 'manager', 'coordinator', 'user', 'guest']),
-  validators.body('tenant_id').optional().isUUID()
+  validators.body('tipoUsuario').optional().isIn(['super_admin', 'admin', 'manager', 'coordinator', 'user', 'guest']),
+  validators.body('tenantId').optional().isUUID()
 ];
 
 // ====================================================================
@@ -67,7 +67,7 @@ secureUserRoutes.post('/',
       // Verificar se pode gerenciar o usuário alvo
       const canManageTarget = await PermissionService.canManageUserPermissions(
         req.user!.id,
-        req.body.tenant_id
+        req.body.tenantId
       );
 
       if (!canManageTarget) {
@@ -77,7 +77,7 @@ secureUserRoutes.post('/',
           resource: 'users',
           details: JSON.stringify({
             reason: 'Cannot manage target tenant',
-            targetTenant: req.body.tenant_id,
+            targetTenant: req.body.tenantId,
             userRole: req.user!.role
           }),
           ip_address: req.ip,
@@ -140,18 +140,18 @@ secureUserRoutes.get('/',
   authMiddleware,
   PermissionService.requireUserRead, // 🔐 NOVA VALIDAÇÃO GRANULAR
   [
-    validators.query('tenant_id').optional().isUUID(),
-    validators.query('tipo_usuario').optional().isString(),
+    validators.query('tenantId').optional().isUUID(),
+    validators.query('tipoUsuario').optional().isString(),
     validators.query('status').optional().isString(),
     validators.query('limit').optional().isInt({ min: 1, max: 100 }),
     validators.query('offset').optional().isInt({ min: 0 })
   ],
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { tenant_id, tipo_usuario, status, limit = 50, offset = 0 } = req.query;
+      const { tenantId, tipoUsuario, status, limit = 50, offset = 0 } = req.query;
 
       // Verificar permissões específicas para o tenant solicitado
-      const canAccessTenant = tenant_id
+      const canAccessTenant = tenantId
         ? await PermissionService.userHasPermission(req.user!.id, 'tenants.read')
         : true;
 
@@ -168,15 +168,15 @@ secureUserRoutes.get('/',
 
       if (await PermissionService.userHasPermission(req.user!.id, 'system.admin')) {
         // System admin pode ver todos os tenants
-        effectiveTenantId = tenant_id as string;
+        effectiveTenantId = tenantId as string;
       } else {
         // Outros usuários só podem ver seu próprio tenant
-        effectiveTenantId = req.user!.tenant_id;
+        effectiveTenantId = req.user!.tenantId;
       }
 
       const users = await UserModel.getUsers({
         tenant_id: effectiveTenantId,
-        tipo_usuario: tipo_usuario as string,
+        tipo_usuario: tipoUsuario as string,
         status: status as string,
         limit: Number(limit),
         offset: Number(offset)
@@ -188,7 +188,7 @@ secureUserRoutes.get('/',
         action: 'users_listed',
         resource: 'users',
         details: JSON.stringify({
-          filters: { tenant_id: effectiveTenantId, tipo_usuario, status },
+          filters: { tenant_id: effectiveTenantId, tipo_usuario: tipoUsuario, status },
           resultCount: users.length,
           userRole: req.user!.role
         }),
@@ -265,7 +265,7 @@ secureUserRoutes.put('/:userId',
       }
 
       // Verificar se está tentando alterar role
-      if (req.body.tipo_usuario && req.body.tipo_usuario !== existingUser.role) {
+      if (req.body.tipoUsuario && req.body.tipoUsuario !== existingUser.role) {
         const canManageRoles = await PermissionService.userHasPermission(
           req.user!.id,
           'users.manage_roles'

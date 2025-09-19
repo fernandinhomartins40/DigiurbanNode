@@ -49,14 +49,14 @@ const clearExistingData = async (): Promise<void> => {
   console.log('🧹 Limpando dados existentes...');
 
   // Deletar em ordem para respeitar foreign keys
-  await execute('DELETE FROM user_permissions');
-  await execute('DELETE FROM user_sessions');
-  await execute('DELETE FROM user_tokens');
-  await execute('DELETE FROM activity_logs');
-  await execute('DELETE FROM users');
-  await execute('DELETE FROM permissions');
-  await execute('DELETE FROM tenants');
-  await execute('DELETE FROM system_config');
+  await prisma.userPermission.deleteMany();
+  await prisma.userSession.deleteMany();
+  await prisma.userToken.deleteMany();
+  await prisma.activityLog.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.permission.deleteMany();
+  await prisma.tenant.deleteMany();
+  await prisma.systemConfig.deleteMany();
 
   console.log('✅ Dados limpos');
 };
@@ -115,10 +115,16 @@ const seedPermissions = async (): Promise<void> => {
   ];
 
   for (const permission of permissions) {
-    await execute(
-      'INSERT OR IGNORE INTO permissions (code, resource, action, description) VALUES (?, ?, ?, ?)',
-      [permission.code, permission.resource, permission.action, permission.description]
-    );
+    await prisma.permission.upsert({
+      where: { code: permission.code },
+      update: {},
+      create: {
+        code: permission.code,
+        resource: permission.resource,
+        action: permission.action,
+        description: permission.description
+      }
+    });
   }
 
   console.log(`✅ ${permissions.length} permissões inseridas`);
@@ -137,21 +143,23 @@ const seedSuperAdmin = async (): Promise<void> => {
   const passwordHash = await bcrypt.hash(password, 12);
 
   // Inserir super admin
-  await execute(`
-    INSERT OR REPLACE INTO users (
-      id, tenant_id, nome_completo, email, password_hash, 
-      role, status, email_verified
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `, [
-    superAdminId,
-    null, // Super admin não pertence a nenhum tenant
-    'Super Administrator',
-    email,
-    passwordHash,
-    'super_admin',
-    'ativo',
-    true
-  ]);
+  await prisma.user.upsert({
+    where: { email },
+    update: {
+      passwordHash,
+      updatedAt: new Date()
+    },
+    create: {
+      id: superAdminId,
+      tenantId: null, // Super admin não pertence a nenhum tenant
+      nomeCompleto: 'Super Administrator',
+      email,
+      passwordHash,
+      role: 'super_admin',
+      status: 'ativo',
+      emailVerified: true
+    }
+  });
 
   console.log(`✅ Super admin criado: ${email}`);
   if (process.env.NODE_ENV !== 'production') {
@@ -159,13 +167,22 @@ const seedSuperAdmin = async (): Promise<void> => {
   }
 
   // Conceder todas as permissões ao super admin
-  const permissions = await query('SELECT id FROM permissions');
-  
+  const permissions = await prisma.permission.findMany({ select: { id: true } });
+
   for (const permission of permissions) {
-    await execute(
-      'INSERT OR IGNORE INTO user_permissions (user_id, permission_id) VALUES (?, ?)',
-      [superAdminId, permission.id]
-    );
+    await prisma.userPermission.upsert({
+      where: {
+        userId_permissionId: {
+          userId: superAdminId,
+          permissionId: permission.id
+        }
+      },
+      update: {},
+      create: {
+        userId: superAdminId,
+        permissionId: permission.id
+      }
+    });
   }
 
   console.log(`✅ ${permissions.length} permissões concedidas ao super admin`);
@@ -187,39 +204,41 @@ const seedDefaultTenant = async (): Promise<void> => {
   const adminId = uuidv4();
 
   // Inserir tenant de desenvolvimento
-  await execute(`
-    INSERT OR REPLACE INTO tenants (
-      id, tenant_code, nome, cidade, estado, cnpj, plano, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `, [
-    tenantId,
-    'DEV001',
-    'Prefeitura de Desenvolvimento',
-    'São Paulo',
-    'SP',
-    '12345678000195', // CNPJ válido fictício
-    'premium',
-    'ativo'
-  ]);
+  await prisma.tenant.upsert({
+    where: { tenantCode: 'DEV001' },
+    update: {},
+    create: {
+      id: tenantId,
+      tenantCode: 'DEV001',
+      nome: 'Prefeitura de Desenvolvimento',
+      cidade: 'São Paulo',
+      estado: 'SP',
+      cnpj: '12345678000195', // CNPJ válido fictício
+      plano: 'premium',
+      status: 'ativo'
+    }
+  });
 
   // Inserir admin do tenant
   const adminPasswordHash = await bcrypt.hash('admin123', 12);
-  
-  await execute(`
-    INSERT OR REPLACE INTO users (
-      id, tenant_id, nome_completo, email, password_hash, 
-      role, status, email_verified
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `, [
-    adminId,
-    tenantId,
-    'Admin Desenvolvimento',
-    'admin@dev.digiurban.com',
-    adminPasswordHash,
-    'admin',
-    'ativo',
-    true
-  ]);
+
+  await prisma.user.upsert({
+    where: { email: 'admin@dev.digiurban.com' },
+    update: {
+      passwordHash: adminPasswordHash,
+      updatedAt: new Date()
+    },
+    create: {
+      id: adminId,
+      tenantId: tenantId,
+      nomeCompleto: 'Admin Desenvolvimento',
+      email: 'admin@dev.digiurban.com',
+      passwordHash: adminPasswordHash,
+      role: 'admin',
+      status: 'ativo',
+      emailVerified: true
+    }
+  });
 
   console.log('✅ Tenant de desenvolvimento criado');
   console.log('📧 Admin: admin@dev.digiurban.com / admin123');
@@ -273,10 +292,18 @@ const seedSystemConfig = async (): Promise<void> => {
   ];
 
   for (const config of configs) {
-    await execute(
-      'INSERT OR REPLACE INTO system_config (key, value, description) VALUES (?, ?, ?)',
-      [config.key, config.value, config.description]
-    );
+    await prisma.systemConfig.upsert({
+      where: { key: config.key },
+      update: {
+        value: config.value,
+        description: config.description
+      },
+      create: {
+        key: config.key,
+        value: config.value,
+        description: config.description
+      }
+    });
   }
 
   console.log(`✅ ${configs.length} configurações inseridas`);
@@ -300,19 +327,19 @@ export const seedTestData = async (): Promise<void> => {
       nome: 'João Silva',
       email: 'joao@test.com',
       role: 'user',
-      tenant_id: (await query('SELECT id FROM tenants WHERE tenant_code = ?', ['DEV001']))[0]?.id
+      tenantId: (await prisma.tenant.findUnique({ where: { tenantCode: 'DEV001' }, select: { id: true } }))?.id
     },
     {
       nome: 'Maria Santos',
       email: 'maria@test.com', 
       role: 'coordinator',
-      tenant_id: (await query('SELECT id FROM tenants WHERE tenant_code = ?', ['DEV001']))[0]?.id
+      tenantId: (await prisma.tenant.findUnique({ where: { tenantCode: 'DEV001' }, select: { id: true } }))?.id
     },
     {
       nome: 'Carlos Oliveira',
       email: 'carlos@test.com',
       role: 'manager',
-      tenant_id: (await query('SELECT id FROM tenants WHERE tenant_code = ?', ['DEV001']))[0]?.id
+      tenantId: (await prisma.tenant.findUnique({ where: { tenantCode: 'DEV001' }, select: { id: true } }))?.id
     }
   ];
 
@@ -320,21 +347,23 @@ export const seedTestData = async (): Promise<void> => {
 
   for (const user of testUsers) {
     const userId = uuidv4();
-    await execute(`
-      INSERT OR REPLACE INTO users (
-        id, tenant_id, nome_completo, email, password_hash, 
-        role, status, email_verified
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      userId,
-      user.tenant_id,
-      user.nome,
-      user.email,
-      passwordHash,
-      user.role,
-      'ativo',
-      true
-    ]);
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {
+        passwordHash,
+        updatedAt: new Date()
+      },
+      create: {
+        id: userId,
+        tenantId: user.tenantId,
+        nomeCompleto: user.nome,
+        email: user.email,
+        passwordHash,
+        role: user.role,
+        status: 'ativo',
+        emailVerified: true
+      }
+    });
   }
 
   console.log(`✅ ${testUsers.length} usuários de teste criados`);

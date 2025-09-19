@@ -7,7 +7,7 @@
 
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { UserModel, User, UserRole } from '../models/User.js';
+import User, { UserModel, UserRole } from '../models/User.js';
 import { SessionModel } from '../models/Session.js';
 import { JWTUtils, TokenPair } from '../utils/jwt.js';
 import { AUTH_CONFIG, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../config/auth.js';
@@ -26,7 +26,7 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
   success: boolean;
-  user: Omit<User, 'password_hash'>;
+  user: Omit<User, 'passwordHash'>;
   tokens: TokenPair;
   tenant?: {
     id: string;
@@ -111,7 +111,7 @@ export class AuthService {
       // 9. Log da atividade
       await this.logActivity({
         user_id: user.id,
-        tenant_id: user.tenant_id,
+        tenant_id: user.tenantId,
         action: 'login',
         resource: 'auth',
         details: JSON.stringify({
@@ -125,13 +125,13 @@ export class AuthService {
 
       // 10. Buscar dados do tenant se existir
       let tenant = undefined;
-      if (user.tenant_id) {
-        const tenantData = await execute(
-          'SELECT id, nome, plano FROM tenants WHERE id = ?',
-          [user.tenant_id]
-        );
+      if (user.tenantId) {
+        const tenantData = await prisma.tenant.findUnique({
+          where: { id: user.tenantId },
+          select: { id: true, nome: true, plano: true }
+        });
         if (tenantData) {
-          tenant = tenantData as any;
+          tenant = tenantData;
         }
       }
 
@@ -192,7 +192,7 @@ export class AuthService {
       // 6. Log da atividade
       await this.logActivity({
         user_id: user.id,
-        tenant_id: user.tenant_id,
+        tenant_id: user.tenantId,
         action: 'token_refresh',
         resource: 'auth',
         details: JSON.stringify({
@@ -265,7 +265,7 @@ export class AuthService {
       // 3. Log da atividade
       await this.logActivity({
         user_id: userId,
-        tenant_id: user.tenant_id,
+        tenant_id: user.tenantId,
         action: 'logout_all',
         resource: 'auth',
         details: JSON.stringify({
@@ -294,7 +294,7 @@ export class AuthService {
    */
   static async validateToken(token: string): Promise<{
     valid: boolean;
-    user?: Omit<User, 'password_hash'>;
+    user?: Omit<User, 'passwordHash'>;
     error?: string;
   }> {
     try {
@@ -389,21 +389,18 @@ export class AuthService {
     user_agent?: string;
   }): Promise<void> {
     try {
-      await execute(`
-        INSERT INTO activity_logs (
-          user_id, tenant_id, action, resource, resource_id, 
-          details, ip_address, user_agent
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `, [
-        activity.user_id || null,
-        activity.tenant_id || null,
-        activity.action,
-        activity.resource,
-        activity.resource_id || null,
-        activity.details || null,
-        activity.ip_address || null,
-        activity.user_agent || null
-      ]);
+      await prisma.activityLog.create({
+        data: {
+          user_id: activity.user_id || null,
+          tenant_id: activity.tenant_id || null,
+          action: activity.action,
+          resource: activity.resource,
+          resource_id: activity.resource_id || null,
+          details: activity.details || null,
+          ip_address: activity.ip_address || null,
+          user_agent: activity.user_agent || null
+        }
+      });
     } catch (error) {
       console.error('Erro ao registrar atividade:', error);
     }
@@ -476,7 +473,7 @@ export class AuthService {
       // Log da atividade
       await this.logActivity({
         user_id: requestingUserId,
-        tenant_id: requestingUser.tenant_id,
+        tenant_id: requestingUser.tenantId,
         action: 'session_terminated',
         resource: 'auth',
         resource_id: sessionId,
@@ -507,63 +504,68 @@ export class AuthService {
   }> {
     try {
       // Sessões ativas
-      let activeSessionsQuery = `
-        SELECT COUNT(*) as count FROM user_sessions 
-        WHERE is_active = TRUE AND expires_at > datetime('now')
-      `;
-      let params: any[] = [];
+      const whereClauseActiveSessions: any = {
+        is_active: true,
+        expires_at: { gt: new Date() }
+      };
 
       if (tenantId) {
-        activeSessionsQuery += ` AND user_id IN (SELECT id FROM users WHERE tenant_id = ?)`;
-        params.push(tenantId);
+        whereClauseActiveSessions.user = {
+          tenant_id: tenantId
+        };
       }
 
-      const activeSessions = await execute(activeSessionsQuery, params) as any;
+      const activeSessions = await prisma.userSession.count({
+        where: whereClauseActiveSessions
+      });
 
       // Total de usuários
-      let totalUsersQuery = `SELECT COUNT(*) as count FROM users WHERE status = 'ativo'`;
-      let userParams: any[] = [];
+      const whereClauseTotalUsers: any = {
+        status: 'ativo'
+      };
 
       if (tenantId) {
-        totalUsersQuery += ` AND tenant_id = ?`;
-        userParams.push(tenantId);
+        whereClauseTotalUsers.tenant_id = tenantId;
       }
 
-      const totalUsers = await execute(totalUsersQuery, userParams) as any;
+      const totalUsers = await prisma.user.count({
+        where: whereClauseTotalUsers
+      });
 
       // Logins recentes (últimas 24 horas)
-      let recentLoginsQuery = `
-        SELECT COUNT(*) as count FROM activity_logs 
-        WHERE action = 'login' AND created_at > datetime('now', '-24 hours')
-      `;
-      let loginParams: any[] = [];
+      const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const whereClauseRecentLogins: any = {
+        action: 'login',
+        created_at: { gt: last24Hours }
+      };
 
       if (tenantId) {
-        recentLoginsQuery += ` AND tenant_id = ?`;
-        loginParams.push(tenantId);
+        whereClauseRecentLogins.tenant_id = tenantId;
       }
 
-      const recentLogins = await execute(recentLoginsQuery, loginParams) as any;
+      const recentLogins = await prisma.activityLog.count({
+        where: whereClauseRecentLogins
+      });
 
       // Tentativas falhadas (últimas 24 horas)
-      let failedAttemptsQuery = `
-        SELECT COUNT(*) as count FROM activity_logs 
-        WHERE action = 'login_failed' AND created_at > datetime('now', '-24 hours')
-      `;
-      let failedParams: any[] = [];
+      const whereClauseFailedAttempts: any = {
+        action: 'login_failed',
+        created_at: { gt: last24Hours }
+      };
 
       if (tenantId) {
-        failedAttemptsQuery += ` AND tenant_id = ?`;
-        failedParams.push(tenantId);
+        whereClauseFailedAttempts.tenant_id = tenantId;
       }
 
-      const failedAttempts = await execute(failedAttemptsQuery, failedParams) as any;
+      const failedAttempts = await prisma.activityLog.count({
+        where: whereClauseFailedAttempts
+      });
 
       return {
-        activeSessions: activeSessions.count || 0,
-        totalUsers: totalUsers.count || 0,
-        recentLogins: recentLogins.count || 0,
-        failedAttempts: failedAttempts.count || 0
+        activeSessions: activeSessions || 0,
+        totalUsers: totalUsers || 0,
+        recentLogins: recentLogins || 0,
+        failedAttempts: failedAttempts || 0
       };
 
     } catch (error) {

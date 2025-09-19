@@ -7,7 +7,8 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from "../database/prisma.js";
-import { User, UserRole as UserRoleType } from '../models/User.js';
+import { UserRole as UserRoleType } from '../models/User.js';
+import { User } from '../database/generated/client/index.js';
 
 // Tipos para o sistema de autorização
 export type UserRole = UserRoleType;
@@ -185,11 +186,12 @@ export const requireRoleOrLevel = (role: UserRole, minimumLevel?: number) => {
  */
 export const getRoleInfo = async (role: UserRole) => {
   try {
-    const roleInfo = await queryOne(
-      'SELECT * FROM role_hierarchy WHERE role = ?',
-      [role]
-    );
-    return roleInfo;
+    // TODO: Implementar com Prisma quando modelo role_hierarchy existir
+    // const roleInfo = await prisma.roleHierarchy.findUnique({
+    //   where: { role }
+    // });
+    console.log(`⚠️ [AUTH] getRoleInfo não implementado ainda para role: ${role}`);
+    return null;
   } catch (error) {
     console.error('❌ [AUTH] Erro ao buscar info do role:', error);
     return null;
@@ -201,10 +203,12 @@ export const getRoleInfo = async (role: UserRole) => {
  */
 export const getAllRoles = async () => {
   try {
-    const roles = await query(
-      'SELECT * FROM role_hierarchy ORDER BY level ASC'
-    );
-    return roles;
+    // TODO: Implementar com Prisma quando modelo role_hierarchy existir
+    // const roles = await prisma.roleHierarchy.findMany({
+    //   orderBy: { level: 'asc' }
+    // });
+    console.log('⚠️ [AUTH] getAllRoles não implementado ainda');
+    return [];
   } catch (error) {
     console.error('❌ [AUTH] Erro ao buscar roles:', error);
     return [];

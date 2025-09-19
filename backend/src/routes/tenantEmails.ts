@@ -404,13 +404,12 @@ router.post('/smtp-users',
         return;
       }
 
-      // Criar usuário SMTP vinculado ao tenant
+      // Criar usuário SMTP (vinculação com tenant será feita através do userId)
       const smtpUser = await emailDb.createSmtpUser({
         email,
         password,
         name,
-        userId,
-        tenantId // Vincular ao tenant
+        userId
       });
 
       logger.info(`Usuário SMTP criado para tenant: ${email}`, {

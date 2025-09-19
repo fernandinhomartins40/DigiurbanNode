@@ -33,6 +33,12 @@ export const ConnectionStatus = {
   FAILED: 'FAILED'
 } as const;
 
+// Tipos derivados das constantes
+export type EmailStatusType = typeof EmailStatus[keyof typeof EmailStatus];
+export type EmailDirectionType = typeof EmailDirection[keyof typeof EmailDirection];
+export type SmtpServerTypeType = typeof SmtpServerType[keyof typeof SmtpServerType];
+export type ConnectionStatusType = typeof ConnectionStatus[keyof typeof ConnectionStatus];
+
 export class EmailDatabaseService {
   private prisma: PrismaClient;
 
@@ -82,7 +88,6 @@ export class EmailDatabaseService {
     password: string;
     name: string;
     userId?: string; // Link opcional com usuário DigiUrban
-    tenantId?: string; // Link opcional com tenant
   }) {
     const bcrypt = await import('bcryptjs');
     const passwordHash = await bcrypt.hash(userData.password, 12);
@@ -93,7 +98,6 @@ export class EmailDatabaseService {
         passwordHash,
         name: userData.name,
         userId: userData.userId,
-        tenantId: userData.tenantId,
         isVerified: false,
         isActive: true,
         isAdmin: false
@@ -211,7 +215,7 @@ export class EmailDatabaseService {
     subject: string;
     htmlContent?: string;
     textContent?: string;
-    direction: EmailDirection;
+    direction: EmailDirectionType;
     domainId?: number;
     mxServer?: string;
   }) {
@@ -237,7 +241,7 @@ export class EmailDatabaseService {
    */
   async updateEmailStatus(
     messageId: string,
-    status: EmailStatus,
+    status: EmailStatusType,
     errorMessage?: string
   ) {
     const updateData: any = {
@@ -303,8 +307,8 @@ export class EmailDatabaseService {
   async logSmtpConnection(connectionData: {
     remoteAddress: string;
     hostname?: string;
-    serverType: SmtpServerType;
-    status: ConnectionStatus;
+    serverType: SmtpServerTypeType;
+    status: ConnectionStatusType;
     rejectReason?: string;
   }) {
     return await this.prisma.smtpConnection.create({

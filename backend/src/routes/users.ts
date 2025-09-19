@@ -20,7 +20,7 @@ export const userRoutes = Router();
 // ====================================================================
 
 const createUserValidation = [
-  body('nome_completo')
+  body('nomeCompleto')
     .isLength({ min: 2 })
     .withMessage('Nome completo é obrigatório'),
   body('email')
@@ -30,20 +30,20 @@ const createUserValidation = [
   body('senha')
     .isLength({ min: 8 })
     .withMessage('Senha deve ter pelo menos 8 caracteres'),
-  body('tipo_usuario')
+  body('tipoUsuario')
     .isIn(['super_admin', 'admin', 'manager', 'coordinator', 'user', 'guest'])
     .withMessage('Tipo de usuário inválido'),
-  body('tenant_id')
+  body('tenantId')
     .isUUID()
     .withMessage('Tenant ID deve ser um UUID válido')
 ];
 
 const updateUserValidation = [
   param('userId').isUUID().withMessage('ID do usuário deve ser um UUID válido'),
-  body('nome_completo').optional().isLength({ min: 2 }),
+  body('nomeCompleto').optional().isLength({ min: 2 }),
   body('email').optional().isEmail().normalizeEmail(),
-  body('tipo_usuario').optional().isIn(['super_admin', 'admin', 'manager', 'coordinator', 'user', 'guest']),
-  body('tenant_id').optional().isUUID()
+  body('tipoUsuario').optional().isIn(['super_admin', 'admin', 'manager', 'coordinator', 'user', 'guest']),
+  body('tenantId').optional().isUUID()
 ];
 
 // ====================================================================
@@ -95,7 +95,7 @@ userRoutes.post('/',
       };
 
       // Verificar se usuário pode criar neste tenant
-      if (req.user!.role !== 'super_admin' && userData.tenant_id !== req.user!.tenant_id) {
+      if (req.user!.role !== 'super_admin' && userData.tenantId !== req.user!.tenantId) {
         res.status(403).json({
           success: false,
           error: 'Não é possível criar usuário em outro tenant'
@@ -130,24 +130,24 @@ userRoutes.get('/',
   authMiddleware,
   requireAdmin,
   [
-    query('tenant_id').optional().isUUID(),
-    query('tipo_usuario').optional().isString(),
+    query('tenantId').optional().isUUID(),
+    query('tipoUsuario').optional().isString(),
     query('status').optional().isString(),
     query('limit').optional().isInt({ min: 1, max: 100 }),
     query('offset').optional().isInt({ min: 0 })
   ],
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { tenant_id, tipo_usuario, status, limit = 50, offset = 0 } = req.query;
+      const { tenantId, tipoUsuario, status, limit = 50, offset = 0 } = req.query;
 
       // Super admin pode ver todos, admin só do seu tenant
       const effectiveTenantId = req.user!.role === 'super_admin' 
-        ? (tenant_id as string) 
-        : req.user!.tenant_id;
+        ? (tenantId as string) 
+        : req.user!.tenantId;
 
       const users = await UserModel.getUsers({
         tenant_id: effectiveTenantId,
-        role: tipo_usuario as any,
+        role: tipoUsuario as any,
         status: status as any,
         limit: parseInt(limit as string),
         offset: parseInt(offset as string)
@@ -193,7 +193,7 @@ userRoutes.get('/:userId',
       }
 
       // Verificar se pode acessar este usuário
-      if (req.user!.role !== 'super_admin' && user.tenant_id !== req.user!.tenant_id) {
+      if (req.user!.role !== 'super_admin' && user.tenantId !== req.user!.tenantId) {
         res.status(403).json({
           success: false,
           error: 'Acesso negado ao usuário'
@@ -244,7 +244,7 @@ userRoutes.put('/:userId',
       }
 
       // Verificar permissões
-      if (req.user!.role !== 'super_admin' && existingUser.tenant_id !== req.user!.tenant_id) {
+      if (req.user!.role !== 'super_admin' && existingUser.tenantId !== req.user!.tenantId) {
         res.status(403).json({
           success: false,
           error: 'Acesso negado ao usuário'
@@ -302,7 +302,7 @@ userRoutes.put('/:userId/status',
         return;
       }
 
-      if (req.user!.role !== 'super_admin' && existingUser.tenant_id !== req.user!.tenant_id) {
+      if (req.user!.role !== 'super_admin' && existingUser.tenantId !== req.user!.tenantId) {
         res.status(403).json({
           success: false,
           error: 'Acesso negado ao usuário'
@@ -351,7 +351,7 @@ userRoutes.delete('/:userId',
         return;
       }
 
-      if (req.user!.role !== 'super_admin' && existingUser.tenant_id !== req.user!.tenant_id) {
+      if (req.user!.role !== 'super_admin' && existingUser.tenantId !== req.user!.tenantId) {
         res.status(403).json({
           success: false,
           error: 'Acesso negado ao usuário'
@@ -409,7 +409,7 @@ userRoutes.post('/:userId/reset-password',
         return;
       }
 
-      if (req.user!.role !== 'super_admin' && existingUser.tenant_id !== req.user!.tenant_id) {
+      if (req.user!.role !== 'super_admin' && existingUser.tenantId !== req.user!.tenantId) {
         res.status(403).json({
           success: false,
           error: 'Acesso negado ao usuário'
@@ -445,10 +445,10 @@ userRoutes.post('/profile',
   sanitizeAll,
   [
     body('id').isUUID(),
-    body('nome_completo').isString(),
+    body('nomeCompleto').isString(),
     body('email').isEmail(),
-    body('tipo_usuario').isString(),
-    body('tenant_id').isUUID()
+    body('tipoUsuario').isString(),
+    body('tenantId').isUUID()
   ],
   handleValidationErrors,
   async (req: Request, res: Response): Promise<void> => {

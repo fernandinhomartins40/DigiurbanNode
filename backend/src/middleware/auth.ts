@@ -7,7 +7,8 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { JWTUtils, JWTPayload } from '../utils/jwt.js';
-import { UserModel, User, UserRole } from '../models/User.js';
+import { UserModel, UserRole } from '../models/User.js';
+import { User } from '../database/generated/client/index.js';
 import { SessionModel } from '../models/Session.js';
 import { PermissionModel } from '../models/Permission.js';
 import { CookieManager } from '../utils/cookieManager.js';
@@ -108,7 +109,7 @@ export const authenticateJWT = async (
     // 6. Anexar informações ao request
     req.user = user;
     req.userRole = user.role;
-    req.tenantId = user.tenant_id || undefined;
+    req.tenantId = user.tenantId || undefined;
     req.sessionId = payload.sessionId;
     req.tokenPayload = payload;
     
@@ -322,9 +323,9 @@ export const requireTenantAccess = (req: Request, res: Response, next: NextFunct
     return;
   }
   
-  const requestedTenantId = req.params.tenantId || req.body.tenant_id || req.query.tenant_id;
+  const requestedTenantId = req.params.tenantId || req.body.tenantId || req.query.tenantId;
   
-  if (requestedTenantId && req.user.tenant_id !== requestedTenantId) {
+  if (requestedTenantId && req.user.tenantId !== requestedTenantId) {
     res.status(403).json({ 
       success: false,
       error: ERROR_MESSAGES.ACCESS_DENIED,

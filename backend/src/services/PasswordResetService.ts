@@ -6,6 +6,7 @@
 // ====================================================================
 
 import bcrypt from 'bcryptjs';
+import { createHash } from 'crypto';
 import { UserModel } from '../models/User.js';
 import { TokenService } from './TokenService.js';
 import { EmailService } from './EmailService.js';
@@ -103,7 +104,7 @@ export class PasswordResetService {
       if (EmailService.isConfigured()) {
         try {
           const emailResult = await EmailService.sendPasswordResetEmail(user.email, {
-            nome_completo: user.nome_completo,
+            nome_completo: user.nomeCompleto,
             resetToken: tokenData.token,
             expiresAt: new Date(tokenData.expiresAt)
           });
@@ -121,7 +122,7 @@ export class PasswordResetService {
       // 6. Registrar atividade
       await this.logPasswordResetActivity({
         user_id: user.id,
-        tenant_id: user.tenant_id,
+        tenant_id: user.tenantId,
         action: 'password_reset_requested',
         details: JSON.stringify({
           email_sent: emailSent,
@@ -203,24 +204,27 @@ export class PasswordResetService {
       const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
       // 6. Atualizar senha no banco
-      await execute(
-        'UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?',
-        [hashedPassword, Date.now(), user.id]
-      );
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          passwordHash: hashedPassword,
+          updatedAt: new Date()
+        }
+      });
 
       // 7. Marcar token como usado
       await TokenService.usePasswordResetToken(token);
 
       // 8. Invalidar todas as sessões do usuário (forçar re-login)
-      await execute(
-        'UPDATE user_sessions SET is_active = FALSE WHERE user_id = ?',
-        [user.id]
-      );
+      await prisma.userSession.updateMany({
+        where: { user_id: user.id },
+        data: { is_active: false }
+      });
 
       // 9. Registrar atividade
       await this.logPasswordResetActivity({
         user_id: user.id,
-        tenant_id: user.tenant_id,
+        tenant_id: user.tenantId,
         action: 'password_reset_completed',
         details: JSON.stringify({
           ip_address: ipAddress,
@@ -291,11 +295,16 @@ export class PasswordResetService {
       }
 
       // Obter dados do token
-      const tokenData = await execute(`
-        SELECT expires_at FROM password_reset_tokens 
-        WHERE token = ? AND user_id = ? AND used_at IS NULL 
-        LIMIT 1
-      `, [TokenService['hashToken'](token), user.id]) as any;
+      const tokenData = await prisma.passwordResetToken.findFirst({
+        where: {
+          token: this.hashToken(token),
+          user_id: user.id,
+          used_at: null
+        },
+        select: {
+          expires_at: true
+        }
+      });
 
       return {
         valid: true,
@@ -345,6 +354,13 @@ export class PasswordResetService {
   }
 
   /**
+   * Hash SHA-256 do token para armazenamento seguro
+   */
+  private static hashToken(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
+  }
+
+  /**
    * Registrar atividade de recuperação de senha
    */
   private static async logPasswordResetActivity(activity: {
@@ -356,19 +372,17 @@ export class PasswordResetService {
     user_agent?: string;
   }): Promise<void> {
     try {
-      await execute(`
-        INSERT INTO activity_logs (
-          user_id, tenant_id, action, resource, details, ip_address, user_agent
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
-      `, [
-        activity.user_id,
-        activity.tenant_id || null,
-        activity.action,
-        'password_reset',
-        activity.details || null,
-        activity.ip_address || null,
-        activity.user_agent || null
-      ]);
+      await prisma.activityLog.create({
+        data: {
+          user_id: activity.user_id,
+          tenant_id: activity.tenant_id || null,
+          action: activity.action,
+          resource: 'password_reset',
+          details: activity.details || null,
+          ip_address: activity.ip_address || null,
+          user_agent: activity.user_agent || null
+        }
+      });
     } catch (error) {
       console.error('Erro ao registrar atividade de recuperação de senha:', error);
     }
@@ -402,51 +416,59 @@ export class PasswordResetService {
       }
 
       // Solicitações
-      const requestsToday = await execute(`
-        SELECT COUNT(*) as count FROM activity_logs a
-        WHERE a.action = 'password_reset_requested' 
-        AND a.created_at > ? ${tenantFilter}
-      `, [dayStart, ...params.slice(0, 1)]) as any;
+      const whereRequestsToday: any = {
+        action: 'password_reset_requested',
+        created_at: { gt: new Date(dayStart) }
+      };
+      if (tenantId) whereRequestsToday.tenant_id = tenantId;
 
-      const requestsWeek = await execute(`
-        SELECT COUNT(*) as count FROM activity_logs a
-        WHERE a.action = 'password_reset_requested' 
-        AND a.created_at > ? ${tenantFilter}
-      `, [weekStart, ...params.slice(0, 1)]) as any;
+      const whereRequestsWeek: any = {
+        action: 'password_reset_requested',
+        created_at: { gt: new Date(weekStart) }
+      };
+      if (tenantId) whereRequestsWeek.tenant_id = tenantId;
+
+      const requestsToday = await prisma.activityLog.count({ where: whereRequestsToday });
+      const requestsWeek = await prisma.activityLog.count({ where: whereRequestsWeek });
 
       // Conclusões
-      const completedToday = await execute(`
-        SELECT COUNT(*) as count FROM activity_logs a
-        WHERE a.action = 'password_reset_completed' 
-        AND a.created_at > ? ${tenantFilter}
-      `, [dayStart, ...params.slice(0, 1)]) as any;
+      const whereCompletedToday: any = {
+        action: 'password_reset_completed',
+        created_at: { gt: new Date(dayStart) }
+      };
+      if (tenantId) whereCompletedToday.tenant_id = tenantId;
 
-      const completedWeek = await execute(`
-        SELECT COUNT(*) as count FROM activity_logs a
-        WHERE a.action = 'password_reset_completed' 
-        AND a.created_at > ? ${tenantFilter}
-      `, [weekStart, ...params.slice(0, 1)]) as any;
+      const whereCompletedWeek: any = {
+        action: 'password_reset_completed',
+        created_at: { gt: new Date(weekStart) }
+      };
+      if (tenantId) whereCompletedWeek.tenant_id = tenantId;
+
+      const completedToday = await prisma.activityLog.count({ where: whereCompletedToday });
+      const completedWeek = await prisma.activityLog.count({ where: whereCompletedWeek });
 
       // Tokens ativos
-      let activeTokensQuery = `
-        SELECT COUNT(*) as count FROM password_reset_tokens p
-        JOIN users u ON p.user_id = u.id
-        WHERE p.expires_at > ? AND p.used_at IS NULL
-      `;
+      const whereActiveTokens: any = {
+        expires_at: { gt: new Date(now) },
+        used_at: null
+      };
 
       if (tenantId) {
-        activeTokensQuery += ' AND u.tenant_id = ?';
-        params.push(tenantId);
+        whereActiveTokens.user = {
+          tenant_id: tenantId
+        };
       }
 
-      const activeTokens = await execute(activeTokensQuery, [now, ...params.slice(-1)]) as any;
+      const activeTokens = await prisma.passwordResetToken.count({
+        where: whereActiveTokens
+      });
 
       return {
-        requestsToday: requestsToday.count || 0,
-        requestsWeek: requestsWeek.count || 0,
-        completedToday: completedToday.count || 0,
-        completedWeek: completedWeek.count || 0,
-        activeTokens: activeTokens.count || 0
+        requestsToday: requestsToday || 0,
+        requestsWeek: requestsWeek || 0,
+        completedToday: completedToday || 0,
+        completedWeek: completedWeek || 0,
+        activeTokens: activeTokens || 0
       };
 
     } catch (error) {

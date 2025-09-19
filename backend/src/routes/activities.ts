@@ -126,7 +126,7 @@ router.get('/user/:userId',
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
 
       // Verificar permissões
-      const canViewOthers = await PermissionService.hasPermission(req.user!.id, 'view_activity_logs');
+      const canViewOthers = await PermissionService.userHasPermission(req.user!.id, 'view_activity_logs');
       
       if (userId !== req.user!.id && !canViewOthers) {
         res.status(403).json({

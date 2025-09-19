@@ -7,7 +7,7 @@
 
 import { EMAIL_CONFIG, EMAIL_MESSAGES } from '../config/email.js';
 import { prisma } from '../database/prisma.js';
-import { EmailDatabaseService, EmailDirection, EmailStatus } from './EmailDatabaseService.js';
+import { EmailDatabaseService, EmailDirection, EmailStatus, EmailDirectionType, EmailStatusType } from './EmailDatabaseService.js';
 import { createTransport, Transporter } from 'nodemailer';
 import crypto from 'crypto';
 

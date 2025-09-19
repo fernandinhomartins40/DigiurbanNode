@@ -48,7 +48,7 @@ export class PermissionService {
       const user = await prisma.user.findUnique({
         where: { id: userId },
         include: {
-          user_permissions: {
+          permissions: {
             include: {
               permission: true
             }
@@ -62,7 +62,7 @@ export class PermissionService {
       if (user.role === 'super_admin') return true;
 
       // Verificar permissões diretas
-      const hasDirectPermission = user.user_permissions.some(
+      const hasDirectPermission = user.permissions.some(
         up => up.permission.code === permission
       );
 
@@ -97,7 +97,7 @@ export class PermissionService {
       const user = await prisma.user.findUnique({
         where: { id: userId },
         include: {
-          user_permissions: {
+          permissions: {
             include: {
               permission: true
             }
@@ -115,7 +115,7 @@ export class PermissionService {
       const permissions = new Set<string>();
 
       // Adicionar permissões diretas
-      user.user_permissions.forEach(up => {
+      user.permissions.forEach(up => {
         permissions.add(up.permission.code);
       });
 
@@ -148,11 +148,136 @@ export class PermissionService {
 
       // Manager deve ter nível superior ou ser do mesmo tenant
       return managerLevel > targetLevel ||
-             (manager.tenant_id === target.tenant_id && managerLevel >= targetLevel);
+             (manager.tenantId === target.tenantId && managerLevel >= targetLevel);
     } catch (error) {
       console.error('❌ [PERMISSION] Erro ao verificar gestão:', error);
       return false;
     }
+  }
+
+  /**
+   * Verificar se usuário pode acessar recurso específico
+   */
+  static async canAccessResource(userId: string, resource: string, action: string, tenantId?: string): Promise<boolean> {
+    try {
+      const permissionCode = `${resource}.${action}`;
+      return await this.userHasPermission(userId, permissionCode);
+    } catch (error) {
+      console.error('❌ [PERMISSION] Erro ao verificar acesso a recurso:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Obter resumo de permissões do usuário
+   */
+  static async getUserPermissionSummary(userId: string): Promise<any> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          permissions: {
+            include: {
+              permission: true
+            }
+          }
+        }
+      });
+
+      if (!user) return null;
+
+      const permissions = await this.getUserPermissions(userId);
+
+      return {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        tenantId: user.tenantId,
+        permissions: permissions,
+        directPermissions: user.permissions.map(up => up.permission.code),
+        inheritedPermissions: permissions.filter(p =>
+          !user.permissions.some(up => up.permission.code === p)
+        )
+      };
+    } catch (error) {
+      console.error('❌ [PERMISSION] Erro ao obter resumo:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Obter usuários com permissão específica
+   */
+  static async getUsersWithPermission(permissionCode: string, tenantId?: string): Promise<any[]> {
+    try {
+      const permission = await prisma.permission.findUnique({
+        where: { code: permissionCode }
+      });
+
+      if (!permission) return [];
+
+      const whereClause: any = {};
+      if (tenantId) {
+        whereClause.tenantId = tenantId;
+      }
+
+      const users = await prisma.user.findMany({
+        where: {
+          ...whereClause,
+          OR: [
+            {
+              permissions: {
+                some: {
+                  permission_id: permission.id
+                }
+              }
+            },
+            {
+              role: 'super_admin' // Super admin tem todas as permissões
+            }
+          ]
+        },
+        select: {
+          id: true,
+          email: true,
+          nomeCompleto: true,
+          role: true,
+          tenantId: true
+        }
+      });
+
+      return users;
+    } catch (error) {
+      console.error('❌ [PERMISSION] Erro ao buscar usuários:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Verificar se um usuário pode gerenciar outro (alias para compatibilidade)
+   */
+  static async canManageUser(managerId: string, targetUserId: string): Promise<boolean> {
+    return this.canManageUserPermissions(managerId, targetUserId);
+  }
+
+  /**
+   * Conceder permissão (alias para compatibilidade)
+   */
+  static async grantPermission(userId: string, permissionCode: string, grantedBy: string): Promise<{ message: string }> {
+    const success = await this.grantPermissionToUser(userId, permissionCode, grantedBy);
+    return {
+      message: success ? 'Permissão concedida com sucesso' : 'Falha ao conceder permissão'
+    };
+  }
+
+  /**
+   * Revogar permissão (alias para compatibilidade)
+   */
+  static async revokePermission(userId: string, permissionCode: string, revokedBy: string): Promise<{ message: string }> {
+    const success = await this.revokePermissionFromUser(userId, permissionCode, revokedBy);
+    return {
+      message: success ? 'Permissão revogada com sucesso' : 'Falha ao revogar permissão'
+    };
   }
 
   // ====================================================================
@@ -290,11 +415,11 @@ export class PermissionService {
       }
 
       // Verificar se já existe
-      const existing = await prisma.user_permission.findUnique({
+      const existing = await prisma.userPermission.findUnique({
         where: {
-          user_id_permission_id: {
-            user_id: userId,
-            permission_id: permission.id
+          userId_permissionId: {
+            userId: userId,
+            permissionId: permission.id
           }
         }
       });
@@ -302,12 +427,11 @@ export class PermissionService {
       if (existing) return true;
 
       // Criar permissão
-      await prisma.user_permission.create({
+      await prisma.userPermission.create({
         data: {
-          user_id: userId,
-          permission_id: permission.id,
-          granted_by: grantedBy,
-          granted_at: new Date()
+          userId: userId,
+          permissionId: permission.id,
+          grantedBy: grantedBy
         }
       });
 
@@ -329,11 +453,11 @@ export class PermissionService {
 
       if (!permission) return false;
 
-      await prisma.user_permission.delete({
+      await prisma.userPermission.delete({
         where: {
-          user_id_permission_id: {
-            user_id: userId,
-            permission_id: permission.id
+          userId_permissionId: {
+            userId: userId,
+            permissionId: permission.id
           }
         }
       });
@@ -362,15 +486,13 @@ export class PermissionService {
           update: {
             resource: permission.resource,
             action: permission.action,
-            description: permission.description,
-            category: permission.category
+            description: permission.description
           },
           create: {
             code: permission.code,
             resource: permission.resource,
             action: permission.action,
-            description: permission.description,
-            category: permission.category
+            description: permission.description
           }
         });
       }

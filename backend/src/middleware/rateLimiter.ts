@@ -211,7 +211,7 @@ function createRateLimit(config: RateLimitConfig) {
         // Log da atividade de rate limit
         await ActivityService.log({
           user_id: req.user?.id,
-          tenant_id: req.user?.tenant_id,
+          tenant_id: req.user?.tenantId,
           action: 'rate_limit_exceeded',
           resource: 'security',
           details: JSON.stringify({

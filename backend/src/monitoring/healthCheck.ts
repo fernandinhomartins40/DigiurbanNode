@@ -33,9 +33,10 @@ export class HealthChecker {
       check: async () => {
         const start = Date.now();
         try {
-          const result = await queryOne('SELECT 1 as test');
+          // Teste simples de conectividade usando Prisma
+          const result = await prisma.$queryRaw`SELECT 1 as test`;
           const responseTime = Date.now() - start;
-          
+
           if (responseTime > 5000) {
             return {
               status: 'warn',
@@ -43,7 +44,7 @@ export class HealthChecker {
               responseTime
             };
           }
-          
+
           return {
             status: result ? 'pass' : 'fail',
             output: `Database connection ${result ? 'successful' : 'failed'}`,
@@ -284,11 +285,11 @@ export class HealthChecker {
 
   static async runQuickCheck(): Promise<{ status: 'healthy' | 'unhealthy'; responseTime: number }> {
     const start = Date.now();
-    
+
     try {
-      // Apenas verificações críticas rápidas
-      await queryOne('SELECT 1');
-      
+      // Apenas verificações críticas rápidas usando Prisma
+      await prisma.$queryRaw`SELECT 1`;
+
       const responseTime = Date.now() - start;
       return {
         status: responseTime < 1000 ? 'healthy' : 'unhealthy',

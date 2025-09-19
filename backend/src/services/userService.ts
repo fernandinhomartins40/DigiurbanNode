@@ -4,65 +4,100 @@ import { v4 as uuidv4 } from 'uuid';
 
 class UserService {
   async findById(id: string): Promise<User | null> {
-    const sql = 'SELECT * FROM users WHERE id = ?';
-    const user = await queryOne(sql, [id]) as User | null;
-    return user;
+    const user = await prisma.user.findUnique({
+      where: { id }
+    });
+    return user as User | null;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const sql = 'SELECT * FROM users WHERE email = ?';
-    const user = await queryOne(sql, [email]) as User | null;
-    return user;
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+    return user as User | null;
   }
 
   async create(userData: CreateUserData): Promise<User> {
     const id = uuidv4();
-    const now = new Date();
-    
-    const sql = `
-      INSERT INTO users (id, email, password, name, role, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `;
 
-    await execute(sql, [id, userData.email, userData.password, userData.name, userData.role, now, now]);
+    const user = await prisma.user.create({
+      data: {
+        id,
+        email: userData.email,
+        passwordHash: userData.password, // Assumindo que password é o hash
+        nomeCompleto: userData.name,
+        role: userData.role as any
+      }
+    });
 
     return {
-      id,
-      email: userData.email,
-      password: userData.password,
-      name: userData.name,
-      role: userData.role,
-      createdAt: now,
-      updatedAt: now
+      id: user.id,
+      email: user.email,
+      password: user.passwordHash,
+      name: user.nomeCompleto,
+      role: user.role as any,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
     };
   }
 
   async update(id: string, data: Partial<User>): Promise<User> {
-    const now = new Date();
-    const fields = Object.keys(data).filter(key => key !== 'id' && key !== 'createdAt');
-    const values = fields.map(field => data[field as keyof User]);
-    
-    const setClause = fields.map(field => `${field} = ?`).join(', ');
-    
-    const sql = `
-      UPDATE users SET ${setClause}, updatedAt = ? WHERE id = ?
-    `;
+    const updateData: any = {};
 
-    await execute(sql, [...values, now, id]);
+    // Mapear campos para o schema Prisma
+    if (data.email) updateData.email = data.email;
+    if (data.password) updateData.passwordHash = data.password;
+    if (data.name) updateData.nomeCompleto = data.name;
+    if (data.role) updateData.role = data.role;
 
-    const updatedUser = await this.findById(id);
-    return updatedUser!;
+    const user = await prisma.user.update({
+      where: { id },
+      data: updateData
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      password: user.passwordHash,
+      name: user.nomeCompleto,
+      role: user.role as any,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
   }
 
   async findAll(): Promise<User[]> {
-    const sql = 'SELECT id, email, name, role, createdAt, updatedAt FROM users';
-    return await query(sql) as User[];
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        nomeCompleto: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    return users.map(user => ({
+      id: user.id,
+      email: user.email,
+      password: '', // Não retornar senha
+      name: user.nomeCompleto,
+      role: user.role as any,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    }));
   }
 
   async delete(id: string): Promise<boolean> {
-    const sql = 'DELETE FROM users WHERE id = ?';
-    const result = await execute(sql, [id]);
-    return (result as any).changes > 0;
+    try {
+      await prisma.user.delete({
+        where: { id }
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
 

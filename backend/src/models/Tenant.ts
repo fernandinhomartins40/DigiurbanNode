@@ -115,20 +115,22 @@ export class TenantModel {
     
     // Usando prisma client diretamente;
     
-    await db('tenants').insert({
-      id,
-      tenant_code: tenantCode,
-      nome: tenantData.nome,
-      cidade: tenantData.cidade,
-      estado: tenantData.estado,
-      cnpj: this.cleanCNPJ(tenantData.cnpj),
-      plano: tenantData.plano || 'basico',
-      status: tenantData.status || 'ativo',
-      populacao: tenantData.populacao || null,
-      endereco: tenantData.endereco || null,
-      responsavel_nome: tenantData.responsavel_nome || null,
-      responsavel_email: tenantData.responsavel_email || null,
-      responsavel_telefone: tenantData.responsavel_telefone || null
+    await prisma.tenant.create({
+      data: {
+        id,
+        tenant_code: tenantCode,
+        nome: tenantData.nome,
+        cidade: tenantData.cidade,
+        estado: tenantData.estado,
+        cnpj: this.cleanCNPJ(tenantData.cnpj),
+        plano: tenantData.plano || 'basico',
+        status: tenantData.status || 'ativo',
+        populacao: tenantData.populacao || null,
+        endereco: tenantData.endereco || null,
+        responsavel_nome: tenantData.responsavel_nome || null,
+        responsavel_email: tenantData.responsavel_email || null,
+        responsavel_telefone: tenantData.responsavel_telefone || null
+      }
     });
     
     const tenant = await this.findById(id);
@@ -145,39 +147,49 @@ export class TenantModel {
   
   static async findById(id: string): Promise<Tenant | null> {
     // Usando prisma client diretamente;
-    const tenant = await db('tenants')
-      .where('id', id)
-      .first() as Tenant | undefined;
-    return tenant || null;
+    const tenant = await prisma.tenant.findUnique({
+      where: { id }
+    }) as Tenant | null;
+    return tenant;
   }
   
   static async findByCode(tenantCode: string): Promise<Tenant | null> {
     // Usando prisma client diretamente;
-    const tenant = await db('tenants')
-      .where('tenant_code', tenantCode)
-      .first() as Tenant | undefined;
-    return tenant || null;
+    const tenant = await prisma.tenant.findUnique({
+      where: { tenant_code: tenantCode }
+    }) as Tenant | null;
+    return tenant;
   }
   
   static async findByCNPJ(cnpj: string): Promise<Tenant | null> {
     const cleanedCNPJ = this.cleanCNPJ(cnpj);
     // Usando prisma client diretamente;
-    const tenant = await db('tenants')
-      .where('cnpj', cleanedCNPJ)
-      .first() as Tenant | undefined;
-    return tenant || null;
+    const tenant = await prisma.tenant.findUnique({
+      where: { cnpj: cleanedCNPJ }
+    }) as Tenant | null;
+    return tenant;
   }
   
   static async findByCity(cidade: string, estado?: string): Promise<Tenant[]> {
     // Usando prisma client diretamente;
-    let query = db('tenants')
-      .whereRaw('LOWER(cidade) = LOWER(?)', [cidade]);
-    
+    const whereClause: any = {
+      cidade: {
+        equals: cidade,
+        mode: 'insensitive'
+      }
+    };
+
     if (estado) {
-      query = query.whereRaw('UPPER(estado) = UPPER(?)', [estado]);
+      whereClause.estado = {
+        equals: estado,
+        mode: 'insensitive'
+      };
     }
-    
-    return await query.orderBy('nome') as Tenant[];
+
+    return await prisma.tenant.findMany({
+      where: whereClause,
+      orderBy: { nome: 'asc' }
+    }) as Tenant[];
   }
   
   // ================================================================
@@ -219,11 +231,12 @@ export class TenantModel {
     if (updates.responsavel_email !== undefined) updateData.responsavel_email = updates.responsavel_email;
     if (updates.responsavel_telefone !== undefined) updateData.responsavel_telefone = updates.responsavel_telefone;
     
-    updateData.updated_at = db.fn.now();
-    
-    await db('tenants')
-      .where('id', id)
-      .update(updateData);
+    updateData.updated_at = new Date();
+
+    await prisma.tenant.update({
+      where: { id },
+      data: updateData
+    });
     
     const updatedTenant = await this.findById(id);
     if (!updatedTenant) {
@@ -239,19 +252,20 @@ export class TenantModel {
   
   static async softDelete(id: string): Promise<void> {
     // Usando prisma client diretamente;
-    await db('tenants')
-      .where('id', id)
-      .update({
+    await prisma.tenant.update({
+      where: { id },
+      data: {
         status: 'suspenso',
-        updated_at: db.fn.now()
-      });
+        updated_at: new Date()
+      }
+    });
   }
   
   static async hardDelete(id: string): Promise<void> {
     // Usando prisma client diretamente;
-    await db('tenants')
-      .where('id', id)
-      .del();
+    await prisma.tenant.delete({
+      where: { id }
+    });
   }
   
   // ================================================================
@@ -266,31 +280,37 @@ export class TenantModel {
     estado?: string;
   } = {}): Promise<Tenant[]> {
     // Usando prisma client diretamente;
-    let query = db('tenants').select('*');
-    
+    const whereClause: any = {};
+
     if (options.status) {
-      query = query.where('status', options.status);
+      whereClause.status = options.status;
     }
-    
+
     if (options.plano) {
-      query = query.where('plano', options.plano);
+      whereClause.plano = options.plano;
     }
-    
+
     if (options.estado) {
-      query = query.whereRaw('UPPER(estado) = UPPER(?)', [options.estado]);
+      whereClause.estado = {
+        equals: options.estado,
+        mode: 'insensitive'
+      };
     }
-    
-    query = query.orderBy('nome');
-    
+
+    const queryOptions: any = {
+      where: whereClause,
+      orderBy: { nome: 'asc' }
+    };
+
     if (options.limit) {
-      query = query.limit(options.limit);
-      
+      queryOptions.take = options.limit;
+
       if (options.offset) {
-        query = query.offset(options.offset);
+        queryOptions.skip = options.offset;
       }
     }
-    
-    return await query as Tenant[];
+
+    return await prisma.tenant.findMany(queryOptions) as Tenant[];
   }
   
   static async count(filters: {
@@ -299,22 +319,26 @@ export class TenantModel {
     estado?: string;
   } = {}): Promise<number> {
     // Usando prisma client diretamente;
-    let query = db('tenants');
-    
+    const whereClause: any = {};
+
     if (filters.status) {
-      query = query.where('status', filters.status);
+      whereClause.status = filters.status;
     }
-    
+
     if (filters.plano) {
-      query = query.where('plano', filters.plano);
+      whereClause.plano = filters.plano;
     }
-    
+
     if (filters.estado) {
-      query = query.whereRaw('UPPER(estado) = UPPER(?)', [filters.estado]);
+      whereClause.estado = {
+        equals: filters.estado,
+        mode: 'insensitive'
+      };
     }
-    
-    const result = await query.count('* as total').first() as { total: number };
-    return result.total;
+
+    return await prisma.tenant.count({
+      where: whereClause
+    });
   }
   
   // ================================================================
@@ -332,9 +356,10 @@ export class TenantModel {
     
     // Por status
     // Usando prisma client diretamente;
-    const statusStats = await db('tenants')
-      .select('status', db.raw('COUNT(*) as count'))
-      .groupBy('status') as { status: TenantStatus; count: number }[];
+    const statusStats = await prisma.tenant.groupBy({
+      by: ['status'],
+      _count: { _all: true }
+    });
     
     const byStatus: Record<TenantStatus, number> = {
       ativo: 0,
@@ -343,13 +368,14 @@ export class TenantModel {
     };
     
     statusStats.forEach(stat => {
-      byStatus[stat.status] = stat.count;
+      byStatus[stat.status as TenantStatus] = stat._count._all;
     });
     
     // Por plano
-    const planoStats = await db('tenants')
-      .select('plano', db.raw('COUNT(*) as count'))
-      .groupBy('plano') as { plano: TenantPlano; count: number }[];
+    const planoStats = await prisma.tenant.groupBy({
+      by: ['plano'],
+      _count: { _all: true }
+    });
     
     const byPlano: Record<TenantPlano, number> = {
       basico: 0,
@@ -358,18 +384,19 @@ export class TenantModel {
     };
     
     planoStats.forEach(stat => {
-      byPlano[stat.plano] = stat.count;
+      byPlano[stat.plano as TenantPlano] = stat._count._all;
     });
     
     // Por estado
-    const estadoStats = await db('tenants')
-      .select('estado', db.raw('COUNT(*) as count'))
-      .groupBy('estado')
-      .orderBy('count', 'desc') as { estado: string; count: number }[];
+    const estadoStats = await prisma.tenant.groupBy({
+      by: ['estado'],
+      _count: { _all: true },
+      orderBy: { _count: { _all: 'desc' } }
+    });
     
     const byEstado: Record<string, number> = {};
     estadoStats.forEach(stat => {
-      byEstado[stat.estado] = stat.count;
+      byEstado[stat.estado] = stat._count._all;
     });
     
     return {
@@ -469,12 +496,12 @@ export class TenantModel {
   
   static async getUserCount(tenantId: string): Promise<number> {
     // Usando prisma client diretamente;
-    const result = await db('users')
-      .where('tenant_id', tenantId)
-      .where('status', '!=', 'inativo')
-      .count('* as total')
-      .first() as { total: number };
-    return result.total;
+    return await prisma.user.count({
+      where: {
+        tenant_id: tenantId,
+        status: { not: 'inativo' }
+      }
+    });
   }
   
   static async canAddUser(tenantId: string): Promise<boolean> {
@@ -538,19 +565,16 @@ export class TenantModel {
   }> {
     try {
       // Usando prisma client diretamente;
-      const result = await db('tenants')
-        .select(
-          db.raw('COUNT(*) as total'),
-          db.raw('SUM(CASE WHEN status = "ativo" THEN 1 ELSE 0 END) as active'),
-          db.raw('SUM(CASE WHEN status != "ativo" THEN 1 ELSE 0 END) as inactive')
-        )
-        .first();
+      const [total, active, inactive] = await Promise.all([
+        prisma.tenant.count(),
+        prisma.tenant.count({ where: { status: 'ativo' } }),
+        prisma.tenant.count({ where: { status: { not: 'ativo' } } })
+      ]);
 
-      const stats = result as any;
       return {
-        total: Number(stats?.total) || 0,
-        active: Number(stats?.active) || 0,
-        inactive: Number(stats?.inactive) || 0
+        total: total || 0,
+        active: active || 0,
+        inactive: inactive || 0
       };
     } catch (error) {
       StructuredLogger.error('Erro ao obter estatísticas de tenants', error as Error);

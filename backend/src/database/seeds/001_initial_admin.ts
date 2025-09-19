@@ -84,12 +84,12 @@ export class InitialAdminSeed {
       // Criar admin inicial
       console.log('👤 Criando usuário admin inicial...');
       const admin = await UserModel.create({
-        nome_completo: process.env.INITIAL_ADMIN_NAME || 'Super Administrador',
+        nomeCompleto: process.env.INITIAL_ADMIN_NAME || 'Super Administrador',
         email: adminEmail,
         password: passwordHash,
         role: 'super_admin',
         status: 'ativo',
-        tenant_id: tenantId,
+        tenantId: tenantId,
       });
 
       // Log de sucesso (sem dados sensíveis)

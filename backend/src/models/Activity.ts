@@ -8,6 +8,7 @@
 
 import { prisma } from '../database/prisma.js';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
+import { randomUUID } from 'crypto';
 
 // ====================================================================
 // INTERFACES
@@ -47,23 +48,34 @@ export class ActivityModel {
    */
   static async create(activityData: CreateActivityData): Promise<Activity> {
     try {
-      // Usando prisma client diretamente;
-      const id = crypto.randomUUID();
-      
-      await db('activity_logs').insert({
-        id,
-        user_id: activityData.user_id || null,
-        tenant_id: activityData.tenant_id || null,
-        action: activityData.action,
-        resource: activityData.resource,
-        resource_id: activityData.resource_id || null,
-        details: activityData.details || null,
-        ip_address: activityData.ip_address || null,
-        user_agent: activityData.user_agent || null,
-        created_at: db.fn.now()
+      const id = randomUUID();
+
+      const activity = await prisma.activityLog.create({
+        data: {
+          id,
+          userId: activityData.user_id || null,
+          tenantId: activityData.tenant_id || null,
+          action: activityData.action,
+          resource: activityData.resource,
+          resourceId: activityData.resource_id || null,
+          details: activityData.details || null,
+          ipAddress: activityData.ip_address || null,
+          userAgent: activityData.user_agent || null
+        }
       });
 
-      return await this.findById(id) as Activity;
+      return {
+        id: activity.id,
+        user_id: activity.userId,
+        tenant_id: activity.tenantId,
+        action: activity.action,
+        resource: activity.resource,
+        resource_id: activity.resourceId,
+        details: activity.details,
+        ip_address: activity.ipAddress,
+        user_agent: activity.userAgent,
+        created_at: activity.createdAt.toISOString()
+      };
     } catch (error) {
       StructuredLogger.error('Activity creation failed', error, {
         action: 'activity_create',
@@ -78,12 +90,24 @@ export class ActivityModel {
    */
   static async findById(id: string): Promise<Activity | null> {
     try {
-      // Usando prisma client diretamente;
-      const activity = await db('activity_logs')
-        .where('id', id)
-        .first() as Activity | undefined;
-      
-      return activity || null;
+      const activity = await prisma.activityLog.findUnique({
+        where: { id }
+      });
+
+      if (!activity) return null;
+
+      return {
+        id: activity.id,
+        user_id: activity.userId,
+        tenant_id: activity.tenantId,
+        action: activity.action,
+        resource: activity.resource,
+        resource_id: activity.resourceId,
+        details: activity.details,
+        ip_address: activity.ipAddress,
+        user_agent: activity.userAgent,
+        created_at: activity.createdAt.toISOString()
+      };
     } catch (error) {
       StructuredLogger.error('Activity find by ID failed', error, {
         action: 'activity_find'
@@ -104,35 +128,47 @@ export class ActivityModel {
     limit?: number;
   } = {}): Promise<Activity[]> {
     try {
-      // Usando prisma client diretamente;
       const page = options.page || 1;
       const limit = Math.min(options.limit || 50, 100);
-      const offset = (page - 1) * limit;
+      const skip = (page - 1) * limit;
 
-      let query = db('activity_logs').select('*');
+      const where: any = {};
 
       if (options.userId) {
-        query = query.where('user_id', options.userId);
+        where.userId = options.userId;
       }
 
       if (options.tenantId) {
-        query = query.where('tenant_id', options.tenantId);
+        where.tenantId = options.tenantId;
       }
 
       if (options.action) {
-        query = query.where('action', options.action);
+        where.action = options.action;
       }
 
       if (options.resource) {
-        query = query.where('resource', options.resource);
+        where.resource = options.resource;
       }
 
-      const activities = await query
-        .orderBy('created_at', 'desc')
-        .limit(limit)
-        .offset(offset) as Activity[];
+      const activities = await prisma.activityLog.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip
+      });
 
-      return activities;
+      return activities.map(activity => ({
+        id: activity.id,
+        user_id: activity.userId,
+        tenant_id: activity.tenantId,
+        action: activity.action,
+        resource: activity.resource,
+        resource_id: activity.resourceId,
+        details: activity.details,
+        ip_address: activity.ipAddress,
+        user_agent: activity.userAgent,
+        created_at: activity.createdAt.toISOString()
+      }));
     } catch (error) {
       StructuredLogger.error('Activity list failed', error, {
         action: 'activity_list',
@@ -152,28 +188,25 @@ export class ActivityModel {
     resource?: string;
   } = {}): Promise<number> {
     try {
-      // Usando prisma client diretamente;
-      
-      let query = db('activity_logs');
+      const where: any = {};
 
       if (options.userId) {
-        query = query.where('user_id', options.userId);
+        where.userId = options.userId;
       }
 
       if (options.tenantId) {
-        query = query.where('tenant_id', options.tenantId);
+        where.tenantId = options.tenantId;
       }
 
       if (options.action) {
-        query = query.where('action', options.action);
+        where.action = options.action;
       }
 
       if (options.resource) {
-        query = query.where('resource', options.resource);
+        where.resource = options.resource;
       }
 
-      const result = await query.count('* as total').first() as { total: number };
-      return result.total;
+      return await prisma.activityLog.count({ where });
     } catch (error) {
       StructuredLogger.error('Activity count failed', error, {
         action: 'activity_count',
@@ -188,14 +221,24 @@ export class ActivityModel {
    */
   static async getRecentByUser(userId: string, limit: number = 10): Promise<Activity[]> {
     try {
-      // Usando prisma client diretamente;
-      
-      const activities = await db('activity_logs')
-        .where('user_id', userId)
-        .orderBy('created_at', 'desc')
-        .limit(limit) as Activity[];
-      
-      return activities;
+      const activities = await prisma.activityLog.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: limit
+      });
+
+      return activities.map(activity => ({
+        id: activity.id,
+        user_id: activity.userId,
+        tenant_id: activity.tenantId,
+        action: activity.action,
+        resource: activity.resource,
+        resource_id: activity.resourceId,
+        details: activity.details,
+        ip_address: activity.ipAddress,
+        user_agent: activity.userAgent,
+        created_at: activity.createdAt.toISOString()
+      }));
     } catch (error) {
       StructuredLogger.error('Recent activities by user failed', error, {
         action: 'activity_recent_user',
@@ -210,21 +253,23 @@ export class ActivityModel {
    */
   static async cleanup(daysOld: number = 90): Promise<number> {
     try {
-      // Usando prisma client diretamente;
-      
-      // Calcular timestamp Unix em milissegundos para X dias atrás
-      const cutoffTimestamp = Date.now() - (daysOld * 24 * 60 * 60 * 1000);
-      
-      const result = await db('activity_logs')
-        .where('created_at', '<', new Date(cutoffTimestamp))
-        .del();
-      
-      StructuredLogger.info(`Activity cleanup completed`, {
-        action: 'activity_cleanup',
-        metadata: { deletedRecords: result }
+      // Calcular timestamp para X dias atrás
+      const cutoffDate = new Date(Date.now() - (daysOld * 24 * 60 * 60 * 1000));
+
+      const { count } = await prisma.activityLog.deleteMany({
+        where: {
+          createdAt: {
+            lt: cutoffDate
+          }
+        }
       });
 
-      return result;
+      StructuredLogger.info(`Activity cleanup completed`, {
+        action: 'activity_cleanup',
+        metadata: { deletedRecords: count }
+      });
+
+      return count;
     } catch (error) {
       StructuredLogger.error('Activity cleanup failed', error, {
         action: 'activity_cleanup'
@@ -244,33 +289,49 @@ export class ActivityModel {
     limit?: number;
   } = {}): Promise<Activity[]> {
     try {
-      // Usando prisma client diretamente;
       const limit = Math.min(options.limit || 100, 1000);
 
-      let query = db('activity_logs')
-        .whereBetween('created_at', [startDate, endDate]);
+      const where: any = {
+        createdAt: {
+          gte: startDate,
+          lte: endDate
+        }
+      };
 
       if (options.userId) {
-        query = query.where('user_id', options.userId);
+        where.userId = options.userId;
       }
 
       if (options.tenantId) {
-        query = query.where('tenant_id', options.tenantId);
+        where.tenantId = options.tenantId;
       }
 
       if (options.action) {
-        query = query.where('action', options.action);
+        where.action = options.action;
       }
 
       if (options.resource) {
-        query = query.where('resource', options.resource);
+        where.resource = options.resource;
       }
 
-      const activities = await query
-        .orderBy('created_at', 'desc')
-        .limit(limit) as Activity[];
+      const activities = await prisma.activityLog.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: limit
+      });
 
-      return activities;
+      return activities.map(activity => ({
+        id: activity.id,
+        user_id: activity.userId,
+        tenant_id: activity.tenantId,
+        action: activity.action,
+        resource: activity.resource,
+        resource_id: activity.resourceId,
+        details: activity.details,
+        ip_address: activity.ipAddress,
+        user_agent: activity.userAgent,
+        created_at: activity.createdAt.toISOString()
+      }));
     } catch (error) {
       StructuredLogger.error('Activities by date range failed', error, {
         action: 'activity_date_range'
@@ -294,61 +355,85 @@ export class ActivityModel {
     topResources: Array<{ resource: string; count: number }>;
   }> {
     try {
-      // Usando prisma client diretamente;
       const days = options.days || 30;
-      
+
       // Calcular timestamps
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const monthStart = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
 
-      let baseQuery = db('activity_logs');
+      const baseWhere: any = {};
       if (options.tenantId) {
-        baseQuery = baseQuery.where('tenant_id', options.tenantId);
+        baseWhere.tenantId = options.tenantId;
       }
 
       // Total
-      const totalResult = await baseQuery.clone().count('* as total').first() as { total: number };
-      
+      const total = await prisma.activityLog.count({ where: baseWhere });
+
       // Hoje
-      const todayResult = await baseQuery.clone()
-        .where('created_at', '>=', todayStart)
-        .count('* as total').first() as { total: number };
-      
+      const today = await prisma.activityLog.count({
+        where: {
+          ...baseWhere,
+          createdAt: { gte: todayStart }
+        }
+      });
+
       // Esta semana
-      const weekResult = await baseQuery.clone()
-        .where('created_at', '>=', weekStart)
-        .count('* as total').first() as { total: number };
-      
+      const thisWeek = await prisma.activityLog.count({
+        where: {
+          ...baseWhere,
+          createdAt: { gte: weekStart }
+        }
+      });
+
       // Este mês
-      const monthResult = await baseQuery.clone()
-        .where('created_at', '>=', monthStart)
-        .count('* as total').first() as { total: number };
+      const thisMonth = await prisma.activityLog.count({
+        where: {
+          ...baseWhere,
+          createdAt: { gte: monthStart }
+        }
+      });
 
-      // Top actions
-      const topActions = await baseQuery.clone()
-        .where('created_at', '>=', monthStart)
-        .select('action')
-        .count('* as count')
-        .groupBy('action')
-        .orderBy('count', 'desc')
-        .limit(10) as Array<{ action: string; count: number }>;
+      // Top actions - usando consulta agregada
+      const topActionsRaw = await prisma.activityLog.groupBy({
+        by: ['action'],
+        where: {
+          ...baseWhere,
+          createdAt: { gte: monthStart }
+        },
+        _count: { action: true },
+        orderBy: { _count: { action: 'desc' } },
+        take: 10
+      });
 
-      // Top resources
-      const topResources = await baseQuery.clone()
-        .where('created_at', '>=', monthStart)
-        .select('resource')
-        .count('* as count')
-        .groupBy('resource')
-        .orderBy('count', 'desc')
-        .limit(10) as Array<{ resource: string; count: number }>;
+      const topActions = topActionsRaw.map(item => ({
+        action: item.action,
+        count: item._count.action
+      }));
+
+      // Top resources - usando consulta agregada
+      const topResourcesRaw = await prisma.activityLog.groupBy({
+        by: ['resource'],
+        where: {
+          ...baseWhere,
+          createdAt: { gte: monthStart }
+        },
+        _count: { resource: true },
+        orderBy: { _count: { resource: 'desc' } },
+        take: 10
+      });
+
+      const topResources = topResourcesRaw.map(item => ({
+        resource: item.resource,
+        count: item._count.resource
+      }));
 
       return {
-        total: totalResult.total,
-        today: todayResult.total,
-        thisWeek: weekResult.total,
-        thisMonth: monthResult.total,
+        total,
+        today,
+        thisWeek,
+        thisMonth,
         topActions,
         topResources
       };
