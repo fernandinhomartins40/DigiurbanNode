@@ -250,6 +250,7 @@ jobs:
         "
 
     - name: 🧹 Limpeza de Containers Antigos
+      timeout-minutes: 5
       run: |
         echo "🧹 Removendo containers e imagens antigas..."
         echo "============================================"
@@ -268,8 +269,10 @@ jobs:
         echo '🗑️  Removendo TODAS as imagens DigiUrban...'
         docker rmi digiurban-frontend:latest digiurban-backend:latest digiurban-unified:latest 2>/dev/null && echo '✅ Imagens antigas removidas' || echo 'ℹ️  Nenhuma imagem antiga para remover'
         
-        echo '🧽 Limpeza de sistema Docker...'
-        docker system prune -f > /dev/null 2>&1 && echo '✅ Sistema limpo'
+        echo '🧽 Limpeza específica de Docker...'
+        docker image prune -f --filter until=24h || echo '⚠️ Não foi possível limpar imagens antigas'
+        docker container prune -f || echo '⚠️ Não foi possível limpar containers parados'
+        echo '✅ Limpeza específica concluída'
         
         echo '📁 Preparando diretório...'
         rm -rf ${{ env.APP_DIR }}
@@ -357,15 +360,15 @@ jobs:
         
         echo ''
         echo '🧹 Limpando banco anterior se necessário...'
-        docker exec ${{ env.CONTAINER_NAME }} sh -c \"
-          if [ -f '/app/data/digiurban.db' ]; then
-            echo 'Removendo banco anterior...'
+        docker exec ${{ env.CONTAINER_NAME }} sh -c '
+          if [ -f /app/data/digiurban.db ]; then
+            echo "Removendo banco anterior..."
             rm -f /app/data/digiurban.db*
-            echo '✅ Banco anterior removido'
+            echo "✅ Banco anterior removido"
           else
-            echo 'ℹ️ Nenhum banco anterior encontrado'
+            echo "ℹ️ Nenhum banco anterior encontrado"
           fi
-        \"
+        '
         
         echo ''
         echo '🚀 Executando migrations no container...'
@@ -384,49 +387,39 @@ jobs:
           # Verificar integridade do banco (Prisma)
           echo ''
           echo '🔍 Verificando integridade do banco Prisma...'
-          docker exec ${{ env.CONTAINER_NAME }} sh -c \"
-            cd /app/backend && node -e \\\"
-              import { PrismaClient } from './dist/database/generated/client/index.js';
-
-              const prisma = new PrismaClient();
-
-              (async () => {
+          docker exec ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node -e "
+            import { PrismaClient } from \"./dist/database/generated/client/index.js\";
+            const prisma = new PrismaClient();
+            (async () => {
+              try {
+                const result = await prisma.\$queryRaw\`SELECT name FROM sqlite_master WHERE type=\"table\" ORDER BY name\`;
+                console.log(\"📋 Tabelas criadas:\", result.length);
+                result.forEach(t => console.log(\"  •\", t.name));
+                const admin = await prisma.user.findFirst({
+                  where: { role: \"super_admin\" },
+                  select: { email: true, role: true, status: true }
+                });
+                console.log(\"👤 Super admin:\", admin ? admin.email : \"NÃO ENCONTRADO\");
                 try {
-                  // Verificar se as tabelas existem
-                  const result = await prisma.\\$queryRaw\\\`SELECT name FROM sqlite_master WHERE type='table' ORDER BY name\\\`;
-                  console.log('📋 Tabelas criadas:', result.length);
-                  result.forEach(t => console.log('  •', t.name));
-
-                  // Verificar se há usuários super admin
-                  const admin = await prisma.user.findFirst({
-                    where: { role: 'super_admin' },
-                    select: { email: true, role: true, status: true }
-                  });
-                  console.log('👤 Super admin:', admin ? admin.email : 'NÃO ENCONTRADO');
-
-                  // Verificar tabelas de email se existirem
-                  try {
-                    const smtpUsers = await prisma.smtpUser.count();
-                    const emailDomains = await prisma.emailDomain.count();
-                    console.log('📧 Usuários SMTP:', smtpUsers);
-                    console.log('🌐 Domínios Email:', emailDomains);
-                  } catch (e) {
-                    console.log('ℹ️  Tabelas de email não criadas ainda');
-                  }
-
-                  await prisma.\\$disconnect();
-                } catch (error) {
-                  console.error('❌ Erro na verificação:', error.message);
-                  await prisma.\\$disconnect();
+                  const smtpUsers = await prisma.smtpUser.count();
+                  const emailDomains = await prisma.emailDomain.count();
+                  console.log(\"📧 Usuários SMTP:\", smtpUsers);
+                  console.log(\"🌐 Domínios Email:\", emailDomains);
+                } catch (e) {
+                  console.log(\"ℹ️  Tabelas de email não criadas ainda\");
                 }
-              })();
-            \\\"
-          \" || echo '⚠️ Não foi possível verificar integridade completa'
+                await prisma.\$disconnect();
+              } catch (error) {
+                console.error(\"❌ Erro na verificação:\", error.message);
+                await prisma.\$disconnect();
+              }
+            })();
+          "' || echo '⚠️ Não foi possível verificar integridade completa'
           
           echo ''
           echo '🧪 Testando login do super admin...'
           sleep 5
-          if curl -f -X POST http://localhost:3020/api/auth/login -H 'Content-Type: application/json' -d '{\\\"email\\\":\\\"admin@digiurban.com.br\\\",\\\"password\\\":\\\"SuperAdmin2024\\\"}' --max-time 10 | grep -q '\\\"success\\\":true'; then
+          if curl -f -X POST http://localhost:3020/api/auth/login -H \"Content-Type: application/json\" -d \"{\\\"email\\\":\\\"admin@digiurban.com.br\\\",\\\"password\\\":\\\"SuperAdmin2024\\\"}\" --max-time 10 | grep -q \"success\":true; then
             echo '✅ Login do super admin funcionando!'
           else
             echo '⚠️ Login do super admin não testado com sucesso'
