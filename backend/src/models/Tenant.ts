@@ -388,7 +388,7 @@ export class TenantModel {
     });
     
     // Por estado
-    const estadoStats = await prisma.tenant.groupBy({
+    const estadoStats = await (prisma.tenant.groupBy as any)({
       by: ['estado'],
       _count: { _all: true },
       orderBy: { _count: { _all: 'desc' } }

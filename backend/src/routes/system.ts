@@ -122,7 +122,7 @@ systemRoutes.get('/activity-logs',
       // Super admin pode ver todos, admin só do seu tenant
       const effectiveTenantId = req.user!.role === 'super_admin' 
         ? (tenant_id as string) 
-        : req.user!.tenant_id;
+        : req.user!.tenantId;
 
       const activities = await ActivityModel.getActivities({
         tenantId: effectiveTenantId,
@@ -248,7 +248,7 @@ systemRoutes.post('/diagnostics',
         action: 'Diagnóstico executado',
         details: 'Diagnóstico completo do sistema executado',
         resource: 'system_diagnostics',
-        tenant_id: req.user!.tenant_id
+        tenant_id: req.user!.tenantId
       });
 
       res.json({
@@ -290,7 +290,7 @@ systemRoutes.delete('/activity-logs/cleanup',
         action: 'Limpeza de logs executada',
         details: `${deletedCount} logs removidos (mais de ${days_old} dias)`,
         resource: 'system_maintenance',
-        tenant_id: req.user!.tenant_id
+        tenant_id: req.user!.tenantId
       });
 
       res.json({

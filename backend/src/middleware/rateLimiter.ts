@@ -210,8 +210,8 @@ function createRateLimit(config: RateLimitConfig) {
       if (record.count > config.max) {
         // Log da atividade de rate limit
         await ActivityService.log({
-          user_id: req.user?.id,
-          tenant_id: req.user?.tenantId,
+          userId: req.user?.id,
+          tenantId: req.user?.tenantId,
           action: 'rate_limit_exceeded',
           resource: 'security',
           details: JSON.stringify({
@@ -223,8 +223,8 @@ function createRateLimit(config: RateLimitConfig) {
             attempts: record.count,
             store: persistentStore.getStoreType()
           }),
-          ip_address: req.ip,
-          user_agent: req.get('User-Agent')
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent')
         });
 
         // Handler customizado ou resposta padrão

@@ -99,7 +99,7 @@ class AuthController {
           userId: user.id, 
           email: user.email, 
           role: user.role,
-          tenant_id: user.tenantId,
+          tenantId: user.tenantId,
           sessionId,
           csrf: csrfToken
         },
@@ -184,14 +184,14 @@ class AuthController {
         data: {
           user: {
             id: user.id,
-            nome_completo: user.nomeCompleto,
+            nomeCompleto: user.nomeCompleto,
             email: user.email,
             role: user.role,
             status: user.status,
-            tenant_id: user.tenantId,
-            email_verified: user.emailVerified,
-            created_at: user.createdAt,
-            updated_at: user.updatedAt
+            tenantId: user.tenantId,
+            emailVerified: user.emailVerified,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
           },
           // Manter tokens na response para compatibilidade com frontend atual
           // TODO: Remover após migração completa para cookies
@@ -231,8 +231,8 @@ class AuthController {
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await userService.create({
         email,
-        password: hashedPassword,
-        name,
+        passwordHash: hashedPassword,
+        nomeCompleto: name,
         role: 'user'
       });
 
@@ -241,7 +241,7 @@ class AuthController {
         user: {
           id: user.id,
           email: user.email,
-          name: user.name
+          name: user.nomeCompleto
         }
       });
     } catch (error) {
@@ -292,7 +292,7 @@ class AuthController {
           userId: user.id, 
           email: user.email, 
           role: user.role,
-          tenant_id: user.tenantId,
+          tenantId: user.tenantId,
           sessionId: decoded.sessionId,
           csrf: newCsrfToken
         },

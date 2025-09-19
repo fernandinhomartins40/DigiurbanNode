@@ -72,7 +72,7 @@ const requireAdminOrOwn = (req: Request, res: Response, next: Function) => {
   }
   
   const tenantId = req.params.tenantId || req.body.tenant_id;
-  if (req.user!.role === 'admin' && req.user!.tenant_id === tenantId) {
+  if (req.user!.role === 'admin' && req.user!.tenantId === tenantId) {
     next();
     return;
   }

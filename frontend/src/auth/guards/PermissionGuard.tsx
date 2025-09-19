@@ -221,7 +221,7 @@ export const TenantGuard: React.FC<TenantGuardProps> = ({
   const { profile, canAccessTenant } = useAuth();
 
   // Se não especificou tenantId, usar o do usuário atual
-  const targetTenantId = tenantId || profile?.tenant_id;
+  const targetTenantId = tenantId || profile?.tenantId;
 
   if (!targetTenantId || !canAccessTenant(targetTenantId)) {
     return fallback ? <>{fallback}</> : <DefaultPermissionFallback />;

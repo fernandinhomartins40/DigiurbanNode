@@ -776,7 +776,6 @@ export class EmailService {
       // Usar activity_logs para registrar email
       await prisma.activityLog.create({
         data: {
-          id: crypto.randomUUID(),
           action: `email_${activity.status}`,
           resource: 'email',
           details: JSON.stringify({

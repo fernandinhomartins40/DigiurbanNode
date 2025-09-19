@@ -44,56 +44,56 @@ async function main() {
         name: 'Cidadão Visitante',
         email: 'guest@audit.com',
         password: 'guest123',
-        tenantId: null // Guest não pertence a tenant
+        tenant_id: null // Guest não pertence a tenant
       },
       {
         role: 'cidadao',
         name: 'José da Silva',
         email: 'cidadao@audit.com',
         password: 'cidadao123',
-        tenantId: testTenant.id
+        tenant_id: testTenant.id
       },
       {
         role: 'cidadao',
         name: 'Maria dos Santos',
         email: 'cidadao2@audit.com',
         password: 'cidadao123',
-        tenantId: testTenant.id
+        tenant_id: testTenant.id
       },
       {
         role: 'user',
         name: 'João Servidor',
         email: 'user@audit.com',
         password: 'user123',
-        tenantId: testTenant.id
+        tenant_id: testTenant.id
       },
       {
         role: 'coordinator',
         name: 'Maria Coordenadora',
         email: 'coordinator@audit.com',
         password: 'coord123',
-        tenantId: testTenant.id
+        tenant_id: testTenant.id
       },
       {
         role: 'manager',
         name: 'Carlos Gestor',
         email: 'manager@audit.com',
         password: 'manager123',
-        tenantId: testTenant.id
+        tenant_id: testTenant.id
       },
       {
         role: 'admin',
         name: 'Ana Administradora',
         email: 'admin@audit.com',
         password: 'admin123',
-        tenantId: testTenant.id
+        tenant_id: testTenant.id
       },
       {
         role: 'super_admin',
         name: 'Super Admin Auditoria',
         email: 'superadmin@audit.com',
         password: 'super123',
-        tenantId: null // Super admin é global
+        tenant_id: null // Super admin é global
       }
     ]
 
@@ -113,7 +113,7 @@ async function main() {
       const user = await prisma.user.create({
         data: {
           id: uuidv4(),
-          tenantId: userData.tenantId,
+          tenantId: userData.tenant_id,
           nomeCompleto: userData.name,
           email: userData.email,
           passwordHash: hashedPassword,

@@ -293,14 +293,14 @@ router.post('/user-by-admin',
       // Definir tenant_id se não informado (usar o do admin)
       const registrationData = {
         ...req.body,
-        tenant_id: req.body.tenant_id || req.user!.tenant_id,
+        tenant_id: req.body.tenant_id || req.user!.tenantId,
         created_by: req.user!.id,
         ipAddress: req.ip,
         userAgent: req.get('User-Agent')
       };
 
       // Verificar se admin pode criar usuário no tenant especificado
-      if (req.user!.role !== 'super_admin' && registrationData.tenant_id !== req.user!.tenant_id) {
+      if (req.user!.role !== 'super_admin' && registrationData.tenant_id !== req.user!.tenantId) {
         res.status(403).json({
           success: false,
           error: 'Sem permissão para criar usuário em outro tenant'
@@ -382,7 +382,7 @@ router.get('/pending',
   generalRateLimit,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenant_id;
+      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenantId;
 
       const pendingUsers = await RegistrationService.getPendingUsers(tenantId);
 
@@ -417,7 +417,7 @@ router.get('/stats',
   generalRateLimit,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenant_id;
+      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenantId;
 
       const stats = await RegistrationService.getRegistrationStats(tenantId);
 

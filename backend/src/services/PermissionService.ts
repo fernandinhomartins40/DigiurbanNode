@@ -7,7 +7,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '../database/generated/client/index.js';
-import { PERMISSIONS, Permission, ROLE_HIERARCHY } from '../types/permissions.js';
+import { PERMISSIONS, Permission, ROLE_HIERARCHY, ROLE_PERMISSIONS } from '../types/permissions.js';
 import { ActivityService } from './ActivityService.js';
 
 const prisma = new PrismaClient();
@@ -17,10 +17,10 @@ const prisma = new PrismaClient();
 // ====================================================================
 
 export interface UserPermissions {
-  user_id: string;
+  userId: string;
   permissions: string[];
   role: string;
-  tenant_id: string;
+  tenantId: string;
 }
 
 export interface PermissionCheck {
@@ -83,10 +83,10 @@ export class PermissionService {
     const permissionDef = PERMISSIONS[permission];
     if (!permissionDef) return false;
 
-    const userLevel = ROLE_HIERARCHY[role] || 0;
-    const requiredLevel = permissionDef.minimumRole ? ROLE_HIERARCHY[permissionDef.minimumRole] || 0 : 0;
+    // Verificar se o role tem a permissão no mapeamento ROLE_PERMISSIONS
+    const userPermissions = ROLE_PERMISSIONS[role] || [];
 
-    return userLevel >= requiredLevel;
+    return userPermissions.includes(permission);
   }
 
   /**
@@ -300,7 +300,7 @@ export class PermissionService {
 
         if (!hasAllPermissions) {
           await ActivityService.log({
-            user_id: req.user.id,
+            userId: req.user.id,
             action: 'permission_denied',
             resource: 'permissions',
             details: JSON.stringify({
@@ -308,8 +308,8 @@ export class PermissionService {
               user_permissions: userPermissions,
               user_role: req.user.role
             }),
-            ip_address: req.ip,
-            user_agent: req.get('User-Agent')
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent')
           });
 
           res.status(403).json({

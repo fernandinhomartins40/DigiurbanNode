@@ -7,7 +7,8 @@
 
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import User, { UserModel, CreateUserData } from '../models/User.js';
+import { UserModel, CreateUserData } from '../models/User.js';
+import { User } from '../database/generated/client/index.js';
 import { TenantModel, Tenant, CreateTenantData } from '../models/Tenant.js';
 import { ActivityService } from './ActivityService.js';
 import { JWTUtils } from '../utils/jwt.js';
@@ -143,11 +144,11 @@ export class RegistrationService {
 
       // 9. Registrar atividade
       await ActivityService.log({
-        user_id: user.id,
+        userId: user.id,
         tenantId: user.tenantId,
         action: 'user_registered',
         resource: 'users',
-        resource_id: user.id,
+        resourceId: user.id,
         details: JSON.stringify({
           registration_type: tenantId ? 'staff' : 'citizen',
           email: user.email,
@@ -204,7 +205,7 @@ export class RegistrationService {
         // Criar tenant
         const tenant = await TenantModel.create({
           ...tenantData,
-          // tenant_code: await TenantModel.generateUniqueCode(tenantData.nome)
+          // tenantCode: await TenantModel.generateUniqueCode(tenantData.nome)
         });
 
         // Criar administrador do tenant
@@ -224,14 +225,14 @@ export class RegistrationService {
 
       // 6. Registrar atividade
       await ActivityService.log({
-        user_id: result.admin.id,
-        tenant_id: result.tenant.id,
+        userId: result.admin.id,
+        tenantId: result.tenant.id,
         action: 'tenant_registered',
         resource: 'tenants',
-        resource_id: result.tenant.id,
+        resourceId: result.tenant.id,
         details: JSON.stringify({
           tenant_name: result.tenant.nome,
-          tenant_code: result.tenant.tenant_code,
+          tenantCode: result.tenant.tenantCode,
           admin_email: result.admin.email,
           plano: result.tenant.plano
         })
@@ -293,11 +294,11 @@ export class RegistrationService {
 
       // 6. Registrar atividade
       await ActivityService.log({
-        user_id: user.id,
+        userId: user.id,
         tenantId: user.tenantId,
         action: 'account_activated',
         resource: 'users',
-        resource_id: user.id,
+        resourceId: user.id,
         details: JSON.stringify({
           email: user.email,
           activation_method: 'email_token'
@@ -342,11 +343,11 @@ export class RegistrationService {
 
       // 3. Registrar atividade
       await ActivityService.log({
-        user_id: user.id,
+        userId: user.id,
         tenantId: user.tenantId,
         action: 'password_reset_requested',
         resource: 'users',
-        resource_id: user.id,
+        resourceId: user.id,
         details: JSON.stringify({
           email: user.email,
           request_method: 'email'
@@ -405,11 +406,11 @@ export class RegistrationService {
 
       // 6. Registrar atividade
       await ActivityService.log({
-        user_id: user.id,
+        userId: user.id,
         tenantId: user.tenantId,
         action: 'password_reset_completed',
         resource: 'users',
-        resource_id: user.id,
+        resourceId: user.id,
         details: JSON.stringify({
           reset_method: 'token',
           email: user.email
@@ -609,11 +610,11 @@ export class RegistrationService {
 
       // Registrar atividade
       await ActivityService.log({
-        user_id: user.id,
+        userId: user.id,
         tenantId: user.tenantId,
         action: 'activation_email_resent',
         resource: 'users',
-        resource_id: user.id,
+        resourceId: user.id,
         details: JSON.stringify({
           email: user.email
         })
@@ -649,11 +650,11 @@ export class RegistrationService {
 
       // Registrar atividade
       await ActivityService.log({
-        user_id: adminId,
+        userId: adminId,
         tenantId: user.tenantId,
         action: 'user_activated_by_admin',
         resource: 'users',
-        resource_id: userId,
+        resourceId: userId,
         details: JSON.stringify({
           activated_user_email: user.email
         })

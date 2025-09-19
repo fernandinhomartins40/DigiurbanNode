@@ -24,21 +24,13 @@ class UserService {
       data: {
         id,
         email: userData.email,
-        passwordHash: userData.password, // Assumindo que password é o hash
-        nomeCompleto: userData.name,
+        passwordHash: userData.passwordHash, // Assumindo que password é o hash
+        nomeCompleto: userData.nomeCompleto,
         role: userData.role as any
       }
     });
 
-    return {
-      id: user.id,
-      email: user.email,
-      password: user.passwordHash,
-      name: user.nomeCompleto,
-      role: user.role as any,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
-    };
+    return user as User;
   }
 
   async update(id: string, data: Partial<User>): Promise<User> {
@@ -46,8 +38,8 @@ class UserService {
 
     // Mapear campos para o schema Prisma
     if (data.email) updateData.email = data.email;
-    if (data.password) updateData.passwordHash = data.password;
-    if (data.name) updateData.nomeCompleto = data.name;
+    if (data.passwordHash) updateData.passwordHash = data.passwordHash;
+    if (data.nomeCompleto) updateData.nomeCompleto = data.nomeCompleto;
     if (data.role) updateData.role = data.role;
 
     const user = await prisma.user.update({
@@ -55,38 +47,16 @@ class UserService {
       data: updateData
     });
 
-    return {
-      id: user.id,
-      email: user.email,
-      password: user.passwordHash,
-      name: user.nomeCompleto,
-      role: user.role as any,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
-    };
+    return user as User;
   }
 
   async findAll(): Promise<User[]> {
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        nomeCompleto: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true
-      }
-    });
+    const users = await prisma.user.findMany();
 
     return users.map(user => ({
-      id: user.id,
-      email: user.email,
-      password: '', // Não retornar senha
-      name: user.nomeCompleto,
-      role: user.role as any,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
-    }));
+      ...user,
+      passwordHash: '', // Não retornar senha
+    } as User));
   }
 
   async delete(id: string): Promise<boolean> {

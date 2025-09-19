@@ -7,17 +7,26 @@ export interface AuthRequest extends Request {
 
 export interface User {
   id: string;
+  tenantId: string | null;
+  nomeCompleto: string;
   email: string;
-  password: string;
-  name: string;
+  passwordHash: string;
   role: string;
-  createdAt: Date;
-  updatedAt: Date;
+  status: string;
+  avatarUrl: string | null;
+  ultimoLogin: Date | null;
+  failedLoginAttempts: number | null;
+  lockedUntil: Date | null;
+  emailVerified: boolean | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
 }
 
 export interface CreateUserData {
   email: string;
-  password: string;
-  name: string;
+  passwordHash: string;
+  nomeCompleto: string;
   role: string;
+  tenantId?: string;
+  status?: string;
 }

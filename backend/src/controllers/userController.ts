@@ -13,7 +13,7 @@ class UserController {
       res.json({
         id: user.id,
         email: user.email,
-        name: user.name,
+        nomeCompleto: user.nomeCompleto,
         role: user.role,
         createdAt: user.createdAt
       });
@@ -27,14 +27,14 @@ class UserController {
       const { name } = req.body;
       const userId = req.userId!;
 
-      const updatedUser = await userService.update(userId, { name });
+      const updatedUser = await userService.update(userId, { nomeCompleto: name });
 
       res.json({
         message: 'Perfil atualizado com sucesso',
         user: {
           id: updatedUser.id,
           email: updatedUser.email,
-          name: updatedUser.name,
+          nomeCompleto: updatedUser.nomeCompleto,
           role: updatedUser.role
         }
       });
@@ -62,7 +62,7 @@ class UserController {
         user: {
           id: user.id,
           email: user.email,
-          name: user.name,
+          nomeCompleto: user.nomeCompleto,
           role: user.role
         }
       });

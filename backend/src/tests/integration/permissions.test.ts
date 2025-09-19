@@ -91,7 +91,7 @@ describe('Permissions Integration Tests', () => {
         .post('/api/permissions/check')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          userId: adminUserId,
+          user_id: adminUserId,
           permissionCode: 'manage_users'
         });
 
@@ -105,7 +105,7 @@ describe('Permissions Integration Tests', () => {
         .post('/api/permissions/check')
         .set('Authorization', `Bearer ${userToken}`)
         .send({
-          userId: regularUserId,
+          user_id: regularUserId,
           permissionCode: 'manage_users'
         });
 
@@ -119,7 +119,7 @@ describe('Permissions Integration Tests', () => {
         .post('/api/permissions/check')
         .set('Authorization', `Bearer ${userToken}`)
         .send({
-          userId: adminUserId,
+          user_id: adminUserId,
           permissionCode: 'manage_users'
         });
 
@@ -134,7 +134,7 @@ describe('Permissions Integration Tests', () => {
         .post('/api/permissions/check-multiple')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          userId: adminUserId,
+          user_id: adminUserId,
           permissionCodes: ['manage_users', 'view_users', 'create_users', 'invalid_permission']
         });
 
@@ -154,7 +154,7 @@ describe('Permissions Integration Tests', () => {
         .post('/api/permissions/check-resource')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          userId: adminUserId,
+          user_id: adminUserId,
           resource: 'users',
           action: 'create'
         });
@@ -175,7 +175,7 @@ describe('Permissions Integration Tests', () => {
         .post('/api/permissions/grant')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          userId: regularUserId,
+          user_id: regularUserId,
           permissionCode: 'view_reports'
         });
 
@@ -189,7 +189,7 @@ describe('Permissions Integration Tests', () => {
         .post('/api/permissions/grant')
         .set('Authorization', `Bearer ${userToken}`)
         .send({
-          userId: regularUserId,
+          user_id: regularUserId,
           permissionCode: 'view_reports'
         });
 
@@ -207,7 +207,7 @@ describe('Permissions Integration Tests', () => {
         .post('/api/permissions/revoke')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          userId: regularUserId,
+          user_id: regularUserId,
           permissionCode: 'view_reports'
         });
 
@@ -325,7 +325,7 @@ describe('Permissions Integration Tests', () => {
       const response = await request(app)
         .post('/api/permissions/check')
         .send({
-          userId: regularUserId,
+          user_id: regularUserId,
           permissionCode: 'view_users'
         });
 
@@ -337,7 +337,7 @@ describe('Permissions Integration Tests', () => {
       const response = await request(app)
         .post('/api/permissions/grant')
         .send({
-          userId: regularUserId,
+          user_id: regularUserId,
           permissionCode: 'view_reports'
         });
 

@@ -14,7 +14,7 @@ import { User } from '../database/generated/client/index.js';
 export type UserRole = UserRoleType;
 
 interface AuthenticatedRequest extends Request {
-  user?: User & { userId: string };
+  user?: User & { user_id: string };
 }
 
 // Mapa de níveis hierárquicos
@@ -124,7 +124,7 @@ export const requireTenantAccess = (tenantIdParam: string = 'tenantId') => {
       }
 
       // Verificar se usuário pertence ao tenant ou tem permissão
-      if (req.user.tenant_id !== requestedTenantId) {
+      if (req.user.tenantId !== requestedTenantId) {
         console.log(`🚫 [AUTH] Acesso negado ao tenant: ${req.user.email} tentou acessar tenant ${requestedTenantId}`);
         return res.status(403).json({
           success: false,

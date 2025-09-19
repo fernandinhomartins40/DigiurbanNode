@@ -298,11 +298,11 @@ export const cleanupTestData = {
   users: [] as string[],
   tenants: [] as string[],
   
-  addUser: (userId: string) => {
+  addUser: (user_id: string) => {
     cleanupTestData.users.push(userId);
   },
   
-  addTenant: (tenantId: string) => {
+  addTenant: (tenant_id: string) => {
     cleanupTestData.tenants.push(tenantId);
   },
   

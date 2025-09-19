@@ -98,11 +98,11 @@ export class AuthService {
 
       // 7. Salvar sessão no banco
       await SessionModel.create({
-        user_id: user.id,
+        userId: user.id,
         token: tokens.accessToken,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-        expires_at: tokens.expiresAt
+        ipAddress: ipAddress,
+        userAgent: userAgent,
+        expiresAt: tokens.expiresAt
       });
 
       // 8. Atualizar último login
@@ -110,17 +110,17 @@ export class AuthService {
 
       // 9. Log da atividade
       await this.logActivity({
-        user_id: user.id,
-        tenant_id: user.tenantId,
+        userId: user.id,
+        tenantId: user.tenantId,
         action: 'login',
         resource: 'auth',
         details: JSON.stringify({
-          ip_address: ipAddress,
-          user_agent: userAgent,
+          ipAddress: ipAddress,
+          userAgent: userAgent,
           login_method: 'email_password'
         }),
-        ip_address: ipAddress,
-        user_agent: userAgent
+        ipAddress: ipAddress,
+        userAgent: userAgent
       });
 
       // 10. Buscar dados do tenant se existir
@@ -191,8 +191,8 @@ export class AuthService {
 
       // 6. Log da atividade
       await this.logActivity({
-        user_id: user.id,
-        tenant_id: user.tenantId,
+        userId: user.id,
+        tenantId: user.tenantId,
         action: 'token_refresh',
         resource: 'auth',
         details: JSON.stringify({
@@ -225,7 +225,7 @@ export class AuthService {
 
       // 2. Log da atividade
       await this.logActivity({
-        user_id: userId,
+        userId: userId,
         action: 'logout',
         resource: 'auth',
         details: JSON.stringify({
@@ -264,8 +264,8 @@ export class AuthService {
 
       // 3. Log da atividade
       await this.logActivity({
-        user_id: userId,
-        tenant_id: user.tenantId,
+        userId: userId,
+        tenantId: user.tenantId,
         action: 'logout_all',
         resource: 'auth',
         details: JSON.stringify({
@@ -365,10 +365,10 @@ export class AuthService {
         resource: 'auth',
         details: JSON.stringify({
           email,
-          ip_address: ipAddress,
+          ipAddress: ipAddress,
           reason: 'invalid_credentials'
         }),
-        ip_address: ipAddress
+        ipAddress: ipAddress
       });
     } catch (error) {
       console.error('Erro ao registrar tentativa falhada:', error);
@@ -379,26 +379,26 @@ export class AuthService {
    * Registrar atividade no log
    */
   private static async logActivity(activity: {
-    user_id?: string;
-    tenant_id?: string;
+    userId?: string;
+    tenantId?: string;
     action: string;
     resource: string;
-    resource_id?: string;
+    resourceId?: string;
     details?: string;
-    ip_address?: string;
-    user_agent?: string;
+    ipAddress?: string;
+    userAgent?: string;
   }): Promise<void> {
     try {
       await prisma.activityLog.create({
         data: {
-          user_id: activity.user_id || null,
-          tenant_id: activity.tenant_id || null,
+          userId: activity.userId || null,
+          tenantId: activity.tenantId || null,
           action: activity.action,
           resource: activity.resource,
-          resource_id: activity.resource_id || null,
+          resourceId: activity.resourceId || null,
           details: activity.details || null,
-          ip_address: activity.ip_address || null,
-          user_agent: activity.user_agent || null
+          ipAddress: activity.ipAddress || null,
+          userAgent: activity.userAgent || null
         }
       });
     } catch (error) {
@@ -460,7 +460,7 @@ export class AuthService {
 
       // Usuário pode encerrar próprias sessões ou admin pode encerrar qualquer sessão
       const canTerminate = 
-        session.user_id === requestingUserId || 
+        session.userId === requestingUserId || 
         ['admin', 'super_admin'].includes(requestingUser.role);
 
       if (!canTerminate) {
@@ -472,13 +472,13 @@ export class AuthService {
 
       // Log da atividade
       await this.logActivity({
-        user_id: requestingUserId,
-        tenant_id: requestingUser.tenantId,
+        userId: requestingUserId,
+        tenantId: requestingUser.tenantId,
         action: 'session_terminated',
         resource: 'auth',
-        resource_id: sessionId,
+        resourceId: sessionId,
         details: JSON.stringify({
-          terminated_user_id: session.user_id,
+          terminatedUserId: session.userId,
           session_id: sessionId
         })
       });
@@ -506,12 +506,12 @@ export class AuthService {
       // Sessões ativas
       const whereClauseActiveSessions: any = {
         is_active: true,
-        expires_at: { gt: new Date() }
+        expiresAt: { gt: new Date() }
       };
 
       if (tenantId) {
         whereClauseActiveSessions.user = {
-          tenant_id: tenantId
+          tenantId: tenantId
         };
       }
 

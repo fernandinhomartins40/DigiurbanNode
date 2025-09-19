@@ -75,14 +75,14 @@ export class AuthService {
       // 3. Transformar dados do usuário para o formato esperado
       const userProfile: UserProfile = {
         id: user.id,
-        name: user.nome_completo,
+        name: user.nomeCompleto,
         email: user.email,
         role: user.role,
-        tenant_id: user.tenant_id,
+        tenant_id: user.tenantId,
         tenant_name: tenant?.nome,
-        avatar_url: user.avatar_url,
-        created_at: user.created_at,
-        updated_at: user.updated_at
+        avatar_url: user.avatarUrl,
+        created_at: user.createdAt,
+        updated_at: user.updatedAt
       };
 
       const tenantInfo: TenantInfo | null = tenant ? {

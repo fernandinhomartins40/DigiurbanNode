@@ -256,7 +256,7 @@ router.get('/domains',
 
       // Se não for super_admin, filtrar pelo tenant do usuário
       if (req.user!.role !== 'super_admin' && !tenant_id) {
-        whereClause.tenantId = req.user!.tenant_id;
+        whereClause.tenantId = req.user!.tenantId;
       }
 
       const domains = await prisma.emailDomain.findMany({
@@ -337,7 +337,7 @@ router.get('/stats',
     try {
       const days = req.query.days ? parseInt(req.query.days as string) : 30;
       const tenantId = req.query.tenant_id as string ||
-        (req.user!.role !== 'super_admin' ? req.user!.tenant_id : undefined);
+        (req.user!.role !== 'super_admin' ? req.user!.tenantId : undefined);
 
       const stats = await emailDb.getEmailStats(days, tenantId);
 

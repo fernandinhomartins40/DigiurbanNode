@@ -25,14 +25,14 @@ export interface Permission {
 export interface UserPermission {
   id: number;
   user_id: string;
-  permission_id: number;
-  granted_by?: string;
+  permissionId: number;
+  grantedBy?: string;
   created_at: string;
 }
 
 export interface PermissionWithDetails extends Permission {
-  granted_by?: string;
-  permission_granted_at?: string;
+  grantedBy?: string;
+  permissionGrantedAt?: string;
 }
 
 export interface CreatePermissionData {
@@ -196,9 +196,9 @@ export class PermissionModel {
   // PERMISSÕES DO USUÁRIO
   // ================================================================
 
-  static async getUserPermissions(userId: string): Promise<PermissionWithDetails[]> {
+  static async getUserPermissions(user_id: string): Promise<PermissionWithDetails[]> {
     const userPermissions = await prisma.userPermission.findMany({
-      where: { userId },
+      where: { userId: user_id },
       include: {
         permission: true
       },
@@ -220,9 +220,9 @@ export class PermissionModel {
     }));
   }
 
-  static async hasPermission(userId: string, permissionCode: string): Promise<boolean> {
+  static async hasPermission(user_id: string, permissionCode: string): Promise<boolean> {
     // Super admin sempre tem permissão
-    const userRole = await this.getUserRole(userId);
+    const userRole = await this.getUserRole(user_id);
     if (userRole === 'super_admin') {
       return true;
     }
@@ -230,7 +230,7 @@ export class PermissionModel {
     // Verificar permissão direta
     const userPermission = await prisma.userPermission.findFirst({
       where: {
-        userId,
+        userId: user_id,
         permission: {
           code: permissionCode
         }
@@ -250,9 +250,9 @@ export class PermissionModel {
     return false;
   }
 
-  static async hasResource(userId: string, resource: string, action: string): Promise<boolean> {
+  static async hasResource(user_id: string, resource: string, action: string): Promise<boolean> {
     const permissionCode = `${action}_${resource}`;
-    return await this.hasPermission(userId, permissionCode);
+    return await this.hasPermission(user_id, permissionCode);
   }
 
   // ================================================================
@@ -260,7 +260,7 @@ export class PermissionModel {
   // ================================================================
 
   static async grantPermission(
-    userId: string,
+    user_id: string,
     permissionId: number,
     grantedBy?: string
   ): Promise<void> {
@@ -271,14 +271,14 @@ export class PermissionModel {
     }
 
     // Verificar se já foi concedida
-    const existing = await this.getUserPermissionRecord(userId, permissionId);
+    const existing = await this.getUserPermissionRecord(user_id, permissionId);
     if (existing) {
       return; // Já concedida
     }
 
     await prisma.userPermission.create({
       data: {
-        userId,
+        userId: user_id,
         permissionId,
         grantedBy
       }
@@ -286,7 +286,7 @@ export class PermissionModel {
   }
 
   static async grantPermissionByCode(
-    userId: string,
+    user_id: string,
     permissionCode: string,
     grantedBy?: string
   ): Promise<void> {
@@ -295,30 +295,30 @@ export class PermissionModel {
       throw new Error('Permissão não encontrada');
     }
 
-    await this.grantPermission(userId, permission.id, grantedBy);
+    await this.grantPermission(user_id, permission.id, grantedBy);
   }
 
-  static async revokePermission(userId: string, permissionId: number): Promise<void> {
+  static async revokePermission(user_id: string, permissionId: number): Promise<void> {
     await prisma.userPermission.deleteMany({
       where: {
-        userId,
+        userId: user_id,
         permissionId
       }
     });
   }
 
-  static async revokePermissionByCode(userId: string, permissionCode: string): Promise<void> {
+  static async revokePermissionByCode(user_id: string, permissionCode: string): Promise<void> {
     const permission = await this.findByCode(permissionCode);
     if (!permission) {
       throw new Error('Permissão não encontrada');
     }
 
-    await this.revokePermission(userId, permission.id);
+    await this.revokePermission(user_id, permission.id);
   }
 
-  static async revokeAllUserPermissions(userId: string): Promise<void> {
+  static async revokeAllUserPermissions(user_id: string): Promise<void> {
     await prisma.userPermission.deleteMany({
-      where: { userId }
+      where: { userId: user_id }
     });
   }
 
@@ -326,9 +326,9 @@ export class PermissionModel {
   // PERMISSÕES POR ROLE
   // ================================================================
 
-  static async syncRolePermissions(userId: string, role: UserRole): Promise<void> {
+  static async syncRolePermissions(user_id: string, role: UserRole): Promise<void> {
     // Remover permissões existentes
-    await this.revokeAllUserPermissions(userId);
+    await this.revokeAllUserPermissions(user_id);
 
     // Adicionar permissões padrão da role
     const rolePermissions = this.getRolePermissions(role);
@@ -346,7 +346,7 @@ export class PermissionModel {
         });
       }
 
-      await this.grantPermission(userId, dbPermission.id);
+      await this.grantPermission(user_id, dbPermission.id);
     }
   }
 
@@ -417,12 +417,12 @@ export class PermissionModel {
   // ================================================================
 
   private static async getUserPermissionRecord(
-    userId: string,
+    user_id: string,
     permissionId: number
   ): Promise<UserPermission | null> {
     const record = await prisma.userPermission.findFirst({
       where: {
-        userId,
+        userId: user_id,
         permissionId
       }
     });
@@ -432,15 +432,15 @@ export class PermissionModel {
     return {
       id: record.id,
       user_id: record.userId,
-      permission_id: record.permissionId,
-      granted_by: record.grantedBy || undefined,
+      permissionId: record.permissionId,
+      grantedBy: record.grantedBy || undefined,
       created_at: record.createdAt?.toISOString() || new Date().toISOString()
     };
   }
 
-  private static async getUserRole(userId: string): Promise<UserRole | null> {
+  private static async getUserRole(user_id: string): Promise<UserRole | null> {
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: user_id },
       select: { role: true }
     });
 

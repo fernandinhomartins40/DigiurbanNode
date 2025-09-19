@@ -16,33 +16,33 @@ import crypto from 'crypto';
 
 export interface Session {
   id: string;
-  user_id: string;
-  token_hash: string;
-  ip_address?: string;
-  user_agent?: string;
-  expires_at: string;
-  is_active: boolean;
-  created_at: string;
+  userId: string;
+  tokenHash: string;
+  ipAddress?: string;
+  userAgent?: string;
+  expiresAt: string;
+  isActive: boolean;
+  createdAt: string;
 }
 
 export interface CreateSessionData {
-  user_id: string;
+  userId: string;
   token: string;
-  ip_address?: string;
-  user_agent?: string;
-  expires_at: string;
+  ipAddress?: string;
+  userAgent?: string;
+  expiresAt: string;
 }
 
 export interface SessionWithUser {
   id: string;
-  user_id: string;
+  userId: string;
   user_name: string;
   user_email: string;
   user_role: string;
-  ip_address?: string;
-  user_agent?: string;
-  expires_at: string;
-  created_at: string;
+  ipAddress?: string;
+  userAgent?: string;
+  expiresAt: string;
+  createdAt: string;
 }
 
 // ====================================================================
@@ -65,13 +65,13 @@ export class SessionModel {
 
     return {
       id,
-      user_id: sessionData.user_id,
-      token_hash: tokenHash,
-      ip_address: sessionData.ip_address || null,
-      user_agent: sessionData.user_agent || null,
-      expires_at: sessionData.expires_at,
-      is_active: true,
-      created_at: new Date().toISOString()
+      userId: sessionData.userId,
+      tokenHash: tokenHash,
+      ipAddress: sessionData.ipAddress || null,
+      userAgent: sessionData.userAgent || null,
+      expiresAt: sessionData.expiresAt,
+      isActive: true,
+      createdAt: new Date().toISOString()
     };
   }
 
@@ -154,7 +154,7 @@ export class SessionModel {
     total: number;
     active: number;
     expired: number;
-    byUser: { user_id: string; count: number }[];
+    byUser: { userId: string; count: number }[];
   }> {
     console.warn('⚠️ SessionModel.getSessionStats() - UserSession model não implementado no schema');
     return { total: 0, active: 0, expired: 0, byUser: [] };
@@ -179,7 +179,7 @@ export class SessionModel {
   // ================================================================
 
   static async getMultipleSessionUsers(): Promise<{
-    user_id: string;
+    userId: string;
     session_count: number;
     user_name: string;
     user_email: string;

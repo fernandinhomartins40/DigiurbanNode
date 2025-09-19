@@ -119,8 +119,8 @@ export const updateSystemMetrics = () => {
 setInterval(updateSystemMetrics, 30000); // A cada 30 segundos
 
 // Função para registrar tentativas de autenticação
-export const recordAuthAttempt = (result: 'success' | 'failure', tenantId: string, method: 'password' | 'token' | 'refresh') => {
-  metrics.authAttempts.labels(result, tenantId, method).inc();
+export const recordAuthAttempt = (result: 'success' | 'failure', tenant_id: string, method: 'password' | 'token' | 'refresh') => {
+  metrics.authAttempts.labels(result, tenant_id, method).inc();
 };
 
 // Função para registrar hits de rate limit
@@ -129,8 +129,8 @@ export const recordRateLimitHit = (endpoint: string, ip: string) => {
 };
 
 // Função para atualizar usuários ativos
-export const updateActiveUsers = (tenantId: string, count: number) => {
-  metrics.activeUsers.labels(tenantId).set(count);
+export const updateActiveUsers = (tenant_id: string, count: number) => {
+  metrics.activeUsers.labels(tenant_id).set(count);
 };
 
 // Função para registrar status de backup

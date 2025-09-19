@@ -52,7 +52,7 @@ export const tenantEmailMiddleware = (req: Request, res: Response, next: NextFun
 
     // Verificar se o usuário tem tenant_id
     if (!user.tenantId) {
-      logger.error('❌ TenantEmailMiddleware: Usuário sem tenant_id', { userId: user.id });
+      logger.error('❌ TenantEmailMiddleware: Usuário sem tenant_id', { user_id: user.id });
       res.status(403).json({
         success: false,
         error: 'Usuário não possui tenant associado'
@@ -67,8 +67,8 @@ export const tenantEmailMiddleware = (req: Request, res: Response, next: NextFun
     };
 
     logger.debug('🔒 TenantEmailMiddleware: Filtro aplicado', {
-      userId: user.id,
-      tenantId: user.tenantId,
+      user_id: user.id,
+      tenant_id: user.tenantId,
       role: user.role
     });
 
@@ -110,9 +110,9 @@ export const requireTenantAdmin = (req: Request, res: Response, next: NextFuncti
   }
 
   logger.warn('🚫 RequireTenantAdmin: Acesso negado', {
-    userId: user.id,
+    user_id: user.id,
     role: user.role,
-    tenantId: user.tenantId
+    tenant_id: user.tenantId
   });
 
   res.status(403).json({
@@ -146,7 +146,7 @@ export const validateTenantAccess = (req: Request, res: Response, next: NextFunc
 
   if (requestedTenantId && requestedTenantId !== user.tenantId) {
     logger.warn('🚫 ValidateTenantAccess: Tentativa de acesso a tenant não autorizado', {
-      userId: user.id,
+      user_id: user.id,
       userTenantId: user.tenantId,
       requestedTenantId: requestedTenantId
     });
@@ -174,14 +174,14 @@ export const applyTenantFilter = (req: Request, baseWhere: any = {}) => {
     // Filtro por tenant
     return {
       ...baseWhere,
-      tenantId: req.tenantFilter.tenantId
+      tenant_id: req.tenantFilter.tenantId
     };
   }
 
   // Fallback - sem resultados se não houver filtro definido
   return {
     ...baseWhere,
-    tenantId: 'no-access'
+    tenant_id: 'no-access'
   };
 };
 
@@ -224,7 +224,7 @@ export const tenantRateLimit = (maxRequests: number = 100, windowMs: number = 15
 
     if (current.count >= maxRequests) {
       logger.warn('🚫 TenantRateLimit: Limite excedido', {
-        tenantId: user.tenantId,
+        tenant_id: user.tenantId,
         currentCount: current.count,
         maxRequests: maxRequests
       });

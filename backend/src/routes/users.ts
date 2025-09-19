@@ -146,7 +146,7 @@ userRoutes.get('/',
         : req.user!.tenantId;
 
       const users = await UserModel.getUsers({
-        tenant_id: effectiveTenantId,
+        tenantId: effectiveTenantId,
         role: tipoUsuario as any,
         status: status as any,
         limit: parseInt(limit as string),

@@ -64,7 +64,7 @@ router.get('/dashboard',
   generalRateLimit,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const tenantId = req.user!.tenant_id;
+      const tenantId = req.user!.tenantId;
 
       // Carregar estatísticas do tenant
       const [
@@ -135,7 +135,7 @@ router.get('/dashboard',
           subject: email.subject,
           toEmail: email.toEmail,
           status: email.status,
-          domain: email.domain?.domainName,
+          domainId: email.domainId,
           createdAt: email.createdAt
         }))
       };
@@ -237,7 +237,7 @@ router.post('/domains',
       }
 
       const { domainName, smtpUserId } = req.body;
-      const tenantId = req.user!.tenant_id;
+      const tenantId = req.user!.tenantId;
 
       // Verificar se domínio já existe
       const existingDomain = await prisma.emailDomain.findUnique({
@@ -258,9 +258,16 @@ router.post('/domains',
           id: parseInt(smtpUserId),
           // Para tenant: verificar se pertence ao tenant ou não tem tenant (global)
           OR: [
-            { tenant: { id: tenantId } },
-            { tenantId: null }
+            {
+              user: {
+                tenantId: tenantId
+              }
+            },
+            { userId: null } // SMTP users globais não têm userId
           ]
+        },
+        include: {
+          user: true
         }
       });
 
@@ -282,7 +289,7 @@ router.post('/domains',
       logger.info(`Domínio criado para tenant: ${domainName}`, {
         tenantId,
         domainId: domain.id,
-        userId: req.user!.id
+        user_id: req.user!.id
       });
 
       res.json({
@@ -389,7 +396,7 @@ router.post('/smtp-users',
       }
 
       const { email, password, name, userId } = req.body;
-      const tenantId = req.user!.tenant_id;
+      const tenantId = req.user!.tenantId;
 
       // Verificar se email já existe
       const existingUser = await prisma.smtpUser.findUnique({
@@ -415,7 +422,7 @@ router.post('/smtp-users',
       logger.info(`Usuário SMTP criado para tenant: ${email}`, {
         tenantId,
         smtpUserId: smtpUser.id,
-        userId: req.user!.id
+        user_id: req.user!.id
       });
 
       res.json({
@@ -454,7 +461,7 @@ router.get('/stats',
   async (req: Request, res: Response): Promise<void> => {
     try {
       const days = req.query.days ? parseInt(req.query.days as string) : 30;
-      const tenantId = req.user!.tenant_id;
+      const tenantId = req.user!.tenantId;
 
       const stats = await emailDb.getEmailStats(days, tenantId);
 
@@ -575,7 +582,7 @@ router.post('/domains/:id/verify',
 
       if (verified) {
         await prisma.emailDomain.update({
-          where: { id },
+          where: { id: parseInt(id) },
           data: {
             isVerified: true,
             verifiedAt: new Date()
@@ -583,7 +590,7 @@ router.post('/domains/:id/verify',
         });
 
         logger.info(`Domínio verificado: ${domain.domainName}`, {
-          tenantId: req.user!.tenant_id,
+          tenant_id: req.user!.tenantId,
           domainId: id
         });
       }

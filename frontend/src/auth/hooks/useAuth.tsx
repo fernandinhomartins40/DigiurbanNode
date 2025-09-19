@@ -138,7 +138,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       AuthCacheHelpers.setUserPermissions(user.id, permissions);
 
       updateState({
-        user: { ...user, role: profile.role, tenant_id: profile.tenant_id },
+        user: { ...user, role: profile.role, tenantId: profile.tenantId },
         profile,
         tenant,
         permissions,
@@ -221,7 +221,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           profile,
           tenant,
           permissions,
-          user: { ...state.user, role: profile.role, tenant_id: profile.tenant_id },
+          user: { ...state.user, role: profile.role, tenantId: profile.tenantId },
           isLoading: false
         });
 
@@ -410,7 +410,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           });
 
           updateState({
-            user: { ...user, role: profile.role, tenant_id: profile.tenant_id },
+            user: { ...user, role: profile.role, tenantId: profile.tenantId },
             profile,
             tenant,
             permissions,

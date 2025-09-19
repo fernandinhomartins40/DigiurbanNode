@@ -63,22 +63,20 @@ export class TokenService {
       // Invalidar tokens anteriores deste usuário
       await prisma.passwordResetToken.updateMany({
         where: {
-          user_id: userId,
-          used_at: null
+          userId: userId,
+          used: null
         },
         data: {
-          used_at: new Date()
+          used: true
         }
       });
 
       // Inserir novo token
       await prisma.passwordResetToken.create({
         data: {
-          user_id: userId,
+          userId: userId,
           token: hashedToken,
-          expires_at: new Date(expiresAt),
-          ip_address: metadata?.ipAddress || null,
-          user_agent: metadata?.userAgent || null
+          expiresAt: new Date(expiresAt)
         }
       });
 
@@ -105,13 +103,13 @@ export class TokenService {
       const tokenRecord = await prisma.passwordResetToken.findFirst({
         where: {
           token: hashedToken,
-          expires_at: { gt: new Date(now) },
-          used_at: null
+          expiresAt: { gt: new Date(now) },
+          used: null
         },
         select: {
-          user_id: true,
-          expires_at: true,
-          used_at: true
+          userId: true,
+          expiresAt: true,
+          used: true
         }
       });
 
@@ -124,7 +122,7 @@ export class TokenService {
 
       return {
         valid: true,
-        userId: tokenRecord.user_id
+        userId: tokenRecord.userId
       };
 
     } catch (error) {
@@ -147,11 +145,11 @@ export class TokenService {
       const result = await prisma.passwordResetToken.updateMany({
         where: {
           token: hashedToken,
-          expires_at: { gt: new Date(now) },
-          used_at: null
+          expiresAt: { gt: new Date(now) },
+          used: null
         },
         data: {
-          used_at: new Date(now)
+          used: true
         }
       });
 
@@ -183,22 +181,20 @@ export class TokenService {
       // Invalidar tokens anteriores deste usuário
       await prisma.emailVerificationToken.updateMany({
         where: {
-          user_id: userId,
-          verified_at: null
+          userId: userId,
+          used: false
         },
         data: {
-          verified_at: new Date()
+          used: true
         }
       });
 
       // Inserir novo token
       await prisma.emailVerificationToken.create({
         data: {
-          user_id: userId,
+          userId: userId,
           token: hashedToken,
-          expires_at: new Date(expiresAt),
-          ip_address: metadata?.ipAddress || null,
-          user_agent: metadata?.userAgent || null
+          expiresAt: new Date(expiresAt)
         }
       });
 
@@ -225,13 +221,13 @@ export class TokenService {
       const tokenRecord = await prisma.emailVerificationToken.findFirst({
         where: {
           token: hashedToken,
-          expires_at: { gt: new Date(now) },
-          verified_at: null
+          expiresAt: { gt: new Date(now) },
+          used: false
         },
         select: {
-          user_id: true,
-          expires_at: true,
-          verified_at: true
+          userId: true,
+          expiresAt: true,
+          used: true
         }
       });
 
@@ -244,7 +240,7 @@ export class TokenService {
 
       return {
         valid: true,
-        userId: tokenRecord.user_id
+        userId: tokenRecord.userId
       };
 
     } catch (error) {
@@ -267,11 +263,11 @@ export class TokenService {
       const result = await prisma.emailVerificationToken.updateMany({
         where: {
           token: hashedToken,
-          expires_at: { gt: new Date(now) },
-          verified_at: null
+          expiresAt: { gt: new Date(now) },
+          used: false
         },
         data: {
-          verified_at: new Date(now)
+          used: true
         }
       });
 
@@ -314,14 +310,14 @@ export class TokenService {
       // Limpar tokens de recuperação de senha expirados
       const passwordResult = await prisma.passwordResetToken.deleteMany({
         where: {
-          expires_at: { lt: new Date(now) }
+          expiresAt: { lt: new Date(now) }
         }
       });
 
       // Limpar tokens de verificação de e-mail expirados
       const emailResult = await prisma.emailVerificationToken.deleteMany({
         where: {
-          expires_at: { lt: new Date(now) }
+          expiresAt: { lt: new Date(now) }
         }
       });
 
@@ -354,30 +350,30 @@ export class TokenService {
       // Tokens de recuperação ativos
       const passwordActive = await prisma.passwordResetToken.count({
         where: {
-          expires_at: { gt: new Date(now) },
-          used_at: null
+          expiresAt: { gt: new Date(now) },
+          used: null
         }
       });
 
       // Tokens de recuperação expirados
       const passwordExpired = await prisma.passwordResetToken.count({
         where: {
-          expires_at: { lte: new Date(now) }
+          expiresAt: { lte: new Date(now) }
         }
       });
 
       // Tokens de verificação ativos
       const emailActive = await prisma.emailVerificationToken.count({
         where: {
-          expires_at: { gt: new Date(now) },
-          verified_at: null
+          expiresAt: { gt: new Date(now) },
+          used: false
         }
       });
 
       // Tokens de verificação expirados
       const emailExpired = await prisma.emailVerificationToken.count({
         where: {
-          expires_at: { lte: new Date(now) }
+          expiresAt: { lte: new Date(now) }
         }
       });
 
@@ -419,15 +415,15 @@ export class TokenService {
       if (tokenType === 'password_reset') {
         count = await prisma.passwordResetToken.count({
           where: {
-            user_id: userId,
-            created_at: { gt: new Date(windowStart) }
+            userId: userId,
+            createdAt: { gt: new Date(windowStart) }
           }
         });
       } else {
         count = await prisma.emailVerificationToken.count({
           where: {
-            user_id: userId,
-            created_at: { gt: new Date(windowStart) }
+            userId: userId,
+            createdAt: { gt: new Date(windowStart) }
           }
         });
       }

@@ -8,8 +8,9 @@ import { body, query, param, validationResult, ValidationChain } from '../utils/
 
 import { Router, Request, Response } from 'express';
 import { AuthService } from '../services/AuthService.js';
-import { RegistrationService } from '../services/RegistrationService.js';
+import { RegistrationService, RegisterUserResponse } from '../services/RegistrationService.js';
 import { UserModel } from '../models/User.js';
+import { User } from '../database/generated/client/index.js';
 // import { ActivityService } from '../services/ActivityService.js';
 import { loginRateLimit, generalRateLimit, registerRateLimit } from '../middleware/rateLimiter.js';
 import { authMiddleware } from '../middleware/auth.js';
@@ -415,7 +416,7 @@ authRoutes.get('/stats',
         return;
       }
 
-      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenant_id;
+      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenantId;
       const stats = await AuthService.getAuthStats(tenantId);
 
       res.json({
@@ -479,19 +480,19 @@ authRoutes.post('/super-admin-registration',
       console.log('🚨 AVISO: Criando Super Admin via rota provisória');
 
       const registrationData = {
-        nome_completo: req.body.nome_completo,
+        nomeCompleto: req.body.nome_completo,
         email: req.body.email,
         password: req.body.password,
         role: 'super_admin',
         status: 'ativo',
-        email_verified: true,
-        tenant_id: null, // Super admin não tem tenant específico
+        emailVerified: true,
+        tenantId: null, // Super admin não tem tenant específico
         ipAddress: req.ip,
         userAgent: req.get('User-Agent')
       };
 
       // Usar o RegistrationService para criar o usuário
-      const result = await RegistrationService.registerUser(registrationData);
+      const result: RegisterUserResponse = await RegistrationService.registerUser(registrationData);
 
       console.log('✅ Super Admin criado com sucesso via rota provisória');
       console.log('🚨 REMOVER ESTA ROTA IMEDIATAMENTE APÓS USO!');
@@ -502,7 +503,7 @@ authRoutes.post('/super-admin-registration',
         data: {
           id: result.user.id,
           email: result.user.email,
-          nome_completo: result.user.nome_completo,
+          nomeCompleto: result.user.nomeCompleto,
           role: result.user.role
         }
       });

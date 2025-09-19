@@ -8,23 +8,22 @@
 
 import { prisma } from '../database/prisma.js';
 import { StructuredLogger } from '../monitoring/structuredLogger.js';
-import { randomUUID } from 'crypto';
 
 // ====================================================================
 // INTERFACES
 // ====================================================================
 
 export interface Activity {
-  id: string;
-  user_id?: string;
-  tenant_id?: string;
+  id: number;
+  userId?: string;
+  tenantId?: string;
   action: string;
   resource: string;
-  resource_id?: string;
+  resourceId?: string;
   details?: string;
-  ip_address?: string;
-  user_agent?: string;
-  created_at: string;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: string;
 }
 
 export interface CreateActivityData {
@@ -48,11 +47,8 @@ export class ActivityModel {
    */
   static async create(activityData: CreateActivityData): Promise<Activity> {
     try {
-      const id = randomUUID();
-
       const activity = await prisma.activityLog.create({
         data: {
-          id,
           userId: activityData.user_id || null,
           tenantId: activityData.tenant_id || null,
           action: activityData.action,
@@ -66,15 +62,15 @@ export class ActivityModel {
 
       return {
         id: activity.id,
-        user_id: activity.userId,
-        tenant_id: activity.tenantId,
+        userId: activity.userId,
+        tenantId: activity.tenantId,
         action: activity.action,
         resource: activity.resource,
-        resource_id: activity.resourceId,
+        resourceId: activity.resourceId,
         details: activity.details,
-        ip_address: activity.ipAddress,
-        user_agent: activity.userAgent,
-        created_at: activity.createdAt.toISOString()
+        ipAddress: activity.ipAddress,
+        userAgent: activity.userAgent,
+        createdAt: activity.createdAt.toISOString()
       };
     } catch (error) {
       StructuredLogger.error('Activity creation failed', error, {
@@ -88,7 +84,7 @@ export class ActivityModel {
   /**
    * Buscar atividade por ID
    */
-  static async findById(id: string): Promise<Activity | null> {
+  static async findById(id: number): Promise<Activity | null> {
     try {
       const activity = await prisma.activityLog.findUnique({
         where: { id }
@@ -98,15 +94,15 @@ export class ActivityModel {
 
       return {
         id: activity.id,
-        user_id: activity.userId,
-        tenant_id: activity.tenantId,
+        userId: activity.userId,
+        tenantId: activity.tenantId,
         action: activity.action,
         resource: activity.resource,
-        resource_id: activity.resourceId,
+        resourceId: activity.resourceId,
         details: activity.details,
-        ip_address: activity.ipAddress,
-        user_agent: activity.userAgent,
-        created_at: activity.createdAt.toISOString()
+        ipAddress: activity.ipAddress,
+        userAgent: activity.userAgent,
+        createdAt: activity.createdAt.toISOString()
       };
     } catch (error) {
       StructuredLogger.error('Activity find by ID failed', error, {
@@ -159,15 +155,15 @@ export class ActivityModel {
 
       return activities.map(activity => ({
         id: activity.id,
-        user_id: activity.userId,
-        tenant_id: activity.tenantId,
+        userId: activity.userId,
+        tenantId: activity.tenantId,
         action: activity.action,
         resource: activity.resource,
-        resource_id: activity.resourceId,
+        resourceId: activity.resourceId,
         details: activity.details,
-        ip_address: activity.ipAddress,
-        user_agent: activity.userAgent,
-        created_at: activity.createdAt.toISOString()
+        ipAddress: activity.ipAddress,
+        userAgent: activity.userAgent,
+        createdAt: activity.createdAt.toISOString()
       }));
     } catch (error) {
       StructuredLogger.error('Activity list failed', error, {
@@ -229,15 +225,15 @@ export class ActivityModel {
 
       return activities.map(activity => ({
         id: activity.id,
-        user_id: activity.userId,
-        tenant_id: activity.tenantId,
+        userId: activity.userId,
+        tenantId: activity.tenantId,
         action: activity.action,
         resource: activity.resource,
-        resource_id: activity.resourceId,
+        resourceId: activity.resourceId,
         details: activity.details,
-        ip_address: activity.ipAddress,
-        user_agent: activity.userAgent,
-        created_at: activity.createdAt.toISOString()
+        ipAddress: activity.ipAddress,
+        userAgent: activity.userAgent,
+        createdAt: activity.createdAt.toISOString()
       }));
     } catch (error) {
       StructuredLogger.error('Recent activities by user failed', error, {
@@ -322,15 +318,15 @@ export class ActivityModel {
 
       return activities.map(activity => ({
         id: activity.id,
-        user_id: activity.userId,
-        tenant_id: activity.tenantId,
+        userId: activity.userId,
+        tenantId: activity.tenantId,
         action: activity.action,
         resource: activity.resource,
-        resource_id: activity.resourceId,
+        resourceId: activity.resourceId,
         details: activity.details,
-        ip_address: activity.ipAddress,
-        user_agent: activity.userAgent,
-        created_at: activity.createdAt.toISOString()
+        ipAddress: activity.ipAddress,
+        userAgent: activity.userAgent,
+        createdAt: activity.createdAt.toISOString()
       }));
     } catch (error) {
       StructuredLogger.error('Activities by date range failed', error, {

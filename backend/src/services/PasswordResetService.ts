@@ -121,14 +121,14 @@ export class PasswordResetService {
 
       // 6. Registrar atividade
       await this.logPasswordResetActivity({
-        user_id: user.id,
+        userId: user.id,
         tenant_id: user.tenantId,
         action: 'password_reset_requested',
         details: JSON.stringify({
           email_sent: emailSent,
           ip_address: ipAddress,
           user_agent: userAgent,
-          token_expires_at: tokenData.expiresAt
+          token_expiresAt: tokenData.expiresAt
         }),
         ip_address: ipAddress,
         user_agent: userAgent
@@ -216,14 +216,13 @@ export class PasswordResetService {
       await TokenService.usePasswordResetToken(token);
 
       // 8. Invalidar todas as sessões do usuário (forçar re-login)
-      await prisma.userSession.updateMany({
-        where: { user_id: user.id },
-        data: { is_active: false }
+      await prisma.userSession.deleteMany({
+        where: { userId: user.id }
       });
 
       // 9. Registrar atividade
       await this.logPasswordResetActivity({
-        user_id: user.id,
+        userId: user.id,
         tenant_id: user.tenantId,
         action: 'password_reset_completed',
         details: JSON.stringify({
@@ -298,11 +297,11 @@ export class PasswordResetService {
       const tokenData = await prisma.passwordResetToken.findFirst({
         where: {
           token: this.hashToken(token),
-          user_id: user.id,
-          used_at: null
+          userId: user.id,
+          used: null
         },
         select: {
-          expires_at: true
+          expiresAt: true
         }
       });
 
@@ -310,7 +309,7 @@ export class PasswordResetService {
         valid: true,
         message: 'Token válido',
         userEmail: user.email,
-        expiresAt: tokenData?.expires_at
+        expiresAt: tokenData?.expiresAt?.getTime()
       };
 
     } catch (error) {
@@ -364,7 +363,7 @@ export class PasswordResetService {
    * Registrar atividade de recuperação de senha
    */
   private static async logPasswordResetActivity(activity: {
-    user_id: string;
+    userId: string;
     tenant_id?: string;
     action: string;
     details?: string;
@@ -374,13 +373,13 @@ export class PasswordResetService {
     try {
       await prisma.activityLog.create({
         data: {
-          user_id: activity.user_id,
-          tenant_id: activity.tenant_id || null,
+          userId: activity.userId,
+          tenantId: activity.tenant_id || null,
           action: activity.action,
           resource: 'password_reset',
           details: activity.details || null,
-          ip_address: activity.ip_address || null,
-          user_agent: activity.user_agent || null
+          ipAddress: activity.ip_address || null,
+          userAgent: activity.user_agent || null
         }
       });
     } catch (error) {
@@ -449,13 +448,13 @@ export class PasswordResetService {
 
       // Tokens ativos
       const whereActiveTokens: any = {
-        expires_at: { gt: new Date(now) },
-        used_at: null
+        expiresAt: { gt: new Date(now) },
+        used: null
       };
 
       if (tenantId) {
         whereActiveTokens.user = {
-          tenant_id: tenantId
+          tenantId: tenantId
         };
       }
 

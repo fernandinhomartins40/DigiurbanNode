@@ -273,7 +273,7 @@ export class DatabaseRateStore implements RateLimitStore {
       });
     } catch (error) {
       // Log silencioso - não queremos que rate limiting falhe por erro de log
-      StructuredLogger.debug('Erro ao logar rate limit activity', { error });
+      console.debug('Erro ao logar rate limit activity:', error?.message || 'Unknown error');
     }
   }
 

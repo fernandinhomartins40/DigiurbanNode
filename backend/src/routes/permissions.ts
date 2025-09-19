@@ -377,7 +377,7 @@ router.get('/users-with/:permissionCode',
       }
 
       const { permissionCode } = req.params;
-      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenant_id;
+      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenantId;
 
       const users = await PermissionService.getUsersWithPermission(permissionCode, tenantId);
 

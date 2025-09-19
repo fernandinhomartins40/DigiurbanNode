@@ -97,7 +97,7 @@ export class InitialAdminSeed {
         admin_id: admin.id,
         email: adminEmail,
         role: admin.role,
-        tenant_id: tenantId,
+        tenantId: tenantId,
         action: 'initial_admin_seed'
       });
 

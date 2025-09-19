@@ -10,8 +10,9 @@ import { authMiddleware } from '../middleware/auth.js';
 import { validators, handleValidationErrors, sanitizeAll } from '../middleware/validation.js';
 import { generalRateLimit, strictRateLimit } from '../middleware/rateLimiter.js';
 import { PermissionService } from '../services/PermissionService.js';
-import { UserModel } from '../models/User.js';
-import { RegistrationService } from '../services/RegistrationService.js';
+import { UserModel, UserStatus, UserRole } from '../models/User.js';
+import { User } from '../database/generated/client/index.js';
+import { RegistrationService, RegisterUserResponse } from '../services/RegistrationService.js';
 import { ActivityService } from '../services/ActivityService.js';
 
 export const secureUserRoutes = Router();
@@ -72,7 +73,7 @@ secureUserRoutes.post('/',
 
       if (!canManageTarget) {
         await ActivityService.log({
-          user_id: req.user!.id,
+          userId: req.user!.id,
           action: 'user_creation_denied',
           resource: 'users',
           details: JSON.stringify({
@@ -80,8 +81,8 @@ secureUserRoutes.post('/',
             targetTenant: req.body.tenantId,
             userRole: req.user!.role
           }),
-          ip_address: req.ip,
-          user_agent: req.get('User-Agent')
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent')
         });
 
         res.status(403).json({
@@ -98,21 +99,21 @@ secureUserRoutes.post('/',
         created_by: req.user!.id
       };
 
-      const result = await RegistrationService.registerUser(userData);
+      const result: RegisterUserResponse = await RegistrationService.registerUser(userData);
 
       // Log da criação bem-sucedida
       await ActivityService.log({
-        user_id: req.user!.id,
+        userId: req.user!.id,
         action: 'user_created',
         resource: 'users',
-        resource_id: result.user.id,
+        resourceId: result.user.id,
         details: JSON.stringify({
           targetUserEmail: result.user.email,
           targetUserRole: result.user.role,
           createdByRole: req.user!.role
         }),
-        ip_address: req.ip,
-        user_agent: req.get('User-Agent')
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
       });
 
       res.status(201).json({
@@ -175,30 +176,30 @@ secureUserRoutes.get('/',
       }
 
       const users = await UserModel.getUsers({
-        tenant_id: effectiveTenantId,
-        tipo_usuario: tipoUsuario as string,
-        status: status as string,
+        tenantId: effectiveTenantId,
+        role: tipoUsuario as UserRole,
+        status: status as UserStatus,
         limit: Number(limit),
         offset: Number(offset)
       });
 
       // Log da consulta
       await ActivityService.log({
-        user_id: req.user!.id,
+        userId: req.user!.id,
         action: 'users_listed',
         resource: 'users',
         details: JSON.stringify({
-          filters: { tenant_id: effectiveTenantId, tipo_usuario: tipoUsuario, status },
-          resultCount: users.length,
+          filters: { tenantId: effectiveTenantId, role: tipoUsuario, status },
+          resultCount: users.users.length,
           userRole: req.user!.role
         }),
-        ip_address: req.ip
+        ipAddress: req.ip
       });
 
       res.json({
         success: true,
-        data: users,
-        total: users.length
+        data: users.users,
+        total: users.total
       });
 
     } catch (error) {
@@ -235,16 +236,16 @@ secureUserRoutes.put('/:userId',
 
       if (!canManageUser) {
         await ActivityService.log({
-          user_id: req.user!.id,
+          userId: req.user!.id,
           action: 'user_update_denied',
           resource: 'users',
-          resource_id: userId,
+          resourceId: userId,
           details: JSON.stringify({
             reason: 'Cannot manage target user',
             userRole: req.user!.role
           }),
-          ip_address: req.ip,
-          user_agent: req.get('User-Agent')
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent')
         });
 
         res.status(403).json({
@@ -284,17 +285,17 @@ secureUserRoutes.put('/:userId',
 
       // Log da atualização
       await ActivityService.log({
-        user_id: req.user!.id,
+        userId: req.user!.id,
         action: 'user_updated',
         resource: 'users',
-        resource_id: userId,
+        resourceId: userId,
         details: JSON.stringify({
           targetUserEmail: existingUser.email,
           changes: req.body,
           updatedByRole: req.user!.role
         }),
-        ip_address: req.ip,
-        user_agent: req.get('User-Agent')
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
       });
 
       res.json({
@@ -334,16 +335,16 @@ secureUserRoutes.delete('/:userId',
 
       if (!canManageUser) {
         await ActivityService.log({
-          user_id: req.user!.id,
+          userId: req.user!.id,
           action: 'user_deletion_denied',
           resource: 'users',
-          resource_id: userId,
+          resourceId: userId,
           details: JSON.stringify({
             reason: 'Cannot manage target user',
             userRole: req.user!.role
           }),
-          ip_address: req.ip,
-          user_agent: req.get('User-Agent')
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent')
         });
 
         res.status(403).json({
@@ -376,17 +377,17 @@ secureUserRoutes.delete('/:userId',
 
       // Log da exclusão
       await ActivityService.log({
-        user_id: req.user!.id,
+        userId: req.user!.id,
         action: 'user_deleted',
         resource: 'users',
-        resource_id: userId,
+        resourceId: userId,
         details: JSON.stringify({
           deletedUserEmail: userToDelete.email,
           deletedUserRole: userToDelete.role,
           deletedByRole: req.user!.role
         }),
-        ip_address: req.ip,
-        user_agent: req.get('User-Agent')
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
       });
 
       res.json({
@@ -431,16 +432,16 @@ secureUserRoutes.post('/:userId/reset-password',
 
       if (!canManageUser) {
         await ActivityService.log({
-          user_id: req.user!.id,
+          userId: req.user!.id,
           action: 'password_reset_denied',
           resource: 'users',
-          resource_id: userId,
+          resourceId: userId,
           details: JSON.stringify({
             reason: 'Cannot manage target user',
             userRole: req.user!.role
           }),
-          ip_address: req.ip,
-          user_agent: req.get('User-Agent')
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent')
         });
 
         res.status(403).json({
@@ -463,16 +464,16 @@ secureUserRoutes.post('/:userId/reset-password',
 
       // Log do reset de senha
       await ActivityService.log({
-        user_id: req.user!.id,
+        userId: req.user!.id,
         action: 'password_reset',
         resource: 'users',
-        resource_id: userId,
+        resourceId: userId,
         details: JSON.stringify({
           targetUserEmail: userToReset.email,
           resetByRole: req.user!.role
         }),
-        ip_address: req.ip,
-        user_agent: req.get('User-Agent')
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
       });
 
       res.json({

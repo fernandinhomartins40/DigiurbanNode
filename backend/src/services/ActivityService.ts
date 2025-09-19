@@ -6,6 +6,7 @@
 // ====================================================================
 
 import { prisma } from "../database/prisma.js";
+import { ActivityLog } from '../database/generated/client/index.js';
 import { UserModel } from '../models/User.js';
 import { ActivityModel } from '../models/Activity.js';
 import { LOG_CONFIG } from '../config/auth.js';
@@ -14,37 +15,24 @@ import { LOG_CONFIG } from '../config/auth.js';
 // INTERFACES
 // ====================================================================
 
-export interface ActivityLog {
-  id: number;
-  user_id?: string;
-  tenant_id?: string;
-  action: string;
-  resource: string;
-  resource_id?: string;
-  details?: string;
-  ip_address?: string;
-  user_agent?: string;
-  created_at: string;
-}
-
 export interface CreateActivityData {
-  user_id?: string;
-  tenant_id?: string;
+  userId?: string;
+  tenantId?: string;
   action: string;
   resource: string;
-  resource_id?: string;
+  resourceId?: string;
   details?: string;
-  ip_address?: string;
-  user_agent?: string;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export interface ActivityFilters {
-  user_id?: string;
-  tenant_id?: string;
+  userId?: string;
+  tenantId?: string;
   action?: string;
   resource?: string;
-  date_from?: string;
-  date_to?: string;
+  dateFrom?: string;
+  dateTo?: string;
   limit?: number;
   offset?: number;
 }
@@ -84,20 +72,23 @@ export class ActivityService {
       // Limpar dados sensíveis
       const cleanedDetails = this.sanitizeDetails(activityData.details);
 
-      // Inserir no banco usando ActivityModel
-      const activity = await ActivityModel.create({
-        user_id: activityData.user_id,
-        tenant_id: activityData.tenant_id,
-        action: activityData.action,
-        resource: activityData.resource,
-        resource_id: activityData.resource_id,
-        details: cleanedDetails,
-        ip_address: activityData.ip_address,
-        user_agent: activityData.user_agent
+      // Inserir no banco usando Prisma diretamente
+      const activity = await prisma.activityLog.create({
+        data: {
+          userId: activityData.userId,
+          tenantId: activityData.tenantId,
+          action: activityData.action,
+          resource: activityData.resource,
+          resourceId: activityData.resourceId,
+          details: cleanedDetails,
+          ipAddress: activityData.ipAddress,
+          userAgent: activityData.userAgent,
+          createdAt: new Date()
+        }
       });
 
       // Retornar a atividade criada
-      return activity as ActivityLog;
+      return activity;
 
     } catch (error) {
       console.error('Erro ao registrar atividade:', error);
@@ -124,14 +115,14 @@ export class ActivityService {
       const params: any[] = [];
 
       // Aplicar filtros
-      if (filters.user_id) {
-        sql += ` AND al.user_id = ?`;
-        params.push(filters.user_id);
+      if (filters.userId) {
+        sql += ` AND al.userId = ?`;
+        params.push(filters.userId);
       }
 
-      if (filters.tenant_id) {
-        sql += ` AND al.tenant_id = ?`;
-        params.push(filters.tenant_id);
+      if (filters.tenantId) {
+        sql += ` AND al.tenantId = ?`;
+        params.push(filters.tenantId);
       }
 
       if (filters.action) {
@@ -144,18 +135,18 @@ export class ActivityService {
         params.push(filters.resource);
       }
 
-      if (filters.date_from) {
-        sql += ` AND al.created_at >= ?`;
-        params.push(filters.date_from);
+      if (filters.dateFrom) {
+        sql += ` AND al.createdAt >= ?`;
+        params.push(filters.dateFrom);
       }
 
-      if (filters.date_to) {
-        sql += ` AND al.created_at <= ?`;
-        params.push(filters.date_to);
+      if (filters.dateTo) {
+        sql += ` AND al.createdAt <= ?`;
+        params.push(filters.dateTo);
       }
 
       // Ordenação
-      sql += ` ORDER BY al.created_at DESC`;
+      sql += ` ORDER BY al.createdAt DESC`;
 
       // Paginação
       if (filters.limit) {
@@ -179,14 +170,14 @@ export class ActivityService {
    * Buscar atividades de um usuário específico
    */
   static async getUserActivities(userId: string, limit: number = 50): Promise<ActivityLog[]> {
-    return this.findActivities({ user_id: userId, limit });
+    return this.findActivities({ userId, limit });
   }
 
   /**
    * Buscar atividades de um tenant específico
    */
   static async getTenantActivities(tenantId: string, limit: number = 100): Promise<ActivityLog[]> {
-    return this.findActivities({ tenant_id: tenantId, limit });
+    return this.findActivities({ tenantId, limit });
   }
 
   /**
@@ -437,13 +428,13 @@ export class ActivityService {
    */
   static async logLogin(userId: string, tenantId?: string, ipAddress?: string, userAgent?: string): Promise<void> {
     await this.log({
-      user_id: userId,
-      tenant_id: tenantId,
+      userId,
+      tenantId,
       action: 'login',
       resource: 'auth',
       details: JSON.stringify({ method: 'email_password' }),
-      ip_address: ipAddress,
-      user_agent: userAgent
+      ipAddress,
+      userAgent
     });
   }
 
@@ -452,8 +443,8 @@ export class ActivityService {
    */
   static async logLogout(userId: string, tenantId?: string): Promise<void> {
     await this.log({
-      user_id: userId,
-      tenant_id: tenantId,
+      userId,
+      tenantId,
       action: 'logout',
       resource: 'auth'
     });
@@ -471,11 +462,11 @@ export class ActivityService {
     details?: any
   ): Promise<void> {
     await this.log({
-      user_id: userId,
-      tenant_id: tenantId,
+      userId,
+      tenantId,
       action,
       resource,
-      resource_id: resourceId,
+      resourceId,
       details: details ? JSON.stringify(details) : undefined
     });
   }

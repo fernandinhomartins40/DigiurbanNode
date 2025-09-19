@@ -203,7 +203,7 @@ export const registerValidation = [
       return true;
     }),
     
-  body('nome_completo')
+  body('nomeCompleto')
     .isLength({ min: VALIDATION_CONFIG.NAME_MIN_LENGTH, max: VALIDATION_CONFIG.NAME_MAX_LENGTH })
     .withMessage(`Nome deve ter entre ${VALIDATION_CONFIG.NAME_MIN_LENGTH} e ${VALIDATION_CONFIG.NAME_MAX_LENGTH} caracteres`)
     .customSanitizer(sanitizeName)
@@ -246,7 +246,7 @@ export const tenantValidation = [
 ];
 
 export const userUpdateValidation = [
-  body('nome_completo')
+  body('nomeCompleto')
     .optional()
     .isLength({ min: VALIDATION_CONFIG.NAME_MIN_LENGTH, max: VALIDATION_CONFIG.NAME_MAX_LENGTH })
     .withMessage(`Nome deve ter entre ${VALIDATION_CONFIG.NAME_MIN_LENGTH} e ${VALIDATION_CONFIG.NAME_MAX_LENGTH} caracteres`)

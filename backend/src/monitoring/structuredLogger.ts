@@ -207,8 +207,8 @@ export class StructuredLogger {
         userAgent: req.get('User-Agent'),
         method: req.method,
         url: req.originalUrl || req.url,
-        tenantId: req.tenant?.id,
-        userId: req.user?.id
+        tenant_id: req.tenant?.id,
+        user_id: req.user?.id
       };
 
       // Log da request inicial

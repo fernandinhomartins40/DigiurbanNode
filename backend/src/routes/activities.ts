@@ -20,7 +20,7 @@ const router = Router();
 
 const activitiesFilterValidation = [
   query('user_id').optional().isUUID().withMessage('User ID deve ser um UUID válido'),
-  query('tenant_id').optional().isUUID().withMessage('Tenant ID deve ser um UUID válido'),
+  query('tenantId').optional().isUUID().withMessage('Tenant ID deve ser um UUID válido'),
   query('action').optional().isString().withMessage('Action deve ser uma string'),
   query('resource').optional().isString().withMessage('Resource deve ser uma string'),
   query('date_from').optional().isISO8601().withMessage('Data inicial deve estar no formato ISO8601'),
@@ -60,7 +60,7 @@ router.get('/',
 
       // Extrair filtros da query
       const filters: any = {};
-      const validFilters = ['user_id', 'tenant_id', 'action', 'resource', 'date_from', 'date_to', 'limit', 'offset'];
+      const validFilters = ['user_id', 'tenantId', 'action', 'resource', 'date_from', 'date_to', 'limit', 'offset'];
       
       for (const filter of validFilters) {
         if (req.query[filter]) {
@@ -69,8 +69,8 @@ router.get('/',
       }
 
       // Aplicar filtro de tenant se não for super_admin
-      if (req.user!.role !== 'super_admin' && !filters.tenant_id) {
-        filters.tenant_id = req.user!.tenant_id;
+      if (req.user!.role !== 'super_admin' && !filters.tenantId) {
+        filters.tenantId = req.user!.tenantId;
       }
 
       // Definir limite padrão
@@ -185,7 +185,7 @@ router.get('/tenant/:tenantId',
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
 
       // Super admin pode ver qualquer tenant, outros só o próprio
-      if (req.user!.role !== 'super_admin' && req.user!.tenant_id !== tenantId) {
+      if (req.user!.role !== 'super_admin' && req.user!.tenantId !== tenantId) {
         res.status(403).json({
           success: false,
           error: 'Sem permissão para ver atividades de outros tenants'
@@ -245,7 +245,7 @@ router.get('/recent',
       let filteredActivities = activities;
       if (req.user!.role !== 'super_admin') {
         filteredActivities = activities.filter(activity => 
-          activity.tenant_id === req.user!.tenant_id || !activity.tenant_id
+          activity.tenantId === req.user!.tenantId || !activity.tenantId
         );
       }
 
@@ -295,7 +295,7 @@ router.get('/stats',
       }
 
       const days = req.query.days ? parseInt(req.query.days as string) : 30;
-      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenant_id;
+      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenantId;
 
       const stats = await ActivityService.getActivityStats(tenantId, days);
 
@@ -330,7 +330,7 @@ router.get('/suspicious',
   generalRateLimit,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenant_id;
+      const tenantId = req.user!.role === 'super_admin' ? undefined : req.user!.tenantId;
 
       const suspiciousActivities = await ActivityService.getSuspiciousActivities(tenantId);
 

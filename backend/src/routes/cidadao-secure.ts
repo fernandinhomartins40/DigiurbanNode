@@ -66,15 +66,15 @@ secureCidadaoRoutes.get('/dashboard',
       // Verificar se é realmente cidadão ou super_admin
       if (req.user!.role !== 'cidadao' && req.user!.role !== 'super_admin') {
         await ActivityService.log({
-          user_id: req.user!.id,
+          userId: req.user!.id,
           action: 'cidadao_access_denied',
           resource: 'cidadao_dashboard',
           details: JSON.stringify({
             reason: 'User role is not cidadao',
             userRole: req.user!.role
           }),
-          ip_address: req.ip,
-          user_agent: req.get('User-Agent')
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent')
         });
 
         res.status(403).json({
@@ -93,13 +93,13 @@ secureCidadaoRoutes.get('/dashboard',
       };
 
       await ActivityService.log({
-        user_id: req.user!.id,
+        userId: req.user!.id,
         action: 'cidadao_dashboard_accessed',
         resource: 'cidadao_dashboard',
         details: JSON.stringify({
           userRole: req.user!.role
         }),
-        ip_address: req.ip
+        ipAddress: req.ip
       });
 
       res.json({
@@ -158,17 +158,17 @@ secureCidadaoRoutes.post('/protocolos',
       };
 
       await ActivityService.log({
-        user_id: req.user!.id,
+        userId: req.user!.id,
         action: 'protocolo_created',
         resource: 'cidadao_protocolos',
-        resource_id: protocoloNumero,
+        resourceId: protocoloNumero,
         details: JSON.stringify({
           titulo: titulo.substring(0, 50),
           categoria,
           prioridade
         }),
-        ip_address: req.ip,
-        user_agent: req.get('User-Agent')
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
       });
 
       res.status(201).json({
@@ -217,14 +217,14 @@ secureCidadaoRoutes.get('/protocolos',
       const protocolos = []; // Implementar busca real no banco
 
       await ActivityService.log({
-        user_id: req.user!.id,
+        userId: req.user!.id,
         action: 'protocolos_listed',
         resource: 'cidadao_protocolos',
         details: JSON.stringify({
           filters: { status, categoria },
           resultCount: protocolos.length
         }),
-        ip_address: req.ip
+        ipAddress: req.ip
       });
 
       res.json({
@@ -330,14 +330,14 @@ secureCidadaoRoutes.put('/perfil',
       };
 
       await ActivityService.log({
-        user_id: req.user!.id,
+        userId: req.user!.id,
         action: 'perfil_updated',
         resource: 'cidadao_perfil',
         details: JSON.stringify({
           campos_alterados: Object.keys(req.body)
         }),
-        ip_address: req.ip,
-        user_agent: req.get('User-Agent')
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
       });
 
       res.json({
