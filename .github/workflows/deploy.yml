@@ -377,18 +377,18 @@ jobs:
         sleep 10
         
         # Executar migrations via Prisma
-        if docker exec -e NODE_ENV=production ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && npm run db:migrate:deploy'; then
+        if docker exec -e NODE_ENV=production -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && npm run db:migrate:deploy'; then
           echo '✅ Migrations Prisma executadas com sucesso'
 
           echo ''
           echo '🎯 Criando super admin inicial...'
-          docker exec -e NODE_ENV=production -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=SuperAdmin2024 -e INITIAL_ADMIN_NAME="Super Administrador" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && npm run db:seed' || echo '⚠️ Super admin pode já existir'
+          docker exec -e NODE_ENV=production -e DATABASE_URL="file:/app/data/digiurban.db" -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=SuperAdmin2024 -e INITIAL_ADMIN_NAME="Super Administrador" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && npm run db:seed' || echo '⚠️ Super admin pode já existir'
           
           # Verificar integridade do banco (Prisma)
           echo ''
           echo '🔍 Verificando integridade do banco Prisma...'
-          docker exec ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node -e "
-            import { PrismaClient } from \"./dist/database/generated/client/index.js\";
+          docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node -e "
+            import { PrismaClient } from \"@prisma/client\";
             const prisma = new PrismaClient();
             (async () => {
               try {

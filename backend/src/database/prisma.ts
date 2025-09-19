@@ -5,7 +5,7 @@
 // Substitui completamente o sistema Knex.js anterior
 // ====================================================================
 
-import { PrismaClient, Prisma } from './generated/client/index.js'
+import { PrismaClient, Prisma } from '@prisma/client'
 import { StructuredLogger } from '../monitoring/structuredLogger.js'
 
 // ====================================================================
@@ -322,4 +322,4 @@ export type {
   AuthAttempt,
   DkimKey,
   Prisma
-} from './generated/client/index.js'
+} from '@prisma/client'
