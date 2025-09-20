@@ -100,7 +100,8 @@
       "Bash(npm uninstall:*)",
       "Bash(tsx:*)",
       "Bash(tree:*)",
-      "Bash(tasklist)"
+      "Bash(tasklist)",
+      "Bash(./deploy-digiurban.sh:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",
