@@ -49,6 +49,15 @@ class PersistentRateStore {
   }
 
   private async initializeRedis(): Promise<void> {
+    // Verificar se Redis está habilitado
+    const redisEnabled = process.env.REDIS_ENABLED === 'true' || process.env.ENABLE_REDIS === 'true';
+
+    if (!redisEnabled) {
+      console.log('ℹ️ [RATE-LIMIT] Redis desabilitado - usando fallback SQLite');
+      this.redisStore = null;
+      return;
+    }
+
     try {
       this.redisStore = new RedisRateStore();
       console.log('✅ [RATE-LIMIT] Redis inicializado');
