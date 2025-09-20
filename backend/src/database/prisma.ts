@@ -88,7 +88,7 @@ const softDeleteMiddleware: Prisma.Middleware = async (params, next) => {
       params.args = {
         ...params.args,
         data: {
-          status: params.model === 'User' ? 'INATIVO' : 'INATIVO'
+          status: params.model === 'User' ? 'inativo' : 'inativo'
         }
       }
     }
@@ -101,7 +101,7 @@ const softDeleteMiddleware: Prisma.Middleware = async (params, next) => {
       params.args = {
         ...params.args,
         data: {
-          status: params.model === 'User' ? 'INATIVO' : 'INATIVO'
+          status: params.model === 'User' ? 'inativo' : 'inativo'
         }
       }
     }

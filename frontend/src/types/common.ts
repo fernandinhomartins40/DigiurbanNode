@@ -7,9 +7,9 @@
 // =====================================================
 export interface BaseEntity {
   id: string; // UUID sempre obrigatório
-  created_at: string; // ISO string obrigatório
-  updated_at: string; // ISO string obrigatório
-  deleted_at?: string; // ISO string opcional para soft delete
+  createdAt: string; // ISO string obrigatório
+  updatedAt: string; // ISO string obrigatório
+  deletedAt?: string; // ISO string opcional para soft delete
 }
 
 // =====================================================

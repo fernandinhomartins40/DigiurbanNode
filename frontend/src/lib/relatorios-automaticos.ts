@@ -162,7 +162,7 @@ export class RelatoriosAgricultura {
       const { data: produtores } = await supabase
         .from('produtores_rurais')
         .select('situacao, area_hectares, tipos_cultivo')
-        .eq('situacao', 'ATIVO');
+        .eq('situacao', 'ativo');
 
       const { data: assistencias } = await supabase
         .from('assistencia_tecnica_rural')
@@ -172,7 +172,7 @@ export class RelatoriosAgricultura {
       const { data: programas } = await supabase
         .from('programas_rurais')
         .select('status, numero_beneficiarios_atual, orcamento_total')
-        .eq('status', 'ATIVO');
+        .eq('status', 'ativo');
 
       // Calcular métricas
       const areaTotal = produtores?.reduce((acc, p) => acc + (p.area_hectares || 0), 0) || 0;
@@ -279,7 +279,7 @@ export class RelatoriosEsportes {
 
       // Métricas do trimestre
       const metricas = {
-        equipamentos_ativos: equipamentos?.filter(e => e.status === 'ATIVO').length || 0,
+        equipamentos_ativos: equipamentos?.filter(e => e.status === 'ativo').length || 0,
         escolinhas_funcionando: escolinhas?.filter(e => e.status === 'ATIVA').length || 0,
         participantes_escolinhas: escolinhas?.reduce((acc, e) => acc + (e.vagas_ocupadas || 0), 0) || 0,
         eventos_realizados: eventos?.filter(e => e.status === 'FINALIZADO').length || 0,

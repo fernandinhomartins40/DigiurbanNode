@@ -37,4 +37,11 @@ coverage/
 
 # OS
 .DS_Store
-Thumbs.dbbackend/data/*.db*
+Thumbs.db
+
+# Deploy local
+.env.deploy
+deploy-*.log
+
+# Database files
+backend/data/*.db*

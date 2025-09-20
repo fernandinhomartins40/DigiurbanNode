@@ -78,17 +78,17 @@ export class AuthService {
         name: user.nomeCompleto,
         email: user.email,
         role: user.role,
-        tenant_id: user.tenantId,
-        tenant_name: tenant?.nome,
-        avatar_url: user.avatarUrl,
-        created_at: user.createdAt,
-        updated_at: user.updatedAt
+        tenantId: user.tenantId,
+        tenantName: tenant?.nome,
+        avatarUrl: user.avatarUrl,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
       };
 
       const tenantInfo: TenantInfo | null = tenant ? {
         id: tenant.id,
         name: tenant.nome,
-        plan_type: tenant.plano,
+        planType: tenant.plano,
         status: tenant.status
       } : null;
 
@@ -274,20 +274,20 @@ export class AuthService {
 
       const profile: UserProfile = {
         id: userData.id,
-        name: userData.nome_completo,
+        name: userData.nomeCompleto,
         email: userData.email,
         role: userData.role,
-        tenant_id: userData.tenant_id,
-        tenant_name: userData.tenant_name || null,
-        avatar_url: userData.avatar_url,
-        created_at: userData.created_at,
-        updated_at: userData.updated_at
+        tenant_id: userData.tenantId,
+        tenant_name: userData.tenantName || null,
+        avatar_url: userData.avatarUrl,
+        created_at: userData.createdAt,
+        updated_at: userData.updatedAt
       };
 
       // TODO: Buscar dados do tenant se necessário
-      const tenant: TenantInfo | null = userData.tenant_id ? {
-        id: userData.tenant_id,
-        name: userData.tenant_name || 'Tenant',
+      const tenant: TenantInfo | null = userData.tenantId ? {
+        id: userData.tenantId,
+        name: userData.tenantName || 'Tenant',
         plan_type: 'basico',
         status: 'ativo'
       } : null;

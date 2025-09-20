@@ -126,8 +126,8 @@ export interface EntityResponse<T> {
   message?: string
   warnings?: string[]
   meta?: {
-    created_at?: string
-    updated_at?: string
+    createdAt?: string
+    updatedAt?: string
     version?: number
   }
 }
@@ -266,12 +266,12 @@ export const PaginationSchema = z.object({
 export const BaseFiltersSchema = z.object({
   search: z.string().max(CRUD_CONSTANTS.MAX_SEARCH_LENGTH).optional(),
   status: z.union([z.string(), z.array(z.string())]).optional(),
-  created_at_start: z.string().datetime().optional(),
-  created_at_end: z.string().datetime().optional(),
-  updated_at_start: z.string().datetime().optional(),
-  updated_at_end: z.string().datetime().optional(),
+  createdAtStart: z.string().datetime().optional(),
+  createdAtEnd: z.string().datetime().optional(),
+  updatedAtStart: z.string().datetime().optional(),
+  updatedAtEnd: z.string().datetime().optional(),
   active: z.boolean().optional(),
-  tenant_id: z.string().uuid().optional()
+  tenantId: z.string().uuid().optional()
 })
 
 export const SearchEntityParamsSchema = PaginationSchema.extend({

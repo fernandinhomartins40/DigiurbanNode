@@ -15,11 +15,11 @@ export interface AuthUser {
   id: string;
   email: string;
   role: UserRole;
-  tenant_id: string | null;
+  tenantId: string | null;
   name?: string;
-  avatar_url?: string;
-  created_at: string;
-  updated_at?: string;
+  avatarUrl?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface UserProfile {
@@ -27,17 +27,17 @@ export interface UserProfile {
   name: string;
   email: string;
   role: UserRole;
-  tenant_id: string | null;
-  tenant_name?: string;
-  avatar_url?: string;
-  created_at: string;
-  updated_at: string;
+  tenantId: string | null;
+  tenantName?: string;
+  avatarUrl?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TenantInfo {
   id: string;
   name: string;
-  plan_type: string;
+  planType: string;
   status: 'active' | 'inactive' | 'suspended';
 }
 
@@ -79,7 +79,7 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  tenant_id?: string;
+  tenantId?: string;
 }
 
 // ====================================================================

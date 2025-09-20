@@ -155,7 +155,7 @@ async function seedSuperAdmin() {
       estado: 'SY',
       cnpj: '00000000000000',
       plano: 'ENTERPRISE',
-      status: 'ATIVO'
+      status: 'ativo'
     }
   })
 
@@ -169,8 +169,8 @@ async function seedSuperAdmin() {
       nomeCompleto: 'Super Administrador',
       email: 'admin@digiurban.com.br',
       passwordHash: hashedPassword,
-      role: 'SUPER_ADMIN',
-      status: 'ATIVO',
+      role: 'super_admin',
+      status: 'ativo',
       emailVerified: true
     }
   })
@@ -218,7 +218,7 @@ async function seedTenantDemo() {
       estado: 'SP',
       cnpj: '12345678901234',
       plano: 'PREMIUM',
-      status: 'ATIVO',
+      status: 'ativo',
       populacao: 50000,
       endereco: 'Rua Principal, 123 - Centro',
       responsavelNome: 'João Silva',
@@ -239,8 +239,8 @@ async function seedTenantDemo() {
       nomeCompleto: 'Administrador Demo',
       email: 'admin@demo.gov.br',
       passwordHash: hashedPassword,
-      role: 'ADMIN',
-      status: 'ATIVO',
+      role: 'admin',
+      status: 'ativo',
       emailVerified: true
     }
   })

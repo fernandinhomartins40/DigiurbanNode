@@ -137,7 +137,7 @@ export class AutomacoesAgricultura {
       const { data: produtores } = await supabase
         .from('produtores_rurais')
         .select('*')
-        .eq('situacao', 'ATIVO');
+        .eq('situacao', 'ativo');
 
       if (!produtores) return;
 
@@ -269,7 +269,7 @@ export class AutomacoesEsportes {
       const { data: equipamentos } = await supabase
         .from('equipamentos_esportivos')
         .select('*')
-        .eq('status', 'ATIVO');
+        .eq('status', 'ativo');
 
       if (!equipamentos) return;
 

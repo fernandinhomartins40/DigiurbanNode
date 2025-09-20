@@ -77,10 +77,10 @@ export function useSaaSMetrics() {
       if (tenantsError) throw tenantsError;
 
       // 2. Calcular métricas básicas
-      const activeTenants = tenants?.filter(t => t.status === 'ATIVO') || [];
+      const activeTenants = tenants?.filter(t => t.status === 'ativo') || [];
       const trialTenants = tenants?.filter(t => t.status === 'TRIAL') || [];
-      const suspendedTenants = tenants?.filter(t => t.status === 'SUSPENSO') || [];
-      const cancelledTenants = tenants?.filter(t => t.status === 'CANCELADO') || [];
+      const suspendedTenants = tenants?.filter(t => t.status === 'suspenso') || [];
+      const cancelledTenants = tenants?.filter(t => t.status === 'cancelado') || [];
 
       // 3. Calcular MRR (Monthly Recurring Revenue)
       const mrr = activeTenants.reduce((sum, tenant) => {
@@ -189,7 +189,7 @@ export function useTenantMetrics(tenantId?: string) {
         protocolos_mes_atual: item.protocolos_criados,
         storage_usado_gb: item.storage_usado_gb,
         valor_mensal: item.tenant_assinaturas?.valor_mensal || 0,
-        status: 'ATIVO',
+        status: 'ativo',
         data_referencia: item.data_referencia
       })) || [];
 
@@ -293,13 +293,13 @@ export function useChurnRate(tenantId?: string) {
       let cancelledQuery = APIClient
         .from('tenants')
         .select('id')
-        .eq('status', 'CANCELADO')
+        .eq('status', 'cancelado')
         .gte('updated_at', lastMonth.toISOString());
 
       let activeQuery = APIClient
         .from('tenants')
         .select('id')
-        .eq('status', 'ATIVO');
+        .eq('status', 'ativo');
 
       if (tenantId) {
         cancelledQuery = cancelledQuery.eq('id', tenantId);

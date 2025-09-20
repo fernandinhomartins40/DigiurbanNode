@@ -18,11 +18,11 @@ export interface RunResult extends DatabaseRunResult {
 }
 
 // Tipos para User
-export type UserStatus = 'ATIVO' | 'INATIVO' | 'PENDENTE' | 'SUSPENSO' | 'SEM_VINCULO';
-export type UserRole = 'ADMIN' | 'SUPER_ADMIN' | 'USER' | 'GESTOR' | 'ANALISTA' | 'AUDITOR';
+export type UserStatus = 'ativo' | 'inativo' | 'pendente' | 'suspenso' | 'sem_vinculo';
+export type UserRole = 'admin' | 'super_admin' | 'user' | 'gestor' | 'analista' | 'auditor';
 
 // Tipos para Tenant
-export type TenantStatus = 'ATIVO' | 'INATIVO' | 'SUSPENSO';
+export type TenantStatus = 'ativo' | 'inativo' | 'suspenso';
 
 // Tipos para Activity
 export interface CreateActivityData {
@@ -95,7 +95,7 @@ export const createRunResult = (result: DatabaseRunResult): RunResult => ({
 });
 
 // Prisma types - substitui Knex
-export type PrismaTransactionClient = Parameters<Parameters<typeof import('../database/prisma.js').prisma.$transaction>[0]>[0];
+export type PrismaTransactionClient = Parameters<Parameters<typeof import('@prisma/client').PrismaClient.prototype.$transaction>[0]>[0];
 
 // Aliases para compatibilidade (eram Knex, agora são Prisma)
 export type DatabaseInstance = typeof import('../database/prisma.js').prisma;
