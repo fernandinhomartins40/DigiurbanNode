@@ -8,7 +8,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { JWTUtils, JWTPayload } from '../utils/jwt.js';
 import { UserModel, UserRole } from '../models/User.js';
-import { User } from '@prisma/client';
+import { User } from '../types/prisma.js';
 import { SessionModel } from '../models/Session.js';
 import { PermissionModel } from '../models/Permission.js';
 import { CookieManager } from '../utils/cookieManager.js';

@@ -8,7 +8,7 @@
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { UserModel, CreateUserData } from '../models/User.js';
-import { User } from '@prisma/client';
+import { User } from '../types/prisma.js';
 import { TenantModel, Tenant, CreateTenantData } from '../models/Tenant.js';
 import { ActivityService } from './ActivityService.js';
 import { JWTUtils } from '../utils/jwt.js';

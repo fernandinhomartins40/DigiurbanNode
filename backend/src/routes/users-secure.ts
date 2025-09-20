@@ -11,7 +11,7 @@ import { validators, handleValidationErrors, sanitizeAll } from '../middleware/v
 import { generalRateLimit, strictRateLimit } from '../middleware/rateLimiter.js';
 import { PermissionService } from '../services/PermissionService.js';
 import { UserModel, UserStatus, UserRole } from '../models/User.js';
-import { User } from '@prisma/client';
+import { User } from '../types/prisma.js';
 import { RegistrationService, RegisterUserResponse } from '../services/RegistrationService.js';
 import { ActivityService } from '../services/ActivityService.js';
 

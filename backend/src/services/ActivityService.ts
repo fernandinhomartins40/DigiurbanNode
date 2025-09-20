@@ -6,7 +6,7 @@
 // ====================================================================
 
 import { prisma } from "../database/prisma.js";
-import { ActivityLog } from '@prisma/client';
+import { ActivityLog } from '../types/prisma.js';
 import { UserModel } from '../models/User.js';
 import { ActivityModel } from '../models/Activity.js';
 import { LOG_CONFIG } from '../config/auth.js';
