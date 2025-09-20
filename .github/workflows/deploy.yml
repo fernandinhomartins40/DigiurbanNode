@@ -139,11 +139,32 @@ jobs:
           echo '✅ Container iniciado - setup do banco executando automaticamente'
         else
           echo '❌ Falha ao iniciar container'
+          echo '🔍 Verificando logs de erro...'
+          docker compose logs --tail=20
           exit 1
         fi
 
         echo '📊 Status dos containers:'
         docker compose ps
+
+        echo '🔍 Verificando se container está rodando...'
+        if docker ps | grep -q '${{ env.CONTAINER_NAME }}'; then
+          echo '✅ Container ${{ env.CONTAINER_NAME }} está rodando'
+        else
+          echo '❌ Container ${{ env.CONTAINER_NAME }} não está rodando!'
+          echo '📝 Logs do container:'
+          docker compose logs --tail=50
+          exit 1
+        fi
+
+        echo '🔍 Verificando logs iniciais do setup...'
+        docker logs ${{ env.CONTAINER_NAME }} --tail=20
+
+        echo '🔍 Verificando processos internos...'
+        docker exec ${{ env.CONTAINER_NAME }} ps aux || echo '⚠️ Não foi possível verificar processos'
+
+        echo '🔍 Verificando se portas estão abertas...'
+        docker exec ${{ env.CONTAINER_NAME }} netstat -tlnp | grep ':3020\|:3021' || echo '⚠️ Portas ainda não abertas'
         "
 
     - name: ⏳ Aguardar Sistema Estabilizar
@@ -161,6 +182,23 @@ jobs:
         echo ""
         echo "⏳ Aguardando conclusão do setup (30 segundos)..."
         sleep 30
+
+        echo "🔍 Verificando progresso após 30s..."
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+        cd ${{ env.APP_DIR }}
+
+        echo '📊 Status final dos containers:'
+        docker compose ps
+
+        echo '📝 Logs recentes (últimas 30 linhas):'
+        docker logs ${{ env.CONTAINER_NAME }} --tail=30
+
+        echo '🔍 Verificando se serviços estão rodando:'
+        docker exec ${{ env.CONTAINER_NAME }} ps aux | grep -E 'node|nginx|pm2' || echo '⚠️ Serviços ainda iniciando...'
+
+        echo '🌐 Verificando portas:'
+        docker exec ${{ env.CONTAINER_NAME }} netstat -tlnp | grep -E ':3020|:3021' || echo '⚠️ Portas ainda não abertas'
+        "
 
     - name: 🏥 Health Check Rápido
       run: |
@@ -180,7 +218,24 @@ jobs:
           fi
 
           if [ $i -eq 12 ]; then
-            echo "❌ API não respondeu"
+            echo "❌ API não respondeu após 12 tentativas"
+            echo "🔍 Diagnosticando problema..."
+
+            sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+            cd ${{ env.APP_DIR }}
+            echo '📊 Status dos containers:'
+            docker compose ps
+            echo ''
+            echo '📝 Logs completos do container:'
+            docker logs ${{ env.CONTAINER_NAME }} --tail=100
+            echo ''
+            echo '🔍 Processos rodando no container:'
+            docker exec ${{ env.CONTAINER_NAME }} ps aux
+            echo ''
+            echo '🌐 Portas abertas:'
+            docker exec ${{ env.CONTAINER_NAME }} netstat -tlnp
+            "
+
             exit 1
           fi
         done
