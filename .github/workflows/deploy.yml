@@ -159,27 +159,27 @@ jobs:
         echo "   🚀 Iniciando PM2 e Nginx"
 
         echo ""
-        echo "⏳ Aguardando conclusão do setup (90 segundos)..."
-        sleep 90
+        echo "⏳ Aguardando conclusão do setup (30 segundos)..."
+        sleep 30
 
-    - name: 🏥 Health Check Simples
+    - name: 🏥 Health Check Rápido
       run: |
         echo "🏥 Verificando sistema..."
 
-        # Aguardar sistema estabilizar
-        sleep 30
+        # Aguardar mínimo
+        sleep 10
 
-        # Health Check API
-        for i in {1..8}; do
+        # Health Check API - tentativas rápidas
+        for i in {1..12}; do
           if curl -f http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/api/health >/dev/null 2>&1; then
             echo "✅ API funcionando"
             break
           else
-            echo "⏳ Aguardando API ($i/8)..."
-            sleep 15
+            echo "⏳ Aguardando API ($i/12)..."
+            sleep 5
           fi
 
-          if [ $i -eq 8 ]; then
+          if [ $i -eq 12 ]; then
             echo "❌ API não respondeu"
             exit 1
           fi
