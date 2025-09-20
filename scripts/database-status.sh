@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 echo "📊 Status detalhado do banco de dados..."
 
 cd /app/backend && node -e "

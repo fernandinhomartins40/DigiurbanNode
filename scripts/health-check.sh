@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 echo "🏥 Executando health check completo..."
 
 ERRORS=0

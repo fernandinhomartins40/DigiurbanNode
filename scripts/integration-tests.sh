@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 echo "🧪 Executando testes de integração..."
 
 TESTS_PASSED=0

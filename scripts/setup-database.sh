@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 echo "🗃️ Configurando banco de dados..."
 
 # Verificar se estamos no container
