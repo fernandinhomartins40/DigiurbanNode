@@ -378,13 +378,15 @@ jobs:
         sleep 20
 
         echo '🔍 Verificando se container está respondendo...'
-        for i in {1..10}; do
+        i=1
+        while [ \$i -le 10 ]; do
           if docker exec ${{ env.CONTAINER_NAME }} sh -c 'echo "Container ready"' >/dev/null 2>&1; then
             echo '✅ Container está respondendo'
             break
           fi
-          echo "   Tentativa $i/10..."
+          echo "   Tentativa \$i/10..."
           sleep 3
+          i=\$((i + 1))
         done
 
         echo '🧹 Limpando banco anterior se necessário...'
@@ -489,7 +491,8 @@ jobs:
           
           echo "🔍 Verificando $name..."
           
-          for attempt in $(seq 1 $max_attempts); do
+          attempt=1
+          while [ $attempt -le $max_attempts ]; do
             local total_wait=$((attempt * delay))
             echo "⏳ Tentativa $attempt/$max_attempts (${total_wait}s total) - $name"
             
@@ -513,6 +516,7 @@ jobs:
             if [ $attempt -lt $max_attempts ]; then
               sleep $delay
             fi
+            attempt=$((attempt + 1))
           done
           
           echo "❌ $name: Falhou após ${max_attempts} tentativas (${total_wait}s total)"
