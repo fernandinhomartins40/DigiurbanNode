@@ -25,6 +25,9 @@ services:
       - DATABASE_URL=file:/app/data/digiurban.db
       - CORS_ORIGIN=https://www.digiurban.com.br,https://digiurban.com.br,http://72.60.10.108:3020,https://72.60.10.108:3020
       # - RESEND_API_KEY=sua_chave_resend_aqui  # Opcional: para funcionalidades de e-mail (substituído por UltraZend)
+      # Redis Configuration (desabilitado para usar SQLite fallback)
+      - REDIS_ENABLED=false
+      - ENABLE_REDIS=false
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       # UltraZend SMTP Server Configuration

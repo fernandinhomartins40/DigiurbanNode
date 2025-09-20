@@ -371,18 +371,54 @@ jobs:
         '
         
         echo ''
-        echo '🚀 Executando migrations no container...'
-        
-        # Aguardar container estar totalmente iniciado
-        sleep 10
-        
-        # Executar migrations via Prisma
-        if docker exec -e NODE_ENV=production -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && npm run db:migrate:deploy'; then
-          echo '✅ Migrations Prisma executadas com sucesso'
+        echo '🗃️ Configurando banco de dados...'
 
-          echo ''
-          echo '🎯 Criando super admin inicial...'
-          docker exec -e NODE_ENV=production -e DATABASE_URL="file:/app/data/digiurban.db" -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=SuperAdmin2024 -e INITIAL_ADMIN_NAME="Super Administrador" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && npm run db:seed' || echo '⚠️ Super admin pode já existir'
+        # Aguardar container estar totalmente iniciado (mesmo tempo do deploy local)
+        echo '⏳ Aguardando container inicializar...'
+        sleep 20
+
+        echo '🔍 Verificando se container está respondendo...'
+        for i in {1..10}; do
+          if docker exec ${{ env.CONTAINER_NAME }} sh -c 'echo "Container ready"' >/dev/null 2>&1; then
+            echo '✅ Container está respondendo'
+            break
+          fi
+          echo "   Tentativa $i/10..."
+          sleep 3
+        done
+
+        echo '🧹 Limpando banco anterior se necessário...'
+        docker exec ${{ env.CONTAINER_NAME }} sh -c 'rm -f /app/data/digiurban.db* 2>/dev/null || echo "Nenhum banco para limpar"'
+
+        # Usar mesmo comando do deploy local que funciona
+        echo '🚀 Criando schema do banco de dados...'
+        if docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && npx prisma db push --schema=../schema.prisma'; then
+          echo '✅ Schema do banco criado com sucesso'
+        else
+          echo '❌ Falha ao criar schema'
+          docker logs ${{ env.CONTAINER_NAME }} --tail 50
+          exit 1
+        fi
+
+        echo '🎯 Executando seeds do banco...'
+        if docker exec -e DATABASE_URL="file:/app/data/digiurban.db" -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=admin123 -e INITIAL_ADMIN_NAME="Super Administrador" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node dist/database/seed.js'; then
+          echo '✅ Seeds executados com sucesso'
+        else
+          echo '⚠️ Erro nos seeds, mas continuando deploy'
+        fi
+
+        echo '🔓 Ativando usuários criados...'
+        docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c "cd /app/backend && node -e \"
+const { PrismaClient } = require('@prisma/client');
+(async () => {
+  const prisma = new PrismaClient();
+  const result = await prisma.user.updateMany({
+    data: { status: 'ativo' }
+  });
+  console.log('✅ ' + result.count + ' usuários ativados');
+  await prisma.\\\$disconnect();
+})().catch(console.error);
+\"" || echo '⚠️ Ativação com warnings'
           
           # Verificar integridade do banco (Prisma)
           echo ''
