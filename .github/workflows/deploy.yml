@@ -408,7 +408,25 @@ jobs:
         fi
 
         echo '🔓 Ativando usuários criados...'
-        docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node -e "const { PrismaClient } = require('\''@prisma/client'\''); (async () => { const prisma = new PrismaClient(); const result = await prisma.user.updateMany({ data: { status: '\''ativo'\'' } }); console.log('\''✅ '\'' + result.count + '\'' usuários ativados'\''); await prisma.\$disconnect(); })().catch(console.error);"' || echo '⚠️ Ativação com warnings'
+        cat > activate_users.js << 'EOF'
+        const { PrismaClient } = require('@prisma/client');
+        (async () => {
+          const prisma = new PrismaClient();
+          const result = await prisma.user.updateMany({
+            data: { status: 'ativo' }
+          });
+          console.log('✅ ' + result.count + ' usuários ativados');
+          await prisma.$disconnect();
+        })().catch(console.error);
+        EOF
+
+        if docker cp activate_users.js ${{ env.CONTAINER_NAME }}:/app/backend/activate_users.js; then
+          docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node activate_users.js' || echo '⚠️ Ativação com warnings'
+          docker exec ${{ env.CONTAINER_NAME }} sh -c 'rm -f /app/backend/activate_users.js'
+        else
+          echo '⚠️ Falha ao copiar script de ativação'
+        fi
+        rm -f activate_users.js
           
           # Verificar integridade do banco (Prisma)
           echo ''
