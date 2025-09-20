@@ -410,17 +410,16 @@ jobs:
         fi
 
         echo '🔓 Ativando usuários criados...'
-        cat > activate_users.js << EOF
-const { PrismaClient } = require('@prisma/client');
-(async () => {
-  const prisma = new PrismaClient();
-  const result = await prisma.user.updateMany({
-    data: { status: 'ativo' }
-  });
-  console.log('✅ ' + result.count + ' usuários ativados');
-  await prisma.\$disconnect();
-})().catch(console.error);
-EOF
+        printf '%s\n' \
+          "const { PrismaClient } = require('@prisma/client');" \
+          "(async () => {" \
+          "  const prisma = new PrismaClient();" \
+          "  const result = await prisma.user.updateMany({" \
+          "    data: { status: 'ativo' }" \
+          "  });" \
+          "  console.log('✅ ' + result.count + ' usuários ativados');" \
+          "  await prisma.\$disconnect();" \
+          "})().catch(console.error);" > activate_users.js
 
         if docker cp activate_users.js ${{ env.CONTAINER_NAME }}:/app/backend/activate_users.js; then
           docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node activate_users.js' || echo '⚠️ Ativação com warnings'
@@ -433,35 +432,34 @@ EOF
         # Verificar integridade do banco usando CommonJS
         echo ''
         echo '🔍 Verificando integridade do banco...'
-        cat > verify_db.js << EOF
-const { PrismaClient } = require('@prisma/client');
-(async () => {
-  const prisma = new PrismaClient();
-  try {
-    const result = await prisma.\$queryRaw\`SELECT name FROM sqlite_master WHERE type="table" ORDER BY name\`;
-    console.log('📋 Tabelas criadas:', result.length);
-    result.forEach(t => console.log('  •', t.name));
-    const admin = await prisma.user.findFirst({
-      where: { role: 'super_admin' },
-      select: { email: true, role: true, status: true }
-    });
-    console.log('👤 Super admin:', admin ? admin.email + ' [' + admin.status + ']' : 'NÃO ENCONTRADO');
-    try {
-      const smtpUsers = await prisma.smtpUser.count();
-      const emailDomains = await prisma.emailDomain.count();
-      console.log('📧 Usuários SMTP:', smtpUsers);
-      console.log('🌐 Domínios Email:', emailDomains);
-    } catch (e) {
-      console.log('ℹ️  Tabelas de email não criadas ainda');
-    }
-    await prisma.\$disconnect();
-  } catch (error) {
-    console.error('❌ Erro na verificação:', error.message);
-    await prisma.\$disconnect();
-    process.exit(1);
-  }
-})();
-EOF
+        printf '%s\n' \
+          "const { PrismaClient } = require('@prisma/client');" \
+          "(async () => {" \
+          "  const prisma = new PrismaClient();" \
+          "  try {" \
+          "    const result = await prisma.\$queryRaw\`SELECT name FROM sqlite_master WHERE type=\"table\" ORDER BY name\`;" \
+          "    console.log('📋 Tabelas criadas:', result.length);" \
+          "    result.forEach(t => console.log('  •', t.name));" \
+          "    const admin = await prisma.user.findFirst({" \
+          "      where: { role: 'super_admin' }," \
+          "      select: { email: true, role: true, status: true }" \
+          "    });" \
+          "    console.log('👤 Super admin:', admin ? admin.email + ' [' + admin.status + ']' : 'NÃO ENCONTRADO');" \
+          "    try {" \
+          "      const smtpUsers = await prisma.smtpUser.count();" \
+          "      const emailDomains = await prisma.emailDomain.count();" \
+          "      console.log('📧 Usuários SMTP:', smtpUsers);" \
+          "      console.log('🌐 Domínios Email:', emailDomains);" \
+          "    } catch (e) {" \
+          "      console.log('ℹ️  Tabelas de email não criadas ainda');" \
+          "    }" \
+          "    await prisma.\$disconnect();" \
+          "  } catch (error) {" \
+          "    console.error('❌ Erro na verificação:', error.message);" \
+          "    await prisma.\$disconnect();" \
+          "    process.exit(1);" \
+          "  }" \
+          "})();" > verify_db.js
 
         if docker cp verify_db.js ${{ env.CONTAINER_NAME }}:/app/backend/verify_db.js; then
           docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node verify_db.js' || echo '⚠️ Verificação com warnings'
