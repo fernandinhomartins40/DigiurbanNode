@@ -121,7 +121,17 @@ jobs:
         ls -la
 
         echo '🔍 Verificando arquivos essenciais...'
-        ls -la Dockerfile docker-compose.yml start-services.sh scripts/ 2>/dev/null || echo '⚠️ Verificando arquivos...'
+        ls -la Dockerfile docker-compose.yml start-services.sh 2>/dev/null || echo '⚠️ Arquivos principais ausentes!'
+
+        echo '📁 Verificando pasta scripts/ especificamente...'
+        if [ -d 'scripts' ]; then
+          echo '✅ Pasta scripts/ existe'
+          ls -la scripts/
+          echo '📝 Conteúdo do setup-database.sh:'
+          head -5 scripts/setup-database.sh 2>/dev/null || echo '❌ setup-database.sh não encontrado!'
+        else
+          echo '❌ Pasta scripts/ NÃO EXISTE na VPS!'
+        fi
 
         echo '✅ Tornando scripts executáveis...'
         chmod +x start-services.sh scripts/*.sh 2>/dev/null || echo 'ℹ️  Scripts configurados'
