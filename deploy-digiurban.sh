@@ -127,9 +127,9 @@ ssh $SERVER "
     cd $APP_DIR/backend
     npm ci --silent --no-progress
 
-    # Verificar TypeScript antes do build
-    echo '🔍 Verificando TypeScript...'
-    npx tsc --skipLibCheck --noImplicitAny false --noImplicitThis false --noImplicitReturns false || (echo '❌ TypeScript build falhou'; exit 1)
+    # Build TypeScript
+    echo '🔍 Compilando TypeScript...'
+    npm run build || (echo '❌ TypeScript build falhou'; exit 1)
     echo '✅ TypeScript compilado com sucesso'
 
     # Enhanced validation
