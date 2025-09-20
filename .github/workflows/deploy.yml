@@ -170,6 +170,15 @@ jobs:
         echo '🔍 Verificando logs iniciais do setup...'
         docker logs ${{ env.CONTAINER_NAME }} --tail=20
 
+        echo '🔍 DIAGNÓSTICO: Verificar se scripts existem DENTRO do container...'
+        docker exec ${{ env.CONTAINER_NAME }} ls -la /app/scripts/ || echo '❌ PASTA SCRIPTS NÃO EXISTE NO CONTAINER!'
+
+        echo '🔍 Verificando se start-services.sh existe...'
+        docker exec ${{ env.CONTAINER_NAME }} ls -la /app/start-services.sh || echo '❌ start-services.sh não existe!'
+
+        echo '🔍 Verificando estrutura completa de /app...'
+        docker exec ${{ env.CONTAINER_NAME }} ls -la /app/ || echo '❌ Não foi possível listar /app/'
+
         echo '🔍 Verificando processos internos...'
         docker exec ${{ env.CONTAINER_NAME }} ps aux || echo '⚠️ Não foi possível verificar processos'
 
