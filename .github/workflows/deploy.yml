@@ -442,7 +442,7 @@ jobs:
         echo "      where: { role: \"super_admin\" }," >> verify_db.js
         echo "      select: { email: true, role: true, status: true }" >> verify_db.js
         echo "    });" >> verify_db.js
-        echo "    console.log(\"👤 Super admin:\", admin ? admin.email + \" (\" + admin.status + \")\" : \"NÃO ENCONTRADO\");" >> verify_db.js
+        echo "    console.log(\"👤 Super admin:\", admin ? admin.email + \" [\" + admin.status + \"]\" : \"NÃO ENCONTRADO\");" >> verify_db.js
         echo "    try {" >> verify_db.js
         echo "      const smtpUsers = await prisma.smtpUser.count();" >> verify_db.js
         echo "      const emailDomains = await prisma.emailDomain.count();" >> verify_db.js
@@ -482,78 +482,75 @@ jobs:
         echo "🏥 Executando health checks inteligentes..."
         echo "=========================================="
         
-        # Função para health check com retry
-        health_check() {
-          local url=$1
-          local name=$2
-          local max_attempts=20
-          local delay=15
-          
-          echo "🔍 Verificando $name..."
-          
-          attempt=1
-          while [ $attempt -le $max_attempts ]; do
-            local total_wait=$((attempt * delay))
-            echo "⏳ Tentativa $attempt/$max_attempts (${total_wait}s total) - $name"
-            
-            local response=$(curl -s -o /dev/null -w "%{http_code}|%{time_total}" "$url" 2>/dev/null || echo "000|0")
-            local http_code=$(echo $response | cut -d'|' -f1)
-            local time_total=$(echo $response | cut -d'|' -f2)
-            
-            case $http_code in
-              200)
-                echo "✅ $name: Respondendo corretamente (${time_total}s)"
-                return 0
-                ;;
-              000)
-                echo "⏳ $name: Serviço ainda não responde..."
-                ;;
-              *)
-                echo "⚠️  $name: HTTP $http_code (aguardando...)"
-                ;;
-            esac
-            
-            if [ $attempt -lt $max_attempts ]; then
-              sleep $delay
-            fi
-            attempt=$((attempt + 1))
-          done
-          
-          echo "❌ $name: Falhou após ${max_attempts} tentativas (${total_wait}s total)"
-          return 1
-        }
-        
         echo ""
         echo "🏥 Aguardando inicialização completa (60s)..."
         sleep 60
-        
+
         # Health check do backend
-        if health_check "http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/api/health" "Backend API"; then
-          echo "✅ Backend está funcionando!"
-        else
-          echo "❌ Backend não está respondendo"
-          BACKEND_FAILED=1
-        fi
+        echo "🔍 Verificando Backend API..."
+        BACKEND_FAILED=0
+        max_attempts=20
+        delay=15
+
+        attempt=1
+        while [ $attempt -le $max_attempts ]; do
+          total_wait=$((attempt * delay))
+          echo "⏳ Tentativa $attempt/$max_attempts (${total_wait}s total) - Backend API"
+
+          response=$(curl -s -o /dev/null -w "%{http_code}|%{time_total}" "http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/api/health" 2>/dev/null || echo "000|0")
+          http_code=$(echo $response | cut -d'|' -f1)
+          time_total=$(echo $response | cut -d'|' -f2)
+
+          if [ "$http_code" = "200" ]; then
+            echo "✅ Backend API: Respondendo corretamente (${time_total}s)"
+            break
+          elif [ "$http_code" = "000" ]; then
+            echo "⏳ Backend API: Serviço ainda não responde..."
+          else
+            echo "⚠️  Backend API: HTTP $http_code (aguardando...)"
+          fi
+
+          if [ $attempt -eq $max_attempts ]; then
+            echo "❌ Backend API: Falhou após $max_attempts tentativas"
+            BACKEND_FAILED=1
+          else
+            sleep $delay
+          fi
+          attempt=$((attempt + 1))
+        done
 
         echo ""
 
-        # Health check do sistema de email
-        if health_check "http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/api/emails/health" "Sistema de Email"; then
-          echo "✅ Sistema de Email está funcionando!"
-        else
-          echo "⚠️ Sistema de Email não está respondendo (pode estar desabilitado)"
-          # Não falha o deploy por isso, pois SMTP pode estar desabilitado
-        fi
-        
-        echo ""
-        
         # Health check do frontend
-        if health_check "http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/" "Frontend"; then
-          echo "✅ Frontend está funcionando!"
-        else
-          echo "❌ Frontend não está respondendo"
-          FRONTEND_FAILED=1
-        fi
+        echo "🔍 Verificando Frontend..."
+        FRONTEND_FAILED=0
+
+        attempt=1
+        while [ $attempt -le $max_attempts ]; do
+          total_wait=$((attempt * delay))
+          echo "⏳ Tentativa $attempt/$max_attempts (${total_wait}s total) - Frontend"
+
+          response=$(curl -s -o /dev/null -w "%{http_code}|%{time_total}" "http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/" 2>/dev/null || echo "000|0")
+          http_code=$(echo $response | cut -d'|' -f1)
+          time_total=$(echo $response | cut -d'|' -f2)
+
+          if [ "$http_code" = "200" ]; then
+            echo "✅ Frontend: Respondendo corretamente (${time_total}s)"
+            break
+          elif [ "$http_code" = "000" ]; then
+            echo "⏳ Frontend: Serviço ainda não responde..."
+          else
+            echo "⚠️  Frontend: HTTP $http_code (aguardando...)"
+          fi
+
+          if [ $attempt -eq $max_attempts ]; then
+            echo "❌ Frontend: Falhou após $max_attempts tentativas"
+            FRONTEND_FAILED=1
+          else
+            sleep $delay
+          fi
+          attempt=$((attempt + 1))
+        done
         
         # Verificar logs se houver falha
         if [ "${BACKEND_FAILED}" = "1" ] || [ "${FRONTEND_FAILED}" = "1" ]; then
