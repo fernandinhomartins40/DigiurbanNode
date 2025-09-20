@@ -16,37 +16,37 @@ services:
       # - "25:25"     # SMTP MX Port (comentado por segurança - ativar se necessário)
       # - "587:587"   # SMTP Submission Port (comentado por segurança - ativar se necessário)
     environment:
+      # Core
       - NODE_ENV=production
       - PORT=3021
-      - JWT_SECRET=jMFw2+lTay2CtFAlBy1//ieCMk6sUT2ws0jYWMOe72XcHGr0v/DqJTRU8+gSRxgYxzwPTV6uTJEG0D5Omqq/YA==
-      - JWT_REFRESH_SECRET=xqitCihoXFOcQg1M5ZDREqC66sBVIHbapxFCG7zS8U8nnsc1NuyX0BpPkMDz6o2pK+vE7TbEdiCH4TKr4lBnlw==
-      - SESSION_SECRET=xqitCihoXFOcQg1M5ZDREqC66sBVIHbapxFCG7zS8U8nnsc1NuyX0BpPkMDz6o2pK+vE7TbEdiCH4TKr4lBnlw==
-      - COOKIE_SECRET=+4nAMw2izSgWUJf+H0VXDccqbPAdZXfkW+2CgBdX3Io=
+
+      # Database
       - DATABASE_PATH=/app/data/digiurban.db
       - DATABASE_URL=file:/app/data/digiurban.db
-      - API_BASE_URL=http://72.60.10.108:3020/api
-      - FRONTEND_URL=http://72.60.10.108:3020
-      - ALLOWED_ORIGINS=http://72.60.10.108:3020
-      - CORS_ORIGIN=http://72.60.10.108:3020
-      - RATE_LIMIT_WINDOW=900000
-      - RATE_LIMIT_MAX=1000
-      - BCRYPT_ROUNDS=12
-      - SESSION_TIMEOUT=86400
-      # - RESEND_API_KEY=sua_chave_resend_aqui  # Opcional: para funcionalidades de e-mail (substituído por UltraZend)
-      # Redis Configuration (desabilitado para usar SQLite fallback)
+
+      # Security
+      - JWT_SECRET=${JWT_SECRET:-jMFw2+lTay2CtFAlBy1//ieCMk6sUT2ws0jYWMOe72XcHGr0v/DqJTRU8+gSRxgYxzwPTV6uTJEG0D5Omqq/YA==}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-xqitCihoXFOcQg1M5ZDREqC66sBVIHbapxFCG7zS8U8nnsc1NuyX0BpPkMDz6o2pK+vE7TbEdiCH4TKr4lBnlw==}
+      - SESSION_SECRET=${SESSION_SECRET:-xqitCihoXFOcQg1M5ZDREqC66sBVIHbapxFCG7zS8U8nnsc1NuyX0BpPkMDz6o2pK+vE7TbEdiCH4TKr4lBnlw==}
+      - COOKIE_SECRET=${COOKIE_SECRET:-+4nAMw2izSgWUJf+H0VXDccqbPAdZXfkW+2CgBdX3Io=}
+
+      # URLs
+      - API_BASE_URL=${API_BASE_URL:-http://72.60.10.108:3020/api}
+      - FRONTEND_URL=${FRONTEND_URL:-http://72.60.10.108:3020}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://72.60.10.108:3020}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://72.60.10.108:3020}
+
+      # Rate Limiting
+      - RATE_LIMIT_WINDOW=${RATE_LIMIT_WINDOW:-900000}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-1000}
+
+      # Security Settings
+      - BCRYPT_ROUNDS=${BCRYPT_ROUNDS:-12}
+      - SESSION_TIMEOUT=${SESSION_TIMEOUT:-86400}
+
+      # Redis (disabled)
       - REDIS_ENABLED=false
       - ENABLE_REDIS=false
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      # UltraZend SMTP Server Configuration
-      - SMTP_ENABLE=true
-      - SMTP_HOST=0.0.0.0
-      - SMTP_HOSTNAME=mail.digiurban.com.br
-      - SMTP_MX_PORT=25
-      - SMTP_SUBMISSION_PORT=587
-      - SMTP_AUTH_REQUIRED=true
-      # - SMTP_TLS_CERT=/app/certs/smtp.crt  # Opcional: certificado TLS
-      # - SMTP_TLS_KEY=/app/certs/smtp.key   # Opcional: chave TLS
     volumes:
       - app_data:/app/data
       - app_logs:/app/logs

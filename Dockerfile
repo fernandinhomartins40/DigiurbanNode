@@ -80,6 +80,8 @@ COPY --chown=digiurban:digiurban nginx-unified.conf /etc/nginx/conf.d/default.co
 COPY --chown=digiurban:digiurban pm2.json ./
 COPY --chown=digiurban:digiurban start-services.sh ./
 RUN chmod +x start-services.sh
+COPY --chown=digiurban:digiurban scripts/ ./scripts/
+RUN chmod +x ./scripts/*.sh
 
 # Configurar variáveis de ambiente para produção
 ENV NODE_ENV=production

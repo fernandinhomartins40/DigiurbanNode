@@ -18,23 +18,15 @@ mkdir -p /app/logs /tmp/client_temp /tmp/proxy_temp_path /tmp/fastcgi_temp /tmp/
 chmod 755 /app/logs
 chmod 777 /tmp/client_temp /tmp/proxy_temp_path /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp
 
-# Executar migrations Knex antes de iniciar backend
-echo "🗃️ Executando migrations do banco..."
+echo "🗃️ Executando setup do banco..."
+chmod +x /app/scripts/setup-database.sh
+/app/scripts/setup-database.sh
 
-# Debug: Verificar estrutura de arquivos
-echo "🔍 Debug - Verificando estrutura:"
-echo "📁 Conteúdo /app/:"
-ls -la /app/
-echo "📁 Conteúdo /app/backend/:"
-ls -la /app/backend/
-echo "📁 Schema Prisma:"
-ls -la /app/schema.prisma || echo "❌ Schema Prisma não encontrado"
-
-cd /app/backend && npm run db:migrate:deploy
 if [ $? -eq 0 ]; then
-  echo "✅ Migrations Prisma executadas com sucesso"
+  echo "✅ Database configurado com sucesso"
 else
-  echo "❌ Erro nas migrations, mas continuando..."
+  echo "❌ Erro na configuração do database"
+  exit 1
 fi
 
 # Iniciar backend com PM2
