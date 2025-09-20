@@ -38,216 +38,21 @@ jobs:
         # Variável para tracking do tempo
         echo "DEPLOY_START_TIME=$(date +%s)" >> $GITHUB_ENV
 
-    - name: 🔧 Configurar SSH e Ferramentas
+    - name: 🔧 Configurar SSH
       run: |
-        echo "🔧 Configurando SSH e ferramentas necessárias..."
-        sudo apt-get update -qq
-        sudo apt-get install -y sshpass rsync curl jq
-        
-        mkdir -p ~/.ssh
-        chmod 700 ~/.ssh
+        echo "🔧 Configurando SSH..."
+        sudo apt-get install -y sshpass
         ssh-keyscan -H ${{ env.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
-        
-        echo "🔐 Testando conexão SSH..."
-        if sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o ConnectTimeout=30 -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "echo '✅ SSH funcionando'"; then
-          echo "✅ SSH configurado com sucesso"
-        else
-          echo "❌ Falha na conexão SSH"
-          exit 1
-        fi
 
     - name: 📥 Checkout do Código
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: 🟢 Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
 
-    - name: 📊 Análise Pre-Deploy
-      run: |
-        echo "📊 Analisando estrutura do projeto..."
-        echo "=================================="
-        
-        echo "📁 Estrutura raiz:"
-        ls -la
-        
-        echo ""
-        echo "📁 Backend:"
-        if [ -d "backend" ]; then
-          ls -la backend/
-          if [ -f "backend/package.json" ]; then
-            echo "✅ package.json encontrado"
-            echo "📦 Dependências principais:"
-            cat backend/package.json | jq -r '.dependencies | keys | .[]' | head -5
-          fi
-        else
-          echo "❌ Diretório backend não encontrado"
-        fi
-        
-        echo ""
-        echo "📁 Frontend:"
-        if [ -d "frontend" ]; then
-          ls -la frontend/
-          if [ -f "frontend/package.json" ]; then
-            echo "✅ package.json encontrado"
-            echo "📦 Dependências principais:"
-            cat frontend/package.json | jq -r '.dependencies | keys | .[]' | head -5
-          fi
-        else
-          echo "❌ Diretório frontend não encontrado"
-        fi
-        
-        echo ""
-        echo "🐳 Docker:"
-        ls -la Dockerfile* docker-compose* 2>/dev/null || echo "⚠️ Arquivos Docker não encontrados"
 
-    - name: 🏗️ Build Local do Backend
-      run: |
-        echo "🏗️ Iniciando build local do backend..."
-        echo "======================================"
 
-        if [ ! -d "backend" ]; then
-          echo "❌ Diretório backend não encontrado"
-          exit 1
-        fi
 
-        echo "🔍 Verificando schema.prisma..."
-        if [ ! -f "schema.prisma" ]; then
-          echo "❌ Schema Prisma não encontrado na raiz"
-          exit 1
-        fi
-
-        cd backend
-
-        echo "📦 Instalando dependências do backend..."
-        if npm install --no-optional; then
-          echo "✅ Dependências instaladas com sucesso"
-        else
-          echo "❌ Falha ao instalar dependências"
-          exit 1
-        fi
-
-        echo "🔧 Configurando ambiente Prisma para CI..."
-        # Limpar cache e configurar para download automático
-        export PRISMA_SKIP_POSTINSTALL_GENERATE=true
-        export PRISMA_BINARIES_MIRROR=https://binaries.prisma.sh
-
-        echo "🧹 Limpando cache do Prisma..."
-        rm -rf ~/.cache/prisma
-        rm -rf node_modules/.prisma
-        rm -rf node_modules/@prisma
-
-        echo "🔧 Verificando Prisma CLI..."
-        npx prisma --version
-
-        echo "🔧 Gerando Prisma Client..."
-        if npm run db:generate; then
-          echo "✅ Prisma Client gerado com sucesso"
-        else
-          echo "❌ Tentando com configurações alternativas..."
-          # Primeira tentativa: reinstalar dependências Prisma
-          echo "📦 Reinstalando dependências Prisma..."
-          npm install @prisma/client prisma --force
-
-          if npm run db:generate; then
-            echo "✅ Prisma Client gerado após reinstalação"
-          else
-            echo "❌ Tentando diretamente com npx..."
-            # Segunda tentativa: forçar download
-            if npx prisma generate --schema=../schema.prisma; then
-              echo "✅ Prisma Client gerado com npx direto"
-            else
-              echo "❌ Falha ao gerar Prisma Client"
-              exit 1
-            fi
-          fi
-        fi
-
-        echo "🔨 Compilando TypeScript..."
-        if npm run build; then
-          echo "✅ Build do backend concluído com sucesso"
-          echo "📊 Analisando build:"
-          ls -la dist/
-          echo "📈 Tamanho do build: $(du -sh dist/)"
-          echo "📝 Arquivos gerados: $(find dist/ -type f | wc -l)"
-        else
-          echo "❌ Falha no build do backend"
-          exit 1
-        fi
-
-    - name: ⚛️ Build Local do Frontend  
-      run: |
-        echo "⚛️ Iniciando build local do frontend..."
-        echo "======================================"
-        
-        if [ ! -d "frontend" ]; then
-          echo "❌ Diretório frontend não encontrado"
-          exit 1
-        fi
-        
-        cd frontend
-        
-        echo "📦 Instalando dependências do frontend..."
-        if npm install; then
-          echo "✅ Dependências instaladas com sucesso"
-        else
-          echo "❌ Falha ao instalar dependências"
-          exit 1
-        fi
-        
-        echo "🔨 Compilando React/Vite..."
-        if npm run build; then
-          echo "✅ Build do frontend concluído com sucesso"
-          echo "📊 Analisando build:"
-          ls -la dist/
-          echo "📈 Tamanho do build: $(du -sh dist/)"
-          echo "📝 Arquivos gerados: $(find dist/ -type f | wc -l)"
-          
-          # Verificar se arquivos essenciais foram gerados
-          if [ -f "dist/index.html" ]; then
-            echo "✅ index.html encontrado"
-          else
-            echo "❌ index.html não encontrado"
-            exit 1
-          fi
-        else
-          echo "❌ Falha no build do frontend"
-          exit 1
-        fi
-
-    - name: 🧹 Preparar VPS
-      run: |
-        echo "🧹 Preparando ambiente na VPS..."
-        echo "================================"
-        
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-        echo '🔄 Atualizando sistema...'
-        apt-get update -y > /dev/null 2>&1
-        
-        echo '🟢 Instalando Node.js 20.x...'
-        curl -fsSL https://deb.nodesource.com/setup_20.x | bash - > /dev/null 2>&1
-        apt-get install -y nodejs > /dev/null 2>&1
-        
-        echo '🐳 Configurando Docker...'
-        apt-get remove -y docker docker-engine docker.io containerd runc containerd.io 2>/dev/null || true
-        apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release > /dev/null 2>&1
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg 2>/dev/null
-        echo \"deb [arch=\$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \$(lsb_release -cs) stable\" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-        apt-get update -y > /dev/null 2>&1
-        apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin > /dev/null 2>&1
-        
-        systemctl start docker
-        systemctl enable docker
-        
-        echo '✅ Versões instaladas:'
-        node --version
-        npm --version
-        docker --version
-        "
 
     - name: 🧹 Limpeza de Containers Antigos
       timeout-minutes: 5
@@ -356,108 +161,39 @@ jobs:
         echo "⏳ Aguardando conclusão do setup (90 segundos)..."
         sleep 90
 
-    - name: 🏥 Health Checks Inteligentes
+    - name: 🏥 Health Check Simples
       run: |
-        echo "🏥 Executando health checks inteligentes..."
-        echo "=========================================="
-        
-        echo ""
-        echo "🏥 Aguardando inicialização completa (60s)..."
-        sleep 60
+        echo "🏥 Verificando sistema..."
 
-        # Health check do backend
-        echo "🔍 Verificando Backend API..."
-        BACKEND_FAILED=0
-        max_attempts=20
-        delay=15
+        # Aguardar sistema estabilizar
+        sleep 30
 
-        attempt=1
-        while [ $attempt -le $max_attempts ]; do
-          total_wait=$((attempt * delay))
-          echo "⏳ Tentativa $attempt/$max_attempts (${total_wait}s total) - Backend API"
-
-          response=$(curl -s -o /dev/null -w "%{http_code}|%{time_total}" "http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/api/health" 2>/dev/null || echo "000|0")
-          http_code=$(echo $response | cut -d'|' -f1)
-          time_total=$(echo $response | cut -d'|' -f2)
-
-          if [ "$http_code" = "200" ]; then
-            echo "✅ Backend API: Respondendo corretamente (${time_total}s)"
+        # Health Check API
+        for i in {1..8}; do
+          if curl -f http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/api/health >/dev/null 2>&1; then
+            echo "✅ API funcionando"
             break
-          elif [ "$http_code" = "000" ]; then
-            echo "⏳ Backend API: Serviço ainda não responde..."
           else
-            echo "⚠️  Backend API: HTTP $http_code (aguardando...)"
+            echo "⏳ Aguardando API ($i/8)..."
+            sleep 15
           fi
 
-          if [ $attempt -eq $max_attempts ]; then
-            echo "❌ Backend API: Falhou após $max_attempts tentativas"
-            BACKEND_FAILED=1
-          else
-            sleep $delay
+          if [ $i -eq 8 ]; then
+            echo "❌ API não respondeu"
+            exit 1
           fi
-          attempt=$((attempt + 1))
         done
 
-        echo ""
-
-        # Health check do frontend
-        echo "🔍 Verificando Frontend..."
-        FRONTEND_FAILED=0
-
-        attempt=1
-        while [ $attempt -le $max_attempts ]; do
-          total_wait=$((attempt * delay))
-          echo "⏳ Tentativa $attempt/$max_attempts (${total_wait}s total) - Frontend"
-
-          response=$(curl -s -o /dev/null -w "%{http_code}|%{time_total}" "http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/" 2>/dev/null || echo "000|0")
-          http_code=$(echo $response | cut -d'|' -f1)
-          time_total=$(echo $response | cut -d'|' -f2)
-
-          if [ "$http_code" = "200" ]; then
-            echo "✅ Frontend: Respondendo corretamente (${time_total}s)"
-            break
-          elif [ "$http_code" = "000" ]; then
-            echo "⏳ Frontend: Serviço ainda não responde..."
-          else
-            echo "⚠️  Frontend: HTTP $http_code (aguardando...)"
-          fi
-
-          if [ $attempt -eq $max_attempts ]; then
-            echo "❌ Frontend: Falhou após $max_attempts tentativas"
-            FRONTEND_FAILED=1
-          else
-            sleep $delay
-          fi
-          attempt=$((attempt + 1))
-        done
-        
-        # Verificar logs se houver falha
-        if [ "${BACKEND_FAILED}" = "1" ] || [ "${FRONTEND_FAILED}" = "1" ]; then
-          echo ""
-          echo "🔍 Coletando logs para diagnóstico..."
-          echo "===================================="
-          
-          sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-          cd ${{ env.APP_DIR }}
-          echo '📋 Status dos containers:'
-          docker compose ps
-          echo ''
-          echo '📝 Logs recentes (últimas 50 linhas):'
-          docker compose logs --tail=50
-          "
-          
+        # Health Check Frontend
+        if curl -f http://${{ env.VPS_HOST }}:${{ env.APP_PORT }}/ >/dev/null 2>&1; then
+          echo "✅ Frontend funcionando"
+        else
+          echo "❌ Frontend falhou"
           exit 1
         fi
 
-    - name: 🧪 Testes Básicos
-      run: |
-        echo "🧪 Executando testes básicos..."
+        echo "✅ Sistema validado"
 
-        # Aguardar sistema estabilizar
-        sleep 15
-
-        # Teste simples de API e Frontend já foi feito na etapa anterior
-        echo "✅ Sistema validado pela etapa de Health Checks"
 
     - name: 📊 Relatório Final
       if: always()
