@@ -387,39 +387,39 @@ jobs:
           # Verificar integridade do banco (Prisma)
           echo ''
           echo '🔍 Verificando integridade do banco Prisma...'
-          docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node -e "
-            import { PrismaClient } from \"@prisma/client\";
+          docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node -e '"'"'
+            import { PrismaClient } from "@prisma/client";
             const prisma = new PrismaClient();
             (async () => {
               try {
-                const result = await prisma.\$queryRaw\`SELECT name FROM sqlite_master WHERE type=\"table\" ORDER BY name\`;
-                console.log(\"📋 Tabelas criadas:\", result.length);
-                result.forEach(t => console.log(\"  •\", t.name));
+                const result = await prisma.$queryRaw`SELECT name FROM sqlite_master WHERE type="table" ORDER BY name`;
+                console.log("📋 Tabelas criadas:", result.length);
+                result.forEach(t => console.log("  •", t.name));
                 const admin = await prisma.user.findFirst({
-                  where: { role: \"super_admin\" },
+                  where: { role: "super_admin" },
                   select: { email: true, role: true, status: true }
                 });
-                console.log(\"👤 Super admin:\", admin ? admin.email : \"NÃO ENCONTRADO\");
+                console.log("👤 Super admin:", admin ? admin.email : "NÃO ENCONTRADO");
                 try {
                   const smtpUsers = await prisma.smtpUser.count();
                   const emailDomains = await prisma.emailDomain.count();
-                  console.log(\"📧 Usuários SMTP:\", smtpUsers);
-                  console.log(\"🌐 Domínios Email:\", emailDomains);
+                  console.log("📧 Usuários SMTP:", smtpUsers);
+                  console.log("🌐 Domínios Email:", emailDomains);
                 } catch (e) {
-                  console.log(\"ℹ️  Tabelas de email não criadas ainda\");
+                  console.log("ℹ️  Tabelas de email não criadas ainda");
                 }
-                await prisma.\$disconnect();
+                await prisma.$disconnect();
               } catch (error) {
-                console.error(\"❌ Erro na verificação:\", error.message);
-                await prisma.\$disconnect();
+                console.error("❌ Erro na verificação:", error.message);
+                await prisma.$disconnect();
               }
             })();
-          "' || echo '⚠️ Não foi possível verificar integridade completa'
+          '"'"'' || echo '⚠️ Não foi possível verificar integridade completa'
           
           echo ''
           echo '🧪 Testando login do super admin...'
           sleep 5
-          if curl -f -X POST http://localhost:3020/api/auth/login -H \"Content-Type: application/json\" -d \"{\\\"email\\\":\\\"admin@digiurban.com.br\\\",\\\"password\\\":\\\"SuperAdmin2024\\\"}\" --max-time 10 | grep -q '\"success\":true'; then
+          if curl -f -X POST http://localhost:3020/api/auth/login -H "Content-Type: application/json" -d "{\"email\":\"admin@digiurban.com.br\",\"password\":\"SuperAdmin2024\"}" --max-time 10 | grep -q '"success":true'; then
             echo '✅ Login do super admin funcionando!'
           else
             echo '⚠️ Login do super admin não testado com sucesso'
