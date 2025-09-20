@@ -229,7 +229,17 @@ ssh $SERVER "
     cd $APP_DIR
 
     echo '⏳ Aguardando container inicializar...'
-    sleep 15
+    sleep 20
+
+    echo '🔍 Verificando se container está respondendo...'
+    for i in {1..10}; do
+        if docker exec digiurban-unified sh -c 'echo "Container ready"' >/dev/null 2>&1; then
+            echo '✅ Container está respondendo'
+            break
+        fi
+        echo "   Tentativa $i/10..."
+        sleep 3
+    done
 
     echo '🧹 Limpando banco anterior se necessário...'
     docker exec digiurban-unified sh -c 'rm -f /app/data/digiurban.db* 2>/dev/null || echo \"Nenhum banco para limpar\"'
@@ -237,38 +247,37 @@ ssh $SERVER "
     echo '🚀 Criando schema do banco de dados...'
     if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified sh -c 'cd /app/backend && npx prisma db push --schema=../schema.prisma'; then
         echo '✅ Schema do banco criado com sucesso'
-
-        echo '🎯 Executando seeds do banco...'
-        if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=admin123 -e INITIAL_ADMIN_NAME=\"Super Administrador\" digiurban-unified sh -c 'cd /app/backend && node dist/database/seed.js'; then
-            echo '✅ Seeds executados com sucesso'
-        else
-            echo '⚠️ Erro nos seeds, mas continuando deploy'
-        fi
-
-        echo '🔓 Ativando usuários criados...'
-        cat << 'ACTIVATE_SCRIPT' | docker exec -i -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified sh -c 'cd /app/backend && node' || echo '⚠️ Ativação com warnings'
-        const { PrismaClient } = require('@prisma/client');
-        (async () => {
-          const prisma = new PrismaClient();
-          const result = await prisma.user.updateMany({
-            data: { status: 'ativo' }
-          });
-          console.log('✅ ' + result.count + ' usuários ativados');
-          await prisma.\$disconnect();
-        })().catch(console.error);
-        ACTIVATE_SCRIPT
-
-        echo '🔍 Verificando integridade do banco...'
-        if docker exec digiurban-unified sh -c 'cd /app/data && ls -la digiurban.db*'; then
-            echo '✅ Banco de dados criado e configurado'
-        else
-            echo '⚠️ Banco pode não ter sido criado corretamente'
-        fi
-
     else
-        echo '❌ Falha ao executar migrations'
+        echo '❌ Falha ao criar schema'
         docker logs digiurban-unified --tail 50
         exit 1
+    fi
+
+    echo '🎯 Executando seeds do banco...'
+    if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=admin123 -e INITIAL_ADMIN_NAME=\"Super Administrador\" digiurban-unified sh -c 'cd /app/backend && node dist/database/seed.js'; then
+        echo '✅ Seeds executados com sucesso'
+    else
+        echo '⚠️ Erro nos seeds, mas continuando deploy'
+    fi
+
+    echo '🔓 Ativando usuários criados...'
+    docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified sh -c "cd /app/backend && node -e \"
+const { PrismaClient } = require('@prisma/client');
+(async () => {
+  const prisma = new PrismaClient();
+  const result = await prisma.user.updateMany({
+    data: { status: 'ativo' }
+  });
+  console.log('✅ ' + result.count + ' usuários ativados');
+  await prisma.\\\$disconnect();
+})().catch(console.error);
+\"" || echo '⚠️ Ativação com warnings'
+
+    echo '🔍 Verificando integridade do banco...'
+    if docker exec digiurban-unified sh -c 'cd /app/data && ls -la digiurban.db*'; then
+        echo '✅ Banco de dados criado e configurado'
+    else
+        echo '⚠️ Banco pode não ter sido criado corretamente'
     fi
 "
 
