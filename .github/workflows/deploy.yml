@@ -139,14 +139,26 @@ jobs:
         echo '🏗️ Construindo container (isso pode levar alguns minutos)...'
         echo '🔍 FORÇANDO BUILD COMPLETO PARA VER DEBUG...'
 
-        if docker compose build --no-cache --progress=plain; then
+        # Build e capturar logs específicos
+        BUILD_LOG=$(docker compose build --no-cache --progress=plain 2>&1)
+        BUILD_EXIT=$?
+
+        echo '📝 PROCURANDO DEBUG NOS LOGS DE BUILD...'
+        echo "$BUILD_LOG" | grep -A5 -B5 "DEBUG: Verificando scripts" || echo '⚠️ Debug não encontrado nos logs'
+
+        if [ $BUILD_EXIT -eq 0 ]; then
           echo '✅ Container construído com sucesso'
 
           echo '🔍 VERIFICANDO SE SCRIPTS ESTÃO NA IMAGEM...'
-          docker run --rm ${{ env.CONTAINER_NAME }} ls -la /app/scripts/ || echo '❌ Scripts não estão na imagem!'
+          docker run --rm digiurban-unified-digiurban ls -la /app/scripts/ 2>&1 || echo '❌ Scripts não estão na imagem!'
+
+          echo '🔍 VERIFICANDO ESTRUTURA COMPLETA DA IMAGEM...'
+          docker run --rm digiurban-unified-digiurban ls -la /app/ 2>&1 || echo '❌ Não foi possível listar /app/'
 
         else
           echo '❌ Falha na construção do container'
+          echo '📝 LOGS DE ERRO:'
+          echo "$BUILD_LOG" | tail -20
           exit 1
         fi
 
