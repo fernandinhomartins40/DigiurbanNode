@@ -408,73 +408,66 @@ jobs:
         fi
 
         echo '🔓 Ativando usuários criados...'
-        cat > activate_users.js << 'EOF'
-        const { PrismaClient } = require('@prisma/client');
-        (async () => {
-          const prisma = new PrismaClient();
-          const result = await prisma.user.updateMany({
-            data: { status: 'ativo' }
-          });
-          console.log('✅ ' + result.count + ' usuários ativados');
-          await prisma.$disconnect();
-        })().catch(console.error);
-        EOF
+        docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c "cd /app/backend && node -e \"
+const { PrismaClient } = require('@prisma/client');
+(async () => {
+  const prisma = new PrismaClient();
+  const result = await prisma.user.updateMany({
+    data: { status: 'ativo' }
+  });
+  console.log('✅ ' + result.count + ' usuários ativados');
+  await prisma.\\\$disconnect();
+})().catch(console.error);
+\"" || echo '⚠️ Ativação com warnings'
 
-        if docker cp activate_users.js ${{ env.CONTAINER_NAME }}:/app/backend/activate_users.js; then
-          docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node activate_users.js' || echo '⚠️ Ativação com warnings'
-          docker exec ${{ env.CONTAINER_NAME }} sh -c 'rm -f /app/backend/activate_users.js'
+        # Verificar integridade do banco usando CommonJS
+        echo ''
+        echo '🔍 Verificando integridade do banco...'
+        cat > verify_db.js << 'EOF'
+const { PrismaClient } = require("@prisma/client");
+(async () => {
+  const prisma = new PrismaClient();
+  try {
+    const result = await prisma.$queryRaw`SELECT name FROM sqlite_master WHERE type="table" ORDER BY name`;
+    console.log("📋 Tabelas criadas:", result.length);
+    result.forEach(t => console.log("  •", t.name));
+    const admin = await prisma.user.findFirst({
+      where: { role: "super_admin" },
+      select: { email: true, role: true, status: true }
+    });
+    console.log("👤 Super admin:", admin ? admin.email + " (" + admin.status + ")" : "NÃO ENCONTRADO");
+    try {
+      const smtpUsers = await prisma.smtpUser.count();
+      const emailDomains = await prisma.emailDomain.count();
+      console.log("📧 Usuários SMTP:", smtpUsers);
+      console.log("🌐 Domínios Email:", emailDomains);
+    } catch (e) {
+      console.log("ℹ️  Tabelas de email não criadas ainda");
+    }
+    await prisma.$disconnect();
+  } catch (error) {
+    console.error("❌ Erro na verificação:", error.message);
+    await prisma.$disconnect();
+    process.exit(1);
+  }
+})();
+EOF
+
+        if docker cp verify_db.js ${{ env.CONTAINER_NAME }}:/app/backend/verify_db.js; then
+          docker exec -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node verify_db.js' || echo '⚠️ Verificação com warnings'
+          docker exec ${{ env.CONTAINER_NAME }} sh -c 'rm -f /app/backend/verify_db.js'
         else
-          echo '⚠️ Falha ao copiar script de ativação'
+          echo '⚠️ Falha ao copiar script de verificação'
         fi
-        rm -f activate_users.js
-          
-          # Verificar integridade do banco (Prisma)
-          echo ''
-          echo '🔍 Verificando integridade do banco Prisma...'
-          cat << 'VERIFY_SCRIPT' | docker exec -i -e DATABASE_URL="file:/app/data/digiurban.db" ${{ env.CONTAINER_NAME }} sh -c 'cd /app/backend && node' || echo '⚠️ Não foi possível verificar integridade completa'
-          import { PrismaClient } from "@prisma/client";
-          const prisma = new PrismaClient();
-          (async () => {
-            try {
-              const result = await prisma.$queryRaw`SELECT name FROM sqlite_master WHERE type="table" ORDER BY name`;
-              console.log("📋 Tabelas criadas:", result.length);
-              result.forEach(t => console.log("  •", t.name));
-              const admin = await prisma.user.findFirst({
-                where: { role: "super_admin" },
-                select: { email: true, role: true, status: true }
-              });
-              console.log("👤 Super admin:", admin ? admin.email : "NÃO ENCONTRADO");
-              try {
-                const smtpUsers = await prisma.smtpUser.count();
-                const emailDomains = await prisma.emailDomain.count();
-                console.log("📧 Usuários SMTP:", smtpUsers);
-                console.log("🌐 Domínios Email:", emailDomains);
-              } catch (e) {
-                console.log("ℹ️  Tabelas de email não criadas ainda");
-              }
-              await prisma.$disconnect();
-            } catch (error) {
-              console.error("❌ Erro na verificação:", error.message);
-              await prisma.$disconnect();
-            }
-          })();
-          VERIFY_SCRIPT
-          
-          echo ''
-          echo '🧪 Testando login do super admin...'
-          sleep 5
-          if curl -f -X POST http://localhost:3020/api/auth/login -H "Content-Type: application/json" -d "{\"email\":\"admin@digiurban.com.br\",\"password\":\"SuperAdmin2024\"}" --max-time 10 | grep -q '"success":true'; then
-            echo '✅ Login do super admin funcionando!'
-          else
-            echo '⚠️ Login do super admin não testado com sucesso'
-          fi
-          
+        rm -f verify_db.js
+
+        echo ''
+        echo '🧪 Testando login do super admin...'
+        sleep 5
+        if curl -f -X POST http://localhost:3020/api/auth/login -H "Content-Type: application/json" -d "{\"email\":\"admin@digiurban.com.br\",\"password\":\"admin123\"}" --max-time 10 | grep -q '"success":true'; then
+          echo '✅ Login do super admin funcionando!'
         else
-          echo '❌ Falha ao executar migrations'
-          echo ''
-          echo '🔍 Verificando logs do container...'
-          docker logs ${{ env.CONTAINER_NAME }} --tail 50
-          exit 1
+          echo '⚠️ Login do super admin não testado com sucesso'
         fi
         "
 
