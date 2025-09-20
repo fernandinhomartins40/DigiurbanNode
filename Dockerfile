@@ -81,6 +81,11 @@ COPY --chown=digiurban:digiurban pm2.json ./
 COPY --chown=digiurban:digiurban start-services.sh ./
 RUN chmod +x start-services.sh
 COPY --chown=digiurban:digiurban scripts/ ./scripts/
+RUN echo "🔍 DEBUG: Verificando scripts após COPY..." && \
+    pwd && \
+    ls -la ./scripts/ && \
+    ls -la /app/scripts/ && \
+    echo "🔍 DEBUG: Scripts copiados com sucesso"
 RUN chmod +x ./scripts/*.sh
 
 # Configurar variáveis de ambiente para produção

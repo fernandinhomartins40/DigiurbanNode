@@ -19,33 +19,14 @@ chmod 755 /app/logs
 chmod 777 /tmp/client_temp /tmp/proxy_temp_path /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp
 
 echo "🗃️ Executando setup do banco..."
+chmod +x /app/scripts/setup-database.sh
+/app/scripts/setup-database.sh
 
-# Verificar se scripts existem antes de executar
-if [ -f "/app/scripts/setup-database.sh" ]; then
-  echo "✅ Script setup-database.sh encontrado, executando..."
-  chmod +x /app/scripts/setup-database.sh
-  /app/scripts/setup-database.sh
-
-  if [ $? -eq 0 ]; then
-    echo "✅ Database configurado com sucesso"
-  else
-    echo "⚠️ Erro na configuração do database, mas continuando..."
-  fi
+if [ $? -eq 0 ]; then
+  echo "✅ Database configurado com sucesso"
 else
-  echo "⚠️ Script setup-database.sh não encontrado!"
-  echo "🔧 Executando setup básico manual..."
-
-  # Setup básico manual
-  mkdir -p /app/data
-  export DATABASE_URL="file:/app/data/digiurban.db"
-
-  echo "🚀 Criando schema básico..."
-  cd /app/backend && npx prisma db push --schema=../schema.prisma || echo "⚠️ Falha no schema, continuando..."
-
-  echo "🌱 Tentando executar seeds..."
-  cd /app/backend && node dist/database/seed.js || echo "⚠️ Falha nos seeds, continuando..."
-
-  echo "⚠️ Setup manual concluído (com possíveis falhas)"
+  echo "❌ Erro na configuração do database"
+  exit 1
 fi
 
 # Iniciar backend com PM2
