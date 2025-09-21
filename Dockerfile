@@ -66,9 +66,15 @@ COPY --from=backend-build --chown=digiurban:digiurban /app/backend/dist ./backen
 # Copiar schema.prisma da raiz (estrutura Prisma)
 COPY --chown=digiurban:digiurban schema.prisma ./schema.prisma
 
-# Garantir que Prisma client seja gerado no container
+# Garantir que Prisma client seja gerado no container com permissões corretas
 WORKDIR /app/backend
+# Gerar Prisma client como root, depois ajustar permissões
 RUN npm run db:generate
+# Garantir que TODOS os diretórios necessários existam com permissões corretas
+RUN mkdir -p /app/node_modules/.prisma /app/backend/node_modules/.prisma
+RUN chown -R digiurban:digiurban /app/backend/node_modules /app/node_modules
+# Criar links simbólicos se necessário para resolver paths
+RUN ln -sf /app/backend/node_modules/.prisma /app/node_modules/.prisma 2>/dev/null || true
 WORKDIR /app
 
 # Copiar frontend compilado com permissões corretas
