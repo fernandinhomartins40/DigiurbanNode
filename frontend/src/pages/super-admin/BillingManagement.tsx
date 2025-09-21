@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useBilling, type Invoice, type BillingMetrics, type CreateInvoiceData } from '@/hooks/useBilling';
+import { useTenantService } from "@/services/tenantService";
 import { 
   DollarSign, 
   TrendingUp, 
@@ -52,14 +53,8 @@ interface TenantInfo {
 }
 
 // ====================================================================
-// MOCK DATA - Tenants para dropdown (em produção viria de API)
+// DADOS REAIS DE TENANTS (carregados da API)
 // ====================================================================
-
-const mockTenants: TenantInfo[] = [
-  { id: 'tenant-1', nome: 'Prefeitura de São Paulo', cidade: 'São Paulo', estado: 'SP' },
-  { id: 'tenant-2', nome: 'Prefeitura de Campinas', cidade: 'Campinas', estado: 'SP' },
-  { id: 'tenant-3', nome: 'Prefeitura de Ribeirão Preto', cidade: 'Ribeirão Preto', estado: 'SP' },
-];
 
 const planPrices = {
   basico: 1200,
@@ -86,9 +81,14 @@ const BillingManagement: React.FC = () => {
     clearError
   } = useBilling();
 
+  // Hook de tenants para dados reais
+  const { getAllTenants } = useTenantService();
+
   // Estados locais
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [revenueEvolution, setRevenueEvolution] = useState<any[]>([]);
+  const [availableTenants, setAvailableTenants] = useState<TenantInfo[]>([]);
+  const [loadingTenants, setLoadingTenants] = useState(true);
   const [filters, setFilters] = useState({
     status: '',
     plano: '',
@@ -198,6 +198,34 @@ const BillingManagement: React.FC = () => {
   }, [filters, invoices]);
 
   useEffect(() => {
+    // Carregar tenants reais para o dropdown
+    const loadTenants = async () => {
+      try {
+        setLoadingTenants(true);
+        const tenantsData = await getAllTenants();
+
+        const mappedTenants: TenantInfo[] = tenantsData.map(tenant => ({
+          id: tenant.id,
+          nome: tenant.nome,
+          cidade: tenant.cidade,
+          estado: tenant.estado
+        }));
+
+        setAvailableTenants(mappedTenants);
+        console.log('✅ Tenants carregados para billing:', mappedTenants.length, 'tenants');
+      } catch (error) {
+        console.error('❌ Erro ao carregar tenants para billing:', error);
+        // Fallback para dados básicos se falhar
+        setAvailableTenants([]);
+      } finally {
+        setLoadingTenants(false);
+      }
+    };
+
+    loadTenants();
+  }, [getAllTenants]);
+
+  useEffect(() => {
     // Carregar dados de evolução de receita
     const loadRevenueEvolution = async () => {
       try {
@@ -205,14 +233,8 @@ const BillingManagement: React.FC = () => {
         setRevenueEvolution(data || []);
       } catch (error) {
         console.error('Erro ao carregar evolução de receita:', error);
-        // Usar dados mock se falhar
-        setRevenueEvolution([
-          { periodo: 'Jul', receita: 67250, faturas: 42, taxaCobranca: 92.1 },
-          { periodo: 'Ago', receita: 72100, faturas: 44, taxaCobranca: 94.8 },
-          { periodo: 'Set', receita: 78950, faturas: 46, taxaCobranca: 91.3 },
-          { periodo: 'Out', receita: 83200, faturas: 47, taxaCobranca: 95.7 },
-          { periodo: 'Nov', receita: 89750, faturas: 47, taxaCobranca: 94.2 }
-        ]);
+        // Usar dados básicos se falhar (apenas para fallback)
+        setRevenueEvolution([]);
       }
     };
 
@@ -695,23 +717,29 @@ const BillingManagement: React.FC = () => {
               <Select
                 value={newInvoiceData.tenantId}
                 onValueChange={(value) => {
-                  const tenant = mockTenants.find(t => t.id === value);
+                  const tenant = availableTenants.find(t => t.id === value);
                   setNewInvoiceData(prev => ({
                     ...prev,
                     tenantId: value,
                     tenant_name: tenant?.nome || ''
                   }));
                 }}
+                disabled={loadingTenants}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione um tenant" />
+                  <SelectValue placeholder={loadingTenants ? "Carregando tenants..." : "Selecione um tenant"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockTenants.map(tenant => (
+                  {availableTenants.map(tenant => (
                     <SelectItem key={tenant.id} value={tenant.id}>
                       {tenant.nome} - {tenant.cidade}/{tenant.estado}
                     </SelectItem>
                   ))}
+                  {availableTenants.length === 0 && !loadingTenants && (
+                    <SelectItem value="" disabled>
+                      Nenhum tenant disponível
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>

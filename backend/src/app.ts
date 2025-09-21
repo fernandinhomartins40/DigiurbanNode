@@ -36,6 +36,7 @@ import passwordResetRoutes from './routes/passwordReset.js';
 import metricsRoutes from './routes/metrics.js';
 import healthRoutes from './routes/health.js';
 import adminRoutes from './routes/admin.js';
+import { adminMetricsRoutes } from './routes/adminMetrics.js';
 import billingRoutes from './routes/billing.js';
 import emailRoutes from './routes/emails.js';
 import tenantEmailRoutes from './routes/tenantEmails.js';
@@ -146,6 +147,9 @@ app.use('/api/activities', activityRoutes);
 
 // Rotas administrativas (super admin)
 app.use('/api', adminRoutes);
+
+// Rotas de métricas administrativas (super admin)
+app.use('/api/admin', adminMetricsRoutes);
 
 // Rotas de billing e métricas SaaS (super admin)
 app.use('/api', billingRoutes);

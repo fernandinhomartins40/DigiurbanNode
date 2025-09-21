@@ -47,6 +47,7 @@ import DeleteTenantModal from "@/components/super-admin/DeleteTenantModal";
 
 // Serviços separados
 import { useTenantService } from "@/services/tenantService";
+import { TenantMetricsService } from "@/services/tenantMetricsService";
 
 /**
  * Extrai mensagem segura de erro
@@ -168,7 +169,7 @@ const TenantsManagement: React.FC = () => {
       console.log('📊 Tenants carregados:', tenantsData);
 
       // Mapear dados para o formato esperado com validação
-      const mappedTenants: Tenant[] = tenantsData
+      const baseTenants = tenantsData
         .filter(tenant => {
           if (!tenant?.id || tenant.id.trim() === '') {
             console.warn('⚠️ Tenant com ID inválido ignorado:', tenant);
@@ -184,43 +185,81 @@ const TenantsManagement: React.FC = () => {
         estado: tenant.estado,
         populacao: tenant.populacao,
         cnpj: tenant.cnpj,
-        status: tenant.status === 'ativo' ? 'ativo' as const : 
+        status: tenant.status === 'ativo' ? 'ativo' as const :
                tenant.status === 'trial' ? 'trial' as const :
                tenant.status === 'suspenso' ? 'suspenso' as const : 'inativo' as const,
         plano: tenant.plano.toUpperCase() as 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE',
-        data_criacao: tenant.created_at ? 
-          (typeof tenant.created_at === 'string' ? tenant.created_at.split('T')[0] : 
-           new Date(tenant.created_at).toISOString().split('T')[0]) : 
+        data_criacao: tenant.created_at ?
+          (typeof tenant.created_at === 'string' ? tenant.created_at.split('T')[0] :
+           new Date(tenant.created_at).toISOString().split('T')[0]) :
           new Date().toISOString().split('T')[0],
-        ultimo_acesso: new Date().toISOString(),
-        usuarios_ativos: 0, // Será calculado posteriormente
         limite_usuarios: tenant.plano.toLowerCase() === 'enterprise' ? 500 : tenant.plano.toLowerCase() === 'professional' ? 150 : 50,
-        protocolos_mes: 0, // Será calculado posteriormente
         valor_mensal: tenant.plano.toLowerCase() === 'enterprise' ? 10000 : tenant.plano.toLowerCase() === 'professional' ? 4500 : 1200,
-        
+
         // Dados de contato (não são usuários)
         responsavel_nome: tenant.responsavel_nome,
         responsavel_email: tenant.responsavel_email,
         responsavel_telefone: tenant.responsavel_telefone,
-        
+
         // Status de admin
         has_admin: tenant.has_admin || false,
         admin_confirmed: tenant.admin_confirmed || false,
         admin_first_login: tenant.admin_first_login || false,
-        
+
+        // Dados temporários - serão substituídos por dados reais
+        ultimo_acesso: new Date().toISOString(),
+        usuarios_ativos: 0,
+        protocolos_mes: 0,
         configuracoes: {
-          personalizacao_ativa: tenant.plano.toLowerCase() === 'enterprise',
-          backup_automatico: true,
-          ssl_customizado: tenant.plano.toLowerCase() === 'enterprise',
-          integracao_terceiros: tenant.plano.toLowerCase() !== 'starter'
+          personalizacao_ativa: false,
+          backup_automatico: false,
+          ssl_customizado: false,
+          integracao_terceiros: false
         },
         metricas: {
-          uptime: 99.0,
-          satisfacao: 4.0,
-          tempo_resposta: 2.0,
+          uptime: 0,
+          satisfacao: 0,
+          tempo_resposta: 0,
           tickets_abertos: 0
         }
       }));
+
+      // Carregar métricas reais para cada tenant
+      console.log('📊 Carregando métricas reais para', baseTenants.length, 'tenants...');
+      const tenantIds = baseTenants.map(t => t.id);
+      const bulkMetrics = await TenantMetricsService.getBulkTenantMetrics(tenantIds);
+
+      // Mapear tenants com métricas reais
+      const mappedTenants: Tenant[] = await Promise.all(
+        baseTenants.map(async (tenant) => {
+          try {
+            // Obter métricas reais do tenant
+            const metrics = bulkMetrics[tenant.id] || await TenantMetricsService.getTenantMetrics(tenant.id);
+
+            // Obter configurações reais do tenant
+            const config = await TenantMetricsService.getTenantConfiguration(tenant.id);
+
+            return {
+              ...tenant,
+              ultimo_acesso: metrics.ultimo_acesso,
+              usuarios_ativos: metrics.usuarios_ativos,
+              protocolos_mes: metrics.protocolos_mes,
+              valor_mensal: metrics.valor_mensal_real > 0 ? metrics.valor_mensal_real : tenant.valor_mensal,
+              configuracoes: config,
+              metricas: {
+                uptime: metrics.uptime,
+                satisfacao: metrics.satisfacao,
+                tempo_resposta: metrics.tempo_resposta,
+                tickets_abertos: metrics.tickets_abertos
+              }
+            };
+          } catch (error) {
+            console.warn(`⚠️ Erro ao carregar métricas para tenant ${tenant.nome}:`, error);
+            // Retornar tenant com dados básicos em caso de erro
+            return tenant;
+          }
+        })
+      );
 
       // Log de diagnóstico dos IDs
       console.log('📋 Total de tenants válidos:', mappedTenants.length);
