@@ -25,6 +25,7 @@ async function main() {
           id: uuidv4(),
           tenantCode: 'AUDIT001',
           nome: 'Prefeitura Auditoria',
+          email: 'auditoria@prefeitura.gov.br',
           cidade: 'Cidade Auditoria',
           estado: 'AU',
           cnpj: '98765432100123',

@@ -14,6 +14,114 @@ export interface LogContext {
   statusCode?: number;
   responseTime?: number;
   metadata?: Record<string, any>;
+
+  // Propriedades para middleware de performance
+  errorMessage?: string;
+  cutoffTime?: string | number | Date;
+
+  // Propriedades para rate limiting
+  key?: string;
+  removedRecords?: number;
+  requests?: number;
+  remainingRecords?: number;
+  totalHits?: number;
+  remaining?: number;
+  adminUser?: string;
+
+  // Propriedades para analytics e reporting
+  period?: string;
+  periodo?: string;
+  reportName?: string;
+  reportId?: string | number;
+  performanceMonitoring?: any;
+  sessions?: number;
+
+  // Propriedades para billing e métricas
+  eventType?: string;
+  invoiceId?: string | number;
+  oldPlan?: string;
+  year?: number;
+  startPeriod?: string;
+
+  // Propriedades para cache
+  error?: string;
+  provider?: string;
+  ttl?: number;
+  removedKeys?: number;
+
+  // Propriedades para queries otimizadas
+  executionTime?: number;
+  queryName?: string;
+
+  // Propriedades para analytics validation
+  overall_status?: string;
+  execution_time?: number;
+  recommendations?: any[];
+
+  // Propriedades para success/error context
+  success?: boolean;
+  details?: string;
+
+  // Propriedades para entidades (auditoria)
+  entityType?: string;
+  entityId?: string;
+  operation?: "create" | "read" | "update" | "delete";
+  oldValue?: any;
+  newValue?: any;
+
+  // Propriedades adicionais encontradas nos erros
+  remainingEndpoints?: number;
+  maxRequests?: number;
+  limit?: number;
+  mrr?: number;
+  valor?: number;
+  numero?: string;
+  count?: number;
+  filters?: any;
+  metodoPagamento?: string;
+  months?: number;
+  month?: number;
+  startDate?: string;
+  endDate?: string;
+  endPeriod?: string;
+  features?: number;
+  total_tests?: number;
+  newPlan?: string;
+  config?: any;
+  size?: number;
+  queries?: number;
+  groupBy?: string;
+  moduleCount?: number;
+  featureCount?: number;
+  plan?: string;
+  improvement?: any;
+  rateLimiting?: any;
+  session?: any;
+
+  // Propriedades finais dos últimos erros
+  windowMs?: number;
+  arr?: number;
+  plano?: string;
+  healthCheck?: boolean;
+  pageViews?: number;
+  passed?: number;
+  optimization?: any;
+  resultCount?: number;
+  categoryCount?: number;
+  originalTime?: number;
+  resetTime?: number;
+  churnRate?: number;
+  metricsEndpoint?: boolean;
+  geographic?: number;
+  failed?: number;
+  optimizedTime?: number;
+  arpu?: number;
+  cacheHit?: boolean;
+  totalSessions?: number;
+  modules?: number;
+  warnings?: number;
+  uniqueUsers?: number;
+  metrics?: any;
 }
 
 export interface ErrorLogContext extends LogContext {

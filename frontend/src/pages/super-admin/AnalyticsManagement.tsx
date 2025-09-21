@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  BarChart3, 
-  TrendingUp, 
+import {
+  BarChart3,
+  TrendingUp,
   TrendingDown,
   PieChart,
   LineChart,
@@ -19,12 +19,15 @@ import {
   CheckCircle,
   Clock,
   Eye,
-  Share2
+  Share2,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { analyticsService, type AnalyticsOverview, type PopularFeatures, type ModuleAnalytics, type GeographicData, type UsageEvolution, type AutomatedReport } from "@/services/analyticsService";
 
 // ====================================================================
 // INTERFACES E TIPOS
@@ -220,10 +223,64 @@ const usageEvolutionData = [
 // ====================================================================
 
 const AnalyticsManagement: React.FC = () => {
-  const [analytics, setAnalytics] = useState<AnalyticsData>(mockAnalytics);
-  const [reports, setReports] = useState<Report[]>(mockReports);
-  const [loading, setLoading] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState('Janeiro 2024');
+  // Estados para dados reais das APIs
+  const [analyticsOverview, setAnalyticsOverview] = useState<AnalyticsOverview | null>(null);
+  const [popularFeatures, setPopularFeatures] = useState<PopularFeatures | null>(null);
+  const [moduleAnalytics, setModuleAnalytics] = useState<ModuleAnalytics | null>(null);
+  const [geographicData, setGeographicData] = useState<GeographicData | null>(null);
+  const [usageEvolution, setUsageEvolution] = useState<UsageEvolution | null>(null);
+  const [automatedReports, setAutomatedReports] = useState<AutomatedReport[]>([]);
+
+  // Estados de controle
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d'>('30d');
+  const [refreshing, setRefreshing] = useState(false);
+
+  // ====================================================================
+  // FUNÇÕES DE CARREGAMENTO DE DADOS
+  // ====================================================================
+
+  const loadAllAnalyticsData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Carregar todos os dados em paralelo
+      const [overview, features, modules, geographic, usage, reports] = await Promise.all([
+        analyticsService.getAnalyticsOverview(selectedPeriod),
+        analyticsService.getPopularFeatures(selectedPeriod),
+        analyticsService.getModuleAnalytics('current'),
+        analyticsService.getGeographicData('current', 'estado'),
+        analyticsService.getUsageEvolution(selectedPeriod),
+        analyticsService.getAutomatedReports()
+      ]);
+
+      setAnalyticsOverview(overview);
+      setPopularFeatures(features);
+      setModuleAnalytics(modules);
+      setGeographicData(geographic);
+      setUsageEvolution(usage);
+      setAutomatedReports(reports);
+
+    } catch (err) {
+      console.error('Erro ao carregar dados de analytics:', err);
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    await loadAllAnalyticsData();
+    setRefreshing(false);
+  };
+
+  // Carregar dados na inicialização e quando o período mudar
+  useEffect(() => {
+    loadAllAnalyticsData();
+  }, [selectedPeriod]);
 
   // ====================================================================
   // FUNÇÕES UTILITÁRIAS
@@ -269,18 +326,134 @@ const AnalyticsManagement: React.FC = () => {
       mensal: { label: 'Mensal', color: 'bg-blue-100 text-blue-800' },
       trimestral: { label: 'Trimestral', color: 'bg-green-100 text-green-800' }
     };
-    
+
     const config = frequencyConfig[frequencia as keyof typeof frequencyConfig];
     return <Badge variant="outline" className={config.color}>{config.label}</Badge>;
+  };
+
+  // Funções auxiliares para relatórios automatizados
+  const getReportTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      executive: 'Executivo',
+      technical: 'Técnico',
+      financial: 'Financeiro',
+      usage: 'Uso'
+    };
+    return labels[type] || type;
+  };
+
+  const getReportTypeColor = (type: string) => {
+    const colors: Record<string, string> = {
+      executive: 'bg-purple-100 text-purple-800',
+      technical: 'bg-orange-100 text-orange-800',
+      financial: 'bg-green-100 text-green-800',
+      usage: 'bg-blue-100 text-blue-800'
+    };
+    return colors[type] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getFrequencyLabel = (frequency: string) => {
+    const labels: Record<string, string> = {
+      daily: 'Diário',
+      weekly: 'Semanal',
+      monthly: 'Mensal',
+      quarterly: 'Trimestral'
+    };
+    return labels[frequency] || frequency;
+  };
+
+  const getFrequencyColor = (frequency: string) => {
+    const colors: Record<string, string> = {
+      daily: 'bg-red-100 text-red-800',
+      weekly: 'bg-yellow-100 text-yellow-800',
+      monthly: 'bg-blue-100 text-blue-800',
+      quarterly: 'bg-green-100 text-green-800'
+    };
+    return colors[frequency] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getStatusColor = (status: string | null) => {
+    if (!status) return 'text-gray-500';
+    const colors: Record<string, string> = {
+      success: 'text-green-600',
+      failed: 'text-red-600',
+      partial: 'text-yellow-600'
+    };
+    return colors[status] || 'text-gray-500';
+  };
+
+  // Handlers para ações dos relatórios
+  const handleViewReport = (reportId: number) => {
+    console.log('Visualizar relatório:', reportId);
+    // TODO: Implementar navegação para visualização do relatório
+  };
+
+  const handleGenerateReport = async (reportId: number) => {
+    try {
+      setRefreshing(true);
+      await analyticsService.generateReport(reportId);
+      await loadAllAnalyticsData(); // Recarregar dados para atualizar status
+    } catch (error) {
+      console.error('Erro ao gerar relatório:', error);
+      setError(error instanceof Error ? error.message : 'Erro ao gerar relatório');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleDownloadReport = (reportId: number) => {
+    console.log('Download relatório:', reportId);
+    // TODO: Implementar download do relatório
+  };
+
+  const handleCreateReport = () => {
+    console.log('Criar novo relatório');
+    // TODO: Implementar modal/página de criação de relatório
   };
 
   // ====================================================================
   // RENDER PRINCIPAL
   // ====================================================================
 
+  // Se estiver carregando pela primeira vez
+  if (loading && !analyticsOverview) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600" />
+          <p className="text-gray-600 mt-2">Carregando dados de analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se houver erro
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+        <div className="max-w-lg mx-auto mt-20">
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="p-6 text-center">
+              <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-red-900 mb-2">Erro ao carregar analytics</h3>
+              <p className="text-red-700 mb-4">{error}</p>
+              <Button
+                onClick={loadAllAnalyticsData}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Tentar novamente
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
-      
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -293,15 +466,29 @@ const AnalyticsManagement: React.FC = () => {
             </p>
           </div>
           <div className="flex gap-3">
-            <select 
+            <select
               value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
+              onChange={(e) => setSelectedPeriod(e.target.value as '7d' | '30d' | '90d')}
               className="px-4 py-2 border border-gray-300 rounded-lg bg-white"
+              disabled={refreshing}
             >
-              <option value="Janeiro 2024">Janeiro 2024</option>
-              <option value="Dezembro 2023">Dezembro 2023</option>
-              <option value="Novembro 2023">Novembro 2023</option>
+              <option value="7d">Últimos 7 dias</option>
+              <option value="30d">Últimos 30 dias</option>
+              <option value="90d">Últimos 90 dias</option>
             </select>
+            <Button
+              onClick={refreshData}
+              disabled={refreshing}
+              variant="outline"
+              className="border-blue-300 text-blue-600 hover:bg-blue-50"
+            >
+              {refreshing ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4 mr-2" />
+              )}
+              Atualizar
+            </Button>
             <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
               <Download className="h-4 w-4 mr-2" />
               Exportar Dados
@@ -312,19 +499,19 @@ const AnalyticsManagement: React.FC = () => {
 
       {/* Métricas Principais */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        
-        {/* Usuários Ativos */}
+
+        {/* Usuários Únicos */}
         <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200/50 hover:shadow-lg transition-all">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-700">Usuários Ativos</p>
+                <p className="text-sm font-medium text-blue-700">Usuários Únicos</p>
                 <p className="text-3xl font-bold text-blue-900">
-                  {formatNumber(analytics.metricas_gerais.usuarios_ativos_mes)}
+                  {formatNumber(analyticsOverview?.uniqueUsers || 0)}
                 </p>
                 <p className="text-xs text-blue-600 flex items-center gap-1 mt-1">
                   <TrendingUp className="h-3 w-3" />
-                  {((analytics.metricas_gerais.usuarios_ativos_mes / analytics.metricas_gerais.total_usuarios) * 100).toFixed(1)}% do total
+                  {formatNumber(analyticsOverview?.totalSessions || 0)} sessões totais
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-blue-100">
@@ -341,11 +528,11 @@ const AnalyticsManagement: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-green-700">Tempo Sessão</p>
                 <p className="text-3xl font-bold text-green-900">
-                  {analytics.metricas_gerais.tempo_medio_sessao}m
+                  {analyticsOverview?.avgSessionDuration || 0}m
                 </p>
                 <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
                   <Activity className="h-3 w-3" />
-                  {analytics.metricas_gerais.paginas_por_sessao} páginas por sessão
+                  {analyticsOverview?.totalPagesPerSession || 0} páginas por sessão
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-green-100">
@@ -355,18 +542,18 @@ const AnalyticsManagement: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* NPS Score */}
+        {/* Taxa de Engajamento */}
         <Card className="bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200/50 hover:shadow-lg transition-all">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-700">NPS Score</p>
+                <p className="text-sm font-medium text-purple-700">Engajamento</p>
                 <p className="text-3xl font-bold text-purple-900">
-                  {analytics.metricas_negocio.nps_score}
+                  {analyticsOverview?.engagement.sessionQuality || 'Alta'}
                 </p>
                 <p className="text-xs text-purple-600 flex items-center gap-1 mt-1">
                   <Target className="h-3 w-3" />
-                  CSAT: {analytics.metricas_negocio.csat_score} de 5.0
+                  {((analyticsOverview?.engagement.returnRate || 0) * 100).toFixed(1)}% retorno
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-purple-100">
@@ -376,18 +563,18 @@ const AnalyticsManagement: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Uptime */}
+        {/* Page Views */}
         <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200/50 hover:shadow-lg transition-all">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-orange-700">Uptime</p>
+                <p className="text-sm font-medium text-orange-700">Page Views</p>
                 <p className="text-3xl font-bold text-orange-900">
-                  {analytics.metricas_produto.uptime_percentage}%
+                  {formatNumber(analyticsOverview?.totalPageViews || 0)}
                 </p>
                 <p className="text-xs text-orange-600 flex items-center gap-1 mt-1">
-                  <Zap className="h-3 w-3" />
-                  {analytics.metricas_produto.tempo_resposta_medio}s resposta
+                  <Eye className="h-3 w-3" />
+                  {((analyticsOverview?.engagement.bounceRate || 0) * 100).toFixed(1)}% bounce rate
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-orange-100">
@@ -400,7 +587,7 @@ const AnalyticsManagement: React.FC = () => {
 
       {/* Gráficos de Evolução */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        
+
         {/* Evolução de Uso */}
         <Card className="col-span-1 lg:col-span-2">
           <CardHeader>
@@ -409,41 +596,52 @@ const AnalyticsManagement: React.FC = () => {
               Evolução de Uso da Plataforma
             </CardTitle>
             <CardDescription>
-              Usuários ativos, sessões e tempo médio - últimos 5 meses
+              Usuários únicos, sessões e page views - {selectedPeriod === '7d' ? 'últimos 7 dias' : selectedPeriod === '30d' ? 'últimos 30 dias' : 'últimos 90 dias'}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {usageEvolutionData.map((data, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="font-medium text-sm w-12">{data.month}</div>
-                    <div className="w-64 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
-                        style={{ width: `${(data.usuarios / Math.max(...usageEvolutionData.map(d => d.usuarios))) * 100}%` }}
-                      ></div>
+              {usageEvolution?.dailyUsage.slice(-7).map((data, index) => {
+                const maxUsers = Math.max(...(usageEvolution?.dailyUsage.map(d => d.uniqueUsers) || [1]));
+                return (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="font-medium text-sm w-16">
+                        {new Date(data.date).toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' })}
+                      </div>
+                      <div className="w-64 bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
+                          style={{ width: `${(data.uniqueUsers / maxUsers) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="font-semibold text-blue-600">{formatNumber(data.uniqueUsers)} usuários</span>
+                      <Badge variant="outline" className="text-xs">
+                        {formatNumber(data.sessions)} sessões
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {formatNumber(data.pageViews)} views
+                      </Badge>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="font-semibold text-blue-600">{formatNumber(data.usuarios)} usuários</span>
-                    <Badge variant="outline" className="text-xs">
-                      {formatNumber(data.sessoes)} sessões
-                    </Badge>
-                    <Badge variant="outline" className="text-xs">
-                      {data.tempo_sessao}m médio
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+                );
+              }) || []}
             </div>
+            {(!usageEvolution?.dailyUsage || usageEvolution.dailyUsage.length === 0) && (
+              <div className="text-center py-8 text-gray-500">
+                <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>Nenhum dado de evolução disponível para o período selecionado</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
       {/* Funcionalidades Mais Usadas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -451,27 +649,36 @@ const AnalyticsManagement: React.FC = () => {
               Funcionalidades Mais Utilizadas
             </CardTitle>
             <CardDescription>
-              Top funcionalidades por usuários ativos e crescimento
+              Top funcionalidades por usuários únicos e uso total
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {analytics.metricas_produto.funcionalidades_mais_usadas.map((func, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-sm">{func.nome}</p>
-                      <p className="text-xs text-gray-500">{func.categoria}</p>
+              {popularFeatures?.topFeatures.slice(0, 5).map((feature, index) => {
+                const maxUsers = Math.max(...(popularFeatures?.topFeatures.map(f => f.uniqueUsers) || [1]));
+                return (
+                  <div key={index} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-sm">{feature.name}</p>
+                        <p className="text-xs text-gray-500">{feature.category}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-sm">{formatNumber(feature.uniqueUsers)}</p>
+                        <p className="text-xs text-blue-600">{formatNumber(feature.totalUsage)} usos</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-sm">{formatNumber(func.usuarios_ativos)}</p>
-                      <p className="text-xs text-green-600">{formatPercentage(func.crescimento)}</p>
-                    </div>
+                    <Progress value={(feature.uniqueUsers / maxUsers) * 100} className="h-2" />
                   </div>
-                  <Progress value={(func.usuarios_ativos / analytics.metricas_gerais.usuarios_ativos_mes) * 100} className="h-2" />
-                </div>
-              ))}
+                );
+              }) || []}
             </div>
+            {(!popularFeatures?.topFeatures || popularFeatures.topFeatures.length === 0) && (
+              <div className="text-center py-8 text-gray-500">
+                <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>Nenhum dado de funcionalidades disponível</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -482,31 +689,42 @@ const AnalyticsManagement: React.FC = () => {
               Módulos por Popularidade
             </CardTitle>
             <CardDescription>
-              Secretarias mais utilizadas pelos usuários
+              Módulos do sistema mais utilizados
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {analytics.metricas_produto.modulos_populares.map((modulo, index) => (
+              {moduleAnalytics?.globalStats.slice(0, 5).map((module, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full" style={{
-                      backgroundColor: `hsl(${210 + index * 30}, 70%, 50%)`
-                    }}></div>
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{
+                        backgroundColor: `hsl(${210 + index * 30}, 70%, 50%)`
+                      }}
+                    ></div>
                     <div>
-                      <p className="font-medium text-sm">{modulo.nome}</p>
-                      <p className="text-xs text-gray-500">{formatNumber(modulo.usuarios)} usuários</p>
+                      <p className="font-medium text-sm">{module.moduleName}</p>
+                      <p className="text-xs text-gray-500">{formatNumber(module.totalUsers)} usuários</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-sm">{formatNumber(modulo.sessoes)}</p>
+                    <p className="font-semibold text-sm">{formatNumber(module.totalSessions)}</p>
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-500">{modulo.satisfacao}★</span>
+                      <span className="text-xs text-gray-500">
+                        {module.avgSessionTime.toFixed(1)}m médio
+                      </span>
                     </div>
                   </div>
                 </div>
-              ))}
+              )) || []}
             </div>
+            {(!moduleAnalytics?.globalStats || moduleAnalytics.globalStats.length === 0) && (
+              <div className="text-center py-8 text-gray-500">
+                <PieChart className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>Nenhum dado de módulos disponível</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -516,62 +734,100 @@ const AnalyticsManagement: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5" />
-            Distribuição Geográfica e por Plano
+            Distribuição Geográfica
           </CardTitle>
           <CardDescription>
-            Análise regional e segmentação por tipo de plano
+            Análise regional de usuários e engajamento
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
+
             {/* Por Estados */}
             <div className="space-y-4">
               <h4 className="font-semibold text-lg mb-4">Por Estado</h4>
-              {analytics.demograficos.distribuicao_regioes.map((regiao, index) => (
+              {geographicData?.distribution.slice(0, 6).map((region, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <span className="text-xs font-bold text-blue-600">{regiao.estado}</span>
+                      <span className="text-xs font-bold text-blue-600">{region.name}</span>
                     </div>
                     <div>
-                      <p className="font-medium text-sm">{regiao.prefeituras} prefeituras</p>
-                      <p className="text-xs text-gray-500">{formatNumber(regiao.usuarios)} usuários</p>
+                      <p className="font-medium text-sm">{region.tenants} tenants</p>
+                      <p className="text-xs text-gray-500">{formatNumber(region.totalUsuarios)} usuários</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-sm text-green-600">{formatCurrency(regiao.receita)}</p>
-                    <p className="text-xs text-gray-500">{formatPercentage(regiao.crescimento)}</p>
+                    <p className="font-semibold text-sm text-green-600">{region.engajamento}% engajamento</p>
+                    <p className="text-xs text-gray-500">{formatNumber(region.protocolosMes)} protocolos/mês</p>
                   </div>
                 </div>
-              ))}
+              )) || []}
+              {(!geographicData?.distribution || geographicData.distribution.length === 0) && (
+                <div className="text-center py-8 text-gray-500">
+                  <Globe className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>Nenhum dado geográfico disponível</p>
+                </div>
+              )}
             </div>
 
-            {/* Por Planos */}
+            {/* Estatísticas Gerais */}
             <div className="space-y-4">
-              <h4 className="font-semibold text-lg mb-4">Por Plano</h4>
-              {analytics.demograficos.distribuicao_planos.map((plano, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{
-                        backgroundColor: plano.plano === 'ENTERPRISE' ? '#10b981' : 
-                                       plano.plano === 'PROFESSIONAL' ? '#3b82f6' : '#8b5cf6'
-                      }}></div>
-                      <span className="font-medium text-sm">{plano.plano}</span>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-sm">{plano.quantidade} clientes</p>
-                      <p className="text-xs text-gray-500">Churn: {plano.churn}%</p>
+              <h4 className="font-semibold text-lg mb-4">Estatísticas Gerais</h4>
+              {geographicData && (
+                <div className="space-y-3">
+                  <div className="p-3 bg-blue-50/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-blue-700">Total de Usuários</span>
+                      <span className="text-lg font-bold text-blue-900">
+                        {formatNumber(geographicData.totalStats.totalUsuarios)}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-gray-600">
-                    <span>{formatCurrency(plano.receita)} receita</span>
-                    <span>{plano.upgrade_rate}% upgrade rate</span>
+
+                  <div className="p-3 bg-green-50/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-green-700">Usuários Ativos</span>
+                      <span className="text-lg font-bold text-green-900">
+                        {formatNumber(geographicData.totalStats.usuariosAtivos)}
+                      </span>
+                    </div>
                   </div>
-                  <Progress value={(plano.quantidade / 47) * 100} className="h-2" />
+
+                  <div className="p-3 bg-purple-50/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-purple-700">Cidades Atendidas</span>
+                      <span className="text-lg font-bold text-purple-900">
+                        {formatNumber(geographicData.totalStats.cidades)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-orange-50/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-orange-700">Engajamento Geral</span>
+                      <span className="text-lg font-bold text-orange-900">
+                        {geographicData.totalStats.engajamentoGeral}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-gray-50/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">Satisfação Média</span>
+                      <span className="text-lg font-bold text-gray-900">
+                        {geographicData.totalStats.satisfacaoGeral.toFixed(1)}/5.0
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              )}
+              {!geographicData && (
+                <div className="text-center py-8 text-gray-500">
+                  <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>Carregando estatísticas...</p>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
@@ -590,21 +846,30 @@ const AnalyticsManagement: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {reports.map((report) => (
+            {automatedReports.map((report) => (
               <Card key={report.id} className="bg-gradient-to-r from-white to-gray-50/50 hover:shadow-md transition-all">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    
+
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-blue-100 rounded-lg">
                         <FileText className="h-6 w-6 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg">{report.nome}</h3>
-                        <p className="text-sm text-gray-600">{report.descricao}</p>
+                        <h3 className="font-semibold text-lg">{report.name}</h3>
+                        <p className="text-sm text-gray-600">{report.description || 'Sem descrição'}</p>
                         <div className="flex items-center gap-2 mt-2">
-                          {getReportTypeBadge(report.tipo)}
-                          {getFrequencyBadge(report.frequencia)}
+                          <Badge className={getReportTypeColor(report.reportType)}>
+                            {getReportTypeLabel(report.reportType)}
+                          </Badge>
+                          <Badge variant="outline" className={getFrequencyColor(report.frequency)}>
+                            {getFrequencyLabel(report.frequency)}
+                          </Badge>
+                          {!report.isActive && (
+                            <Badge variant="outline" className="bg-red-100 text-red-800">
+                              Inativo
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -612,18 +877,41 @@ const AnalyticsManagement: React.FC = () => {
                     <div className="flex items-center gap-4">
                       <div className="text-right text-sm text-gray-600">
                         <p>Último gerado:</p>
-                        <p className="font-medium">{new Date(report.ultimo_gerado).toLocaleDateString('pt-BR')}</p>
-                        <p className="text-xs">{report.destinatarios.length} destinatários</p>
+                        <p className="font-medium">
+                          {report.lastGenerated
+                            ? new Date(report.lastGenerated).toLocaleDateString('pt-BR')
+                            : 'Nunca'}
+                        </p>
+                        <p className="text-xs">{report.recipientsCount} destinatários</p>
+                        <p className="text-xs">
+                          Status: <span className={getStatusColor(report.lastStatus)}>{report.lastStatus || 'N/A'}</span>
+                        </p>
                       </div>
-                      
+
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="text-blue-600 hover:bg-blue-50">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-blue-600 hover:bg-blue-50"
+                          onClick={() => handleViewReport(report.id)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline" className="text-green-600 hover:bg-green-50">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-green-600 hover:bg-green-50"
+                          onClick={() => handleGenerateReport(report.id)}
+                          disabled={!report.isActive}
+                        >
                           <Share2 className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline" className="text-gray-600 hover:bg-gray-50">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-gray-600 hover:bg-gray-50"
+                          onClick={() => handleDownloadReport(report.id)}
+                        >
                           <Download className="h-4 w-4" />
                         </Button>
                       </div>
@@ -634,6 +922,15 @@ const AnalyticsManagement: React.FC = () => {
               </Card>
             ))}
           </div>
+          {automatedReports.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>Nenhum relatório automatizado configurado</p>
+              <Button className="mt-4" onClick={() => handleCreateReport()}>
+                Criar Primeiro Relatório
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

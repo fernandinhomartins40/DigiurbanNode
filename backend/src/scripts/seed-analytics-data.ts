@@ -140,8 +140,8 @@ async function seedAnalyticsData() {
       }
     }
 
-    await prisma.pageView.deleteMany({});
-    await prisma.pageView.createMany({ data: pageViewsData });
+    await prisma.pageViews.deleteMany({});
+    await prisma.pageViews.createMany({ data: pageViewsData });
 
     // Criar dados geográficos
     const geographicData = [
@@ -228,8 +228,8 @@ async function seedAnalyticsData() {
       );
     }
 
-    await prisma.systemMetric.deleteMany({});
-    await prisma.systemMetric.createMany({ data: systemMetrics });
+    await prisma.systemMetrics.deleteMany({});
+    await prisma.systemMetrics.createMany({ data: systemMetrics });
 
     StructuredLogger.info('✅ Seed de dados de analytics concluído', {
       sessions: sessions.length,

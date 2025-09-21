@@ -12,7 +12,7 @@ import { validators, handleValidationErrors, sanitizeAll } from '../middleware/v
 import { generalRateLimit } from '../middleware/rateLimiter.js';
 import { TenantModel } from '../models/Tenant.js';
 import { UserModel } from '../models/User.js';
-import { BillingCalculatorService } from '../services/BillingCalculatorService.js';
+import BillingCalculatorService from '../services/BillingCalculatorService.js';
 
 export const tenantRoutes = Router();
 

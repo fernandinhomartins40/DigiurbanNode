@@ -18,6 +18,7 @@ async function main() {
         id: uuidv4(),
         tenantCode: 'TEST001',
         nome: 'Prefeitura de Teste',
+        email: 'teste@prefeitura.gov.br',
         cidade: 'Cidade Teste',
         estado: 'TS',
         cnpj: '12345678901234',

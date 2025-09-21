@@ -211,6 +211,7 @@ const seedDefaultTenant = async (): Promise<void> => {
       id: tenantId,
       tenantCode: 'DEV001',
       nome: 'Prefeitura de Desenvolvimento',
+      email: 'dev@prefeitura.sp.gov.br',
       cidade: 'São Paulo',
       estado: 'SP',
       cnpj: '12345678000195', // CNPJ válido fictício

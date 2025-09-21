@@ -21,6 +21,7 @@ export interface Tenant {
   id: string;
   tenantCode: string;
   nome: string;
+  email: string;
   cidade: string;
   estado: string;
   cnpj: string;
@@ -56,6 +57,7 @@ export interface Tenant {
 
 export interface CreateTenantData {
   nome: string;
+  email: string;
   cidade: string;
   estado: string;
   cnpj: string;
@@ -70,6 +72,7 @@ export interface CreateTenantData {
 
 export interface UpdateTenantData {
   nome?: string;
+  email?: string;
   cidade?: string;
   estado?: string;
   cnpj?: string;
@@ -158,6 +161,7 @@ export class TenantModel {
         id,
         tenantCode: tenantCode,
         nome: tenantData.nome,
+        email: tenantData.email,
         cidade: tenantData.cidade,
         estado: tenantData.estado,
         cnpj: this.cleanCNPJ(tenantData.cnpj),

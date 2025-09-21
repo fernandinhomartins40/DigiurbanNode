@@ -65,12 +65,12 @@ export class SessionModel {
         data: {
           id: uuidv4(),
           userId: sessionData.userId,
+          token: sessionData.token,
           tokenHash,
           ipAddress: sessionData.ipAddress,
           userAgent: sessionData.userAgent,
           expiresAt: new Date(sessionData.expiresAt),
           isActive: true,
-          createdAt: new Date(),
           lastActivity: new Date()
         }
       });

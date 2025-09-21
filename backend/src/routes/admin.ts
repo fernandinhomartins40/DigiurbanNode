@@ -17,6 +17,29 @@ import crypto from 'crypto';
 const router = express.Router();
 
 // ====================================================================
+// HELPER FUNCTIONS
+// ====================================================================
+
+/**
+ * Converte ParsedQs para string de forma segura
+ */
+function getStringParam(param: any, defaultValue: string = ''): string {
+  if (Array.isArray(param)) {
+    return param[0] as string || defaultValue;
+  }
+  return (param as string) || defaultValue;
+}
+
+/**
+ * Converte ParsedQs para number de forma segura
+ */
+function getNumberParam(param: any, defaultValue: number = 0): number {
+  const str = getStringParam(param, defaultValue.toString());
+  const num = parseInt(str, 10);
+  return isNaN(num) ? defaultValue : num;
+}
+
+// ====================================================================
 // MÉTRICAS SAAS
 // ====================================================================
 
@@ -520,15 +543,15 @@ router.get('/admin/analytics/overview',
       });
 
       // Obter período dos parâmetros (padrão: último mês)
-      const { period = '30d' } = req.query;
+      const periodString = getStringParam(req.query.period, '30d');
 
       // ====================================================================
       // TENTATIVA DE CACHE PRIMEIRO
       // ====================================================================
-      const cachedData = await cacheService.getAnalyticsOverview(period as string);
+      const cachedData = await cacheService.getAnalyticsOverview(periodString);
       if (cachedData) {
         StructuredLogger.debug('Analytics overview retornado do cache', {
-          period,
+          period: periodString,
           cacheHit: true
         });
 
@@ -546,14 +569,14 @@ router.get('/admin/analytics/overview',
       // ====================================================================
       // CACHE MISS - CALCULAR DADOS
       // ====================================================================
-      StructuredLogger.debug('Cache miss - calculando analytics overview', { period });
+      StructuredLogger.debug('Cache miss - calculando analytics overview', { period: periodString });
 
       const startDate = new Date();
-      if (period === '30d') {
+      if (periodString === '30d') {
         startDate.setDate(startDate.getDate() - 30);
-      } else if (period === '7d') {
+      } else if (periodString === '7d') {
         startDate.setDate(startDate.getDate() - 7);
-      } else if (period === '90d') {
+      } else if (periodString === '90d') {
         startDate.setDate(startDate.getDate() - 90);
       }
 
@@ -648,7 +671,7 @@ router.get('/admin/analytics/overview',
                           avgSessionDuration > 5 && bounceRate < 0.5 ? 'Média' : 'Baixa'
         },
 
-        period,
+        period: periodString,
         generatedAt: new Date().toISOString(),
         cached: false
       };
@@ -656,10 +679,10 @@ router.get('/admin/analytics/overview',
       // ====================================================================
       // ARMAZENAR NO CACHE
       // ====================================================================
-      await cacheService.setAnalyticsOverview(overview, period as string);
+      await cacheService.setAnalyticsOverview(overview, periodString as string);
 
       StructuredLogger.debug('Analytics overview calculado e cacheado', {
-        period,
+        period: periodString,
         totalSessions,
         uniqueUsers,
         executionTime: Date.now() - startDate.getTime()
@@ -697,14 +720,14 @@ router.get('/admin/analytics/usage',
         userId: req.user?.id
       });
 
-      const { period = '30d' } = req.query;
+      const periodString2 = getStringParam(req.query.period, '30d');
       const startDate = new Date();
 
-      if (period === '30d') {
+      if (periodString2 === '30d') {
         startDate.setDate(startDate.getDate() - 30);
-      } else if (period === '7d') {
+      } else if (periodString2 === '7d') {
         startDate.setDate(startDate.getDate() - 7);
-      } else if (period === '90d') {
+      } else if (periodString2 === '90d') {
         startDate.setDate(startDate.getDate() - 90);
       }
 
@@ -751,7 +774,7 @@ router.get('/admin/analytics/usage',
               Math.round(Number(day.pageViews) / Number(day.sessions)) : 0
           })),
           featureTrends,
-          period,
+          period: periodString2,
           generatedAt: new Date().toISOString()
         }
       });
@@ -782,14 +805,15 @@ router.get('/admin/analytics/features',
         userId: req.user?.id
       });
 
-      const { period = '30d', category } = req.query;
+      const periodString3 = getStringParam(req.query.period, '30d');
+      const categoryString = getStringParam(req.query.category, '');
       const startDate = new Date();
 
-      if (period === '30d') {
+      if (periodString3 === '30d') {
         startDate.setDate(startDate.getDate() - 30);
-      } else if (period === '7d') {
+      } else if (periodString3 === '7d') {
         startDate.setDate(startDate.getDate() - 7);
-      } else if (period === '90d') {
+      } else if (periodString3 === '90d') {
         startDate.setDate(startDate.getDate() - 90);
       }
 
@@ -798,8 +822,8 @@ router.get('/admin/analytics/features',
         date: { gte: startDate }
       };
 
-      if (category && typeof category === 'string') {
-        whereClause.featureCategory = category;
+      if (categoryString && typeof categoryString === 'string') {
+        whereClause.featureCategory = categoryString;
       }
 
       // Buscar features por usage
@@ -875,7 +899,7 @@ router.get('/admin/analytics/features',
               Math.round((powerUsers / userEngagement.length) * 100) : 0
           },
 
-          period,
+          period: periodString3,
           generatedAt: new Date().toISOString()
         }
       });
@@ -906,17 +930,17 @@ router.get('/admin/analytics/modules',
         userId: req.user?.id
       });
 
-      const { period = 'current' } = req.query;
+      const periodString4 = getStringParam(req.query.period, 'current');
 
       // Calcular período atual (mês atual)
       const currentDate = new Date();
       const currentPeriod = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
 
       const whereClause: any = {};
-      if (period === 'current') {
+      if (periodString4 === 'current') {
         whereClause.period = currentPeriod;
-      } else if (typeof period === 'string') {
-        whereClause.period = period;
+      } else if (typeof periodString4 === 'string') {
+        whereClause.period = periodString4;
       }
 
       // Buscar analytics por módulo
@@ -988,7 +1012,7 @@ router.get('/admin/analytics/modules',
               Math.round((global._sum.totalUsers || 0) / global._count.tenantId) : 0
           })),
 
-          period: period === 'current' ? currentPeriod : period,
+          period: periodString4 === 'current' ? currentPeriod : periodString4,
           generatedAt: new Date().toISOString()
         }
       });
@@ -1019,17 +1043,18 @@ router.get('/admin/analytics/geographic',
         userId: req.user?.id
       });
 
-      const { period = 'current', groupBy = 'estado' } = req.query;
+      const periodString5 = getStringParam(req.query.period, 'current');
+      const groupByString = getStringParam(req.query.groupBy, 'estado');
 
       // Calcular período atual
       const currentDate = new Date();
       const currentPeriod = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
 
       const whereClause: any = {};
-      if (period === 'current') {
+      if (periodString5 === 'current') {
         whereClause.period = currentPeriod;
-      } else if (typeof period === 'string') {
-        whereClause.period = period;
+      } else if (typeof periodString5 === 'string') {
+        whereClause.period = periodString5;
       }
 
       // Buscar dados geográficos
@@ -1051,7 +1076,7 @@ router.get('/admin/analytics/geographic',
 
       // Agrupar por estado ou região
       const groupedData = geoStats.reduce((acc, geo) => {
-        const key = groupBy === 'regiao' ? geo.regiao : geo.estado;
+        const key = groupByString === 'regiao' ? geo.regiao : geo.estado;
 
         if (!acc[key]) {
           acc[key] = {
@@ -1126,8 +1151,8 @@ router.get('/admin/analytics/geographic',
               Math.round((totalStats.usuariosAtivos / totalStats.totalUsuarios) * 100) : 0
           },
 
-          groupBy,
-          period: period === 'current' ? currentPeriod : period,
+          groupBy: groupByString,
+          period: periodString5 === 'current' ? currentPeriod : periodString5,
           generatedAt: new Date().toISOString()
         }
       });
@@ -1264,7 +1289,7 @@ router.get('/admin/analytics/performance',
         healthScore: 95, // Mock - calcular baseado nas métricas
         status: 'healthy',
 
-        period,
+        period: period,
         generatedAt: new Date().toISOString()
       };
 

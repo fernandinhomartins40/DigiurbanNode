@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useBilling, type Invoice, type BillingMetrics, type CreateInvoiceData } from '@/hooks/useBilling';
 import { 
   DollarSign, 
   TrendingUp, 
@@ -40,197 +41,54 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 
 // ====================================================================
-// INTERFACES E TIPOS
+// INTERFACES E TIPOS ADICIONAIS
 // ====================================================================
 
-interface Invoice {
+interface TenantInfo {
   id: string;
-  tenant_id: string;
-  tenant_name: string;
-  numero: string;
-  periodo: string;
-  valor: number;
-  descricao: string;
-  status: 'pendente' | 'pago' | 'vencido' | 'cancelado';
-  data_criacao: string;
-  data_vencimento: string;
-  data_pagamento?: string;
-  metodo_pagamento?: string;
-  desconto: number;
-  taxa_adicional: number;
-  plano: 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE';
-  itens: InvoiceItem[];
-}
-
-interface InvoiceItem {
-  id: string;
-  descricao: string;
-  quantidade: number;
-  valor_unitario: number;
-  valor_total: number;
-  tipo: 'subscription' | 'usage' | 'setup' | 'support';
-}
-
-interface BillingMetrics {
-  mrr: number;
-  arr: number;
-  churn_rate: number;
-  arpu: number; // Average Revenue Per User
-  ltv: number;
-  cac: number;
-  receita_mensal: number;
-  receita_acumulada: number;
-  faturas_pendentes: number;
-  valor_pendente: number;
-  faturas_vencidas: number;
-  valor_vencido: number;
-  taxa_cobranca: number; // Collection rate
-  crescimento: {
-    mrr_growth: number;
-    receita_growth: number;
-    clientes_growth: number;
-  };
-}
-
-interface PaymentMethod {
-  id: string;
-  tenant_id: string;
-  tipo: 'credit_card' | 'debit_card' | 'bank_transfer' | 'pix';
-  dados: Record<string, unknown>;
-  ativo: boolean;
-  padrao: boolean;
+  nome: string;
+  cidade: string;
+  estado: string;
 }
 
 // ====================================================================
-// DADOS MOCK PARA DEMONSTRAÇÃO
+// MOCK DATA - Tenants para dropdown (em produção viria de API)
 // ====================================================================
 
-const mockBillingMetrics: BillingMetrics = {
-  mrr: 89750,
-  arr: 1077000,
-  churn_rate: 3.2,
-  arpu: 1908, // R$ 1.908 por tenant
-  ltv: 28500,
-  cac: 850,
-  receita_mensal: 89750,
-  receita_acumulada: 634250,
-  faturas_pendentes: 8,
-  valor_pendente: 42500,
-  faturas_vencidas: 3,
-  valor_vencido: 15750,
-  taxa_cobranca: 94.2, // 94.2% das faturas são pagas
-  crescimento: {
-    mrr_growth: 12.5,
-    receita_growth: 18.7,
-    clientes_growth: 8.9
-  }
+const mockTenants: TenantInfo[] = [
+  { id: 'tenant-1', nome: 'Prefeitura de São Paulo', cidade: 'São Paulo', estado: 'SP' },
+  { id: 'tenant-2', nome: 'Prefeitura de Campinas', cidade: 'Campinas', estado: 'SP' },
+  { id: 'tenant-3', nome: 'Prefeitura de Ribeirão Preto', cidade: 'Ribeirão Preto', estado: 'SP' },
+];
+
+const planPrices = {
+  basico: 1200,
+  premium: 4500,
+  enterprise: 12500
 };
-
-const mockInvoices: Invoice[] = [
-  {
-    id: '1',
-    tenant_id: 'SP-001',
-    tenant_name: 'Prefeitura de São Paulo',
-    numero: 'FAT-2024-001',
-    periodo: 'Janeiro 2024',
-    valor: 12500,
-    descricao: 'Plano Enterprise + Usuários extras',
-    status: 'pago',
-    data_criacao: '2024-01-01',
-    data_vencimento: '2024-01-10',
-    data_pagamento: '2024-01-08',
-    metodo_pagamento: 'Transferência Bancária',
-    desconto: 0,
-    taxa_adicional: 0,
-    plano: 'ENTERPRISE',
-    itens: [
-      {
-        id: '1-1',
-        descricao: 'Plano Enterprise Base',
-        quantidade: 1,
-        valor_unitario: 10000,
-        valor_total: 10000,
-        tipo: 'subscription'
-      },
-      {
-        id: '1-2',
-        descricao: 'Usuários Extras (50 usuários)',
-        quantidade: 50,
-        valor_unitario: 50,
-        valor_total: 2500,
-        tipo: 'usage'
-      }
-    ]
-  },
-  {
-    id: '2',
-    tenant_id: 'SP-002',
-    tenant_name: 'Prefeitura de Campinas',
-    numero: 'FAT-2024-002',
-    periodo: 'Janeiro 2024',
-    valor: 4500,
-    descricao: 'Plano Professional',
-    status: 'pendente',
-    data_criacao: '2024-01-01',
-    data_vencimento: '2024-01-15',
-    desconto: 0,
-    taxa_adicional: 0,
-    plano: 'PROFESSIONAL',
-    itens: [
-      {
-        id: '2-1',
-        descricao: 'Plano Professional Base',
-        quantidade: 1,
-        valor_unitario: 4500,
-        valor_total: 4500,
-        tipo: 'subscription'
-      }
-    ]
-  },
-  {
-    id: '3',
-    tenant_id: 'SP-003',
-    tenant_name: 'Prefeitura de Ribeirão Preto',
-    numero: 'FAT-2024-003',
-    periodo: 'Janeiro 2024',
-    valor: 1200,
-    descricao: 'Plano Starter',
-    status: 'vencido',
-    data_criacao: '2024-01-01',
-    data_vencimento: '2024-01-08',
-    desconto: 0,
-    taxa_adicional: 50, // Taxa de juros por atraso
-    plano: 'STARTER',
-    itens: [
-      {
-        id: '3-1',
-        descricao: 'Plano Starter Base',
-        quantidade: 1,
-        valor_unitario: 1200,
-        valor_total: 1200,
-        tipo: 'subscription'
-      }
-    ]
-  }
-];
-
-const revenueEvolutionData = [
-  { month: 'Jul', receita: 67250, faturas: 42, taxa_cobranca: 92.1 },
-  { month: 'Ago', receita: 72100, faturas: 44, taxa_cobranca: 94.8 },
-  { month: 'Set', receita: 78950, faturas: 46, taxa_cobranca: 91.3 },
-  { month: 'Out', receita: 83200, faturas: 47, taxa_cobranca: 95.7 },
-  { month: 'Nov', receita: 89750, faturas: 47, taxa_cobranca: 94.2 }
-];
 
 // ====================================================================
 // COMPONENTE PRINCIPAL
 // ====================================================================
 
 const BillingManagement: React.FC = () => {
-  const [metrics, setMetrics] = useState<BillingMetrics>(mockBillingMetrics);
-  const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices);
-  const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>(mockInvoices);
-  const [loading, setLoading] = useState(false);
+  // Hook de billing com APIs reais
+  const {
+    metrics,
+    invoices,
+    loading,
+    error,
+    fetchInvoices,
+    createInvoice,
+    markInvoiceAsPaid,
+    markOverdueInvoices,
+    fetchRevenueEvolution,
+    clearError
+  } = useBilling();
+
+  // Estados locais
+  const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
+  const [revenueEvolution, setRevenueEvolution] = useState<any[]>([]);
   const [filters, setFilters] = useState({
     status: '',
     plano: '',
@@ -243,11 +101,13 @@ const BillingManagement: React.FC = () => {
   const [showInvoiceDetails, setShowInvoiceDetails] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [newInvoiceData, setNewInvoiceData] = useState({
-    tenant_name: '',
-    plano: 'STARTER',
+    tenantId: '',
+    tenant_name: '', // Para exibição no form
+    plano: 'basico' as 'basico' | 'premium' | 'enterprise',
     valor: 1200,
     descricao: '',
-    data_vencimento: ''
+    periodo: '',
+    dataVencimento: ''
   });
 
   // Funções de ação para faturas
@@ -255,40 +115,40 @@ const BillingManagement: React.FC = () => {
     setShowCreateModal(true);
   };
 
-  const handleSubmitNewInvoice = () => {
-    if (newInvoiceData.tenant_name.trim()) {
-      const newInvoice: Invoice = {
-        id: (invoices.length + 1).toString(),
-        tenant_id: `NEW-${invoices.length + 1}`,
-        tenant_name: newInvoiceData.tenant_name.trim(),
-        numero: `FAT-2024-${String(invoices.length + 1).padStart(3, '0')}`,
-        periodo: 'Janeiro 2024',
-        valor: newInvoiceData.valor,
-        descricao: newInvoiceData.descricao || `Plano ${newInvoiceData.plano}`,
-        status: 'pendente',
-        data_criacao: new Date().toISOString().split('T')[0],
-        data_vencimento: newInvoiceData.data_vencimento || new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        desconto: 0,
-        taxa_adicional: 0,
-        plano: newInvoiceData.plano as any,
-        itens: [{
-          id: '1',
-          descricao: `Plano ${newInvoiceData.plano} Base`,
-          quantidade: 1,
-          valor_unitario: newInvoiceData.valor,
-          valor_total: newInvoiceData.valor,
-          tipo: 'subscription'
-        }]
-      };
-      setInvoices(prev => [...prev, newInvoice]);
-      setShowCreateModal(false);
-      setNewInvoiceData({
-        tenant_name: '',
-        plano: 'STARTER',
-        valor: 1200,
-        descricao: '',
-        data_vencimento: ''
-      });
+  const handleSubmitNewInvoice = async () => {
+    if (newInvoiceData.tenantId && newInvoiceData.tenant_name.trim()) {
+      try {
+        const invoiceData: CreateInvoiceData = {
+          tenantId: newInvoiceData.tenantId,
+          periodo: newInvoiceData.periodo || `${new Date().toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}`,
+          valor: newInvoiceData.valor,
+          descricao: newInvoiceData.descricao || `Plano ${newInvoiceData.plano.charAt(0).toUpperCase() + newInvoiceData.plano.slice(1)}`,
+          dataVencimento: newInvoiceData.dataVencimento || new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          plano: newInvoiceData.plano,
+          desconto: 0,
+          taxaAdicional: 0
+        };
+
+        await createInvoice(invoiceData);
+
+        setShowCreateModal(false);
+        setNewInvoiceData({
+          tenantId: '',
+          tenant_name: '',
+          plano: 'basico',
+          valor: 1200,
+          descricao: '',
+          periodo: '',
+          dataVencimento: ''
+        });
+
+        // Mostrar sucesso
+        alert('Fatura criada com sucesso!');
+      } catch (err) {
+        alert('Erro ao criar fatura: ' + (err instanceof Error ? err.message : 'Erro desconhecido'));
+      }
+    } else {
+      alert('Por favor, selecione um tenant');
     }
   };
 
@@ -337,27 +197,48 @@ const BillingManagement: React.FC = () => {
     applyFilters();
   }, [filters, invoices]);
 
+  useEffect(() => {
+    // Carregar dados de evolução de receita
+    const loadRevenueEvolution = async () => {
+      try {
+        const data = await fetchRevenueEvolution(6);
+        setRevenueEvolution(data || []);
+      } catch (error) {
+        console.error('Erro ao carregar evolução de receita:', error);
+        // Usar dados mock se falhar
+        setRevenueEvolution([
+          { periodo: 'Jul', receita: 67250, faturas: 42, taxaCobranca: 92.1 },
+          { periodo: 'Ago', receita: 72100, faturas: 44, taxaCobranca: 94.8 },
+          { periodo: 'Set', receita: 78950, faturas: 46, taxaCobranca: 91.3 },
+          { periodo: 'Out', receita: 83200, faturas: 47, taxaCobranca: 95.7 },
+          { periodo: 'Nov', receita: 89750, faturas: 47, taxaCobranca: 94.2 }
+        ]);
+      }
+    };
+
+    loadRevenueEvolution();
+  }, [fetchRevenueEvolution]);
+
   const applyFilters = () => {
     let filtered = [...invoices];
 
     if (filters.status) {
       filtered = filtered.filter(invoice => invoice.status === filters.status);
     }
-    
+
     if (filters.plano) {
       filtered = filtered.filter(invoice => invoice.plano === filters.plano);
     }
-    
+
     if (filters.periodo) {
-      filtered = filtered.filter(invoice => 
+      filtered = filtered.filter(invoice =>
         invoice.periodo.toLowerCase().includes(filters.periodo.toLowerCase())
       );
     }
-    
+
     if (filters.busca) {
       const busca = filters.busca.toLowerCase();
-      filtered = filtered.filter(invoice => 
-        invoice.tenant_name.toLowerCase().includes(busca) ||
+      filtered = filtered.filter(invoice =>
         invoice.numero.toLowerCase().includes(busca) ||
         invoice.descricao.toLowerCase().includes(busca)
       );
@@ -395,13 +276,13 @@ const BillingManagement: React.FC = () => {
 
   const getPlanoBadge = (plano: string) => {
     const planoConfig = {
-      STARTER: { label: 'Starter', color: 'bg-purple-100 text-purple-800' },
-      PROFESSIONAL: { label: 'Professional', color: 'bg-blue-100 text-blue-800' },
-      ENTERPRISE: { label: 'Enterprise', color: 'bg-green-100 text-green-800' }
+      basico: { label: 'Básico', color: 'bg-purple-100 text-purple-800' },
+      premium: { label: 'Premium', color: 'bg-blue-100 text-blue-800' },
+      enterprise: { label: 'Enterprise', color: 'bg-green-100 text-green-800' }
     };
-    
+
     const config = planoConfig[plano as keyof typeof planoConfig];
-    return <Badge className={config.color}>{config.label}</Badge>;
+    return <Badge className={config?.color || 'bg-gray-100 text-gray-800'}>{config?.label || plano}</Badge>;
   };
 
   // ====================================================================
@@ -432,19 +313,49 @@ const BillingManagement: React.FC = () => {
 
       <SuperAdminContent>
 
+      {/* Indicador de Loading/Erro */}
+      {loading && (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+            <p className="text-gray-600">Carregando dados...</p>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              <p className="text-red-800 font-medium">Erro ao carregar dados</p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={clearError}
+              className="text-red-600 border-red-200"
+            >
+              Tentar novamente
+            </Button>
+          </div>
+          <p className="text-red-600 text-sm mt-1">{error}</p>
+        </div>
+      )}
+
       {/* Métricas Financeiras Principais */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        
+
         {/* MRR */}
         <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50 hover:shadow-lg transition-all">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-green-700">MRR</p>
-                <p className="text-3xl font-bold text-green-900">{formatCurrency(metrics.mrr)}</p>
+                <p className="text-3xl font-bold text-green-900">{formatCurrency(metrics?.mrr || 0)}</p>
                 <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
                   <TrendingUp className="h-3 w-3" />
-                  {formatPercentage(metrics.crescimento.mrr_growth)} vs mês anterior
+                  {formatPercentage(metrics?.crescimentoMRR || 0)} vs mês anterior
                 </p>
               </div>
               <DollarSign className="h-8 w-8 text-green-600" />
@@ -458,7 +369,7 @@ const BillingManagement: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-blue-700">ARPU</p>
-                <p className="text-3xl font-bold text-blue-900">{formatCurrency(metrics.arpu)}</p>
+                <p className="text-3xl font-bold text-blue-900">{formatCurrency(metrics?.arpu || 0)}</p>
                 <p className="text-xs text-blue-600 flex items-center gap-1 mt-1">
                   <Target className="h-3 w-3" />
                   Receita por tenant
@@ -475,7 +386,7 @@ const BillingManagement: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-purple-700">Taxa Cobrança</p>
-                <p className="text-3xl font-bold text-purple-900">{metrics.taxa_cobranca.toFixed(1)}%</p>
+                <p className="text-3xl font-bold text-purple-900">{(metrics?.taxaCobranca || 0).toFixed(1)}%</p>
                 <p className="text-xs text-purple-600 flex items-center gap-1 mt-1">
                   <CheckCircle className="h-3 w-3" />
                   Eficiência de cobrança
@@ -492,10 +403,10 @@ const BillingManagement: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-orange-700">Pendentes</p>
-                <p className="text-3xl font-bold text-orange-900">{formatCurrency(metrics.valor_pendente)}</p>
+                <p className="text-3xl font-bold text-orange-900">{formatCurrency(metrics?.valorPendente || 0)}</p>
                 <p className="text-xs text-orange-600 flex items-center gap-1 mt-1">
                   <Clock className="h-3 w-3" />
-                  {metrics.faturas_pendentes} faturas
+                  {metrics?.faturasPendentes || 0} faturas
                 </p>
               </div>
               <AlertCircle className="h-8 w-8 text-orange-600" />
@@ -518,15 +429,17 @@ const BillingManagement: React.FC = () => {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">ARR Projetado</span>
-              <span className="font-bold text-lg">{formatCurrency(metrics.arr)}</span>
+              <span className="font-bold text-lg">{formatCurrency(metrics?.arr || 0)}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">LTV Médio</span>
-              <span className="font-bold text-lg">{formatCurrency(metrics.ltv)}</span>
+              <span className="font-bold text-lg">{formatCurrency(metrics?.ltv || 0)}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">LTV/CAC Ratio</span>
-              <span className="font-bold text-lg text-green-600">{(metrics.ltv / metrics.cac).toFixed(1)}x</span>
+              <span className="font-bold text-lg text-green-600">
+                {metrics?.ltv && metrics?.cac ? (metrics.ltv / metrics.cac).toFixed(1) : '0'}x
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -544,25 +457,30 @@ const BillingManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {revenueEvolutionData.map((data, index) => (
+              {revenueEvolution.map((data, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <div className="font-medium text-sm w-12">{data.month}</div>
+                    <div className="font-medium text-sm w-12">{data.periodo}</div>
                     <div className="w-48 bg-gray-200 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full"
-                        style={{ width: `${(data.receita / Math.max(...revenueEvolutionData.map(d => d.receita))) * 100}%` }}
+                        style={{ width: `${revenueEvolution.length > 0 ? (data.receita / Math.max(...revenueEvolution.map(d => d.receita))) * 100 : 0}%` }}
                       ></div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 text-sm">
                     <span className="font-semibold text-green-600">{formatCurrency(data.receita)}</span>
                     <Badge variant="outline" className="text-xs">
-                      {data.taxa_cobranca}% cobrança
+                      {data.taxaCobranca}% cobrança
                     </Badge>
                   </div>
                 </div>
               ))}
+              {revenueEvolution.length === 0 && (
+                <div className="text-center py-4 text-gray-500">
+                  <p>Nenhum dado de evolução disponível</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -606,9 +524,9 @@ const BillingManagement: React.FC = () => {
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             >
               <option value="">Todos os Planos</option>
-              <option value="STARTER">Starter</option>
-              <option value="PROFESSIONAL">Professional</option>
-              <option value="ENTERPRISE">Enterprise</option>
+              <option value="basico">Básico</option>
+              <option value="premium">Premium</option>
+              <option value="enterprise">Enterprise</option>
             </select>
 
             <Input
@@ -664,20 +582,20 @@ const BillingManagement: React.FC = () => {
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600">Vencimento:</span>
                           <span className="font-medium">
-                            {new Date(invoice.data_vencimento).toLocaleDateString('pt-BR')}
+                            {new Date(invoice.dataVencimento).toLocaleDateString('pt-BR')}
                           </span>
                         </div>
-                        {invoice.data_pagamento && (
+                        {invoice.dataPagamento && (
                           <div className="flex items-center justify-between">
                             <span className="text-gray-600">Pagamento:</span>
                             <span className="font-medium text-green-600">
-                              {new Date(invoice.data_pagamento).toLocaleDateString('pt-BR')}
+                              {new Date(invoice.dataPagamento).toLocaleDateString('pt-BR')}
                             </span>
                           </div>
                         )}
-                        {invoice.metodo_pagamento && (
+                        {invoice.metodoPagamento && (
                           <div className="text-xs text-gray-500">
-                            Via: {invoice.metodo_pagamento}
+                            Via: {invoice.metodoPagamento}
                           </div>
                         )}
                       </div>
@@ -687,11 +605,11 @@ const BillingManagement: React.FC = () => {
                     <div className="lg:col-span-2">
                       <div className="text-center">
                         <p className="text-2xl font-bold text-blue-600">
-                          {formatCurrency(invoice.valor + invoice.taxa_adicional)}
+                          {formatCurrency(invoice.valor + invoice.taxaAdicional)}
                         </p>
-                        {invoice.taxa_adicional > 0 && (
+                        {invoice.taxaAdicional > 0 && (
                           <p className="text-xs text-red-500">
-                            + {formatCurrency(invoice.taxa_adicional)} juros
+                            + {formatCurrency(invoice.taxaAdicional)} juros
                           </p>
                         )}
                         {invoice.desconto > 0 && (
@@ -773,25 +691,50 @@ const BillingManagement: React.FC = () => {
           
           <div className="space-y-4 py-4">
             <div>
-              <Label htmlFor="tenant_name">Nome da Prefeitura *</Label>
+              <Label htmlFor="tenant_name">Tenant *</Label>
+              <Select
+                value={newInvoiceData.tenantId}
+                onValueChange={(value) => {
+                  const tenant = mockTenants.find(t => t.id === value);
+                  setNewInvoiceData(prev => ({
+                    ...prev,
+                    tenantId: value,
+                    tenant_name: tenant?.nome || ''
+                  }));
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um tenant" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockTenants.map(tenant => (
+                    <SelectItem key={tenant.id} value={tenant.id}>
+                      {tenant.nome} - {tenant.cidade}/{tenant.estado}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="periodo">Período *</Label>
               <Input
-                id="tenant_name"
-                value={newInvoiceData.tenant_name}
-                onChange={(e) => setNewInvoiceData(prev => ({ ...prev, tenant_name: e.target.value }))}
-                placeholder="Ex: Prefeitura de São Paulo"
+                id="periodo"
+                value={newInvoiceData.periodo}
+                onChange={(e) => setNewInvoiceData(prev => ({ ...prev, periodo: e.target.value }))}
+                placeholder="Ex: Janeiro 2024"
               />
             </div>
             
             <div>
               <Label htmlFor="plano">Plano *</Label>
-              <Select 
-                value={newInvoiceData.plano} 
+              <Select
+                value={newInvoiceData.plano}
                 onValueChange={(value) => {
-                  const valores = { STARTER: 1200, PROFESSIONAL: 4500, ENTERPRISE: 12500 };
-                  setNewInvoiceData(prev => ({ 
-                    ...prev, 
-                    plano: value,
-                    valor: valores[value as keyof typeof valores] 
+                  setNewInvoiceData(prev => ({
+                    ...prev,
+                    plano: value as 'basico' | 'premium' | 'enterprise',
+                    valor: planPrices[value as keyof typeof planPrices]
                   }));
                 }}
               >
@@ -799,9 +742,9 @@ const BillingManagement: React.FC = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="STARTER">Starter - R$ 1.200</SelectItem>
-                  <SelectItem value="PROFESSIONAL">Professional - R$ 4.500</SelectItem>
-                  <SelectItem value="ENTERPRISE">Enterprise - R$ 12.500</SelectItem>
+                  <SelectItem value="basico">Básico - {formatCurrency(planPrices.basico)}</SelectItem>
+                  <SelectItem value="premium">Premium - {formatCurrency(planPrices.premium)}</SelectItem>
+                  <SelectItem value="enterprise">Enterprise - {formatCurrency(planPrices.enterprise)}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -817,12 +760,12 @@ const BillingManagement: React.FC = () => {
             </div>
             
             <div>
-              <Label htmlFor="data_vencimento">Data de Vencimento</Label>
+              <Label htmlFor="dataVencimento">Data de Vencimento</Label>
               <Input
-                id="data_vencimento"
+                id="dataVencimento"
                 type="date"
-                value={newInvoiceData.data_vencimento}
-                onChange={(e) => setNewInvoiceData(prev => ({ ...prev, data_vencimento: e.target.value }))}
+                value={newInvoiceData.dataVencimento}
+                onChange={(e) => setNewInvoiceData(prev => ({ ...prev, dataVencimento: e.target.value }))}
               />
             </div>
             
@@ -841,12 +784,12 @@ const BillingManagement: React.FC = () => {
             <Button variant="outline" onClick={() => setShowCreateModal(false)}>
               Cancelar
             </Button>
-            <Button 
+            <Button
               onClick={handleSubmitNewInvoice}
               className="bg-green-600 hover:bg-green-700"
-              disabled={!newInvoiceData.tenant_name.trim()}
+              disabled={!newInvoiceData.tenantId || !newInvoiceData.periodo.trim() || loading}
             >
-              Criar Fatura
+              {loading ? 'Criando...' : 'Criar Fatura'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -911,10 +854,10 @@ const BillingManagement: React.FC = () => {
                         <span className="text-gray-600">Vencimento:</span>
                         <p className="font-medium">{new Date(invoice.data_vencimento).toLocaleDateString('pt-BR')}</p>
                       </div>
-                      {invoice.data_pagamento && (
+                      {invoice.dataPagamento && (
                         <div>
                           <span className="text-gray-600">Pagamento:</span>
-                          <p className="font-medium text-green-600">{new Date(invoice.data_pagamento).toLocaleDateString('pt-BR')}</p>
+                          <p className="font-medium text-green-600">{new Date(invoice.dataPagamento).toLocaleDateString('pt-BR')}</p>
                         </div>
                       )}
                     </div>
@@ -940,13 +883,13 @@ const BillingManagement: React.FC = () => {
                     <div className="mt-4 pt-4 border-t border-green-200">
                       <div className="flex justify-between items-center text-lg font-bold">
                         <span>Total:</span>
-                        <span className="text-green-600">{formatCurrency(invoice.valor + invoice.taxa_adicional - invoice.desconto)}</span>
+                        <span className="text-green-600">{formatCurrency(invoice.valor + invoice.taxaAdicional - invoice.desconto)}</span>
                       </div>
-                      {(invoice.desconto > 0 || invoice.taxa_adicional > 0) && (
+                      {(invoice.desconto > 0 || invoice.taxaAdicional > 0) && (
                         <div className="text-sm text-gray-600 mt-2">
                           <p>Subtotal: {formatCurrency(invoice.valor)}</p>
                           {invoice.desconto > 0 && <p className="text-green-600">Desconto: -{formatCurrency(invoice.desconto)}</p>}
-                          {invoice.taxa_adicional > 0 && <p className="text-red-600">Taxa adicional: +{formatCurrency(invoice.taxa_adicional)}</p>}
+                          {invoice.taxaAdicional > 0 && <p className="text-red-600">Taxa adicional: +{formatCurrency(invoice.taxaAdicional)}</p>}
                         </div>
                       )}
                     </div>

@@ -68,6 +68,7 @@ export class InitialAdminSeed {
         if (!existingTenant) {
           const tenant = await TenantModel?.create?.({
             nome: process.env.INITIAL_ADMIN_TENANT_NAME || 'Administração Central',
+            email: process.env.INITIAL_ADMIN_TENANT_EMAIL || 'admin@digiurban.gov.br',
             cidade: 'São Paulo',
             estado: 'SP',
             cnpj: process.env.INITIAL_ADMIN_TENANT_CNPJ || '00.000.000/0001-00',
