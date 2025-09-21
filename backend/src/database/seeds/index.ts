@@ -16,17 +16,14 @@ const prisma = new PrismaClient();
 const ENVIRONMENT = process.env.NODE_ENV || 'development';
 const SEED_CONFIG = {
   base: [
-    '000_base_permissions',
-    '001_system_config',
-    '002_super_admin'
+    '001_initial_admin',
+    '001_initial_data'
   ],
   development: [
-    'dev/100_demo_tenant',
-    'dev/101_test_data',
-    'dev/102_billing_samples'
+    // Adicionar seeds de desenvolvimento futuramente se necessário
   ],
   production: [
-    'prod/200_production_only'
+    // Seeds apenas para produção (se necessário)
   ]
 };
 
