@@ -141,6 +141,73 @@ tenantRoutes.post('/',
 );
 
 /**
+ * GET /tenants/check-cnpj
+ * Verificar disponibilidade de CNPJ
+ */
+tenantRoutes.get('/check-cnpj',
+  authMiddleware,
+  requireSuperAdmin,
+  query('cnpj').notEmpty(),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { cnpj } = req.query;
+
+      const exists = await TenantModel.checkCnpjExists(cnpj as string);
+
+      res.json({
+        success: true,
+        message: 'Verificação de CNPJ realizada',
+        data: {
+          available: !exists,
+          exists
+        }
+      });
+
+    } catch (error) {
+      console.error('Erro ao verificar CNPJ:', error);
+
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Erro interno do servidor'
+      });
+    }
+  }
+);
+
+/**
+ * GET /tenants/check-code
+ * Verificar disponibilidade de código de tenant
+ */
+tenantRoutes.get('/check-code',
+  authMiddleware,
+  requireSuperAdmin,
+  query('code').notEmpty(),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { code } = req.query;
+
+      const exists = await TenantModel.checkCodeExists(code as string);
+
+      res.json({
+        success: true,
+        message: 'Verificação de código realizada',
+        data: {
+          exists
+        }
+      });
+
+    } catch (error) {
+      console.error('Erro ao verificar código:', error);
+
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Erro interno do servidor'
+      });
+    }
+  }
+);
+
+/**
  * GET /tenants
  * Listar tenants
  */
@@ -179,7 +246,7 @@ tenantRoutes.get('/',
 
     } catch (error) {
       console.error('Erro ao listar tenants:', error);
-      
+
       res.status(500).json({
         success: false,
         error: error instanceof Error ? error.message : 'Erro interno do servidor'
@@ -199,9 +266,9 @@ tenantRoutes.get('/:tenantId',
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { tenantId } = req.params;
-      
+
       const tenant = await TenantModel.getTenantById(tenantId);
-      
+
       if (!tenant) {
         res.status(404).json({
           success: false,
@@ -218,7 +285,7 @@ tenantRoutes.get('/:tenantId',
 
     } catch (error) {
       console.error('Erro ao obter tenant:', error);
-      
+
       res.status(500).json({
         success: false,
         error: error instanceof Error ? error.message : 'Erro interno do servidor'
@@ -357,72 +424,6 @@ tenantRoutes.delete('/:tenantId',
   }
 );
 
-/**
- * GET /tenants/check-cnpj
- * Verificar disponibilidade de CNPJ
- */
-tenantRoutes.get('/check-cnpj',
-  authMiddleware,
-  requireSuperAdmin,
-  query('cnpj').notEmpty(),
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { cnpj } = req.query;
-      
-      const exists = await TenantModel.checkCnpjExists(cnpj as string);
-      
-      res.json({
-        success: true,
-        message: 'Verificação de CNPJ realizada',
-        data: {
-          available: !exists,
-          exists
-        }
-      });
-
-    } catch (error) {
-      console.error('Erro ao verificar CNPJ:', error);
-      
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Erro interno do servidor'
-      });
-    }
-  }
-);
-
-/**
- * GET /tenants/check-code
- * Verificar disponibilidade de código de tenant
- */
-tenantRoutes.get('/check-code',
-  authMiddleware,
-  requireSuperAdmin,
-  query('code').notEmpty(),
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { code } = req.query;
-      
-      const exists = await TenantModel.checkCodeExists(code as string);
-      
-      res.json({
-        success: true,
-        message: 'Verificação de código realizada',
-        data: {
-          exists
-        }
-      });
-
-    } catch (error) {
-      console.error('Erro ao verificar código:', error);
-      
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Erro interno do servidor'
-      });
-    }
-  }
-);
 
 /**
  * PUT /tenants/:tenantId/admin-status
