@@ -18,7 +18,7 @@ export interface Activity {
   userId?: string;
   tenantId?: string;
   action: string;
-  resource: string;
+  resource?: string;
   resourceId?: string;
   details?: string;
   ipAddress?: string;
@@ -30,7 +30,7 @@ export interface CreateActivityData {
   user_id?: string;
   tenant_id?: string;
   action: string;
-  resource: string;
+  resource?: string;
   resource_id?: string;
   details?: string;
   ip_address?: string;
@@ -52,11 +52,12 @@ export class ActivityModel {
           userId: activityData.user_id || null,
           tenantId: activityData.tenant_id || null,
           action: activityData.action,
-          resource: activityData.resource,
+          resource: activityData.resource || null,
           resourceId: activityData.resource_id || null,
           details: activityData.details || null,
           ipAddress: activityData.ip_address || null,
-          userAgent: activityData.user_agent || null
+          userAgent: activityData.user_agent || null,
+          createdAt: new Date()
         }
       });
 

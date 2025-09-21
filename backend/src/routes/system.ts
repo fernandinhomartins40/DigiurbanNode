@@ -66,8 +66,12 @@ systemRoutes.post('/activity-logs',
   async (req: Request, res: Response): Promise<void> => {
     try {
       const logData = {
-        ...req.body,
         user_id: req.user!.id,
+        tenant_id: req.body.tenant_id,
+        action: req.body.acao || 'unknown',
+        resource: req.body.categoria || 'system',
+        resource_id: req.body.resource_id,
+        details: req.body.detalhes || JSON.stringify(req.body.metadata || {}),
         ip_address: req.ip,
         user_agent: req.get('User-Agent')
       };
