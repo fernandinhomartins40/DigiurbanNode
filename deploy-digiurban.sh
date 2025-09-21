@@ -261,17 +261,11 @@ ssh $SERVER "
     fi
 
     echo '🔓 Ativando usuários criados...'
-    docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified sh -c "cd /app/backend && node -e \"
-const { PrismaClient } = require('@prisma/client');
-(async () => {
-  const prisma = new PrismaClient();
-  const result = await prisma.user.updateMany({
-    data: { status: 'ativo' }
-  });
-  console.log('✅ ' + result.count + ' usuários ativados');
-  await prisma.\\\$disconnect();
-})().catch(console.error);
-\"" || echo '⚠️ Ativação com warnings'
+    if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified node /app/scripts/activate-users.js; then
+        echo '✅ Usuários ativados com sucesso'
+    else
+        echo '⚠️ Aviso: Problema na ativação de usuários, mas deploy continuou'
+    fi
 
     echo '🔍 Verificando integridade do banco...'
     if docker exec digiurban-unified sh -c 'cd /app/data && ls -la digiurban.db*'; then
