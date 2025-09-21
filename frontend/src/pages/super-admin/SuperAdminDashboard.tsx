@@ -218,7 +218,7 @@ const SuperAdminDashboard: React.FC = () => {
             userGrowth: 15.2, // Mock - implementar baseado em analytics
             protocolGrowth: 23.7 // Mock - implementar baseado em atividade
           },
-          alerts: alertsData || []
+          alerts: Array.isArray(alertsData) ? alertsData : []
         };
 
         // Processar dados de evolução de receita
