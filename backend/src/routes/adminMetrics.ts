@@ -50,9 +50,9 @@ adminMetricsRoutes.get('/tenants/:tenantId/users/active',
 
       const activeUsersCount = await prisma.user.count({
         where: {
-          tenant_id: tenantId,
+          tenantId: tenantId,
           status: 'ativo',
-          last_login: {
+          ultimoLogin: {
             gte: thirtyDaysAgo
           }
         }
@@ -96,7 +96,7 @@ adminMetricsRoutes.get('/tenants/:tenantId/protocols/count',
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { tenantId } = req.params;
-      const { month } = req.query;
+      const month = req.query.month as string;
 
       let startDate: Date;
       let endDate: Date;
@@ -117,9 +117,9 @@ adminMetricsRoutes.get('/tenants/:tenantId/protocols/count',
       // Em um sistema real, isso seria uma query na tabela de protocolos
       const protocolsCount = await prisma.user.count({
         where: {
-          tenant_id: tenantId,
+          tenantId: tenantId,
           status: 'ativo',
-          updated_at: {
+          updatedAt: {
             gte: startDate,
             lte: endDate
           }
@@ -148,7 +148,7 @@ adminMetricsRoutes.get('/tenants/:tenantId/protocols/count',
     } catch (error) {
       StructuredLogger.error('Erro ao obter contagem de protocolos', error as Error, {
         tenantId: req.params.tenantId,
-        month: req.query.month
+        month: month
       });
 
       res.status(500).json({
@@ -304,7 +304,7 @@ adminMetricsRoutes.get('/billing/tenant/:tenantId/revenue',
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { tenantId } = req.params;
-      const { month } = req.query;
+      const month = req.query.month as string;
 
       // Buscar tenant para obter plano e calcular receita
       const tenant = await prisma.tenant.findUnique({
@@ -368,7 +368,7 @@ adminMetricsRoutes.get('/billing/tenant/:tenantId/revenue',
     } catch (error) {
       StructuredLogger.error('Erro ao calcular receita do tenant', error as Error, {
         tenantId: req.params.tenantId,
-        month: req.query.month
+        month: month
       });
 
       res.status(500).json({
@@ -422,7 +422,7 @@ adminMetricsRoutes.get('/support/tenant/:tenantId/metrics',
 
       StructuredLogger.info('Métricas de suporte consultadas', {
         tenantId,
-        openTickets,
+        count: openTickets,
         totalTickets,
         avgRating,
         plano: tenant.plano
@@ -492,7 +492,7 @@ adminMetricsRoutes.get('/monitoring/tenant/:tenantId/metrics',
 
       StructuredLogger.info('Métricas de monitoramento consultadas', {
         tenantId,
-        uptime: uptimePercentage,
+        uptimePercentage: uptimePercentage,
         responseTime: avgResponseTime,
         plano: tenant.plano
       });
