@@ -79,9 +79,14 @@ const executeSeed = async (seedName: string): Promise<void> => {
     // Dinamicamente importar e executar o seed
     const seedModule = await import(`./${seedName}.js`);
 
-    if (typeof seedModule.default === 'function') {
+    if (seedModule.default && typeof seedModule.default.execute === 'function') {
+      // Classe com método estático execute()
+      await seedModule.default.execute();
+    } else if (typeof seedModule.default === 'function') {
+      // Função direta
       await seedModule.default();
     } else if (typeof seedModule.run === 'function') {
+      // Método run
       await seedModule.run();
     } else {
       console.warn(`  ⚠️  Seed ${seedName} não possui função executável`);
