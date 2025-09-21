@@ -222,14 +222,20 @@ tenantRoutes.get('/',
   ],
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { status, plano, limit = 50, offset = 0, include_suspended } = req.query;
+      const { status, plano, limit = 100, offset = 0, include_suspended } = req.query;
 
-      // Por padrão, filtrar tenants suspensos EXCETO se explicitamente solicitado
+      // Por padrão, mostrar TODOS os tenants (ativo, inativo, suspenso)
+      // Filtrar apenas se status específico for solicitado
       let statusFilter = status as string;
-      if (!statusFilter && !include_suspended) {
-        // Se não especificou status e não pediu para incluir suspensos, filtrar apenas ativos
-        statusFilter = 'ativo';
-      }
+
+      // Log para debug
+      console.log('🔍 Listando tenants - Filtros:', {
+        status: statusFilter,
+        plano,
+        limit,
+        offset,
+        include_suspended
+      });
 
       const tenants = await TenantModel.getTenants({
         status: statusFilter,
@@ -237,6 +243,28 @@ tenantRoutes.get('/',
         limit: parseInt(limit as string),
         offset: parseInt(offset as string)
       });
+
+      // Log detalhado para debug
+      console.log('📊 Resultado da consulta:', {
+        total_tenants: tenants.total,
+        tenants_returned: tenants.tenants?.length || 0,
+        filters_applied: {
+          status: statusFilter,
+          plano,
+          limit: parseInt(limit as string),
+          offset: parseInt(offset as string)
+        }
+      });
+
+      // Log dos primeiros tenants para debug
+      if (tenants.tenants && tenants.tenants.length > 0) {
+        console.log('📋 Primeiros tenants:', tenants.tenants.slice(0, 3).map(t => ({
+          id: t.id,
+          nome: t.nome,
+          status: t.status,
+          cnpj: t.cnpj
+        })));
+      }
 
       res.json({
         success: true,
