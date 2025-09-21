@@ -122,6 +122,15 @@ export interface LogContext {
   warnings?: number;
   uniqueUsers?: number;
   metrics?: any;
+
+  // Propriedades para adminMetrics.ts
+  timestamp?: string;
+  lastUser?: string;
+  featuresCount?: number;
+  status?: string;
+  uptimePercentage?: number;
+  total?: number;
+  avgRating?: number;
 }
 
 export interface ErrorLogContext extends LogContext {

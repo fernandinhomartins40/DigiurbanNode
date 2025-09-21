@@ -148,7 +148,7 @@ adminMetricsRoutes.get('/tenants/:tenantId/protocols/count',
     } catch (error) {
       StructuredLogger.error('Erro ao obter contagem de protocolos', error as Error, {
         tenantId: req.params.tenantId,
-        month: month
+        period: 'current'
       });
 
       res.status(500).json({
@@ -175,29 +175,29 @@ adminMetricsRoutes.get('/tenants/:tenantId/last-access',
       // Buscar último login de qualquer usuário do tenant
       const lastAccess = await prisma.user.findFirst({
         where: {
-          tenant_id: tenantId
+          tenantId: tenantId
         },
         orderBy: {
-          last_login: 'desc'
+          ultimoLogin: 'desc'
         },
         select: {
-          last_login: true,
-          nome: true
+          ultimoLogin: true,
+          nomeCompleto: true
         }
       });
 
-      const timestamp = lastAccess?.last_login?.toISOString() || new Date().toISOString();
+      const timestamp = lastAccess?.ultimoLogin?.toISOString() || new Date().toISOString();
 
       StructuredLogger.info('Último acesso do tenant consultado', {
         tenantId,
-        lastAccess: timestamp,
-        lastUser: lastAccess?.nome
+        timestamp: timestamp,
+        lastUser: lastAccess?.nomeCompleto
       });
 
       res.json({
         success: true,
         timestamp,
-        last_user: lastAccess?.nome || null,
+        last_user: lastAccess?.nomeCompleto || null,
         calculated_at: new Date().toISOString()
       });
 
@@ -312,7 +312,7 @@ adminMetricsRoutes.get('/billing/tenant/:tenantId/revenue',
         select: {
           plano: true,
           status: true,
-          created_at: true
+          createdAt: true
         }
       });
 
@@ -350,7 +350,7 @@ adminMetricsRoutes.get('/billing/tenant/:tenantId/revenue',
 
       StructuredLogger.info('Receita do tenant calculada', {
         tenantId,
-        revenue: monthlyRevenue,
+        mrr: monthlyRevenue,
         plano: tenant.plano,
         status: tenant.status,
         period: month || 'current_month'
@@ -368,7 +368,7 @@ adminMetricsRoutes.get('/billing/tenant/:tenantId/revenue',
     } catch (error) {
       StructuredLogger.error('Erro ao calcular receita do tenant', error as Error, {
         tenantId: req.params.tenantId,
-        month: month
+        period: 'current'
       });
 
       res.status(500).json({
@@ -423,7 +423,7 @@ adminMetricsRoutes.get('/support/tenant/:tenantId/metrics',
       StructuredLogger.info('Métricas de suporte consultadas', {
         tenantId,
         count: openTickets,
-        totalTickets,
+        total: totalTickets,
         avgRating,
         plano: tenant.plano
       });
