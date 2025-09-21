@@ -198,7 +198,7 @@ ssh $SERVER "
         -p $PUBLIC_PORT:3020 \
         -v $APP_DIR/data:/app/data \
         -e NODE_ENV=production \
-        -e DATABASE_URL=\"file:/app/data/digiurban_production.db\" \
+        -e DATABASE_URL=\"file:/app/data/digiurban.db\" \
         -e JWT_SECRET=\"\$(openssl rand -base64 64 | tr -d '\\n')\" \
         -e JWT_REFRESH_SECRET=\"\$(openssl rand -base64 64 | tr -d '\\n')\" \
         -e SESSION_SECRET=\"\$(openssl rand -base64 64 | tr -d '\\n')\" \
@@ -242,7 +242,7 @@ ssh $SERVER "
     done
 
     echo '🔍 Verificando banco existente...'
-    if docker exec digiurban-unified sh -c 'test -f /app/data/digiurban_production.db'; then
+    if docker exec digiurban-unified sh -c 'test -f /app/data/digiurban.db'; then
         echo '✅ Banco existente preservado - pulando recriação'
         SKIP_DB_CREATION=true
     else
@@ -252,7 +252,7 @@ ssh $SERVER "
 
     if [ "$SKIP_DB_CREATION" = false ]; then
         echo '🚀 Criando schema do banco de dados...'
-        if docker exec -e DATABASE_URL=\"file:/app/data/digiurban_production.db\" digiurban-unified sh -c 'cd /app/backend && npx prisma db push --schema=../schema.prisma'; then
+        if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified sh -c 'cd /app/backend && npx prisma db push --schema=../schema.prisma'; then
             echo '✅ Schema do banco criado com sucesso'
         else
             echo '❌ Falha ao criar schema'
@@ -265,24 +265,35 @@ ssh $SERVER "
 
     if [ "$SKIP_DB_CREATION" = false ]; then
         echo '🎯 Executando seeds do banco...'
-        if docker exec -e DATABASE_URL=\"file:/app/data/digiurban_production.db\" -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=admin123 -e INITIAL_ADMIN_NAME=\"Super Administrador\" digiurban-unified sh -c 'cd /app/backend && node dist/database/seed.js'; then
-            echo '✅ Seeds executados com sucesso'
+
+        # Executar seed do admin inicial
+        echo '👤 Criando usuário admin...'
+        if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=AdminDigiUrban123! -e INITIAL_ADMIN_NAME=\"Super Administrador\" digiurban-unified node backend/dist/database/seeds/001_initial_admin.js; then
+            echo '✅ Admin criado com sucesso'
         else
-            echo '⚠️ Erro nos seeds, mas continuando deploy'
+            echo '⚠️ Erro na criação do admin, mas continuando'
+        fi
+
+        # Executar seed dos dados iniciais
+        echo '🔧 Criando dados iniciais...'
+        if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified node backend/dist/database/seeds/001_initial_data.js; then
+            echo '✅ Dados iniciais criados com sucesso'
+        else
+            echo '⚠️ Erro nos dados iniciais, mas continuando'
         fi
     else
         echo '✅ Banco existente preservado - seeds pulados'
     fi
 
     echo '🔓 Ativando usuários criados...'
-    if docker exec -e DATABASE_URL=\"file:/app/data/digiurban_production.db\" digiurban-unified node /app/scripts/activate-users.js; then
+    if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified node /app/scripts/activate-users.js; then
         echo '✅ Usuários ativados com sucesso'
     else
         echo '⚠️ Aviso: Problema na ativação de usuários, mas deploy continuou'
     fi
 
     echo '🔍 Verificando integridade do banco...'
-    if docker exec digiurban-unified sh -c 'cd /app/data && ls -la digiurban_production.db*'; then
+    if docker exec digiurban-unified sh -c 'cd /app/data && ls -la digiurban.db*'; then
         echo '✅ Banco de dados criado e configurado'
     else
         echo '⚠️ Banco pode não ter sido criado corretamente'
@@ -416,7 +427,7 @@ ssh $SERVER "
     # Test admin login
     login_response=\$(timeout 10s curl -s -X POST \"http://localhost:$PUBLIC_PORT/api/auth/login\" \\
         -H \"Content-Type: application/json\" \\
-        -d '{\"email\":\"admin@digiurban.com.br\",\"password\":\"admin123\"}' 2>/dev/null || echo 'timeout')
+        -d '{\"email\":\"admin@digiurban.com.br\",\"password\":\"AdminDigiUrban123!\"}' 2>/dev/null || echo 'timeout')
 
     if echo \"\$login_response\" | grep -q '\"success\":true'; then
         echo '✅ Login do admin funcionando'
@@ -445,7 +456,7 @@ ssh $SERVER "
     echo ''
     echo '👤 Credenciais de Acesso:'
     echo '   📧 Admin: admin@digiurban.com.br'
-    echo '   🔑 Senha: admin123'
+    echo '   🔑 Senha: AdminDigiUrban123!'
     echo '   📧 Demo: admin@demo.gov.br'
     echo '   🔑 Senha: demo123'
     echo ''
