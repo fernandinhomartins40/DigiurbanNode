@@ -40,6 +40,7 @@ import { Progress } from "@/components/ui/progress";
 
 // Modais separados conforme nova arquitetura
 import CreateTenantModal from "@/components/super-admin/CreateTenantModal";
+import CreateAdminModal from "@/components/super-admin/CreateAdminModal";
 import ViewTenantModal from "@/components/super-admin/ViewTenantModal";
 import EditTenantModal from "@/components/super-admin/EditTenantModal";
 import ConfigureTenantModal from "@/components/super-admin/ConfigureTenantModal";
@@ -138,6 +139,7 @@ const TenantsManagement: React.FC = () => {
 
   // Estados dos modais separados
   const [showCreateTenantModal, setShowCreateTenantModal] = useState(false);
+  const [showCreateAdminModal, setShowCreateAdminModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showConfigModal, setShowConfigModal] = useState(false);
@@ -360,7 +362,7 @@ const TenantsManagement: React.FC = () => {
       alert('Erro: ID do tenant não foi fornecido');
       return;
     }
-    
+
     const tenant = tenants.find(t => t.id === tenantId);
     if (tenant) {
       console.log('🗑️ Preparando exclusão do tenant:', tenant.nome, '(ID:', tenantId, ')');
@@ -372,6 +374,12 @@ const TenantsManagement: React.FC = () => {
     }
   };
 
+  const handleCreateAdmin = (tenant: Tenant) => {
+    console.log('👤 Preparando criação de admin para tenant:', tenant.nome);
+    setSelectedTenant(tenant);
+    setShowCreateAdminModal(true);
+  };
+
   // ====================================================================
   // HANDLERS DE SUBMISSÃO DOS MODAIS SEPARADOS
   // ====================================================================
@@ -381,10 +389,11 @@ const TenantsManagement: React.FC = () => {
       setLoading(true);
       console.log('🏗️ Tenant criado via CreateTenantModal');
 
-      // Recarregar lista de tenants
+      // Forçar recarregamento completo da lista para incluir novo tenant
+      console.log('🔄 Recarregando lista após criação de tenant...');
       await loadTenantsFromDatabase();
 
-      console.log('🎉 Tenant adicionado com sucesso!');
+      console.log('🎉 Tenant adicionado com sucesso e lista sincronizada!');
       setShowCreateTenantModal(false);
 
       // Oferecer criação de admin
@@ -392,7 +401,7 @@ const TenantsManagement: React.FC = () => {
         'Tenant criado com sucesso!\n\n' +
         'Deseja criar o administrador agora?'
       );
-      
+
       if (confirm) {
         // Buscar o tenant recém-criado
         const tenantsData = await getAllTenants();
@@ -411,7 +420,9 @@ const TenantsManagement: React.FC = () => {
 
     } catch (error: Error | unknown) {
       console.error('❌ Erro ao processar criação de tenant:', error);
-      alert(`Erro: ${error.message}`);
+      // Recarregar lista mesmo em caso de erro para manter consistência
+      await loadTenantsFromDatabase();
+      alert(`Erro: ${getErrorMessage(error)}`);
     } finally {
       setLoading(false);
     }
@@ -432,7 +443,7 @@ const TenantsManagement: React.FC = () => {
   }) => {
     try {
       console.log('🔄 Atualizando tenant:', tenantId, tenantData);
-      
+
       // Chamar TenantService para atualizar no banco
       const updatedTenant = await updateTenant(tenantId, {
         nome: tenantData.nome,
@@ -447,15 +458,18 @@ const TenantsManagement: React.FC = () => {
         }
       });
 
-      // Recarregar lista após atualização
+      // Forçar recarregamento completo da lista para sincronizar com banco
+      console.log('🔄 Recarregando lista após atualização...');
       await loadTenantsFromDatabase();
-      
-      console.log('✅ Tenant atualizado com sucesso');
+
+      console.log('✅ Tenant atualizado com sucesso e lista sincronizada');
       setShowEditModal(false);
       setSelectedTenant(null);
-      
+
     } catch (error: Error | unknown) {
       console.error('❌ Erro ao atualizar tenant:', error);
+      // Recarregar lista mesmo em caso de erro para manter consistência
+      await loadTenantsFromDatabase();
       throw error; // Repassar erro para o modal
     }
   };
@@ -463,19 +477,22 @@ const TenantsManagement: React.FC = () => {
   const handleConfigSubmit = async (tenantId: string, configData: any) => {
     try {
       console.log('⚙️ Salvando configurações do tenant:', tenantId, configData);
-      
+
       // Chamar TenantService para atualizar configurações no banco
       await updateTenant(tenantId, configData);
 
-      // Recarregar lista após atualização
+      // Forçar recarregamento completo da lista para sincronizar com banco
+      console.log('🔄 Recarregando lista após salvamento de configurações...');
       await loadTenantsFromDatabase();
-      
-      console.log('✅ Configurações salvas com sucesso');
+
+      console.log('✅ Configurações salvas com sucesso e lista sincronizada');
       setShowConfigModal(false);
       setSelectedTenant(null);
-      
+
     } catch (error: Error | unknown) {
       console.error('❌ Erro ao salvar configurações:', error);
+      // Recarregar lista mesmo em caso de erro para manter consistência
+      await loadTenantsFromDatabase();
       throw error; // Repassar erro para o modal
     }
   };
@@ -486,24 +503,87 @@ const TenantsManagement: React.FC = () => {
       if (!tenantId || tenantId.trim() === '') {
         throw new Error('ID do tenant é obrigatório para exclusão');
       }
-      
+
       console.log('🗑️ Executando exclusão do tenant:', tenantId);
-      
-      // Chamar TenantService para excluir do banco (soft delete)
+
+      // 1. Remover imediatamente da lista local para feedback visual instantâneo
+      setTenants(prevTenants => {
+        const updatedTenants = prevTenants.filter(t => t.id !== tenantId);
+        console.log('📋 Lista atualizada localmente - tenants restantes:', updatedTenants.length);
+        return updatedTenants;
+      });
+
+      // 2. Limpar filtros para garantir que a lista seja exibida corretamente
+      setFilters({
+        status: '',
+        plano: '',
+        cidade: '',
+        busca: ''
+      });
+
+      // 3. Chamar TenantService para excluir do banco (soft delete)
       await deleteTenant(tenantId);
-      
-      // Recarregar lista após exclusão
+
+      // 4. Recarregar lista completa do banco para sincronizar
+      console.log('🔄 Recarregando lista do banco após exclusão...');
       await loadTenantsFromDatabase();
-      
-      console.log('✅ Tenant excluído com sucesso');
+
+      console.log('✅ Tenant excluído com sucesso e lista atualizada');
       setShowDeleteModal(false);
       setSelectedTenant(null);
-      
+
     } catch (error: Error | unknown) {
       console.error('❌ Erro ao excluir tenant:', error);
+
+      // Se houve erro, recarregar a lista para reverter mudanças locais
+      console.log('🔄 Recarregando lista devido ao erro...');
+      await loadTenantsFromDatabase();
+
       // Melhorar mensagem de erro para o usuário
       const errorMessage = (error instanceof Error ? error.message : String(error)) || 'Erro desconhecido ao excluir tenant';
       throw new Error(`Falha na exclusão: ${errorMessage}`);
+    }
+  };
+
+  const handleCreateAdminSubmit = async (adminData: {
+    nome_completo: string;
+    email: string;
+    password: string;
+    telefone?: string;
+  }) => {
+    try {
+      if (!selectedTenant) {
+        throw new Error('Nenhum tenant selecionado');
+      }
+
+      console.log('👤 Criando admin para tenant:', selectedTenant.nome, adminData);
+
+      // Chamar API para criar admin
+      const response = await APIClient.post('/registration/user-by-admin', {
+        nome_completo: adminData.nome_completo,
+        email: adminData.email,
+        password: adminData.password,
+        telefone: adminData.telefone || '',
+        tenant_id: selectedTenant.id,
+        role: 'admin'
+      });
+
+      console.log('✅ Admin criado com sucesso:', response);
+
+      // Recarregar lista de tenants para atualizar o status has_admin
+      console.log('🔄 Recarregando lista após criação de admin...');
+      await loadTenantsFromDatabase();
+
+      setShowCreateAdminModal(false);
+      setSelectedTenant(null);
+
+      alert(`Admin criado com sucesso!\n\nEmail: ${adminData.email}\nSenha: ${adminData.password}\n\nO admin pode fazer login imediatamente.`);
+
+    } catch (error: Error | unknown) {
+      console.error('❌ Erro ao criar admin:', error);
+      // Recarregar lista mesmo em caso de erro para manter consistência
+      await loadTenantsFromDatabase();
+      throw error; // Repassar erro para o modal
     }
   };
 
@@ -793,23 +873,37 @@ const TenantsManagement: React.FC = () => {
                     {/* Ações Contextuais */}
                     <div className="lg:col-span-2">
                       <div className="flex items-center gap-2 flex-wrap">
-                        {/* Ação principal */}
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="text-blue-600 hover:bg-blue-50"
-                          onClick={() => handleViewTenant(tenant.id)}
-                          title="Ver detalhes do tenant"
-                          disabled={loading}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          Ver Detalhes
-                        </Button>
-                        
+                        {/* Ação principal baseada no status do admin */}
+                        {!tenant.has_admin ? (
+                          <Button
+                            size="sm"
+                            variant="default"
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => handleCreateAdmin(tenant)}
+                            title="Criar administrador para este tenant"
+                            disabled={loading}
+                          >
+                            <UserPlus className="h-4 w-4 mr-1" />
+                            Criar Admin
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-blue-600 hover:bg-blue-50"
+                            onClick={() => handleViewTenant(tenant.id)}
+                            title="Ver detalhes do tenant"
+                            disabled={loading}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            Ver Detalhes
+                          </Button>
+                        )}
+
                         {/* Ações secundárias */}
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="text-gray-600 hover:bg-gray-50"
                           onClick={() => handleEditTenant(tenant.id)}
                           title="Editar tenant"
@@ -817,9 +911,9 @@ const TenantsManagement: React.FC = () => {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="text-gray-600 hover:bg-gray-50"
                           onClick={() => handleConfigureTenant(tenant.id)}
                           title="Configurações"
@@ -827,9 +921,9 @@ const TenantsManagement: React.FC = () => {
                         >
                           <Settings className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="text-red-600 hover:bg-red-50"
                           onClick={() => handleDeleteTenant(tenant.id)}
                           title="Excluir tenant"
@@ -885,6 +979,12 @@ const TenantsManagement: React.FC = () => {
         onSubmit={handleCreateTenantSubmit}
       />
 
+      <CreateAdminModal
+        isOpen={showCreateAdminModal}
+        onClose={() => setShowCreateAdminModal(false)}
+        tenant={selectedTenant}
+        onSubmit={handleCreateAdminSubmit}
+      />
 
       <ViewTenantModal
         isOpen={showViewModal}
