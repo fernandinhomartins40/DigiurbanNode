@@ -155,10 +155,17 @@ tenantRoutes.get('/',
   ],
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { status, plano, limit = 50, offset = 0 } = req.query;
+      const { status, plano, limit = 50, offset = 0, include_suspended } = req.query;
+
+      // Por padrão, filtrar tenants suspensos EXCETO se explicitamente solicitado
+      let statusFilter = status as string;
+      if (!statusFilter && !include_suspended) {
+        // Se não especificou status e não pediu para incluir suspensos, filtrar apenas ativos
+        statusFilter = 'ativo';
+      }
 
       const tenants = await TenantModel.getTenants({
-        status: status as string,
+        status: statusFilter,
         plano: plano as string,
         limit: parseInt(limit as string),
         offset: parseInt(offset as string)

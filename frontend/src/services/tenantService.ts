@@ -182,17 +182,16 @@ export class TenantService {
       console.log('✅ Tenant encontrado:', existingTenant.nome);
       console.log('🔍 ID do tenant existente:', existingTenant.id);
       
-      // 2. Preparar dados para atualização (apenas campos necessários)
+      // 2. Preparar dados para soft delete
       const updateData = {
-        status: 'suspenso',
-        updated_at: new Date().toISOString()
+        status: 'suspenso'
       };
-      
-      console.log('🔧 Dados para atualização:', JSON.stringify(updateData));
-      console.log('🎯 Condição WHERE - tenantId:', JSON.stringify(tenantId));
-      
-      // 3. Excluir tenant via API JWT
-      await APIClient.delete(`/tenants/${tenantId}`);
+
+      console.log('🔧 Dados para soft delete:', JSON.stringify(updateData));
+      console.log('🎯 Tenant ID:', JSON.stringify(tenantId));
+
+      // 3. Marcar tenant como suspenso (soft delete) via API JWT
+      await APIClient.put(`/tenants/${tenantId}`, updateData);
       
       console.log('✅ Tenant excluído com sucesso:', tenantId, existingTenant.nome);
       
