@@ -241,48 +241,34 @@ ssh $SERVER "
         sleep 3
     done
 
-    echo '🔍 Verificando banco existente...'
-    if docker exec digiurban-unified sh -c 'test -f /app/data/digiurban.db'; then
-        echo '✅ Banco existente preservado - pulando recriação'
-        SKIP_DB_CREATION=true
+    echo '🧹 AMBIENTE DE DESENVOLVIMENTO - Limpando banco anterior...'
+    docker exec digiurban-unified sh -c 'rm -f /app/data/digiurban.db*' || true
+    echo '✅ Banco anterior removido - criando banco limpo'
+    echo '🚀 Criando schema do banco de dados...'
+    if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified sh -c 'cd /app/backend && npx prisma db push --schema=../schema.prisma'; then
+        echo '✅ Schema do banco criado com sucesso'
     else
-        echo '📝 Nenhum banco encontrado - será criado'
-        SKIP_DB_CREATION=false
+        echo '❌ Falha ao criar schema'
+        docker logs digiurban-unified --tail 50
+        exit 1
     fi
 
-    if [ "$SKIP_DB_CREATION" = false ]; then
-        echo '🚀 Criando schema do banco de dados...'
-        if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified sh -c 'cd /app/backend && npx prisma db push --schema=../schema.prisma'; then
-            echo '✅ Schema do banco criado com sucesso'
-        else
-            echo '❌ Falha ao criar schema'
-            docker logs digiurban-unified --tail 50
-            exit 1
-        fi
+    echo '🎯 Executando seeds do banco...'
+
+    # Executar seed do admin inicial
+    echo '👤 Criando usuário admin...'
+    if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=AdminDigiUrban123! -e INITIAL_ADMIN_NAME=\"Super Administrador\" digiurban-unified node backend/dist/database/seeds/001_initial_admin.js; then
+        echo '✅ Admin criado com sucesso'
     else
-        echo '✅ Banco existente preservado - schema não será recriado'
+        echo '⚠️ Erro na criação do admin, mas continuando'
     fi
 
-    if [ "$SKIP_DB_CREATION" = false ]; then
-        echo '🎯 Executando seeds do banco...'
-
-        # Executar seed do admin inicial
-        echo '👤 Criando usuário admin...'
-        if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" -e INITIAL_ADMIN_EMAIL=admin@digiurban.com.br -e INITIAL_ADMIN_PASSWORD=AdminDigiUrban123! -e INITIAL_ADMIN_NAME=\"Super Administrador\" digiurban-unified node backend/dist/database/seeds/001_initial_admin.js; then
-            echo '✅ Admin criado com sucesso'
-        else
-            echo '⚠️ Erro na criação do admin, mas continuando'
-        fi
-
-        # Executar seed dos dados iniciais
-        echo '🔧 Criando dados iniciais...'
-        if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified node backend/dist/database/seeds/001_initial_data.js; then
-            echo '✅ Dados iniciais criados com sucesso'
-        else
-            echo '⚠️ Erro nos dados iniciais, mas continuando'
-        fi
+    # Executar seed dos dados iniciais
+    echo '🔧 Criando dados iniciais...'
+    if docker exec -e DATABASE_URL=\"file:/app/data/digiurban.db\" digiurban-unified node backend/dist/database/seeds/001_initial_data.js; then
+        echo '✅ Dados iniciais criados com sucesso'
     else
-        echo '✅ Banco existente preservado - seeds pulados'
+        echo '⚠️ Erro nos dados iniciais, mas continuando'
     fi
 
     echo '🔓 Ativando usuários criados...'
