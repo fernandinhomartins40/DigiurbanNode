@@ -222,12 +222,14 @@ const SuperAdminDashboard: React.FC = () => {
         };
 
         // Processar dados de evolução de receita
-        const processedRevenueData = revenueEvolutionData?.map((item: any, index: number) => ({
-          month: item.month,
-          mrr: item.receita || item.mrr || 0,
-          newCustomers: Math.floor(Math.random() * 5) + 1, // Mock - implementar baseado em novos tenants
-          churn: index > 0 ? Math.floor(Math.random() * 2) : 0 // Mock - implementar baseado em cancelamentos
-        })) || [];
+        const processedRevenueData = Array.isArray(revenueEvolutionData)
+          ? revenueEvolutionData.map((item: any, index: number) => ({
+              month: item.month,
+              mrr: item.receita || item.mrr || 0,
+              newCustomers: Math.floor(Math.random() * 5) + 1, // Mock - implementar baseado em novos tenants
+              churn: index > 0 ? Math.floor(Math.random() * 2) : 0 // Mock - implementar baseado em cancelamentos
+            }))
+          : [];
 
         // Processar distribuição de planos baseado nos dados reais
         const processedPlanDistribution = plansDistributionData || {
