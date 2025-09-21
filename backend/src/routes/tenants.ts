@@ -12,6 +12,7 @@ import { validators, handleValidationErrors, sanitizeAll } from '../middleware/v
 import { generalRateLimit } from '../middleware/rateLimiter.js';
 import { TenantModel } from '../models/Tenant.js';
 import { UserModel } from '../models/User.js';
+import { BillingCalculatorService } from '../services/BillingCalculatorService.js';
 
 export const tenantRoutes = Router();
 
@@ -258,6 +259,26 @@ tenantRoutes.put('/:tenantId',
 
       const updatedTenant = await TenantModel.updateTenant(tenantId, updates);
 
+      // Triggers automáticos para recálculo de métricas
+      if (updates.plano && updates.plano !== existingTenant.plano) {
+        // Mudança de plano
+        await BillingCalculatorService.triggerPlanChanged(
+          tenantId,
+          existingTenant.plano,
+          updates.plano,
+          req.user?.id
+        );
+      }
+
+      if (updates.status && updates.status !== existingTenant.status) {
+        // Mudança de status
+        if (updates.status === 'ativo' && existingTenant.status !== 'ativo') {
+          await BillingCalculatorService.triggerTenantActivated(tenantId, req.user?.id);
+        } else if (updates.status !== 'ativo' && existingTenant.status === 'ativo') {
+          await BillingCalculatorService.triggerTenantCancelled(tenantId, req.user?.id);
+        }
+      }
+
       res.json({
         success: true,
         message: 'Tenant atualizado com sucesso',
@@ -301,6 +322,11 @@ tenantRoutes.delete('/:tenantId',
       await TenantModel.updateTenant(tenantId, {
         status: 'suspenso'
       });
+
+      // Trigger automático para recálculo de métricas após cancelamento
+      if (existingTenant.status === 'ativo') {
+        await BillingCalculatorService.triggerTenantCancelled(tenantId, req.user?.id);
+      }
 
       // Marcar usuários órfãos como 'sem_vinculo'
       const orphanCount = await UserModel.markOrphanUsers(tenantId);

@@ -33,6 +33,25 @@ export interface Tenant {
   responsavelTelefone?: string;
   createdAt: Date | string;
   updatedAt: Date | string;
+
+  // ====================================================================
+  // NOVOS CAMPOS PARA SUPER ADMIN - FASE 1 (seguindo schema exato)
+  // ====================================================================
+
+  // Status do Admin
+  hasAdmin?: boolean;
+  adminConfirmed?: boolean;
+  adminFirstLogin?: boolean;
+
+  // Métricas e Limites
+  limiteUsuarios?: number;
+  valorMensal?: number;
+  usuariosAtivos?: number;
+  protocolosMes?: number;
+
+  // Configurações e Métricas (JSON como String)
+  configuracoes?: string;
+  metricas?: string;
 }
 
 export interface CreateTenantData {
@@ -61,6 +80,25 @@ export interface UpdateTenantData {
   responsavel_nome?: string;
   responsavel_email?: string;
   responsavel_telefone?: string;
+
+  // ====================================================================
+  // NOVOS CAMPOS PARA SUPER ADMIN - FASE 1 (seguindo schema exato)
+  // ====================================================================
+
+  // Status do Admin
+  hasAdmin?: boolean;
+  adminConfirmed?: boolean;
+  adminFirstLogin?: boolean;
+
+  // Métricas e Limites
+  limiteUsuarios?: number;
+  valorMensal?: number;
+  usuariosAtivos?: number;
+  protocolosMes?: number;
+
+  // Configurações e Métricas (JSON como String)
+  configuracoes?: string;
+  metricas?: string;
 }
 
 // ====================================================================
@@ -227,11 +265,30 @@ export class TenantModel {
     if (updates.status) updateData.status = updates.status;
     if (updates.populacao !== undefined) updateData.populacao = updates.populacao;
     if (updates.endereco !== undefined) updateData.endereco = updates.endereco;
-    if (updates.responsavel_nome !== undefined) updateData.responsavel_nome = updates.responsavel_nome;
-    if (updates.responsavel_email !== undefined) updateData.responsavel_email = updates.responsavel_email;
-    if (updates.responsavel_telefone !== undefined) updateData.responsavel_telefone = updates.responsavel_telefone;
-    
-    updateData.updated_at = new Date();
+    if (updates.responsavel_nome !== undefined) updateData.responsavelNome = updates.responsavel_nome;
+    if (updates.responsavel_email !== undefined) updateData.responsavelEmail = updates.responsavel_email;
+    if (updates.responsavel_telefone !== undefined) updateData.responsavelTelefone = updates.responsavel_telefone;
+
+    // ====================================================================
+    // NOVOS CAMPOS PARA SUPER ADMIN - FASE 1 (seguindo schema exato)
+    // ====================================================================
+
+    // Status do Admin
+    if (updates.hasAdmin !== undefined) updateData.hasAdmin = updates.hasAdmin;
+    if (updates.adminConfirmed !== undefined) updateData.adminConfirmed = updates.adminConfirmed;
+    if (updates.adminFirstLogin !== undefined) updateData.adminFirstLogin = updates.adminFirstLogin;
+
+    // Métricas e Limites
+    if (updates.limiteUsuarios !== undefined) updateData.limiteUsuarios = updates.limiteUsuarios;
+    if (updates.valorMensal !== undefined) updateData.valorMensal = updates.valorMensal;
+    if (updates.usuariosAtivos !== undefined) updateData.usuariosAtivos = updates.usuariosAtivos;
+    if (updates.protocolosMes !== undefined) updateData.protocolosMes = updates.protocolosMes;
+
+    // Configurações e Métricas
+    if (updates.configuracoes !== undefined) updateData.configuracoes = updates.configuracoes;
+    if (updates.metricas !== undefined) updateData.metricas = updates.metricas;
+
+    updateData.updatedAt = new Date();
 
     await prisma.tenant.update({
       where: { id },
@@ -579,6 +636,113 @@ export class TenantModel {
     } catch (error) {
       StructuredLogger.error('Erro ao obter estatísticas de tenants', error as Error);
       return { total: 0, active: 0, inactive: 0 };
+    }
+  }
+
+  // ====================================================================
+  // MÉTODOS PARA NOVOS CAMPOS - FASE 1 (seguindo schema exato)
+  // ====================================================================
+
+  /**
+   * Método para buscar tenants com todos os campos, incluindo novos
+   */
+  static async findMany(options: {
+    select?: any;
+    where?: any;
+    include?: any;
+  } = {}): Promise<Tenant[]> {
+    return await prisma.tenant.findMany(options) as Tenant[];
+  }
+
+  /**
+   * Método para buscar tenant único com opções
+   */
+  static async findUnique(options: {
+    where: any;
+    select?: any;
+    include?: any;
+  }): Promise<Tenant | null> {
+    return await prisma.tenant.findUnique(options) as Tenant | null;
+  }
+
+  /**
+   * Atualizar status do admin do tenant
+   */
+  static async updateAdminStatus(id: string, hasAdmin: boolean, adminConfirmed?: boolean, adminFirstLogin?: boolean): Promise<Tenant> {
+    const updateData: any = { hasAdmin, updatedAt: new Date() };
+
+    if (adminConfirmed !== undefined) updateData.adminConfirmed = adminConfirmed;
+    if (adminFirstLogin !== undefined) updateData.adminFirstLogin = adminFirstLogin;
+
+    await prisma.tenant.update({
+      where: { id },
+      data: updateData
+    });
+
+    const updatedTenant = await this.findById(id);
+    if (!updatedTenant) throw new Error('Erro ao atualizar status do admin');
+
+    return updatedTenant;
+  }
+
+  /**
+   * Atualizar métricas do tenant
+   */
+  static async updateMetrics(id: string, usuariosAtivos: number, protocolosMes: number): Promise<Tenant> {
+    await prisma.tenant.update({
+      where: { id },
+      data: {
+        usuariosAtivos,
+        protocolosMes,
+        updatedAt: new Date()
+      }
+    });
+
+    const updatedTenant = await this.findById(id);
+    if (!updatedTenant) throw new Error('Erro ao atualizar métricas');
+
+    return updatedTenant;
+  }
+
+  /**
+   * Atualizar configurações do tenant (JSON)
+   */
+  static async updateConfiguracoes(id: string, configuracoes: any): Promise<Tenant> {
+    await prisma.tenant.update({
+      where: { id },
+      data: {
+        configuracoes: JSON.stringify(configuracoes),
+        updatedAt: new Date()
+      }
+    });
+
+    const updatedTenant = await this.findById(id);
+    if (!updatedTenant) throw new Error('Erro ao atualizar configurações');
+
+    return updatedTenant;
+  }
+
+  /**
+   * Obter configurações parseadas
+   */
+  static parseConfiguracoes(tenant: Tenant): any {
+    if (!tenant.configuracoes) return {};
+    try {
+      return JSON.parse(tenant.configuracoes);
+    } catch {
+      return {};
+    }
+  }
+
+  /**
+   * Obter métricas parseadas
+   */
+  static parseMetricas(tenant: Tenant): any {
+    if (!tenant.metricas) return {};
+    try {
+      return JSON.parse(tenant.metricas);
+    } catch {
+      return {};
     }
   }
 }

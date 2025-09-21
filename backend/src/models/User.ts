@@ -27,6 +27,10 @@ export interface CreateUserData {
   role?: UserRole
   status?: UserStatus
   avatarUrl?: string
+  // NOVOS CAMPOS FASE 1
+  tipoUsuario?: 'admin' | 'operador' | 'fiscal'
+  telefone?: string
+  ativo?: boolean
 }
 
 export interface UpdateUserData {
@@ -36,6 +40,11 @@ export interface UpdateUserData {
   status?: UserStatus
   avatarUrl?: string
   tenantId?: string
+  // NOVOS CAMPOS FASE 1
+  tipoUsuario?: 'admin' | 'operador' | 'fiscal'
+  telefone?: string
+  ativo?: boolean
+  ultimaAtividade?: Date
 }
 
 export interface UserProfile extends Omit<User, 'passwordHash'> {
@@ -123,6 +132,11 @@ export class UserModel {
           role: userData.role || 'user',
           status: userData.status || 'pendente',
           avatarUrl: userData.avatarUrl || null,
+          // NOVOS CAMPOS FASE 1
+          tipoUsuario: userData.tipoUsuario || 'operador',
+          telefone: userData.telefone || null,
+          ativo: userData.ativo !== undefined ? userData.ativo : true,
+          ultimaAtividade: new Date(),
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -277,6 +291,11 @@ export class UserModel {
     if (updates.status) updateData.status = updates.status
     if (updates.avatarUrl !== undefined) updateData.avatarUrl = updates.avatarUrl
     if (updates.tenantId !== undefined) updateData.tenantId = updates.tenantId
+    // NOVOS CAMPOS FASE 1
+    if (updates.tipoUsuario) updateData.tipoUsuario = updates.tipoUsuario
+    if (updates.telefone !== undefined) updateData.telefone = updates.telefone
+    if (updates.ativo !== undefined) updateData.ativo = updates.ativo
+    if (updates.ultimaAtividade) updateData.ultimaAtividade = updates.ultimaAtividade
 
     updateData.updatedAt = new Date()
 
@@ -308,10 +327,54 @@ export class UserModel {
   }
 
   static async updateLastLogin(id: string): Promise<void> {
+    const now = new Date()
     await prisma.user.update({
       where: { id },
       data: {
-        ultimoLogin: new Date()
+        ultimoLogin: now,
+        ultimaAtividade: now
+      }
+    })
+  }
+
+  // ================================================================
+  // MÉTODOS PARA NOVOS CAMPOS - FASE 1
+  // ================================================================
+
+  /**
+   * Atualizar última atividade do usuário
+   */
+  static async updateLastActivity(id: string): Promise<void> {
+    await prisma.user.update({
+      where: { id },
+      data: {
+        ultimaAtividade: new Date()
+      }
+    })
+  }
+
+  /**
+   * Ativar/Desativar usuário
+   */
+  static async setUserActive(id: string, ativo: boolean): Promise<User> {
+    return await prisma.user.update({
+      where: { id },
+      data: {
+        ativo,
+        updatedAt: new Date()
+      }
+    })
+  }
+
+  /**
+   * Atualizar tipo de usuário
+   */
+  static async updateUserType(id: string, tipoUsuario: 'admin' | 'operador' | 'fiscal'): Promise<User> {
+    return await prisma.user.update({
+      where: { id },
+      data: {
+        tipoUsuario,
+        updatedAt: new Date()
       }
     })
   }

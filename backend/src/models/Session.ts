@@ -2,9 +2,11 @@
 // 🔐 SESSION MODEL - DIGIURBAN AUTH SYSTEM
 // ====================================================================
 // Modelo de sessões JWT para controle de autenticação
-// NOTA: UserSession model não existe no schema - implementação placeholder
-// TODO: Adicionar modelo UserSession no schema.prisma quando necessário
+// Implementa UserSession usando Prisma ORM
 // ====================================================================
+
+// @ts-ignore
+import type { UserSession } from '@prisma/client';
 
 import { prisma } from '../database/prisma.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -56,23 +58,37 @@ export class SessionModel {
   // ================================================================
 
   static async create(sessionData: CreateSessionData): Promise<Session> {
-    // TODO: Implementar modelo UserSession no schema.prisma
-    console.warn('⚠️ SessionModel.create() - UserSession model não implementado no schema');
+    try {
+      const tokenHash = this.hashToken(sessionData.token);
 
-    // Placeholder implementation using memory (for development only)
-    const id = uuidv4();
-    const tokenHash = this.hashToken(sessionData.token);
+      const userSession = await prisma.userSession.create({
+        data: {
+          id: uuidv4(),
+          userId: sessionData.userId,
+          tokenHash,
+          ipAddress: sessionData.ipAddress,
+          userAgent: sessionData.userAgent,
+          expiresAt: new Date(sessionData.expiresAt),
+          isActive: true,
+          createdAt: new Date(),
+          lastActivity: new Date()
+        }
+      });
 
-    return {
-      id,
-      userId: sessionData.userId,
-      tokenHash: tokenHash,
-      ipAddress: sessionData.ipAddress || null,
-      userAgent: sessionData.userAgent || null,
-      expiresAt: sessionData.expiresAt,
-      isActive: true,
-      createdAt: new Date().toISOString()
-    };
+      return {
+        id: userSession.id,
+        userId: userSession.userId,
+        tokenHash: userSession.tokenHash,
+        ipAddress: userSession.ipAddress || undefined,
+        userAgent: userSession.userAgent || undefined,
+        expiresAt: userSession.expiresAt.toISOString(),
+        isActive: userSession.isActive,
+        createdAt: userSession.createdAt.toISOString()
+      };
+    } catch (error) {
+      console.error('Erro ao criar sessão:', error);
+      throw error;
+    }
   }
 
   // ================================================================
@@ -80,23 +96,108 @@ export class SessionModel {
   // ================================================================
 
   static async findById(id: string): Promise<Session | null> {
-    console.warn('⚠️ SessionModel.findById() - UserSession model não implementado no schema');
-    return null;
+    try {
+      const userSession = await prisma.userSession.findUnique({
+        where: { id }
+      });
+
+      if (!userSession) return null;
+
+      return {
+        id: userSession.id,
+        userId: userSession.userId,
+        tokenHash: userSession.tokenHash,
+        ipAddress: userSession.ipAddress || undefined,
+        userAgent: userSession.userAgent || undefined,
+        expiresAt: userSession.expiresAt.toISOString(),
+        isActive: userSession.isActive,
+        createdAt: userSession.createdAt.toISOString()
+      };
+    } catch (error) {
+      console.error('Erro ao buscar sessão por ID:', error);
+      return null;
+    }
   }
 
   static async findByToken(token: string): Promise<Session | null> {
-    console.warn('⚠️ SessionModel.findByToken() - UserSession model não implementado no schema');
-    return null;
+    try {
+      const tokenHash = this.hashToken(token);
+      const userSession = await prisma.userSession.findFirst({
+        where: {
+          tokenHash,
+          isActive: true,
+          expiresAt: {
+            gt: new Date()
+          }
+        }
+      });
+
+      if (!userSession) return null;
+
+      return {
+        id: userSession.id,
+        userId: userSession.userId,
+        tokenHash: userSession.tokenHash,
+        ipAddress: userSession.ipAddress || undefined,
+        userAgent: userSession.userAgent || undefined,
+        expiresAt: userSession.expiresAt.toISOString(),
+        isActive: userSession.isActive,
+        createdAt: userSession.createdAt.toISOString()
+      };
+    } catch (error) {
+      console.error('Erro ao buscar sessão por token:', error);
+      return null;
+    }
   }
 
   static async findByUser(userId: string): Promise<Session[]> {
-    console.warn('⚠️ SessionModel.findByUser() - UserSession model não implementado no schema');
-    return [];
+    try {
+      const userSessions = await prisma.userSession.findMany({
+        where: { userId }
+      });
+
+      return userSessions.map(session => ({
+        id: session.id,
+        userId: session.userId,
+        tokenHash: session.tokenHash,
+        ipAddress: session.ipAddress || undefined,
+        userAgent: session.userAgent || undefined,
+        expiresAt: session.expiresAt.toISOString(),
+        isActive: session.isActive,
+        createdAt: session.createdAt.toISOString()
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar sessões do usuário:', error);
+      return [];
+    }
   }
 
   static async getActiveSessions(userId: string): Promise<Session[]> {
-    console.warn('⚠️ SessionModel.getActiveSessions() - UserSession model não implementado no schema');
-    return [];
+    try {
+      const userSessions = await prisma.userSession.findMany({
+        where: {
+          userId,
+          isActive: true,
+          expiresAt: {
+            gt: new Date()
+          }
+        }
+      });
+
+      return userSessions.map(session => ({
+        id: session.id,
+        userId: session.userId,
+        tokenHash: session.tokenHash,
+        ipAddress: session.ipAddress || undefined,
+        userAgent: session.userAgent || undefined,
+        expiresAt: session.expiresAt.toISOString(),
+        isActive: session.isActive,
+        createdAt: session.createdAt.toISOString()
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar sessões ativas:', error);
+      return [];
+    }
   }
 
   // ================================================================
@@ -108,8 +209,30 @@ export class SessionModel {
     session?: Session;
     reason?: string;
   }> {
-    console.warn('⚠️ SessionModel.validateSession() - UserSession model não implementado no schema');
-    return { valid: false, reason: 'UserSession model não implementado' };
+    try {
+      const session = await this.findByToken(token);
+
+      if (!session) {
+        return { valid: false, reason: 'Sessão não encontrada ou inválida' };
+      }
+
+      if (!session.isActive) {
+        return { valid: false, reason: 'Sessão inativa' };
+      }
+
+      if (new Date(session.expiresAt) <= new Date()) {
+        await this.invalidate(session.id);
+        return { valid: false, reason: 'Sessão expirada' };
+      }
+
+      // Atualizar última atividade
+      await this.updateLastActivity(session.id);
+
+      return { valid: true, session };
+    } catch (error) {
+      console.error('Erro ao validar sessão:', error);
+      return { valid: false, reason: 'Erro interno' };
+    }
   }
 
   // ================================================================
@@ -117,19 +240,51 @@ export class SessionModel {
   // ================================================================
 
   static async invalidate(sessionId: string): Promise<void> {
-    console.warn('⚠️ SessionModel.invalidate() - UserSession model não implementado no schema');
+    try {
+      await prisma.userSession.update({
+        where: { id: sessionId },
+        data: { isActive: false }
+      });
+    } catch (error) {
+      console.error('Erro ao invalidar sessão:', error);
+    }
   }
 
   static async invalidateByToken(token: string): Promise<void> {
-    console.warn('⚠️ SessionModel.invalidateByToken() - UserSession model não implementado no schema');
+    try {
+      const tokenHash = this.hashToken(token);
+      await prisma.userSession.updateMany({
+        where: { tokenHash },
+        data: { isActive: false }
+      });
+    } catch (error) {
+      console.error('Erro ao invalidar sessão por token:', error);
+    }
   }
 
   static async invalidateAllUserSessions(userId: string): Promise<void> {
-    console.warn('⚠️ SessionModel.invalidateAllUserSessions() - UserSession model não implementado no schema');
+    try {
+      await prisma.userSession.updateMany({
+        where: { userId },
+        data: { isActive: false }
+      });
+    } catch (error) {
+      console.error('Erro ao invalidar todas as sessões do usuário:', error);
+    }
   }
 
   static async invalidateOtherUserSessions(userId: string, currentSessionId: string): Promise<void> {
-    console.warn('⚠️ SessionModel.invalidateOtherUserSessions() - UserSession model não implementado no schema');
+    try {
+      await prisma.userSession.updateMany({
+        where: {
+          userId,
+          id: { not: currentSessionId }
+        },
+        data: { isActive: false }
+      });
+    } catch (error) {
+      console.error('Erro ao invalidar outras sessões do usuário:', error);
+    }
   }
 
   // ================================================================
@@ -137,13 +292,45 @@ export class SessionModel {
   // ================================================================
 
   static async cleanupExpiredSessions(): Promise<number> {
-    console.warn('⚠️ SessionModel.cleanupExpiredSessions() - UserSession model não implementado no schema');
-    return 0;
+    try {
+      const result = await prisma.userSession.updateMany({
+        where: {
+          expiresAt: {
+            lte: new Date()
+          },
+          isActive: true
+        },
+        data: {
+          isActive: false
+        }
+      });
+
+      return result.count;
+    } catch (error) {
+      console.error('Erro ao limpar sessões expiradas:', error);
+      return 0;
+    }
   }
 
   static async deleteOldSessions(daysOld: number = 30): Promise<number> {
-    console.warn('⚠️ SessionModel.deleteOldSessions() - UserSession model não implementado no schema');
-    return 0;
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - daysOld);
+
+      const result = await prisma.userSession.deleteMany({
+        where: {
+          createdAt: {
+            lt: cutoffDate
+          },
+          isActive: false
+        }
+      });
+
+      return result.count;
+    } catch (error) {
+      console.error('Erro ao deletar sessões antigas:', error);
+      return 0;
+    }
   }
 
   // ================================================================
@@ -156,8 +343,34 @@ export class SessionModel {
     expired: number;
     byUser: { userId: string; count: number }[];
   }> {
-    console.warn('⚠️ SessionModel.getSessionStats() - UserSession model não implementado no schema');
-    return { total: 0, active: 0, expired: 0, byUser: [] };
+    try {
+      const total = await prisma.userSession.count();
+      const active = await prisma.userSession.count({
+        where: {
+          isActive: true,
+          expiresAt: { gt: new Date() }
+        }
+      });
+
+      const byUser = await prisma.userSession.groupBy({
+        by: ['userId'],
+        _count: { id: true },
+        where: { isActive: true }
+      });
+
+      return {
+        total,
+        active,
+        expired: total - active,
+        byUser: byUser.map(item => ({
+          userId: item.userId,
+          count: item._count.id
+        }))
+      };
+    } catch (error) {
+      console.error('Erro ao obter estatísticas de sessões:', error);
+      return { total: 0, active: 0, expired: 0, byUser: [] };
+    }
   }
 
   // ================================================================
@@ -165,13 +378,69 @@ export class SessionModel {
   // ================================================================
 
   static async getSessionsWithUser(limit: number = 50): Promise<SessionWithUser[]> {
-    console.warn('⚠️ SessionModel.getSessionsWithUser() - UserSession model não implementado no schema');
-    return [];
+    try {
+      const sessions = await prisma.userSession.findMany({
+        take: limit,
+        include: {
+          user: {
+            select: {
+              nomeCompleto: true,
+              email: true,
+              role: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      return sessions.map(session => ({
+        id: session.id,
+        userId: session.userId,
+        user_name: session.user.nomeCompleto,
+        user_email: session.user.email,
+        user_role: session.user.role,
+        ipAddress: session.ipAddress || undefined,
+        userAgent: session.userAgent || undefined,
+        expiresAt: session.expiresAt.toISOString(),
+        createdAt: session.createdAt.toISOString()
+      }));
+    } catch (error) {
+      console.error('Erro ao obter sessões com usuários:', error);
+      return [];
+    }
   }
 
   static async getUserSessionsWithDetails(userId: string): Promise<SessionWithUser[]> {
-    console.warn('⚠️ SessionModel.getUserSessionsWithDetails() - UserSession model não implementado no schema');
-    return [];
+    try {
+      const sessions = await prisma.userSession.findMany({
+        where: { userId },
+        include: {
+          user: {
+            select: {
+              nomeCompleto: true,
+              email: true,
+              role: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      return sessions.map(session => ({
+        id: session.id,
+        userId: session.userId,
+        user_name: session.user.nomeCompleto,
+        user_email: session.user.email,
+        user_role: session.user.role,
+        ipAddress: session.ipAddress || undefined,
+        userAgent: session.userAgent || undefined,
+        expiresAt: session.expiresAt.toISOString(),
+        createdAt: session.createdAt.toISOString()
+      }));
+    } catch (error) {
+      console.error('Erro ao obter sessões do usuário com detalhes:', error);
+      return [];
+    }
   }
 
   // ================================================================
@@ -184,8 +453,43 @@ export class SessionModel {
     user_name: string;
     user_email: string;
   }[]> {
-    console.warn('⚠️ SessionModel.getMultipleSessionUsers() - UserSession model não implementado no schema');
-    return [];
+    try {
+      const result = await prisma.userSession.groupBy({
+        by: ['userId'],
+        _count: { id: true },
+        where: {
+          isActive: true,
+          expiresAt: { gt: new Date() }
+        },
+        having: {
+          id: { _count: { gt: 1 } }
+        }
+      });
+
+      const usersWithMultipleSessions = await Promise.all(
+        result.map(async (item) => {
+          const user = await prisma.user.findUnique({
+            where: { id: item.userId },
+            select: {
+              nomeCompleto: true,
+              email: true
+            }
+          });
+
+          return {
+            userId: item.userId,
+            session_count: item._count.id,
+            user_name: user?.nomeCompleto || 'Usuário não encontrado',
+            user_email: user?.email || 'email não encontrado'
+          };
+        })
+      );
+
+      return usersWithMultipleSessions;
+    } catch (error) {
+      console.error('Erro ao obter usuários com múltiplas sessões:', error);
+      return [];
+    }
   }
 
   // ================================================================
@@ -193,11 +497,25 @@ export class SessionModel {
   // ================================================================
 
   static async updateLastActivity(sessionId: string): Promise<void> {
-    console.warn('⚠️ SessionModel.updateLastActivity() - UserSession model não implementado no schema');
+    try {
+      await prisma.userSession.update({
+        where: { id: sessionId },
+        data: { lastActivity: new Date() }
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar última atividade:', error);
+    }
   }
 
   static async extendSession(sessionId: string, newExpiresAt: string): Promise<void> {
-    console.warn('⚠️ SessionModel.extendSession() - UserSession model não implementado no schema');
+    try {
+      await prisma.userSession.update({
+        where: { id: sessionId },
+        data: { expiresAt: new Date(newExpiresAt) }
+      });
+    } catch (error) {
+      console.error('Erro ao estender sessão:', error);
+    }
   }
 
   // ================================================================
@@ -216,20 +534,34 @@ export class SessionModel {
   // ================================================================
 
   static startCleanupJob(intervalMinutes: number = 60): NodeJS.Timeout {
-    console.log('ℹ️ SessionModel cleanup job iniciado (placeholder - sem UserSession model)');
+    console.log('ℹ️ SessionModel cleanup job iniciado');
 
     const interval = setInterval(async () => {
-      // No-op até implementar UserSession
+      try {
+        const cleanedCount = await this.cleanupExpiredSessions();
+        if (cleanedCount > 0) {
+          console.log(`🧹 Limpeza automática: ${cleanedCount} sessões expiradas invalidadas`);
+        }
+      } catch (error) {
+        console.error('Erro no job de limpeza de sessões:', error);
+      }
     }, intervalMinutes * 60 * 1000);
 
     return interval;
   }
 
   static startOldSessionsCleanupJob(intervalHours: number = 24, daysOld: number = 30): NodeJS.Timeout {
-    console.log('ℹ️ SessionModel old sessions cleanup job iniciado (placeholder - sem UserSession model)');
+    console.log('ℹ️ SessionModel old sessions cleanup job iniciado');
 
     const interval = setInterval(async () => {
-      // No-op até implementar UserSession
+      try {
+        const deletedCount = await this.deleteOldSessions(daysOld);
+        if (deletedCount > 0) {
+          console.log(`🧹 Limpeza automática: ${deletedCount} sessões antigas removidas`);
+        }
+      } catch (error) {
+        console.error('Erro no job de limpeza de sessões antigas:', error);
+      }
     }, intervalHours * 60 * 60 * 1000);
 
     return interval;

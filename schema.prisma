@@ -22,6 +22,7 @@ model Tenant {
   id                  String       @id
   tenantCode          String       @unique(map: "tenants_tenant_code_unique") @map("tenant_code")
   nome                String
+  email               String       @unique
   cidade              String
   estado              String
   cnpj                String       @unique(map: "tenants_cnpj_unique")
@@ -35,6 +36,25 @@ model Tenant {
   createdAt           DateTime?    @map("created_at")
   updatedAt           DateTime?    @map("updated_at")
 
+  // ====================================================================
+  // NOVAS COLUNAS PARA SUPER ADMIN - FASE 1
+  // ====================================================================
+
+  // Status do Admin
+  hasAdmin            Boolean?     @default(false) @map("has_admin")
+  adminConfirmed      Boolean?     @default(false) @map("admin_confirmed")
+  adminFirstLogin     Boolean?     @default(false) @map("admin_first_login")
+
+  // Métricas e Limites
+  limiteUsuarios      Int?         @default(50) @map("limite_usuarios")
+  valorMensal         Float?       @default(1200) @map("valor_mensal")
+  usuariosAtivos      Int?         @default(0) @map("usuarios_ativos")
+  protocolosMes       Int?         @default(0) @map("protocolos_mes")
+
+  // Configurações e Métricas (JSON como String para SQLite)
+  configuracoes       String?      // JSON: {personalizacao_ativa, backup_automatico, ssl_customizado, integracao_terceiros}
+  metricas            String?      // JSON: {uptime, satisfacao, tempo_resposta, tickets_abertos}
+
   // Relacionamentos existentes
   users               User[]
   activityLogs        ActivityLog[]
@@ -42,9 +62,24 @@ model Tenant {
   // Novos relacionamentos com email
   emailDomains        EmailDomain[]
 
+  // Novos relacionamentos para billing
+  invoices            Invoice[]
+
+  // Novos relacionamentos para analytics
+  analyticsUserSessions AnalyticsUserSession[]
+  featureUsage          FeatureUsage[]
+  pageViews             PageViews[]
+  moduleAnalytics       ModuleAnalytics[]
+  geographicData        GeographicData[]
+  npsResponses          NpsResponses[]
+  feedbackSubmissions   FeedbackSubmissions[]
+  satisfactionSurveys   SatisfactionSurveys[]
+
   @@index([tenantCode], map: "idx_tenants_codigo")
   @@index([cnpj], map: "idx_tenants_cnpj")
   @@index([status], map: "idx_tenants_status")
+  @@index([hasAdmin], map: "idx_tenants_has_admin")
+  @@index([plano], map: "idx_tenants_plano")
   @@map("tenants")
 }
 
@@ -64,6 +99,16 @@ model User {
   createdAt           DateTime?    @map("created_at")
   updatedAt           DateTime?    @map("updated_at")
 
+  // ====================================================================
+  // NOVAS COLUNAS PARA SUPER ADMIN - FASE 1
+  // ====================================================================
+
+  // Tipo de usuário específico para o sistema
+  tipoUsuario         String?      @default("operador") @map("tipo_usuario") // admin, operador, fiscal
+  telefone            String?      // Campo separado para contato
+  ultimaAtividade     DateTime?    @map("ultima_atividade") // Para analytics
+  ativo               Boolean?     @default(true) // Status de atividade geral
+
   // Relacionamentos existentes
   tenant              Tenant?      @relation(fields: [tenantId], references: [id])
   permissions         UserPermission[]
@@ -79,11 +124,25 @@ model User {
   passwordResetTokens      PasswordResetToken[]
   emailVerificationTokens  EmailVerificationToken[]
 
+  // Novos relacionamentos para analytics
+  analyticsUserSessions    AnalyticsUserSession[]
+  featureUsage            FeatureUsage[]
+  pageViews               PageViews[]
+  npsResponses            NpsResponses[]
+  feedbackSubmissions     FeedbackSubmissions[]
+  assignedFeedbacks       FeedbackSubmissions[] @relation("AssignedFeedback")
+
+  // Relacionamentos com relatórios
+  createdReports          AutomatedReports[]
+  createdSurveys          SatisfactionSurveys[]
+
   @@index([email], map: "idx_users_email")
   @@index([tenantId], map: "idx_users_tenant")
   @@index([role], map: "idx_users_role")
   @@index([status], map: "idx_users_status")
   @@index([ultimoLogin], map: "idx_users_ultimo_login")
+  @@index([tipoUsuario], map: "idx_users_tipo_usuario")
+  @@index([ativo], map: "idx_users_ativo")
   @@map("users")
 }
 
@@ -378,9 +437,426 @@ model EmailVerificationToken {
 }
 
 // ====================================================================
+// MODELOS PARA BILLING SYSTEM - FASE 1
+// ====================================================================
+
+// Faturas do sistema
+model Invoice {
+  id                String        @id @default(cuid())
+  tenantId          String        @map("tenant_id")
+  numero            String        @unique
+  periodo           String
+  valor             Float
+  descricao         String?
+  status            String        @default("pendente") // pendente, pago, vencido, cancelado
+  dataCriacao       DateTime      @default(now()) @map("data_criacao")
+  dataVencimento    DateTime      @map("data_vencimento")
+  dataPagamento     DateTime?     @map("data_pagamento")
+  metodoPagamento   String?       @map("metodo_pagamento")
+  desconto          Float         @default(0)
+  taxaAdicional     Float         @default(0) @map("taxa_adicional")
+  plano             String        // STARTER, PROFESSIONAL, ENTERPRISE
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  itens             InvoiceItem[]
+
+  @@index([tenantId], map: "idx_invoices_tenant")
+  @@index([status], map: "idx_invoices_status")
+  @@index([dataVencimento], map: "idx_invoices_vencimento")
+  @@index([dataPagamento], map: "idx_invoices_pagamento")
+  @@index([plano], map: "idx_invoices_plano")
+  @@map("invoices")
+}
+
+// Itens das faturas
+model InvoiceItem {
+  id             Int       @id @default(autoincrement())
+  invoiceId      String    @map("invoice_id")
+  descricao      String
+  quantidade     Int
+  valorUnitario  Float     @map("valor_unitario")
+  valorTotal     Float     @map("valor_total")
+  tipo           String    // subscription, usage, setup, support
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  // Relacionamentos
+  invoice        Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId], map: "idx_invoice_items_invoice")
+  @@index([tipo], map: "idx_invoice_items_tipo")
+  @@map("invoice_items")
+}
+
+// Métricas de billing calculadas
+model BillingMetrics {
+  id                Int       @id @default(autoincrement())
+  periodo           String    @unique // "2024-01"
+  mrr               Float     // Monthly Recurring Revenue
+  arr               Float     // Annual Recurring Revenue
+  churnRate         Float?    @map("churn_rate")
+  arpu              Float?    // Average Revenue Per User
+  ltv               Float?    // Lifetime Value
+  cac               Float?    // Customer Acquisition Cost
+  receitaMensal     Float     @map("receita_mensal")
+  faturasPendentes  Int       @map("faturas_pendentes")
+  valorPendente     Float     @map("valor_pendente")
+  faturasVencidas   Int       @map("faturas_vencidas")
+  valorVencido      Float     @map("valor_vencido")
+  taxaCobranca      Float?    @map("taxa_cobranca")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@index([periodo], map: "idx_billing_metrics_periodo")
+  @@map("billing_metrics")
+}
+
+// ====================================================================
+// MODELOS PARA ANALYTICS SYSTEM - FASE 1
+// ====================================================================
+
+// Sessões de usuário para analytics (diferente do UserSession existente)
+model AnalyticsUserSession {
+  id              String    @id @default(cuid())
+  userId          String    @map("user_id")
+  tenantId        String?   @map("tenant_id")
+  startedAt       DateTime  @default(now()) @map("started_at")
+  endedAt         DateTime? @map("ended_at")
+  durationMinutes Int?      @map("duration_minutes")
+  pagesVisited    Int       @default(0) @map("pages_visited")
+  ipAddress       String?   @map("ip_address")
+  userAgent       String?   @map("user_agent")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  // Relacionamentos
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant          Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([userId], map: "idx_analytics_sessions_user")
+  @@index([tenantId], map: "idx_analytics_sessions_tenant")
+  @@index([startedAt], map: "idx_analytics_sessions_started")
+  @@map("analytics_user_sessions")
+}
+
+// Uso de funcionalidades
+model FeatureUsage {
+  id               Int       @id @default(autoincrement())
+  userId           String    @map("user_id")
+  tenantId         String?   @map("tenant_id")
+  featureName      String    @map("feature_name")
+  featureCategory  String    @map("feature_category")
+  usageCount       Int       @default(1) @map("usage_count")
+  totalTimeMinutes Float?    @map("total_time_minutes")
+  date             DateTime  @map("date")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  // Relacionamentos
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant           Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([userId], map: "idx_feature_usage_user")
+  @@index([tenantId], map: "idx_feature_usage_tenant")
+  @@index([featureName], map: "idx_feature_usage_feature")
+  @@index([date], map: "idx_feature_usage_date")
+  @@map("feature_usage")
+}
+
+// Métricas do sistema
+model SystemMetrics {
+  id           Int       @id @default(autoincrement())
+  metricName   String    @map("metric_name")
+  metricValue  Float     @map("metric_value")
+  metricUnit   String?   @map("metric_unit")
+  recordedAt   DateTime  @default(now()) @map("recorded_at")
+
+  @@index([metricName], map: "idx_system_metrics_name")
+  @@index([recordedAt], map: "idx_system_metrics_recorded")
+  @@map("system_metrics")
+}
+
+// ====================================================================
+// MODELOS PARA ANALYTICS SYSTEM - FASE 3 COMPLETA
+// ====================================================================
+
+// Visualizações de páginas para analytics
+model PageViews {
+  id            Int       @id @default(autoincrement())
+  userId        String    @map("user_id")
+  tenantId      String?   @map("tenant_id")
+  pagePath      String    @map("page_path")
+  pageTitle     String?   @map("page_title")
+  timeSpent     Int?      @map("time_spent") // em segundos
+  sessionId     String?   @map("session_id")
+  referrer      String?
+  userAgent     String?   @map("user_agent")
+  ipAddress     String?   @map("ip_address")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  // Relacionamentos
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant        Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([userId], map: "idx_page_views_user")
+  @@index([tenantId], map: "idx_page_views_tenant")
+  @@index([pagePath], map: "idx_page_views_path")
+  @@index([createdAt], map: "idx_page_views_created")
+  @@map("page_views")
+}
+
+// Analytics por módulo do sistema
+model ModuleAnalytics {
+  id              Int       @id @default(autoincrement())
+  tenantId        String?   @map("tenant_id")
+  moduleName      String    @map("module_name") // saude, educacao, obras, etc
+  totalUsers      Int       @default(0) @map("total_users")
+  activeUsers     Int       @default(0) @map("active_users")
+  totalSessions   Int       @default(0) @map("total_sessions")
+  totalPageViews  Int       @default(0) @map("total_page_views")
+  avgSessionTime  Float?    @map("avg_session_time") // em minutos
+  popularFeature  String?   @map("popular_feature")
+  period          String    // YYYY-MM
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  // Relacionamentos
+  tenant          Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, moduleName, period])
+  @@index([tenantId], map: "idx_module_analytics_tenant")
+  @@index([moduleName], map: "idx_module_analytics_module")
+  @@index([period], map: "idx_module_analytics_period")
+  @@map("module_analytics")
+}
+
+// Dados geográficos para distribuição
+model GeographicData {
+  id              Int       @id @default(autoincrement())
+  tenantId        String?   @map("tenant_id")
+  cidade          String
+  estado          String
+  regiao          String    // Norte, Nordeste, Centro-Oeste, Sudeste, Sul
+  populacao       Int?
+  totalUsuarios   Int       @default(0) @map("total_usuarios")
+  usuariosAtivos  Int       @default(0) @map("usuarios_ativos")
+  protocolosMes   Int       @default(0) @map("protocolos_mes")
+  satisfacaoMedia Float?    @map("satisfacao_media")
+  period          String    // YYYY-MM
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  // Relacionamentos
+  tenant          Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@unique([cidade, estado, period])
+  @@index([tenantId], map: "idx_geographic_data_tenant")
+  @@index([estado], map: "idx_geographic_data_estado")
+  @@index([regiao], map: "idx_geographic_data_regiao")
+  @@index([period], map: "idx_geographic_data_period")
+  @@map("geographic_data")
+}
+
+// ====================================================================
+// MODELOS PARA SISTEMA DE RELATÓRIOS AUTOMATIZADOS
+// ====================================================================
+
+// Configuração de relatórios automatizados
+model AutomatedReports {
+  id              Int             @id @default(autoincrement())
+  name            String
+  description     String?
+  reportType      String          @map("report_type") // executive, technical, financial, usage
+  frequency       String          // daily, weekly, monthly, quarterly
+  isActive        Boolean         @default(true) @map("is_active")
+  config          String          // JSON: filtros, métricas, formato
+  template        String?         // Template do relatório
+  createdBy       String          @map("created_by")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  creator         User            @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  schedules       ReportSchedules[]
+  history         ReportHistory[]
+
+  @@index([reportType], map: "idx_automated_reports_type")
+  @@index([frequency], map: "idx_automated_reports_frequency")
+  @@index([isActive], map: "idx_automated_reports_active")
+  @@map("automated_reports")
+}
+
+// Agendamentos de relatórios
+model ReportSchedules {
+  id              Int             @id @default(autoincrement())
+  reportId        Int             @map("report_id")
+  cronExpression  String          @map("cron_expression")
+  timezone        String          @default("America/Sao_Paulo")
+  nextRun         DateTime        @map("next_run")
+  lastRun         DateTime?       @map("last_run")
+  isActive        Boolean         @default(true) @map("is_active")
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  // Relacionamentos
+  report          AutomatedReports @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  recipients      ReportRecipients[]
+
+  @@index([reportId], map: "idx_report_schedules_report")
+  @@index([nextRun], map: "idx_report_schedules_next_run")
+  @@index([isActive], map: "idx_report_schedules_active")
+  @@map("report_schedules")
+}
+
+// Destinatários dos relatórios
+model ReportRecipients {
+  id              Int             @id @default(autoincrement())
+  scheduleId      Int             @map("schedule_id")
+  email           String
+  name            String?
+  isActive        Boolean         @default(true) @map("is_active")
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  // Relacionamentos
+  schedule        ReportSchedules @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId], map: "idx_report_recipients_schedule")
+  @@index([email], map: "idx_report_recipients_email")
+  @@map("report_recipients")
+}
+
+// Histórico de relatórios gerados
+model ReportHistory {
+  id              Int             @id @default(autoincrement())
+  reportId        Int             @map("report_id")
+  generatedAt     DateTime        @default(now()) @map("generated_at")
+  status          String          // success, failed, partial
+  filePath        String?         @map("file_path")
+  fileSize        Int?            @map("file_size") // em bytes
+  executionTime   Int?            @map("execution_time") // em ms
+  errorMessage    String?         @map("error_message")
+  sentTo          String?         @map("sent_to") // JSON: lista de emails
+  period          String?         // Período dos dados do relatório
+
+  // Relacionamentos
+  report          AutomatedReports @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId], map: "idx_report_history_report")
+  @@index([generatedAt], map: "idx_report_history_generated")
+  @@index([status], map: "idx_report_history_status")
+  @@map("report_history")
+}
+
+// ====================================================================
+// MODELOS PARA SISTEMA DE SATISFAÇÃO E NPS
+// ====================================================================
+
+// Pesquisas de satisfação
+model SatisfactionSurveys {
+  id              Int             @id @default(autoincrement())
+  title           String
+  description     String?
+  tenantId        String?         @map("tenant_id")
+  surveyType      String          @map("survey_type") // nps, satisfaction, feature_feedback
+  questions       String          // JSON: array de perguntas
+  isActive        Boolean         @default(true) @map("is_active")
+  startDate       DateTime        @map("start_date")
+  endDate         DateTime?       @map("end_date")
+  targetAudience  String          @map("target_audience") // all, admins, operators, specific
+  createdBy       String          @map("created_by")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  tenant          Tenant?         @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  creator         User            @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  npsResponses    NpsResponses[]
+  feedbacks       FeedbackSubmissions[]
+
+  @@index([tenantId], map: "idx_satisfaction_surveys_tenant")
+  @@index([surveyType], map: "idx_satisfaction_surveys_type")
+  @@index([isActive], map: "idx_satisfaction_surveys_active")
+  @@map("satisfaction_surveys")
+}
+
+// Respostas NPS
+model NpsResponses {
+  id              Int             @id @default(autoincrement())
+  surveyId        Int             @map("survey_id")
+  userId          String?         @map("user_id")
+  tenantId        String?         @map("tenant_id")
+  score           Int             // 0-10
+  category        String          // detractor, passive, promoter
+  comment         String?
+  anonymous       Boolean         @default(false)
+  ipAddress       String?         @map("ip_address")
+  userAgent       String?         @map("user_agent")
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  // Relacionamentos
+  survey          SatisfactionSurveys @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  user            User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tenant          Tenant?         @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([surveyId], map: "idx_nps_responses_survey")
+  @@index([userId], map: "idx_nps_responses_user")
+  @@index([tenantId], map: "idx_nps_responses_tenant")
+  @@index([score], map: "idx_nps_responses_score")
+  @@index([category], map: "idx_nps_responses_category")
+  @@map("nps_responses")
+}
+
+// Submissões de feedback geral
+model FeedbackSubmissions {
+  id              Int             @id @default(autoincrement())
+  surveyId        Int?            @map("survey_id")
+  userId          String?         @map("user_id")
+  tenantId        String?         @map("tenant_id")
+  feedbackType    String          @map("feedback_type") // bug, feature_request, improvement, complaint, praise
+  title           String
+  description     String
+  priority        String          @default("medium") // low, medium, high, critical
+  status          String          @default("open") // open, in_progress, resolved, closed
+  category        String?         // UI/UX, performance, functionality, etc
+  attachments     String?         // JSON: array de URLs de arquivos
+  assignedTo      String?         @map("assigned_to")
+  resolvedAt      DateTime?       @map("resolved_at")
+  resolution      String?
+  ipAddress       String?         @map("ip_address")
+  userAgent       String?         @map("user_agent")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  survey          SatisfactionSurveys? @relation(fields: [surveyId], references: [id], onDelete: SetNull)
+  user            User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tenant          Tenant?         @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  assignee        User?           @relation("AssignedFeedback", fields: [assignedTo], references: [id], onDelete: SetNull)
+
+  @@index([surveyId], map: "idx_feedback_submissions_survey")
+  @@index([userId], map: "idx_feedback_submissions_user")
+  @@index([tenantId], map: "idx_feedback_submissions_tenant")
+  @@index([feedbackType], map: "idx_feedback_submissions_type")
+  @@index([status], map: "idx_feedback_submissions_status")
+  @@index([priority], map: "idx_feedback_submissions_priority")
+  @@map("feedback_submissions")
+}
+
+// ====================================================================
 // CONSTANTS (usando strings ao invés de enums para compatibilidade SQLite)
 // ====================================================================
 // EmailStatus: "PENDING", "SENT", "DELIVERED", "BOUNCED", "FAILED"
 // EmailDirection: "INBOUND", "OUTBOUND"
 // SmtpServerType: "MX", "SUBMISSION"
 // ConnectionStatus: "ACCEPTED", "REJECTED", "FAILED"
+
+// InvoiceStatus: "pendente", "pago", "vencido", "cancelado"
+// InvoiceItemType: "subscription", "usage", "setup", "support"
+// TipoUsuario: "admin", "operador", "fiscal"
+// PlanoTenant: "STARTER", "PROFESSIONAL", "ENTERPRISE"
+
+// ReportType: "executive", "technical", "financial", "usage"
+// ReportFrequency: "daily", "weekly", "monthly", "quarterly"
+// ReportStatus: "success", "failed", "partial"
+// SurveyType: "nps", "satisfaction", "feature_feedback"
+// FeedbackType: "bug", "feature_request", "improvement", "complaint", "praise"
+// FeedbackStatus: "open", "in_progress", "resolved", "closed"
+// FeedbackPriority: "low", "medium", "high", "critical"
+// NpsCategory: "detractor", "passive", "promoter"
