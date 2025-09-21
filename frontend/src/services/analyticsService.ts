@@ -252,7 +252,7 @@ class AnalyticsService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = `${API_BASE_URL}/api`;
+    this.baseURL = API_BASE_URL;
   }
 
   // Headers com autenticação
