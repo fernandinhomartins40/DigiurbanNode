@@ -12,7 +12,7 @@ import { RedisRateStore } from '../services/RedisRateStore.js';
 import { DatabaseRateStore } from '../services/DatabaseRateStore.js';
 
 // ====================================================================
-// INTERFACES
+// INTERFACES E TIPOS
 // ====================================================================
 
 interface RateLimitStore {

@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { logger } from '../config/logger.js';
 
 export class AppError extends Error {
-  statusCode: number;
-  isOperational: boolean;
+  public statusCode: number;
+  public isOperational: boolean;
 
   constructor(message: string, statusCode: number) {
     super(message);
@@ -15,7 +15,7 @@ export class AppError extends Error {
 }
 
 export const errorHandler = (
-  error: Error,
+  error: Error | AppError,
   _req: Request,
   res: Response,
   _next: NextFunction

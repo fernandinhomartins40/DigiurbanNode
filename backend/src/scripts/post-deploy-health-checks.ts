@@ -306,7 +306,7 @@ export class PostDeployHealthChecker {
         message: systemTenant ? 'System Tenant encontrado' : 'System Tenant não encontrado',
         details: systemTenant ? {
           id: systemTenant.id,
-          name: systemTenant.name,
+          name: systemTenant.nome,
           status: systemTenant.status
         } : undefined,
         critical: true
@@ -461,7 +461,7 @@ export class PostDeployHealthChecker {
       const recentLogs = await prisma.activityLog.count({
         where: {
           createdAt: {
-            gte: Date.now() - (24 * 60 * 60 * 1000) // últimas 24h
+            gte: new Date(Date.now() - (24 * 60 * 60 * 1000)) // últimas 24h
           }
         }
       });
@@ -497,8 +497,7 @@ export class PostDeployHealthChecker {
       await prisma.user.findMany({
         take: 10,
         include: {
-          tenant: true,
-          sessions: true
+          tenant: true
         }
       });
 
