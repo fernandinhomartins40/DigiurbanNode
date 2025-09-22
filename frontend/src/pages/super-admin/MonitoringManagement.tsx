@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Monitor, 
-  Activity, 
+import {
+  Monitor,
+  Activity,
   AlertTriangle,
   CheckCircle,
   Clock,
@@ -24,7 +24,7 @@ import {
   AlertCircle,
   XCircle
 } from 'lucide-react';
-import { 
+import {
   SuperAdminLayout,
   SuperAdminHeader,
   SuperAdminContent
@@ -35,219 +35,60 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from 'sonner';
+import monitoringService, {
+  SystemMetrics,
+  Alert,
+  ServiceStatus,
+  PerformanceData
+} from '@/services/monitoringService';
 
 // ====================================================================
-// INTERFACES E TIPOS
+// INTERFACES E TIPOS (importados do serviço)
 // ====================================================================
 
-interface SystemMetrics {
-  timestamp: string;
-  uptime: number;
-  response_time: number;
-  availability: number;
-  error_rate: number;
-  throughput: number;
-  active_users: number;
-  resources: {
-    cpu_usage: number;
-    memory_usage: number;
-    disk_usage: number;
-    network_io: number;
-  };
-  database: {
-    connections: number;
-    query_time: number;
-    slow_queries: number;
-    size_gb: number;
-  };
-  security: {
-    failed_logins: number;
-    blocked_ips: number;
-    ssl_cert_days: number;
-    vulnerabilities: number;
-  };
-}
-
-interface Alert {
-  id: string;
-  type: 'critical' | 'warning' | 'info';
-  category: 'performance' | 'security' | 'infrastructure' | 'application';
-  title: string;
-  message: string;
-  timestamp: string;
-  status: 'active' | 'resolved' | 'acknowledged';
-  affected_tenants: string[];
-  auto_resolve: boolean;
-}
-
-interface ServiceStatus {
-  name: string;
-  category: string;
-  status: 'operational' | 'degraded' | 'partial' | 'outage';
-  uptime: number;
-  response_time: number;
-  last_incident?: string;
-  dependencies: string[];
-}
-
-interface PerformanceData {
-  timestamp: string;
-  cpu: number;
-  memory: number;
-  response_time: number;
-  throughput: number;
-  errors: number;
-}
-
 // ====================================================================
-// DADOS MOCK PARA DEMONSTRAÇÃO
+// DADOS INICIAIS (substituídos por dados reais)
 // ====================================================================
 
-const mockSystemMetrics: SystemMetrics = {
+const initialMetrics: SystemMetrics = {
   timestamp: new Date().toISOString(),
-  uptime: 99.7,
-  response_time: 1.2,
-  availability: 99.9,
-  error_rate: 0.8,
-  throughput: 2847,
-  active_users: 1623,
+  uptime: 0,
+  response_time: 0,
+  availability: 0,
+  error_rate: 0,
+  throughput: 0,
+  active_users: 0,
   resources: {
-    cpu_usage: 34.5,
-    memory_usage: 67.8,
-    disk_usage: 45.2,
-    network_io: 12.4
+    cpu_usage: 0,
+    memory_usage: 0,
+    disk_usage: 0,
+    network_io: 0
   },
   database: {
-    connections: 127,
-    query_time: 89.5,
-    slow_queries: 3,
-    size_gb: 245.7
+    connections: 0,
+    query_time: 0,
+    slow_queries: 0,
+    size_gb: 0
   },
   security: {
-    failed_logins: 12,
-    blocked_ips: 4,
-    ssl_cert_days: 67,
+    failed_logins: 0,
+    blocked_ips: 0,
+    ssl_cert_days: 0,
     vulnerabilities: 0
   }
 };
-
-const mockAlerts: Alert[] = [
-  {
-    id: '1',
-    type: 'warning',
-    category: 'performance',
-    title: 'Tempo de resposta elevado',
-    message: 'API Gateway apresentando latência acima de 2s nos últimos 15 minutos',
-    timestamp: '2024-01-08T14:30:00Z',
-    status: 'active',
-    affected_tenants: ['SP-001', 'SP-002'],
-    auto_resolve: true
-  },
-  {
-    id: '2',
-    type: 'critical',
-    category: 'infrastructure',
-    title: 'Uso de memória crítico',
-    message: 'Servidor principal usando 89% da memória disponível',
-    timestamp: '2024-01-08T13:45:00Z',
-    status: 'acknowledged',
-    affected_tenants: [],
-    auto_resolve: false
-  },
-  {
-    id: '3',
-    type: 'info',
-    category: 'security',
-    title: 'Certificado SSL próximo do vencimento',
-    message: 'Certificado expira em 67 dias - renovação recomendada',
-    timestamp: '2024-01-08T10:00:00Z',
-    status: 'active',
-    affected_tenants: [],
-    auto_resolve: false
-  },
-  {
-    id: '4',
-    type: 'warning',
-    category: 'application',
-    title: 'Queries lentas detectadas',
-    message: '3 queries com tempo superior a 1s detectadas no banco de dados',
-    timestamp: '2024-01-08T12:15:00Z',
-    status: 'resolved',
-    affected_tenants: [],
-    auto_resolve: true
-  }
-];
-
-const mockServices: ServiceStatus[] = [
-  {
-    name: 'API Gateway',
-    category: 'Core',
-    status: 'operational',
-    uptime: 99.9,
-    response_time: 1.2,
-    dependencies: ['Database', 'Authentication']
-  },
-  {
-    name: 'Authentication Service',
-    category: 'Security',
-    status: 'operational',
-    uptime: 99.8,
-    response_time: 0.8,
-    dependencies: ['Database']
-  },
-  {
-    name: 'Database Cluster',
-    category: 'Infrastructure',
-    status: 'degraded',
-    uptime: 99.7,
-    response_time: 89.5,
-    last_incident: '2024-01-08T13:00:00Z',
-    dependencies: []
-  },
-  {
-    name: 'File Storage',
-    category: 'Infrastructure',
-    status: 'operational',
-    uptime: 99.9,
-    response_time: 0.4,
-    dependencies: []
-  },
-  {
-    name: 'Email Service',
-    category: 'External',
-    status: 'operational',
-    uptime: 99.6,
-    response_time: 2.1,
-    dependencies: []
-  },
-  {
-    name: 'Backup System',
-    category: 'Infrastructure',
-    status: 'operational',
-    uptime: 100.0,
-    response_time: 0.2,
-    dependencies: ['File Storage']
-  }
-];
-
-const performanceHistory: PerformanceData[] = [
-  { timestamp: '14:00', cpu: 28.5, memory: 62.1, response_time: 1.1, throughput: 2450, errors: 2 },
-  { timestamp: '14:15', cpu: 32.1, memory: 64.8, response_time: 1.3, throughput: 2680, errors: 1 },
-  { timestamp: '14:30', cpu: 34.5, memory: 67.8, response_time: 1.2, throughput: 2847, errors: 0 },
-  { timestamp: '14:45', cpu: 31.2, memory: 65.4, response_time: 1.0, throughput: 2912, errors: 1 },
-  { timestamp: '15:00', cpu: 29.8, memory: 63.2, response_time: 0.9, throughput: 3045, errors: 0 }
-];
 
 // ====================================================================
 // COMPONENTE PRINCIPAL
 // ====================================================================
 
 const MonitoringManagement: React.FC = () => {
-  const [metrics, setMetrics] = useState<SystemMetrics>(mockSystemMetrics);
-  const [alerts, setAlerts] = useState<Alert[]>(mockAlerts);
-  const [services, setServices] = useState<ServiceStatus[]>(mockServices);
-  const [loading, setLoading] = useState(false);
+  const [metrics, setMetrics] = useState<SystemMetrics>(initialMetrics);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [services, setServices] = useState<ServiceStatus[]>([]);
+  const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Estados para modais
   const [showAlertDetails, setShowAlertDetails] = useState(false);
@@ -256,23 +97,49 @@ const MonitoringManagement: React.FC = () => {
   const [selectedService, setSelectedService] = useState<ServiceStatus | null>(null);
 
   // ====================================================================
+  // FUNÇÕES DE CARREGAMENTO DE DADOS
+  // ====================================================================
+
+  const loadAllData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [metricsData, alertsData, servicesData] = await Promise.all([
+        monitoringService.getSystemMetrics(),
+        monitoringService.getSystemAlerts(),
+        monitoringService.getServiceStatus()
+      ]);
+
+      setMetrics(metricsData);
+      setAlerts(alertsData);
+      setServices(servicesData);
+    } catch (error) {
+      console.error('Erro ao carregar dados de monitoring:', error);
+      setError('Erro ao carregar dados do sistema. Usando dados de exemplo.');
+
+      // Em caso de erro, usar dados mínimos para evitar quebra da interface
+      setMetrics(prev => ({
+        ...prev,
+        timestamp: new Date().toISOString()
+      }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ====================================================================
   // EFEITOS E ATUALIZAÇÕES
   // ====================================================================
 
   useEffect(() => {
+    loadAllData();
+  }, []);
+
+  useEffect(() => {
     if (autoRefresh) {
       const interval = setInterval(() => {
-        // Simular atualização de métricas
-        setMetrics(prev => ({
-          ...prev,
-          timestamp: new Date().toISOString(),
-          response_time: prev.response_time + (Math.random() - 0.5) * 0.2,
-          resources: {
-            ...prev.resources,
-            cpu_usage: Math.max(0, Math.min(100, prev.resources.cpu_usage + (Math.random() - 0.5) * 5)),
-            memory_usage: Math.max(0, Math.min(100, prev.resources.memory_usage + (Math.random() - 0.5) * 3))
-          }
-        }));
+        loadAllData();
       }, 30000); // Atualizar a cada 30 segundos
 
       return () => clearInterval(interval);
@@ -288,18 +155,30 @@ const MonitoringManagement: React.FC = () => {
     setShowAlertDetails(true);
   };
 
-  const handleResolveAlert = (alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.id === alertId ? { ...alert, status: 'resolved' } : alert
-    ));
-    toast.success('Alerta marcado como resolvido!');
+  const handleResolveAlert = async (alertId: string) => {
+    try {
+      await monitoringService.resolveAlert(alertId);
+      setAlerts(prev => prev.map(alert =>
+        alert.id === alertId ? { ...alert, status: 'resolved' } : alert
+      ));
+      toast.success('Alerta marcado como resolvido!');
+    } catch (error) {
+      console.error('Erro ao resolver alerta:', error);
+      toast.error('Erro ao resolver alerta');
+    }
   };
 
-  const handleAcknowledgeAlert = (alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.id === alertId ? { ...alert, status: 'acknowledged' } : alert
-    ));
-    toast.info('Alerta reconhecido!');
+  const handleAcknowledgeAlert = async (alertId: string) => {
+    try {
+      await monitoringService.acknowledgeAlert(alertId);
+      setAlerts(prev => prev.map(alert =>
+        alert.id === alertId ? { ...alert, status: 'acknowledged' } : alert
+      ));
+      toast.info('Alerta reconhecido!');
+    } catch (error) {
+      console.error('Erro ao reconhecer alerta:', error);
+      toast.error('Erro ao reconhecer alerta');
+    }
   };
 
   const handleViewService = (service: ServiceStatus) => {
@@ -307,36 +186,32 @@ const MonitoringManagement: React.FC = () => {
     setShowServiceDetails(true);
   };
 
-  const handleRestartService = (serviceName: string) => {
-    toast.info(`Reiniciando ${serviceName}...`);
-    setTimeout(() => {
-      toast.success(`${serviceName} reiniciado com sucesso!`);
-      setServices(prev => prev.map(service => 
-        service.name === serviceName ? { ...service, status: 'operational', uptime: 100.0 } : service
-      ));
-    }, 3000);
+  const handleRestartService = async (serviceName: string) => {
+    try {
+      toast.info(`Reiniciando ${serviceName}...`);
+      await monitoringService.restartService(serviceName);
+
+      // Simular o restart localmente enquanto não há API real
+      setTimeout(() => {
+        toast.success(`${serviceName} reiniciado com sucesso!`);
+        setServices(prev => prev.map(service =>
+          service.name === serviceName ? { ...service, status: 'operational', uptime: 100.0 } : service
+        ));
+      }, 3000);
+    } catch (error) {
+      console.error('Erro ao reiniciar serviço:', error);
+      toast.error(`Erro ao reiniciar ${serviceName}`);
+    }
   };
 
   const refreshMetrics = async () => {
-    setLoading(true);
     toast.info('Atualizando métricas...');
-    
-    // Simular atualização
-    setTimeout(() => {
-      setMetrics(prev => ({
-        ...prev,
-        timestamp: new Date().toISOString(),
-        response_time: Math.max(0.5, prev.response_time + (Math.random() - 0.5) * 0.3),
-        throughput: prev.throughput + Math.floor((Math.random() - 0.5) * 200),
-        resources: {
-          ...prev.resources,
-          cpu_usage: Math.max(0, Math.min(100, prev.resources.cpu_usage + (Math.random() - 0.5) * 10)),
-          memory_usage: Math.max(0, Math.min(100, prev.resources.memory_usage + (Math.random() - 0.5) * 5))
-        }
-      }));
-      setLoading(false);
+    try {
+      await loadAllData();
       toast.success('Métricas atualizadas!');
-    }, 2000);
+    } catch (error) {
+      toast.error('Erro ao atualizar métricas');
+    }
   };
 
   // ====================================================================

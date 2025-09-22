@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Shield, 
-  Database, 
+import {
+  Shield,
+  Database,
   RefreshCw,
   Download,
   Upload,
@@ -29,6 +29,7 @@ import {
   Pause,
   Stop
 } from 'lucide-react';
+import { monitoringService, type SystemMetrics, type Alert, type ServiceStatus } from '@/services/monitoringService';
 import { 
   SuperAdminLayout,
   SuperAdminHeader,
@@ -288,13 +289,20 @@ const mockStorageStats: StorageStats = {
 // ====================================================================
 
 const OperationsManagement: React.FC = () => {
+  // Estados existentes (mock data para funcionalidades não implementadas)
   const [backupJobs, setBackupJobs] = useState<BackupJob[]>(mockBackupJobs);
   const [maintenanceTasks, setMaintenanceTasks] = useState<MaintenanceTask[]>(mockMaintenanceTasks);
   const [systemCommands, setSystemCommands] = useState<SystemCommand[]>(mockSystemCommands);
   const [securityActions, setSecurityActions] = useState<SecurityAction[]>(mockSecurityActions);
   const [storageStats, setStorageStats] = useState<StorageStats>(mockStorageStats);
+
+  // Novos estados para dados reais do monitoringService
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
+  const [systemAlerts, setSystemAlerts] = useState<Alert[]>([]);
+  const [serviceStatus, setServiceStatus] = useState<ServiceStatus[]>([]);
+
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('backups');
+  const [activeTab, setActiveTab] = useState('monitoring');
   
   // Estados para modais
   const [showNewBackupModal, setShowNewBackupModal] = useState(false);
@@ -319,6 +327,73 @@ const OperationsManagement: React.FC = () => {
     affects_service: false,
     auto_execute: true
   });
+
+  // ====================================================================
+  // FUNÇÕES DE CARREGAMENTO DE DADOS REAIS
+  // ====================================================================
+
+  const loadSystemMetrics = async () => {
+    try {
+      const metrics = await monitoringService.getSystemMetrics();
+      setSystemMetrics(metrics);
+
+      // Atualizar storageStats com dados reais se disponível
+      if (metrics.resources) {
+        setStorageStats(prev => ({
+          ...prev,
+          used_space: (metrics.resources.disk_usage / 100) * prev.total_space,
+          available_space: prev.total_space - (metrics.resources.disk_usage / 100) * prev.total_space
+        }));
+      }
+    } catch (error) {
+      console.error('Erro ao carregar métricas do sistema:', error);
+      toast.error('Erro ao carregar métricas do sistema');
+    }
+  };
+
+  const loadSystemAlerts = async () => {
+    try {
+      const alerts = await monitoringService.getSystemAlerts();
+      setSystemAlerts(alerts);
+    } catch (error) {
+      console.error('Erro ao carregar alertas do sistema:', error);
+      toast.error('Erro ao carregar alertas do sistema');
+    }
+  };
+
+  const loadServiceStatus = async () => {
+    try {
+      const services = await monitoringService.getServiceStatus();
+      setServiceStatus(services);
+    } catch (error) {
+      console.error('Erro ao carregar status dos serviços:', error);
+      toast.error('Erro ao carregar status dos serviços');
+    }
+  };
+
+  const loadAllRealData = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        loadSystemMetrics(),
+        loadSystemAlerts(),
+        loadServiceStatus()
+      ]);
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // useEffect para carregar dados reais na inicialização
+  useEffect(() => {
+    loadAllRealData();
+
+    // Atualizar dados a cada 30 segundos
+    const interval = setInterval(loadAllRealData, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // ====================================================================
   // FUNÇÕES UTILITÁRIAS
@@ -471,6 +546,13 @@ const OperationsManagement: React.FC = () => {
         subtitle="Administração e manutenção do sistema"
         icon={Settings}
         actions={[
+          {
+            text: "Atualizar Dados",
+            variant: "outline" as const,
+            icon: RefreshCw,
+            onClick: loadAllRealData,
+            loading: loading
+          },
           ...(activeTab === 'backups' ? [{
             text: "Novo Backup",
             variant: "default" as const,
@@ -489,8 +571,9 @@ const OperationsManagement: React.FC = () => {
       <SuperAdminContent>
 
       {/* Tabs de Navegação */}
-      <div className="flex gap-2 mb-8">
+      <div className="flex gap-2 mb-8 overflow-x-auto">
         {[
+          { id: 'monitoring', label: 'Monitoramento', icon: <Activity className="h-4 w-4" /> },
           { id: 'backups', label: 'Backups', icon: <Archive className="h-4 w-4" /> },
           { id: 'maintenance', label: 'Manutenção', icon: <Settings className="h-4 w-4" /> },
           { id: 'commands', label: 'Comandos', icon: <Terminal className="h-4 w-4" /> },
@@ -501,7 +584,7 @@ const OperationsManagement: React.FC = () => {
             key={tab.id}
             variant={activeTab === tab.id ? "default" : "outline"}
             onClick={() => setActiveTab(tab.id)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 whitespace-nowrap"
           >
             {tab.icon}
             {tab.label}
@@ -510,6 +593,172 @@ const OperationsManagement: React.FC = () => {
       </div>
 
       {/* Conteúdo das Tabs */}
+      {activeTab === 'monitoring' && (
+        <div className="space-y-6">
+
+          {/* Métricas do Sistema */}
+          {systemMetrics && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200/50">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-700">CPU</p>
+                      <p className="text-2xl font-bold text-blue-900">{systemMetrics.resources.cpu_usage.toFixed(1)}%</p>
+                      <p className="text-xs text-blue-600">Uso do processador</p>
+                    </div>
+                    <Activity className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <Progress value={systemMetrics.resources.cpu_usage} className="h-2 mt-2" />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-700">Memória</p>
+                      <p className="text-2xl font-bold text-green-900">{systemMetrics.resources.memory_usage.toFixed(1)}%</p>
+                      <p className="text-xs text-green-600">RAM utilizada</p>
+                    </div>
+                    <Database className="h-8 w-8 text-green-600" />
+                  </div>
+                  <Progress value={systemMetrics.resources.memory_usage} className="h-2 mt-2" />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200/50">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-purple-700">Disco</p>
+                      <p className="text-2xl font-bold text-purple-900">{systemMetrics.resources.disk_usage.toFixed(1)}%</p>
+                      <p className="text-xs text-purple-600">Armazenamento</p>
+                    </div>
+                    <HardDrive className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <Progress value={systemMetrics.resources.disk_usage} className="h-2 mt-2" />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200/50">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-orange-700">Uptime</p>
+                      <p className="text-2xl font-bold text-orange-900">{systemMetrics.availability.toFixed(1)}%</p>
+                      <p className="text-xs text-orange-600">Disponibilidade</p>
+                    </div>
+                    <Clock className="h-8 w-8 text-orange-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Status dos Serviços */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Status dos Serviços
+              </CardTitle>
+              <CardDescription>
+                Monitoramento em tempo real dos serviços críticos
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {serviceStatus.map((service, index) => (
+                  <Card key={index} className={`p-4 border-l-4 ${
+                    service.status === 'operational' ? 'border-l-green-500 bg-green-50/50' :
+                    service.status === 'degraded' ? 'border-l-yellow-500 bg-yellow-50/50' :
+                    service.status === 'partial' ? 'border-l-orange-500 bg-orange-50/50' :
+                    'border-l-red-500 bg-red-50/50'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold">{service.name}</h3>
+                        <p className="text-sm text-gray-600">{service.category}</p>
+                      </div>
+                      <Badge className={
+                        service.status === 'operational' ? 'bg-green-100 text-green-800' :
+                        service.status === 'degraded' ? 'bg-yellow-100 text-yellow-800' :
+                        service.status === 'partial' ? 'bg-orange-100 text-orange-800' :
+                        'bg-red-100 text-red-800'
+                      }>
+                        {service.status}
+                      </Badge>
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      <p>Uptime: {service.uptime.toFixed(1)}%</p>
+                      <p>Resposta: {service.response_time.toFixed(0)}ms</p>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Alertas do Sistema */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                Alertas do Sistema ({systemAlerts.length})
+              </CardTitle>
+              <CardDescription>
+                Alertas ativos e histórico de incidentes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {systemAlerts.length > 0 ? systemAlerts.map((alert) => (
+                  <Card key={alert.id} className={`p-4 border-l-4 ${
+                    alert.type === 'critical' ? 'border-l-red-500 bg-red-50/50' :
+                    alert.type === 'warning' ? 'border-l-yellow-500 bg-yellow-50/50' :
+                    'border-l-blue-500 bg-blue-50/50'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold">{alert.title}</h3>
+                        <p className="text-sm text-gray-600">{alert.message}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(alert.timestamp).toLocaleString('pt-BR')} • {alert.category}
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Badge className={
+                          alert.type === 'critical' ? 'bg-red-100 text-red-800' :
+                          alert.type === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-blue-100 text-blue-800'
+                        }>
+                          {alert.type}
+                        </Badge>
+                        {alert.status === 'active' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => monitoringService.acknowledgeAlert(alert.id)}
+                          >
+                            Reconhecer
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                )) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-600" />
+                    <p>Nenhum alerta ativo no momento</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {activeTab === 'backups' && (
         <div className="space-y-6">
           

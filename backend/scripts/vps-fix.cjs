@@ -42,7 +42,7 @@ try {
     
     // Criar super admin
     const userId = crypto.randomBytes(16).toString('hex');
-    const hashedPassword = bcrypt.hashSync('DigiAdmin2024@', 12);
+    const hashedPassword = bcrypt.hashSync('DigiUrban2025!', 12);
     db.prepare(`INSERT INTO users (
         id, tenant_id, nome_completo, email, password_hash, 
         role, status, email_verified, created_at, updated_at
@@ -71,7 +71,7 @@ try {
     console.log('✅ Sistema funcionando 100%');
     console.log('\n📋 CREDENCIAIS DO SUPER ADMIN:');
     console.log('Email: admin@digiurban.com.br');
-    console.log('Senha: DigiAdmin2024@');
+    console.log('Senha: DigiUrban2025!');
     console.log('\n🔥 AGORA PODE TESTAR A CRIAÇÃO DE USUÁRIOS!');
     
 } catch (error) {

@@ -39,7 +39,7 @@ const CONFIG = {
     MIGRATIONS_PATH: join(__dirname, '..', 'src', 'database', 'migrations'),
     SUPER_ADMIN: {
         email: 'admin@digiurban.com.br',
-        password: 'DigiAdmin2024@',
+        password: 'DigiUrban2025!',
         nome: 'Super Administrador',
         tenant_code: 'system'
     }

@@ -24,13 +24,16 @@ export const seed001InitialData = async (): Promise<void> => {
     // 2. Inserir permissões padrão
     await seedPermissions();
 
-    // 3. Inserir usuário super admin
+    // 3. Inserir tenant sistema (sempre)
+    await seedSystemTenant();
+
+    // 4. Inserir usuário super admin
     await seedSuperAdmin();
 
-    // 4. Inserir tenant padrão para desenvolvimento
+    // 5. Inserir tenant padrão para desenvolvimento
     await seedDefaultTenant();
 
-    // 5. Inserir configurações do sistema
+    // 6. Inserir configurações do sistema
     await seedSystemConfig();
 
     console.log('✅ Seed 001 executado com sucesso');
@@ -131,6 +134,34 @@ const seedPermissions = async (): Promise<void> => {
 };
 
 // ====================================================================
+// SEED DE TENANT SISTEMA (SEMPRE CRIADO)
+// ====================================================================
+
+const seedSystemTenant = async (): Promise<void> => {
+  console.log('🏛️ Criando tenant do sistema...');
+
+  const systemTenantId = uuidv4();
+
+  await prisma.tenant.upsert({
+    where: { tenantCode: 'SYSTEM' },
+    update: {},
+    create: {
+      id: systemTenantId,
+      tenantCode: 'SYSTEM',
+      nome: 'Sistema DigiUrban',
+      email: 'sistema@digiurban.com.br',
+      cidade: 'Sistema',
+      estado: 'SY',
+      cnpj: '00000000000000',
+      plano: 'enterprise',
+      status: 'ativo'
+    }
+  });
+
+  console.log('✅ Tenant sistema criado: SYSTEM');
+};
+
+// ====================================================================
 // SEED DE SUPER ADMIN
 // ====================================================================
 
@@ -138,8 +169,8 @@ const seedSuperAdmin = async (): Promise<void> => {
   console.log('👑 Criando usuário super admin...');
 
   const superAdminId = uuidv4();
-  const email = process.env.SUPER_ADMIN_EMAIL || 'superadmin@digiurban.com';
-  const password = process.env.SUPER_ADMIN_PASSWORD || 'DigiUrban@2025!';
+  const email = process.env.INITIAL_ADMIN_EMAIL || 'admin@digiurban.com.br';
+  const password = process.env.INITIAL_ADMIN_PASSWORD || 'DigiUrban2025!';
   const passwordHash = await bcrypt.hash(password, 12);
 
   // Inserir super admin
@@ -258,7 +289,7 @@ const seedSystemConfig = async (): Promise<void> => {
     { key: 'auth.password_require_uppercase', value: 'true', description: 'Senha requer letra maiúscula' },
     { key: 'auth.password_require_lowercase', value: 'true', description: 'Senha requer letra minúscula' },
     { key: 'auth.password_require_numbers', value: 'true', description: 'Senha requer números' },
-    { key: 'auth.password_require_special', value: 'false', description: 'Senha requer caracteres especiais' },
+    { key: 'auth.password_require_special', value: 'true', description: 'Senha requer caracteres especiais' },
     { key: 'auth.max_login_attempts', value: '5', description: 'Máximo de tentativas de login' },
     { key: 'auth.lockout_duration', value: '900', description: 'Duração do bloqueio em segundos' },
     { key: 'auth.session_timeout', value: '86400', description: 'Timeout da sessão em segundos' },

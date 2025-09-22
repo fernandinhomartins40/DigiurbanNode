@@ -847,6 +847,93 @@ model FeedbackSubmissions {
 }
 
 // ====================================================================
+// MODELOS PARA MONITORING SYSTEM - FASE 1
+// ====================================================================
+
+// Logs do sistema
+model SystemLogs {
+  id           Int       @id @default(autoincrement())
+  logLevel     String    @map("log_level") // "error", "warn", "info", "debug"
+  service      String    // "backend", "frontend", "database", "smtp"
+  message      String
+  details      String?   // JSON com detalhes adicionais
+  userId       String?   @map("user_id")
+  tenantId     String?   @map("tenant_id")
+  stackTrace   String?   @map("stack_trace")
+  requestId    String?   @map("request_id")
+  ipAddress    String?   @map("ip_address")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@index([logLevel], map: "idx_system_logs_level")
+  @@index([service], map: "idx_system_logs_service")
+  @@index([createdAt], map: "idx_system_logs_created")
+  @@index([userId], map: "idx_system_logs_user")
+  @@map("system_logs")
+}
+
+// Status dos serviços
+model ServiceStatus {
+  id           Int       @id @default(autoincrement())
+  serviceName  String    @map("service_name") // "database", "auth", "email", "api"
+  status       String    // "healthy", "degraded", "down", "maintenance"
+  lastCheck    DateTime  @map("last_check")
+  responseTime Float?    @map("response_time") // em millisegundos
+  errorMessage String?   @map("error_message")
+  uptime       Float?    // percentage
+  checkType    String    @map("check_type") // "http", "tcp", "database", "internal"
+  metadata     String?   // JSON com informações adicionais
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@index([serviceName], map: "idx_service_status_name")
+  @@index([status], map: "idx_service_status_status")
+  @@index([lastCheck], map: "idx_service_status_check")
+  @@map("service_status")
+}
+
+// Alertas do sistema
+model SystemAlerts {
+  id          Int       @id @default(autoincrement())
+  alertType   String    @map("alert_type") // "performance", "error", "security", "capacity"
+  severity    String    // "low", "medium", "high", "critical"
+  title       String
+  description String
+  service     String?   // Serviço relacionado
+  threshold   Float?    // Valor do limiar que gerou o alerta
+  currentValue Float?   @map("current_value") // Valor atual da métrica
+  resolved    Boolean   @default(false)
+  resolvedAt  DateTime? @map("resolved_at")
+  resolvedBy  String?   @map("resolved_by") // ID do usuário que resolveu
+  metadata    String?   // JSON com informações adicionais
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([alertType], map: "idx_system_alerts_type")
+  @@index([severity], map: "idx_system_alerts_severity")
+  @@index([resolved], map: "idx_system_alerts_resolved")
+  @@index([createdAt], map: "idx_system_alerts_created")
+  @@map("system_alerts")
+}
+
+// Métricas detalhadas do sistema
+model DetailedSystemMetrics {
+  id             Int       @id @default(autoincrement())
+  category       String    // "cpu", "memory", "disk", "network", "database", "application"
+  metricName     String    @map("metric_name")
+  metricValue    Float     @map("metric_value")
+  metricUnit     String?   @map("metric_unit") // "%", "MB", "GB", "ms", "req/s"
+  instance       String?   // Instância específica se aplicável
+  tags           String?   // JSON com tags adicionais
+  aggregationType String?  @map("aggregation_type") // "avg", "sum", "max", "min"
+  recordedAt     DateTime  @default(now()) @map("recorded_at")
+
+  @@index([category], map: "idx_detailed_metrics_category")
+  @@index([metricName], map: "idx_detailed_metrics_name")
+  @@index([recordedAt], map: "idx_detailed_metrics_recorded")
+  @@map("detailed_system_metrics")
+}
+
+// ====================================================================
 // CONSTANTS (usando strings ao invés de enums para compatibilidade SQLite)
 // ====================================================================
 // EmailStatus: "PENDING", "SENT", "DELIVERED", "BOUNCED", "FAILED"
@@ -866,4 +953,9 @@ model FeedbackSubmissions {
 // FeedbackType: "bug", "feature_request", "improvement", "complaint", "praise"
 // FeedbackStatus: "open", "in_progress", "resolved", "closed"
 // FeedbackPriority: "low", "medium", "high", "critical"
+
+// LogLevel: "error", "warn", "info", "debug"
+// ServiceStatus: "healthy", "degraded", "down", "maintenance"
+// AlertType: "performance", "error", "security", "capacity"
+// AlertSeverity: "low", "medium", "high", "critical"
 // NpsCategory: "detractor", "passive", "promoter"

@@ -37,7 +37,7 @@ export class BackupService {
   };
 
   private static backupDir = path.resolve(process.env.BACKUP_DIR || './data/backups');
-  private static dbPath = path.resolve(process.env.DATABASE_PATH || './data/database.sqlite');
+  private static dbPath = path.resolve(process.env.DATABASE_PATH || './data/digiurban.db');
 
   /**
    * Inicializar serviço de backup
@@ -148,24 +148,21 @@ export class BackupService {
    * Comprimir arquivo usando gzip
    */
   private static async compressFile(inputPath: string, outputPath: string): Promise<void> {
-    try {
-      const command = `gzip -${this.config.compressionLevel} -c "${inputPath}" > "${outputPath}"`;
-      await execAsync(command);
-    } catch (error) {
-      // Fallback para Node.js se gzip não estiver disponível
-      const zlib = await import('zlib');
-      const inputStream = fs.createReadStream(inputPath);
-      const outputStream = fs.createWriteStream(outputPath);
-      const gzip = zlib.createGzip({ level: this.config.compressionLevel });
-      
-      await new Promise<void>((resolve, reject) => {
-        inputStream
-          .pipe(gzip)
-          .pipe(outputStream)
-          .on('finish', () => resolve())
-          .on('error', reject);
-      });
-    }
+    // Usar zlib nativo do Node.js sempre (mais confiável que comando externo)
+    const zlib = await import('zlib');
+    const inputStream = fs.createReadStream(inputPath);
+    const outputStream = fs.createWriteStream(outputPath);
+    const gzip = zlib.createGzip({ level: this.config.compressionLevel });
+
+    await new Promise<void>((resolve, reject) => {
+      inputStream
+        .pipe(gzip)
+        .pipe(outputStream)
+        .on('finish', () => resolve())
+        .on('error', reject);
+
+      inputStream.on('error', reject);
+    });
   }
 
   /**
@@ -379,24 +376,21 @@ export class BackupService {
    * Descomprimir arquivo gzip
    */
   private static async decompressFile(inputPath: string, outputPath: string): Promise<void> {
-    try {
-      const command = `gunzip -c "${inputPath}" > "${outputPath}"`;
-      await execAsync(command);
-    } catch (error) {
-      // Fallback para Node.js se gunzip não estiver disponível
-      const zlib = await import('zlib');
-      const inputStream = fs.createReadStream(inputPath);
-      const outputStream = fs.createWriteStream(outputPath);
-      const gunzip = zlib.createGunzip();
-      
-      await new Promise<void>((resolve, reject) => {
-        inputStream
-          .pipe(gunzip)
-          .pipe(outputStream)
-          .on('finish', () => resolve())
-          .on('error', reject);
-      });
-    }
+    // Usar zlib nativo do Node.js sempre (mais confiável que comando externo)
+    const zlib = await import('zlib');
+    const inputStream = fs.createReadStream(inputPath);
+    const outputStream = fs.createWriteStream(outputPath);
+    const gunzip = zlib.createGunzip();
+
+    await new Promise<void>((resolve, reject) => {
+      inputStream
+        .pipe(gunzip)
+        .pipe(outputStream)
+        .on('finish', () => resolve())
+        .on('error', reject);
+
+      inputStream.on('error', reject);
+    });
   }
 
   /**

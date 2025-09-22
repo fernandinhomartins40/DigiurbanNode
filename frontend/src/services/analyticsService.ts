@@ -292,14 +292,14 @@ class AnalyticsService {
    * Obter overview geral de analytics
    */
   async getAnalyticsOverview(period: '7d' | '30d' | '90d' = '30d'): Promise<AnalyticsOverview> {
-    return this.makeRequest<AnalyticsOverview>(`/admin/analytics/overview?period=${period}`);
+    return this.makeRequest<AnalyticsOverview>(`/api/admin/analytics/dashboard?period=${period}`);
   }
 
   /**
    * Obter evolução de uso temporal
    */
   async getUsageEvolution(period: '7d' | '30d' | '90d' = '30d'): Promise<UsageEvolution> {
-    return this.makeRequest<UsageEvolution>(`/admin/analytics/usage?period=${period}`);
+    return this.makeRequest<UsageEvolution>(`/api/admin/analytics/sessions?period=${period}`);
   }
 
   /**
@@ -309,21 +309,21 @@ class AnalyticsService {
     const params = new URLSearchParams({ period });
     if (category) params.append('category', category);
 
-    return this.makeRequest<PopularFeatures>(`/admin/analytics/features?${params.toString()}`);
+    return this.makeRequest<PopularFeatures>(`/api/admin/analytics/features?${params.toString()}`);
   }
 
   /**
    * Obter analytics por módulo
    */
   async getModuleAnalytics(period: string = 'current'): Promise<ModuleAnalytics> {
-    return this.makeRequest<ModuleAnalytics>(`/admin/analytics/modules?period=${period}`);
+    return this.makeRequest<ModuleAnalytics>(`/api/admin/analytics/modules?period=${period}`);
   }
 
   /**
    * Obter distribuição geográfica
    */
   async getGeographicData(period: string = 'current', groupBy: 'estado' | 'regiao' = 'estado'): Promise<GeographicData> {
-    return this.makeRequest<GeographicData>(`/admin/analytics/geographic?period=${period}&groupBy=${groupBy}`);
+    return this.makeRequest<GeographicData>(`/api/admin/analytics/geographic?period=${period}&groupBy=${groupBy}`);
   }
 
   /**
@@ -345,14 +345,14 @@ class AnalyticsService {
     if (type) params.append('type', type);
     if (isActive !== undefined) params.append('isActive', isActive.toString());
 
-    return this.makeRequest<AutomatedReport[]>(`/admin/reports?${params.toString()}`);
+    return this.makeRequest<AutomatedReport[]>(`/api/admin/analytics/reports?${params.toString()}`);
   }
 
   /**
    * Criar novo relatório automatizado
    */
   async createReport(data: CreateReportData): Promise<{ id: number; name: string }> {
-    return this.makeRequest<{ id: number; name: string }>('/admin/reports', {
+    return this.makeRequest<{ id: number; name: string }>('/api/admin/analytics/reports', {
       method: 'POST',
       body: JSON.stringify(data)
     });
@@ -362,7 +362,7 @@ class AnalyticsService {
    * Atualizar relatório automatizado
    */
   async updateReport(id: number, data: Partial<CreateReportData>): Promise<AutomatedReport> {
-    return this.makeRequest<AutomatedReport>(`/admin/reports/${id}`, {
+    return this.makeRequest<AutomatedReport>(`/api/admin/analytics/reports/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
     });
@@ -380,7 +380,7 @@ class AnalyticsService {
       historyId: number;
       executionTime: number;
       generatedAt: Date;
-    }>(`/admin/reports/${id}/generate`, {
+    }>(`/api/admin/analytics/reports/${id}/generate`, {
       method: 'POST',
       body: JSON.stringify({ period })
     });
@@ -393,7 +393,7 @@ class AnalyticsService {
     const params = new URLSearchParams({ limit: limit.toString() });
     if (status) params.append('status', status);
 
-    return this.makeRequest<ReportHistory>(`/admin/reports/${id}/history?${params.toString()}`);
+    return this.makeRequest<ReportHistory>(`/api/admin/analytics/reports/${id}/history?${params.toString()}`);
   }
 
   // ====================================================================

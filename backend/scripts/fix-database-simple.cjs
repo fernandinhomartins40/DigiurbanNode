@@ -96,7 +96,7 @@ try {
     // 7. Criar super admin
     console.log('🔄 Criando super admin...');
     const userId = generateId();
-    const hashedPassword = bcrypt.hashSync('DigiAdmin2024@', 12);
+    const hashedPassword = bcrypt.hashSync('DigiUrban2025!', 12);
     
     db.prepare(`
         INSERT INTO users (
@@ -133,7 +133,7 @@ try {
     
     console.log('\n📋 CREDENCIAIS:');
     console.log('Email: admin@digiurban.com.br');
-    console.log('Senha: DigiAdmin2024@');
+    console.log('Senha: DigiUrban2025!');
     
     console.log('\n✅ PROBLEMA DATETIME() RESOLVIDO!');
     

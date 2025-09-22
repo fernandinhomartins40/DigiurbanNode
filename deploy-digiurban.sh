@@ -66,7 +66,7 @@ execute_seeds_by_environment() {
         echo "🏭 PRODUÇÃO: Executando apenas seeds básicos..."
 
         # Usar o runner inteligente de seeds para produção
-        ssh $SERVER "docker exec -e NODE_ENV=$DEPLOY_ENV -e DATABASE_URL=\"file:/app/data/digiurban.db\" -e SUPER_ADMIN_EMAIL=\"$ADMIN_EMAIL\" -e SUPER_ADMIN_PASSWORD=\"$ADMIN_PASSWORD\" digiurban-unified node backend/dist/database/seeds/index.js $DEPLOY_ENV"
+        ssh $SERVER "docker exec -e NODE_ENV=$DEPLOY_ENV -e DATABASE_URL=\"file:/app/data/digiurban.db\" -e INITIAL_ADMIN_EMAIL=\"$ADMIN_EMAIL\" -e INITIAL_ADMIN_PASSWORD=\"$ADMIN_PASSWORD\" digiurban-unified node /app/backend/dist/database/seeds/index.js $DEPLOY_ENV"
 
         if [[ $? -eq 0 ]]; then
             echo "✅ Seeds de produção executados com sucesso"
@@ -79,7 +79,7 @@ execute_seeds_by_environment() {
         echo "🧪 $DEPLOY_ENV: Executando seeds completos com dados de teste..."
 
         # Usar o runner inteligente de seeds para desenvolvimento
-        ssh $SERVER "docker exec -e NODE_ENV=$DEPLOY_ENV -e DATABASE_URL=\"file:/app/data/digiurban.db\" -e SUPER_ADMIN_EMAIL=\"$ADMIN_EMAIL\" -e SUPER_ADMIN_PASSWORD=\"$ADMIN_PASSWORD\" digiurban-unified node backend/dist/database/seeds/index.js $DEPLOY_ENV"
+        ssh $SERVER "docker exec -e NODE_ENV=$DEPLOY_ENV -e DATABASE_URL=\"file:/app/data/digiurban.db\" -e INITIAL_ADMIN_EMAIL=\"$ADMIN_EMAIL\" -e INITIAL_ADMIN_PASSWORD=\"$ADMIN_PASSWORD\" digiurban-unified node /app/backend/dist/database/seeds/index.js $DEPLOY_ENV"
 
         if [[ $? -eq 0 ]]; then
             echo "✅ Seeds de desenvolvimento executados com sucesso"

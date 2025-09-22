@@ -44,6 +44,7 @@ import OperationsManagement from "./pages/super-admin/OperationsManagement"
 import SettingsManagement from "./pages/super-admin/SettingsManagement"
 import SchemaManagement from "./pages/super-admin/SchemaManagement"
 import EmailManagement from "./pages/super-admin/EmailManagement"
+import NotificationManagement from "./pages/super-admin/NotificationManagement"
 
 // Secretarias (all protected)
 import GabineteDashboard from "./pages/gabinete/DashboardGabinete"
@@ -136,6 +137,7 @@ const App = () => (
                       <Route path="monitoring" element={<MonitoringManagement />} />
                       <Route path="operations" element={<OperationsManagement />} />
                       <Route path="settings" element={<SettingsManagement />} />
+                      <Route path="notifications" element={<NotificationManagement />} />
                       <Route path="schema" element={<SchemaManagement />} />
                     </Routes>
                   </SuperAdminLayout>

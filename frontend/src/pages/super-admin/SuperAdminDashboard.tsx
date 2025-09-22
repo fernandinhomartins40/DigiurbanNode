@@ -94,19 +94,7 @@ const mockMetrics: SaaSMetrics = {
   ]
 };
 
-const mockRevenueData: RevenueData[] = [
-  { month: 'Jun', mrr: 67250, newCustomers: 3, churn: 1 },
-  { month: 'Jul', mrr: 72100, newCustomers: 4, churn: 0 },
-  { month: 'Ago', mrr: 78950, newCustomers: 5, churn: 2 },
-  { month: 'Set', mrr: 83200, newCustomers: 3, churn: 1 },
-  { month: 'Out', mrr: 89750, newCustomers: 4, churn: 1 }
-];
-
-const mockPlanDistribution: PlanDistribution = {
-  STARTER: 28,
-  PROFESSIONAL: 15,
-  ENTERPRISE: 4
-};
+// Dados removidos - usando APIs reais do analyticsService
 
 const SuperAdminDashboard: React.FC = () => {
   const navigate = useNavigate();

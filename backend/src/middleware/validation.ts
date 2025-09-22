@@ -161,12 +161,6 @@ export const loginValidation = [
   body('password')
     .isLength({ min: 1 })
     .withMessage('Senha é obrigatória')
-    .custom((value) => {
-      if (containsXSS(value) || containsSQLInjection(value)) {
-        throw new Error('Senha contém caracteres inválidos');
-      }
-      return true;
-    })
 ];
 
 export const registerValidation = [

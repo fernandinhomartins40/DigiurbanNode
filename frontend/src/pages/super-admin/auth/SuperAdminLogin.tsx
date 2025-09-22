@@ -140,7 +140,7 @@ export default function SuperAdminLogin() {
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="superadmin@digiurban.com.br"
+                  placeholder="admin@digiurban.com.br"
                   value={formData.email}
                   onChange={handleInputChange}
                   required
