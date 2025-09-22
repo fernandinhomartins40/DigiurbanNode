@@ -335,30 +335,53 @@ export const handleValidationErrors = (
 // ====================================================================
 
 export const sanitizeAll = (
-  req: Request, 
-  res: Response, 
+  req: Request,
+  res: Response,
   next: NextFunction
 ): void => {
-  // Sanitizar body
+  // Campos que NÃO devem ser sanitizados (senhas, tokens, etc.)
+  const protectedFields = ['password', 'newPassword', 'currentPassword', 'confirmPassword', 'token', 'refreshToken'];
+
+  // Sanitizar body (exceto campos protegidos)
   if (req.body && typeof req.body === 'object') {
-    sanitizeObject(req.body);
+    sanitizeObjectSelectively(req.body, protectedFields);
   }
-  
+
   // Sanitizar query
   if (req.query && typeof req.query === 'object') {
     sanitizeObject(req.query);
   }
-  
+
   // Sanitizar params
   if (req.params && typeof req.params === 'object') {
     sanitizeObject(req.params);
   }
-  
+
   next();
 };
 
 /**
- * Sanitiza recursivamente um objeto
+ * Sanitiza recursivamente um objeto excluindo campos protegidos
+ */
+function sanitizeObjectSelectively(obj: any, protectedFields: string[]): void {
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      // Não sanitizar campos protegidos (senhas, tokens, etc.)
+      if (protectedFields.includes(key)) {
+        continue;
+      }
+
+      if (typeof obj[key] === 'string') {
+        obj[key] = sanitizeInput(obj[key]);
+      } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+        sanitizeObjectSelectively(obj[key], protectedFields);
+      }
+    }
+  }
+}
+
+/**
+ * Sanitiza recursivamente um objeto (versão original para query/params)
  */
 function sanitizeObject(obj: any): void {
   for (const key in obj) {
@@ -371,6 +394,37 @@ function sanitizeObject(obj: any): void {
     }
   }
 }
+
+// ====================================================================
+// MIDDLEWARE DE VALIDAÇÃO DE SISTEMA
+// ====================================================================
+
+export const systemValidation = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  // Validação geral para operações de sistema
+  const { body } = req;
+
+  // Verificar se há dados sensíveis no payload
+  if (body && typeof body === 'object') {
+    for (const key in body) {
+      if (typeof body[key] === 'string') {
+        if (containsXSS(body[key]) || containsSQLInjection(body[key])) {
+          res.status(400).json({
+            success: false,
+            error: `Campo ${key} contém caracteres inválidos`,
+            code: 'INVALID_INPUT'
+          });
+          return;
+        }
+      }
+    }
+  }
+
+  next();
+};
 
 // ====================================================================
 // EXPORTAÇÕES
@@ -391,5 +445,6 @@ export const validators = {
 export default {
   validators,
   handleValidationErrors,
-  sanitizeAll
+  sanitizeAll,
+  systemValidation
 };
