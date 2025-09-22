@@ -6,77 +6,77 @@
 // ====================================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
 import {
-  Box,
-  Container,
-  Typography,
-  Tabs,
-  Tab,
-  Card,
-  CardContent,
-  Grid,
-  Button,
-  TextField,
-  FormControl,
-  InputLabel,
   Select,
-  MenuItem,
-  Chip,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
+import { Badge } from '../../components/ui/badge';
+import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Switch,
-  FormControlLabel,
-  Alert,
-  LinearProgress,
-  Divider,
-  Tooltip,
-  Badge,
-  Avatar,
-  ListItemText,
-  ListItemAvatar,
-  List,
-  ListItem,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails
-} from '@mui/material';
+} from '../../components/ui/table';
 import {
-  Notifications as NotificationsIcon,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '../../components/ui/dialog';
+import { Switch } from '../../components/ui/switch';
+import { Alert, AlertDescription } from '../../components/ui/alert';
+import { Progress } from '../../components/ui/progress';
+import { Separator } from '../../components/ui/separator';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../../components/ui/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '../../components/ui/accordion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import {
+  Bell as NotificationsIcon,
   Send as SendIcon,
-  Schedule as ScheduleIcon,
-  Email as EmailIcon,
-  Sms as SmsIcon,
-  PhoneAndroid as PushIcon,
-  Message as InAppIcon,
-  Analytics as AnalyticsIcon,
+  Clock as ScheduleIcon,
+  Mail as EmailIcon,
+  MessageSquare as SmsIcon,
+  Smartphone as PushIcon,
+  MessageCircle as InAppIcon,
+  BarChart3 as AnalyticsIcon,
   Settings as SettingsIcon,
-  Add as AddIcon,
+  Plus as AddIcon,
   Edit as EditIcon,
-  Delete as DeleteIcon,
-  ContentCopy as CopyIcon,
-  PlayArrow as TestIcon,
+  Trash2 as DeleteIcon,
+  Copy as CopyIcon,
+  Play as TestIcon,
   CheckCircle as SuccessIcon,
-  Error as ErrorIcon,
-  Warning as WarningIcon,
+  XCircle as ErrorIcon,
+  AlertTriangle as WarningIcon,
   TrendingUp as TrendingUpIcon,
-  People as PeopleIcon,
-  AccessTime as TimeIcon,
-  ExpandMore as ExpandMoreIcon,
-  Refresh as RefreshIcon,
+  Users as PeopleIcon,
+  Clock as TimeIcon,
+  ChevronDown as ExpandMoreIcon,
+  RefreshCw as RefreshIcon,
   Download as DownloadIcon,
   Upload as UploadIcon
-} from '@mui/icons-material';
-import { LoadingButton } from '@mui/lab';
+} from 'lucide-react';
 import {
   LineChart,
   Line,
