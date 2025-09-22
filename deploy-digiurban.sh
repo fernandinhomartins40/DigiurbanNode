@@ -364,7 +364,7 @@ ssh $SERVER "
         echo "🏭 PRODUÇÃO: Executando apenas seeds básicos..."
 
         # Usar o runner inteligente de seeds para produção
-        if docker exec -e NODE_ENV=$DEPLOY_ENV -e DATABASE_URL="file:/app/data/digiurban.db" -e SUPER_ADMIN_EMAIL="admin@digiurban.com.br" -e SUPER_ADMIN_PASSWORD="DigiUrban2025!" digiurban-unified node /app/backend/dist/database/seeds/index.js $DEPLOY_ENV; then
+        if docker exec -e NODE_ENV=$DEPLOY_ENV -e DATABASE_URL="file:/app/data/digiurban.db" -e INITIAL_ADMIN_EMAIL="admin@digiurban.com.br" -e INITIAL_ADMIN_PASSWORD="DigiUrban2025!" digiurban-unified node /app/backend/dist/database/seeds/index.js $DEPLOY_ENV; then
             echo "✅ Seeds de produção executados com sucesso"
             echo "📋 Seeds básicos: permissões, config sistema, super admin"
         else
@@ -375,7 +375,7 @@ ssh $SERVER "
         echo "🧪 $DEPLOY_ENV: Executando seeds completos com dados de teste..."
 
         # Usar o runner inteligente de seeds para desenvolvimento
-        if docker exec -e NODE_ENV=$DEPLOY_ENV -e DATABASE_URL="file:/app/data/digiurban.db" -e SUPER_ADMIN_EMAIL="admin@digiurban.com.br" -e SUPER_ADMIN_PASSWORD="DigiUrban2025!" digiurban-unified node /app/backend/dist/database/seeds/index.js $DEPLOY_ENV; then
+        if docker exec -e NODE_ENV=$DEPLOY_ENV -e DATABASE_URL="file:/app/data/digiurban.db" -e INITIAL_ADMIN_EMAIL="admin@digiurban.com.br" -e INITIAL_ADMIN_PASSWORD="DigiUrban2025!" digiurban-unified node /app/backend/dist/database/seeds/index.js $DEPLOY_ENV; then
             echo "✅ Seeds de desenvolvimento executados com sucesso"
             echo "📋 Inclusos: seeds básicos + tenant demo + dados teste + billing samples"
         else
