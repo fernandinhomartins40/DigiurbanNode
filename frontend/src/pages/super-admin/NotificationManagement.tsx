@@ -93,7 +93,7 @@ import {
 } from 'recharts';
 import { format, subDays, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import notificationService, {
   NotificationStats,
   NotificationAnalytics,
@@ -107,27 +107,6 @@ import notificationService, {
 // ====================================================================
 // INTERFACES LOCAIS
 // ====================================================================
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`notification-tabpanel-${index}`}
-      aria-labelledby={`notification-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-}
 
 // ====================================================================
 // COMPONENTE PRINCIPAL
@@ -210,9 +189,6 @@ const NotificationManagement: React.FC = () => {
   // HANDLERS DE EVENTOS
   // ====================================================================
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setCurrentTab(newValue);
-  };
 
   const handleCreateBulkNotification = async () => {
     try {
@@ -363,245 +339,234 @@ const NotificationManagement: React.FC = () => {
   // ====================================================================
 
   const renderStatsTab = () => (
-    <Grid container spacing={3}>
+    <div className="space-y-6">
       {/* Estatísticas Principais */}
-      <Grid item xs={12}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <SendIcon color="primary" sx={{ mr: 1 }} />
-                  <Typography variant="h6">Total Enviadas</Typography>
-                </Box>
-                <Typography variant="h4" color="primary">
-                  {formatNumber(stats?.total || 0)}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {formatNumber(stats?.sent || 0)} entregues
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent>
+            <div className="flex items-center mb-4">
+              <SendIcon className="w-5 h-5 text-blue-600 mr-2" />
+              <h3 className="text-lg font-semibold">Total Enviadas</h3>
+            </div>
+            <p className="text-3xl font-bold text-blue-600">
+              {formatNumber(stats?.total || 0)}
+            </p>
+            <p className="text-sm text-gray-500">
+              {formatNumber(stats?.sent || 0)} entregues
+            </p>
+          </CardContent>
+        </Card>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <TrendingUpIcon color="success" sx={{ mr: 1 }} />
-                  <Typography variant="h6">Taxa Entrega</Typography>
-                </Box>
-                <Typography variant="h4" color="success.main">
-                  {formatPercentage(stats?.delivery_rate || 0)}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Últimas 24h
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+        <Card>
+          <CardContent>
+            <div className="flex items-center mb-4">
+              <TrendingUpIcon className="w-5 h-5 text-green-600 mr-2" />
+              <h3 className="text-lg font-semibold">Taxa Entrega</h3>
+            </div>
+            <p className="text-3xl font-bold text-green-600">
+              {formatPercentage(stats?.delivery_rate || 0)}
+            </p>
+            <p className="text-sm text-gray-500">
+              Últimas 24h
+            </p>
+          </CardContent>
+        </Card>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <AnalyticsIcon color="info" sx={{ mr: 1 }} />
-                  <Typography variant="h6">Taxa Abertura</Typography>
-                </Box>
-                <Typography variant="h4" color="info.main">
-                  {formatPercentage(stats?.open_rate || 0)}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {formatNumber(stats?.opened || 0)} aberturas
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+        <Card>
+          <CardContent>
+            <div className="flex items-center mb-4">
+              <AnalyticsIcon className="w-5 h-5 text-blue-500 mr-2" />
+              <h3 className="text-lg font-semibold">Taxa Abertura</h3>
+            </div>
+            <p className="text-3xl font-bold text-blue-500">
+              {formatPercentage(stats?.open_rate || 0)}
+            </p>
+            <p className="text-sm text-gray-500">
+              {formatNumber(stats?.opened || 0)} aberturas
+            </p>
+          </CardContent>
+        </Card>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <PeopleIcon color="warning" sx={{ mr: 1 }} />
-                  <Typography variant="h6">Taxa Clique</Typography>
-                </Box>
-                <Typography variant="h4" color="warning.main">
-                  {formatPercentage(stats?.click_rate || 0)}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {formatNumber(stats?.clicked || 0)} cliques
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </Grid>
+        <Card>
+          <CardContent>
+            <div className="flex items-center mb-4">
+              <PeopleIcon className="w-5 h-5 text-orange-600 mr-2" />
+              <h3 className="text-lg font-semibold">Taxa Clique</h3>
+            </div>
+            <p className="text-3xl font-bold text-orange-600">
+              {formatPercentage(stats?.click_rate || 0)}
+            </p>
+            <p className="text-sm text-gray-500">
+              {formatNumber(stats?.clicked || 0)} cliques
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Gráfico de Tendências */}
-      <Grid item xs={12} md={8}>
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Estatísticas por Hora
-            </Typography>
-            <Box sx={{ height: 300 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={stats?.hourly_stats || []}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="hour" />
-                  <YAxis />
-                  <RechartsTooltip />
-                  <Line type="monotone" dataKey="sent" stroke="#1976d2" name="Enviadas" />
-                  <Line type="monotone" dataKey="delivered" stroke="#388e3c" name="Entregues" />
-                  <Line type="monotone" dataKey="failed" stroke="#d32f2f" name="Falharam" />
-                </LineChart>
-              </ResponsiveContainer>
-            </Box>
-          </CardContent>
-        </Card>
-      </Grid>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Estatísticas por Hora</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={stats?.hourly_stats || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="hour" />
+                    <YAxis />
+                    <RechartsTooltip />
+                    <Line type="monotone" dataKey="sent" stroke="#1976d2" name="Enviadas" />
+                    <Line type="monotone" dataKey="delivered" stroke="#388e3c" name="Entregues" />
+                    <Line type="monotone" dataKey="failed" stroke="#d32f2f" name="Falharam" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      {/* Distribuição por Canal */}
-      <Grid item xs={12} md={4}>
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Distribuição por Canal
-            </Typography>
-            <Box sx={{ height: 300 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={stats?.channel_stats || []}
-                    dataKey="sent"
-                    nameKey="channel"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label
-                  >
-                    {(stats?.channel_stats || []).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={getChannelColor(entry.channel)} />
-                    ))}
-                  </Pie>
-                  <RechartsTooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </Box>
-          </CardContent>
-        </Card>
-      </Grid>
+        {/* Distribuição por Canal */}
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Distribuição por Canal</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={stats?.channel_stats || []}
+                      dataKey="sent"
+                      nameKey="channel"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      label
+                    >
+                      {(stats?.channel_stats || []).map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={getChannelColor(entry.channel)} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* Atividade Recente */}
-      <Grid item xs={12}>
+      <div>
         <Card>
+          <CardHeader>
+            <CardTitle>Atividade Recente</CardTitle>
+          </CardHeader>
           <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Atividade Recente
-            </Typography>
-            <List>
+            <div className="space-y-4">
               {(stats?.recent_activity || []).slice(0, 5).map((activity, index) => (
-                <ListItem key={index}>
-                  <ListItemAvatar>
-                    <Avatar sx={{
-                      bgcolor: activity.status === 'success' ? 'success.main' :
-                               activity.status === 'warning' ? 'warning.main' : 'error.main'
-                    }}>
-                      {activity.status === 'success' ? <SuccessIcon /> :
-                       activity.status === 'warning' ? <WarningIcon /> : <ErrorIcon />}
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={activity.message}
-                    secondary={format(parseISO(activity.timestamp), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
-                  />
-                </ListItem>
+                <div key={index} className="flex items-center space-x-4">
+                  <Avatar className={
+                    activity.status === 'success' ? 'bg-green-600' :
+                    activity.status === 'warning' ? 'bg-orange-600' : 'bg-red-600'
+                  }>
+                    <AvatarFallback className="text-white">
+                      {activity.status === 'success' ? <SuccessIcon className="w-4 h-4" /> :
+                       activity.status === 'warning' ? <WarningIcon className="w-4 h-4" /> :
+                       <ErrorIcon className="w-4 h-4" />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium">{activity.message}</p>
+                    <p className="text-xs text-gray-500">
+                      {format(parseISO(activity.timestamp), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                    </p>
+                  </div>
+                </div>
               ))}
-            </List>
+            </div>
           </CardContent>
         </Card>
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   );
 
   const renderBulkTab = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h5">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold tracking-tight">
           Notificações em Massa
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setShowBulkDialog(true)}
-        >
+        </h2>
+        <Button onClick={() => setShowBulkDialog(true)}>
+          <AddIcon className="w-4 h-4 mr-2" />
           Nova Notificação
         </Button>
-      </Box>
+      </div>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Título</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Canais</TableCell>
-              <TableCell>Destinatários</TableCell>
-              <TableCell>Enviada em</TableCell>
-              <TableCell>Ações</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {bulkNotifications.map((notification) => (
-              <TableRow key={notification.id}>
-                <TableCell>{notification.title}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={notification.status}
-                    color={notification.status === 'sent' ? 'success' :
-                           notification.status === 'pending' ? 'warning' : 'error'}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    {notification.channels.map((channel: string) => (
-                      <Chip
-                        key={channel}
-                        icon={getChannelIcon(channel)}
-                        label={channel}
-                        size="small"
-                        variant="outlined"
-                      />
-                    ))}
-                  </Box>
-                </TableCell>
-                <TableCell>{formatNumber(notification.recipients_count)}</TableCell>
-                <TableCell>
-                  {format(parseISO(notification.sent_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
-                </TableCell>
-                <TableCell>
-                  <IconButton size="small">
-                    <AnalyticsIcon />
-                  </IconButton>
-                </TableCell>
+      <Card>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Título</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Canais</TableHead>
+                <TableHead>Destinatários</TableHead>
+                <TableHead>Enviada em</TableHead>
+                <TableHead>Ações</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+            </TableHeader>
+            <TableBody>
+              {bulkNotifications.map((notification) => (
+                <TableRow key={notification.id}>
+                  <TableCell>{notification.title}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={notification.status === 'sent' ? 'default' :
+                               notification.status === 'pending' ? 'secondary' : 'destructive'}
+                    >
+                      {notification.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1 flex-wrap">
+                      {notification.channels.map((channel: string) => (
+                        <Badge key={channel} variant="outline" className="text-xs">
+                          <span className="w-3 h-3 mr-1">{getChannelIcon(channel)}</span>
+                          {channel}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>{formatNumber(notification.recipients_count)}</TableCell>
+                  <TableCell>
+                    {format(parseISO(notification.sent_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="sm">
+                      <AnalyticsIcon className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
   );
 
   const renderTemplatesTab = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h5">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold tracking-tight">
           Templates de Notificação
-        </Typography>
+        </h2>
         <Button
-          variant="contained"
-          startIcon={<AddIcon />}
           onClick={() => {
             setEditingTemplate(null);
             setTemplateForm({
@@ -613,151 +578,145 @@ const NotificationManagement: React.FC = () => {
             setShowTemplateDialog(true);
           }}
         >
+          <AddIcon className="w-4 h-4 mr-2" />
           Novo Template
         </Button>
-      </Box>
+      </div>
 
-      <Grid container spacing={2}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {templates.map((template) => (
-          <Grid item xs={12} md={6} lg={4} key={template.id}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box>
-                    <Typography variant="h6" gutterBottom>
-                      {template.name}
-                    </Typography>
-                    <Chip
-                      icon={getChannelIcon(template.type)}
-                      label={template.type}
-                      size="small"
-                      color="primary"
-                      variant="outlined"
-                    />
-                  </Box>
-                  <Switch checked={template.is_active} size="small" />
-                </Box>
+          <Card key={template.id}>
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    {template.name}
+                  </h3>
+                  <Badge variant="outline" className="text-xs">
+                    <span className="w-3 h-3 mr-1">{getChannelIcon(template.type)}</span>
+                    {template.type}
+                  </Badge>
+                </div>
+                <Switch checked={template.is_active} />
+              </div>
 
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  {template.description}
-                </Typography>
+              <p className="text-sm text-gray-600 mb-2">
+                {template.description}
+              </p>
 
-                <Typography variant="caption" color="text.secondary">
-                  Usado {template.usage_count} vezes
-                </Typography>
+              <p className="text-xs text-gray-500 mb-4">
+                Usado {template.usage_count} vezes
+              </p>
 
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
-                  <IconButton
-                    size="small"
-                    onClick={() => {
-                      setEditingTemplate(template);
-                      setTemplateForm({
-                        name: template.name,
-                        description: template.description,
-                        type: template.type,
-                        subject: template.subject,
-                        content: template.content
-                      });
-                      setShowTemplateDialog(true);
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton size="small">
-                    <CopyIcon />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => handleDeleteTemplate(template.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setEditingTemplate(template);
+                    setTemplateForm({
+                      name: template.name,
+                      description: template.description,
+                      type: template.type,
+                      subject: template.subject,
+                      content: template.content
+                    });
+                    setShowTemplateDialog(true);
+                  }}
+                >
+                  <EditIcon className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <CopyIcon className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDeleteTemplate(template.id)}
+                >
+                  <DeleteIcon className="w-4 h-4 text-red-500" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         ))}
-      </Grid>
-    </Box>
+      </div>
+    </div>
   );
 
   const renderConfigTab = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h5">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold tracking-tight">
           Configurações do Sistema
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<SettingsIcon />}
-          onClick={() => setShowConfigDialog(true)}
-        >
+        </h2>
+        <Button onClick={() => setShowConfigDialog(true)}>
+          <SettingsIcon className="w-4 h-4 mr-2" />
           Editar Configurações
         </Button>
-      </Box>
+      </div>
 
       {config && (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Canais Padrão
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  {config.default_channels.map((channel) => (
-                    <Chip
-                      key={channel}
-                      icon={getChannelIcon(channel)}
-                      label={channel}
-                      color="primary"
-                    />
-                  ))}
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Canais Padrão</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2 flex-wrap">
+                {config.default_channels.map((channel) => (
+                  <Badge key={channel} variant="default">
+                    <span className="w-3 h-3 mr-1">{getChannelIcon(channel)}</span>
+                    {channel}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Limites de Taxa
-                </Typography>
-                <Typography variant="body2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Limites de Taxa</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm">
                   Email: {config.rate_limits.email_per_hour}/hora
-                </Typography>
-                <Typography variant="body2">
+                </p>
+                <p className="text-sm">
                   SMS: {config.rate_limits.sms_per_hour}/hora
-                </Typography>
-                <Typography variant="body2">
+                </p>
+                <p className="text-sm">
                   Push: {config.rate_limits.push_per_hour}/hora
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Configurações de Segurança
-                </Typography>
-                <FormControlLabel
-                  control={<Switch checked={config.security_settings.require_approval_for_bulk} />}
-                  label="Requer aprovação para notificações em massa"
-                  disabled
-                />
-                <Typography variant="body2" sx={{ mt: 1 }}>
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>Configurações de Segurança</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={config.security_settings.require_approval_for_bulk}
+                    disabled
+                  />
+                  <Label className="text-sm">
+                    Requer aprovação para notificações em massa
+                  </Label>
+                </div>
+                <p className="text-sm text-gray-600">
                   Máximo de destinatários sem aprovação: {config.security_settings.max_recipients_without_approval}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
-    </Box>
+    </div>
   );
 
   // Dialogs e modais permanecem os mesmos do código anterior...
@@ -765,96 +724,81 @@ const NotificationManagement: React.FC = () => {
 
   if (loading && !stats) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <LinearProgress sx={{ width: '100%' }} />
-      </Box>
+      <div className="flex justify-center p-8">
+        <Progress value={66} className="w-full" />
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          <NotificationsIcon sx={{ mr: 2, verticalAlign: 'middle' }} />
+    <div className="container mx-auto px-4 py-6 max-w-7xl">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold tracking-tight flex items-center">
+          <NotificationsIcon className="w-8 h-8 mr-3" />
           Gerenciamento de Notificações
-        </Typography>
+        </h1>
 
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-            variant="outlined"
-            startIcon={<TestIcon />}
-            onClick={() => setShowTestDialog(true)}
-          >
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowTestDialog(true)}>
+            <TestIcon className="w-4 h-4 mr-2" />
             Teste
           </Button>
-          <LoadingButton
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            loading={refreshing}
+          <Button
+            variant="outline"
             onClick={() => loadData(false)}
+            disabled={refreshing}
           >
+            <RefreshIcon className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Atualizar
-          </LoadingButton>
-        </Box>
-      </Box>
+          </Button>
+        </div>
+      </div>
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-        <Tabs value={currentTab} onChange={handleTabChange}>
-          <Tab
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <AnalyticsIcon />
-                Estatísticas
-              </Box>
-            }
-          />
-          <Tab
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <SendIcon />
-                Notificações em Massa
-                {bulkNotifications.length > 0 && (
-                  <Badge badgeContent={bulkNotifications.length} color="primary" />
-                )}
-              </Box>
-            }
-          />
-          <Tab
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <EditIcon />
-                Templates
-                <Badge badgeContent={templates.length} color="secondary" />
-              </Box>
-            }
-          />
-          <Tab
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <SettingsIcon />
-                Configurações
-              </Box>
-            }
-          />
-        </Tabs>
-      </Box>
+      <Tabs value={currentTab.toString()} onValueChange={(value) => setCurrentTab(Number(value))} className="mb-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="0" className="flex items-center gap-2">
+            <AnalyticsIcon className="w-4 h-4" />
+            Estatísticas
+          </TabsTrigger>
+          <TabsTrigger value="1" className="flex items-center gap-2">
+            <SendIcon className="w-4 h-4" />
+            Notificações em Massa
+            {bulkNotifications.length > 0 && (
+              <Badge variant="secondary" className="ml-1">
+                {bulkNotifications.length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="2" className="flex items-center gap-2">
+            <EditIcon className="w-4 h-4" />
+            Templates
+            <Badge variant="secondary" className="ml-1">
+              {templates.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="3" className="flex items-center gap-2">
+            <SettingsIcon className="w-4 h-4" />
+            Configurações
+          </TabsTrigger>
+        </TabsList>
 
-      <TabPanel value={currentTab} index={0}>
-        {renderStatsTab()}
-      </TabPanel>
+        <TabsContent value="0">
+          {renderStatsTab()}
+        </TabsContent>
 
-      <TabPanel value={currentTab} index={1}>
-        {renderBulkTab()}
-      </TabPanel>
+        <TabsContent value="1">
+          {renderBulkTab()}
+        </TabsContent>
 
-      <TabPanel value={currentTab} index={2}>
-        {renderTemplatesTab()}
-      </TabPanel>
+        <TabsContent value="2">
+          {renderTemplatesTab()}
+        </TabsContent>
 
-      <TabPanel value={currentTab} index={3}>
-        {renderConfigTab()}
-      </TabPanel>
-    </Container>
+        <TabsContent value="3">
+          {renderConfigTab()}
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
