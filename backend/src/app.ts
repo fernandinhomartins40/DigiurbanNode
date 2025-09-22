@@ -118,7 +118,7 @@ app.use(express.json({
 
     // Apenas bloquear payloads claramente maliciosos
     if (body.includes('<script') || body.includes('javascript:')) {
-      const error = new Error('Payload suspeito detectado');
+      const error = new Error('Payload suspeito detectado') as Error & { status: number };
       error.status = 400;
       throw error;
     }
