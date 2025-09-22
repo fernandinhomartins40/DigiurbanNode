@@ -17,7 +17,7 @@ import { sanitizeAll } from './middleware/validation.js';
 import { BackupService } from './services/BackupService.js';
 import { EmailService } from './services/EmailService.js';
 import { getUltraZendSMTPServer } from './services/UltraZendSMTPServer.js';
-import { MetricsCollectorService } from './services/MetricsCollectorService.js';
+// import { MetricsCollectorService } from './services/MetricsCollectorService.js';
 import { prisma } from './database/prisma.js';
 // Migrations agora são executadas via Knex nativo no deploy
 // import { runMigrations } from './database/migrationRunner.js';
@@ -41,11 +41,11 @@ import { adminMetricsRoutes } from './routes/adminMetrics.js';
 import billingRoutes from './routes/billing.js';
 import emailRoutes from './routes/emails.js';
 import tenantEmailRoutes from './routes/tenantEmails.js';
-import adminEmailRoutes from './routes/adminEmail.js';
-import { adminSettingsRoutes } from './routes/adminSettings.js';
-import { adminNotificationsRoutes } from './routes/adminNotifications.js';
-import analyticsRoutes from './routes/analytics.js';
-import monitoringRoutes from './routes/monitoring.js';
+// import adminEmailRoutes from './routes/adminEmail.js';
+// import { adminSettingsRoutes } from './routes/adminSettings.js';
+// import { adminNotificationsRoutes } from './routes/adminNotifications.js';
+// import analyticsRoutes from './routes/analytics.js';
+// import monitoringRoutes from './routes/monitoring.js';
 
 const app = express();
 const PORT = process.env.PORT || 3021;
@@ -169,11 +169,11 @@ app.use('/api', adminRoutes);
 // Rotas de métricas administrativas (super admin)
 app.use('/api/admin', adminMetricsRoutes);
 
-// Rotas de analytics (super admin)
-app.use('/api/admin/analytics', analyticsRoutes);
+// Rotas de analytics (super admin) - Temporariamente desabilitadas
+// app.use('/api/admin/analytics', analyticsRoutes);
 
-// Rotas de monitoring (super admin)
-app.use('/api/admin/monitoring', monitoringRoutes);
+// Rotas de monitoring (super admin) - Temporariamente desabilitadas
+// app.use('/api/admin/monitoring', monitoringRoutes);
 
 // Rotas de billing e métricas SaaS (super admin)
 app.use('/api', billingRoutes);
@@ -190,14 +190,14 @@ app.use('/api/emails', emailRoutes);
 // Rotas de email para tenants (Sistema isolado por tenant)
 app.use('/api/tenant/emails', tenantEmailRoutes);
 
-// Rotas administrativas de email (Fase 2 - APIs complementares)
-app.use('/api/admin/email', adminEmailRoutes);
+// Rotas administrativas de email (Fase 2 - APIs complementares) - Temporariamente desabilitadas
+// app.use('/api/admin/email', adminEmailRoutes);
 
-// Rotas administrativas de configurações (Fase 2 - APIs de configurações)
-app.use('/api/admin/settings', adminSettingsRoutes);
+// Rotas administrativas de configurações (Fase 2 - APIs de configurações) - Temporariamente desabilitadas
+// app.use('/api/admin/settings', adminSettingsRoutes);
 
-// Rotas administrativas de notificações (Fase 2 - Sistema de notificações)
-app.use('/api/admin/notifications', adminNotificationsRoutes);
+// Rotas administrativas de notificações (Fase 2 - Sistema de notificações) - Temporariamente desabilitadas
+// app.use('/api/admin/notifications', adminNotificationsRoutes);
 
 // ====================================================================
 // ROTA 404
@@ -225,8 +225,8 @@ app.use(errorHandler);
 // Inicializar instância do UltraZend SMTP Server
 const smtpServer = getUltraZendSMTPServer(prisma);
 
-// Inicializar instância do MetricsCollector
-const metricsCollector = MetricsCollectorService.getInstance();
+// Inicializar instância do MetricsCollector - Temporariamente desabilitado
+// const metricsCollector = MetricsCollectorService.getInstance();
 
 const server = app.listen(PORT, async () => {
   logger.info(`🚀 Servidor Digiurban Auth rodando na porta ${PORT}`);
@@ -270,26 +270,26 @@ const server = app.listen(PORT, async () => {
       BackupService.startAutomaticBackup();
     }
 
-    // 5. Inicializar sistema de coleta de métricas
-    logger.info('📊 Inicializando MetricsCollector...');
-    try {
-      metricsCollector.start({
-        intervalMinutes: process.env.NODE_ENV === 'production' ? 5 : 2, // Mais frequente em dev
-        enableSystemMetrics: true,
-        enableServiceHealth: true,
-        enableAlerts: true,
-        thresholds: {
-          cpu: 80,
-          memory: 85,
-          disk: 90,
-          responseTime: 5000
-        }
-      });
-      logger.info('✅ MetricsCollector iniciado com sucesso');
-    } catch (metricsError) {
-      logger.error('❌ Erro ao inicializar MetricsCollector:', metricsError);
-      logger.warn('⚠️  Sistema continuará sem coleta automática de métricas');
-    }
+    // 5. Inicializar sistema de coleta de métricas - Temporariamente desabilitado
+    // logger.info('📊 Inicializando MetricsCollector...');
+    // try {
+    //   metricsCollector.start({
+    //     intervalMinutes: process.env.NODE_ENV === 'production' ? 5 : 2, // Mais frequente em dev
+    //     enableSystemMetrics: true,
+    //     enableServiceHealth: true,
+    //     enableAlerts: true,
+    //     thresholds: {
+    //       cpu: 80,
+    //       memory: 85,
+    //       disk: 90,
+    //       responseTime: 5000
+    //     }
+    //   });
+    //   logger.info('✅ MetricsCollector iniciado com sucesso');
+    // } catch (metricsError) {
+    //   logger.error('❌ Erro ao inicializar MetricsCollector:', metricsError);
+    //   logger.warn('⚠️  Sistema continuará sem coleta automática de métricas');
+    // }
 
   } catch (error) {
     logger.error('❌ Erro ao inicializar serviços:', error);
@@ -315,11 +315,11 @@ const server = app.listen(PORT, async () => {
 process.on('SIGTERM', async () => {
   logger.info('🛑 SIGTERM recebido. Encerrando servidor...');
 
-  // Parar MetricsCollector primeiro
-  if (metricsCollector.isCollectorRunning()) {
-    logger.info('📊 Parando MetricsCollector...');
-    metricsCollector.stop();
-  }
+  // Parar MetricsCollector primeiro - Temporariamente desabilitado
+  // if (metricsCollector.isCollectorRunning()) {
+  //   logger.info('📊 Parando MetricsCollector...');
+  //   metricsCollector.stop();
+  // }
 
   // Parar UltraZend SMTP Server
   if (smtpServer.isServerRunning()) {
@@ -336,11 +336,11 @@ process.on('SIGTERM', async () => {
 process.on('SIGINT', async () => {
   logger.info('🛑 SIGINT recebido. Encerrando servidor...');
 
-  // Parar MetricsCollector primeiro
-  if (metricsCollector.isCollectorRunning()) {
-    logger.info('📊 Parando MetricsCollector...');
-    metricsCollector.stop();
-  }
+  // Parar MetricsCollector primeiro - Temporariamente desabilitado
+  // if (metricsCollector.isCollectorRunning()) {
+  //   logger.info('📊 Parando MetricsCollector...');
+  //   metricsCollector.stop();
+  // }
 
   // Parar UltraZend SMTP Server
   if (smtpServer.isServerRunning()) {
